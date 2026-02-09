@@ -1,0 +1,88 @@
+%!TEX TS-program = lualatex
+%!TEX encoding = UTF-8 Unicode
+% Awesome CV LaTeX Template
+%
+% Based on: https://github.com/posquit0/Awesome-CV
+% Template license: CC BY-SA 4.0
+%
+% Privacy-First Architecture:
+% - config.tex: Your personal info (gitignored)
+% - sections/: Your real content (gitignored)
+% - sections_template/: Generic placeholders (tracked)
+%
+
+%-------------------------------------------------------------------------------
+% CONFIGURATIONS
+%-------------------------------------------------------------------------------
+\documentclass[11pt, a4paper]{awesome-cv}
+
+% Configure page margins with geometry
+\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.8cm, footskip=.5cm}
+
+% Color for highlights
+% Options: awesome-emerald, awesome-skyblue, awesome-red, awesome-pink, awesome-orange
+%          awesome-nephritis, awesome-concrete, awesome-darknight
+\colorlet{awesome}{awesome-red}
+% Or define your own: \definecolor{awesome}{HTML}{3E6D9C}
+
+% Set false if you don't want to highlight section with awesome color
+\setbool{acvSectionColorHighlight}{true}
+
+% Social information separator
+\renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
+
+
+%-------------------------------------------------------------------------------
+% PERSONAL INFORMATION
+% Load from config.tex (gitignored - contains real PII)
+%-------------------------------------------------------------------------------
+\input{config.tex}
+
+
+%-------------------------------------------------------------------------------
+% CONTENT PATH CONFIGURATION
+% Change this to switch between template and real content
+%-------------------------------------------------------------------------------
+% For CI/demo: use sections_template
+% For personal use: use sections (gitignored)
+\newcommand{\contentpath}{sections}
+
+% Fallback: check if sections/ exists, otherwise use sections_template/
+\IfFileExists{sections/summary.tex}{
+  \renewcommand{\contentpath}{sections}
+}{
+  \renewcommand{\contentpath}{sections_template}
+}
+
+
+%-------------------------------------------------------------------------------
+\begin{document}
+
+% Print the header with above personal information
+% Alignment options: C (center), L (left), R (right)
+\makecvheader[C]
+
+% Print the footer
+\makecvfooter
+  {\today}
+  {\@firstname~\@lastname~~~·~~~Résumé}
+  {\thepage}
+
+
+%-------------------------------------------------------------------------------
+% CV/RESUME CONTENT
+% Each section is imported separately
+%-------------------------------------------------------------------------------
+\input{\contentpath/summary.tex}
+\input{\contentpath/experience.tex}
+\input{\contentpath/honors.tex}
+\input{\contentpath/certificates.tex}
+% \input{\contentpath/presentation.tex}
+% \input{\contentpath/writing.tex}
+% \input{\contentpath/committees.tex}
+\input{\contentpath/education.tex}
+% \input{\contentpath/extracurricular.tex}
+
+
+%-------------------------------------------------------------------------------
+\end{document}

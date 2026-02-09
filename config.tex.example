@@ -1,0 +1,29 @@
+%-------------------------------------------------------------------------------
+% PERSONAL INFORMATION CONFIGURATION
+% This file is gitignored - contains your real PII
+% Copy from config.tex.example and fill in your details
+%-------------------------------------------------------------------------------
+
+% Your name
+\name{John}{Doe}
+\position{Job Title{\enskip\cdotp\enskip}Another Title}
+\address{123 Main Street, City, Country}
+
+\mobile{+1 234 567 890}
+\email{email@example.com}
+\homepage{www.example.com}
+\github{username}
+\linkedin{username}
+
+% Optional fields (uncomment as needed)
+% \dateofbirth{January 1st, 1990}
+% \photo[circle,edge,left]{./profile}
+% \gitlab{gitlab-id}
+% \stackoverflow{SO-id}{SO-name}
+% \twitter{@handle}
+% \x{x-id}
+% \skype{skype-id}
+% \telegram{telegram-username}
+
+% Quote shown in header
+\quote{``Your personal motto or quote here.''}

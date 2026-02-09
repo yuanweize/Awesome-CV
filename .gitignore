@@ -1,0 +1,40 @@
+### TeX ###
+## Core latex/pdflatex auxiliary files:
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.synctex.gz
+
+## Intermediate documents:
+*.dvi
+*-converted-to.*
+
+## Build outputs
+*.pdf
+
+### Editor ###
+## Vim & Emacs temp files:
+.*sw[op]
+*~
+
+### Mac OS X ###
+*.DS_Store
+
+#-------------------------------------------------------------------------------
+# PRIVACY - NEVER COMMIT THESE
+#-------------------------------------------------------------------------------
+# Personal configuration (contains real PII)
+config.tex
+
+# Real content directory (contains your actual CV content)
+sections/
+
+#-------------------------------------------------------------------------------
+# Project specific
+#-------------------------------------------------------------------------------
+# Keep meta folder private if it contains personal notes
+meta/
