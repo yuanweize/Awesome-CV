@@ -1,17 +1,24 @@
-.PHONY: all init clean help
+.PHONY: all resume coverletter init clean help
 
 CC = lualatex
-MAIN = main.tex
 
 #-------------------------------------------------------------------------------
 # Main targets
 #-------------------------------------------------------------------------------
 
-all: main.pdf
+all: resume coverletter
 
-main.pdf: $(MAIN) config.tex sections/*.tex
-	$(CC) $(MAIN)
-	$(CC) $(MAIN)  # Run twice for references
+resume: main.pdf
+
+coverletter: coverletter.pdf
+
+main.pdf: main.tex config.tex sections/*.tex
+	$(CC) main.tex
+	$(CC) main.tex
+
+coverletter.pdf: coverletter.tex config.tex sections/letter_body.tex
+	$(CC) coverletter.tex
+	$(CC) coverletter.tex
 
 #-------------------------------------------------------------------------------
 # Setup for first-time users
@@ -26,16 +33,20 @@ init:
 		echo "  config.tex already exists, skipping"; \
 	fi
 	@if [ ! -d sections ]; then \
-		cp -r sections_template sections; \
-		echo "  Created sections/ from template"; \
-	else \
-		echo "  sections/ already exists, skipping"; \
+		mkdir -p sections; \
 	fi
+	@for f in sections_template/*.tex; do \
+		base=$$(basename $$f); \
+		if [ ! -f sections/$$base ]; then \
+			cp $$f sections/$$base; \
+			echo "  Created sections/$$base from template"; \
+		fi; \
+	done
 	@echo ""
 	@echo "Setup complete! Next steps:"
 	@echo "  1. Edit config.tex with your personal information"
 	@echo "  2. Edit files in sections/ with your content"
-	@echo "  3. Run 'make' to compile your CV"
+	@echo "  3. Run 'make resume' or 'make coverletter' or 'make all'"
 
 #-------------------------------------------------------------------------------
 # Cleanup
@@ -52,7 +63,9 @@ help:
 	@echo "Awesome-CV Makefile"
 	@echo ""
 	@echo "Targets:"
-	@echo "  make init   - First-time setup (creates config.tex and sections/)"
-	@echo "  make        - Compile main.pdf"
-	@echo "  make clean  - Remove build artifacts"
-	@echo "  make help   - Show this help message"
+	@echo "  make init        - First-time setup"
+	@echo "  make resume      - Build main.pdf (Resume)"
+	@echo "  make coverletter - Build coverletter.pdf"
+	@echo "  make all         - Build both"
+	@echo "  make clean       - Remove build artifacts"
+	@echo "  make help        - Show this help message"

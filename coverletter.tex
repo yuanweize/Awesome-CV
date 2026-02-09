@@ -1,0 +1,72 @@
+%!TEX TS-program = lualatex
+%!TEX encoding = UTF-8 Unicode
+% Awesome CV LaTeX Template - Cover Letter
+%
+% Privacy-First Architecture:
+% - config.tex: Personal info (shared with Resume)
+% - sections/letter_body.tex: Letter content (gitignored)
+%
+
+%-------------------------------------------------------------------------------
+% CONFIGURATIONS
+%-------------------------------------------------------------------------------
+\documentclass[11pt, a4paper]{awesome-cv}
+
+\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.8cm, footskip=.5cm}
+
+% Color for highlights
+\colorlet{awesome}{awesome-red}
+
+% Section color highlighting
+\setbool{acvSectionColorHighlight}{true}
+
+% Social information separator
+\renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
+
+
+%-------------------------------------------------------------------------------
+% PERSONAL INFORMATION (shared with Resume)
+%-------------------------------------------------------------------------------
+\input{config.tex}
+
+
+%-------------------------------------------------------------------------------
+% LETTER INFORMATION
+% These are specific to each application - edit per job
+%-------------------------------------------------------------------------------
+\recipient
+  {Hiring Manager}
+  {Company Name\\Street Address\\City, Country}
+
+\letterdate{\today}
+\lettertitle{Application for Position Title}
+\letteropening{Dear Hiring Manager,}
+\letterclosing{Sincerely,}
+\letterenclosure[Attached]{Curriculum Vitae}
+
+
+%-------------------------------------------------------------------------------
+\begin{document}
+
+% Print the header (same style as Resume)
+\makecvheader[R]
+
+% Print the footer
+\makecvfooter
+  {\today}
+  {\@firstname~\@lastname~~~·~~~Cover Letter}
+  {}
+
+% Print the title
+\makelettertitle
+
+%-------------------------------------------------------------------------------
+% LETTER CONTENT
+%-------------------------------------------------------------------------------
+\input{sections/letter_body.tex}
+
+%-------------------------------------------------------------------------------
+% Print the signature and enclosures
+\makeletterclosing
+
+\end{document}

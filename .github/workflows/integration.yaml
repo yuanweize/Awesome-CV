@@ -24,20 +24,33 @@ jobs:
     - name: Setup for CI (use template data)
       run: |
         cp config.tex.example config.tex
-        cp -r sections_template sections
+        mkdir -p sections
+        cp sections_template/*.tex sections/
         echo "Using template data for CI build"
 
-    - name: Compile LaTeX
+    - name: Compile Resume
       uses: xu-cheng/latex-action@v3
       with:
         root_file: main.tex
         latexmk_use_lualatex: true
 
-    - name: Upload PDF artifact
+    - name: Compile Cover Letter
+      uses: xu-cheng/latex-action@v3
+      with:
+        root_file: coverletter.tex
+        latexmk_use_lualatex: true
+
+    - name: Upload Resume PDF
       uses: actions/upload-artifact@v4
       with:
         name: resume-pdf
         path: main.pdf
+
+    - name: Upload Cover Letter PDF
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverletter-pdf
+        path: coverletter.pdf
 
   #-----------------------------------------------------------------------------
   # YAML Linting
