@@ -2,9 +2,9 @@
 
 # 📄 Awesome-CV
 
-**Privacy-first LaTeX CV/Resume & Cover Letter template**
+**Privacy-first, industry-ready LaTeX CV & Cover Letter template for engineers in the EU and beyond**
 
-**隐私优先的 LaTeX 简历 & 求职信模板**
+**隐私优先、面向工业界的 LaTeX 简历 & 求职信模板，为欧洲及国际工程师求职而设计**
 
 [![Build](https://github.com/yuanweize/Awesome-CV/actions/workflows/integration.yaml/badge.svg)](https://github.com/yuanweize/Awesome-CV/actions/workflows/integration.yaml)
 [![License: LPPL v1.3c](https://img.shields.io/badge/License-LPPL_v1.3c-blue.svg)](http://www.latex-project.org/lppl)
@@ -14,9 +14,9 @@
 
 <br>
 
-Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — this fork separates **code** (public, tracked) from **personal data** (private, gitignored), so you can open-source the template without leaking your information.
+Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — restructured for **engineering roles** in EU & international markets. Code stays public; your personal data stays private (gitignored).
 
-基于 [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) 改造 — 本 fork 将**代码**（公开/受版本控制）和**个人数据**（私有/被 gitignore）彻底分离，让你可以开源模板结构而不泄露真实信息。
+基于 [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) 重构，针对欧盟及国际市场的**工程技术岗位**优化。代码公开，个人数据私有（已 gitignore）。
 
 **[English](#quick-start--快速开始)** · **[中文](#quick-start--快速开始)** · **[Report Bug](https://github.com/yuanweize/Awesome-CV/issues)** · **[Request Feature](https://github.com/yuanweize/Awesome-CV/issues)**
 
