@@ -4,7 +4,7 @@
 
 **Privacy-first, industry-ready LaTeX CV & Cover Letter template for engineers in the EU and beyond**
 
-**隐私优先、面向工业界的 LaTeX 简历 & 求职信模板，为欧洲及国际工程师求职而设计**
+**隐私优先、面向工业界的 LaTeX 简历 & 求职信模板，为欧洲及国际工程师而设计**
 
 [![Build](https://github.com/yuanweize/Awesome-CV/actions/workflows/integration.yaml/badge.svg)](https://github.com/yuanweize/Awesome-CV/actions/workflows/integration.yaml)
 [![License: LPPL v1.3c](https://img.shields.io/badge/License-LPPL_v1.3c-blue.svg)](http://www.latex-project.org/lppl)
