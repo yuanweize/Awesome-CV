@@ -1,49 +1,63 @@
-# Awesome-CV
+<div align="center">
 
-> **Privacy-first** LaTeX CV/Resume & Cover Letter template.
->
-> **隐私优先**的 LaTeX 简历 & 求职信模板。
+# 📄 Awesome-CV
 
-Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV). This fork separates **code** (public, tracked) from **personal data** (private, gitignored), so you can open-source the template structure without leaking your real information.
+**Privacy-first LaTeX CV/Resume & Cover Letter template**
 
-基于 [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) 改造。本 fork 将**代码**（公开/受版本控制）和**个人数据**（私有/被 gitignore）彻底分离，让你可以开源模板结构而不泄露真实信息。
+**隐私优先的 LaTeX 简历 & 求职信模板**
+
+[![Build](https://github.com/yuanweize/Awesome-CV/actions/workflows/integration.yaml/badge.svg)](https://github.com/yuanweize/Awesome-CV/actions/workflows/integration.yaml)
+[![License: LPPL v1.3c](https://img.shields.io/badge/License-LPPL_v1.3c-blue.svg)](http://www.latex-project.org/lppl)
+[![LaTeX](https://img.shields.io/badge/Made_with-LuaLaTeX-008080.svg?logo=latex)](https://www.luatex.org/)
+[![GitHub stars](https://img.shields.io/github/stars/yuanweize/Awesome-CV?style=social)](https://github.com/yuanweize/Awesome-CV)
+[![Upstream](https://img.shields.io/badge/Upstream-posquit0%2FAwesome--CV-lightgrey.svg?logo=github)](https://github.com/posquit0/Awesome-CV)
+
+<br>
+
+Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — this fork separates **code** (public, tracked) from **personal data** (private, gitignored), so you can open-source the template without leaking your information.
+
+基于 [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) 改造 — 本 fork 将**代码**（公开/受版本控制）和**个人数据**（私有/被 gitignore）彻底分离，让你可以开源模板结构而不泄露真实信息。
+
+**[English](#quick-start--快速开始)** · **[中文](#quick-start--快速开始)** · **[Report Bug](https://github.com/yuanweize/Awesome-CV/issues)** · **[Request Feature](https://github.com/yuanweize/Awesome-CV/issues)**
+
+</div>
 
 ---
 
 ## Table of Contents / 目录
 
-- [Awesome-CV](#awesome-cv)
+- [📄 Awesome-CV](#-awesome-cv)
   - [Table of Contents / 目录](#table-of-contents--目录)
-  - [Background: CV vs Resume vs Cover Letter / 背景知识](#background-cv-vs-resume-vs-cover-letter--背景知识)
-  - [Comparison with Upstream / 与上游对比](#comparison-with-upstream--与上游对比)
+  - [📚 Background: CV vs Resume vs Cover Letter / 背景知识](#-background-cv-vs-resume-vs-cover-letter--背景知识)
+  - [🔀 Comparison with Upstream / 与上游对比](#-comparison-with-upstream--与上游对比)
     - [Document Types / 文档类型](#document-types--文档类型)
     - [Section Comparison / 章节对比](#section-comparison--章节对比)
     - [Architecture Comparison / 架构对比](#architecture-comparison--架构对比)
     - [Style Tweaks / 样式微调](#style-tweaks--样式微调)
     - [Files Removed from Upstream / 从上游移除的文件](#files-removed-from-upstream--从上游移除的文件)
-  - [Prerequisites / 环境要求](#prerequisites--环境要求)
-  - [Quick Start / 快速开始](#quick-start--快速开始)
+  - [⚙️ Prerequisites / 环境要求](#️-prerequisites--环境要求)
+  - [🚀 Quick Start / 快速开始](#-quick-start--快速开始)
     - [Step 1: Initialize / 第一步：初始化](#step-1-initialize--第一步初始化)
     - [Step 2: Edit your data / 第二步：填写你的数据](#step-2-edit-your-data--第二步填写你的数据)
     - [Step 3: Build / 第三步：构建](#step-3-build--第三步构建)
-  - [Project Structure / 项目结构](#project-structure--项目结构)
-  - [How It Works / 工作原理](#how-it-works--工作原理)
-  - [Make Commands / 构建命令](#make-commands--构建命令)
-  - [Customization / 自定义](#customization--自定义)
+  - [🗂️ Project Structure / 项目结构](#️-project-structure--项目结构)
+  - [🔧 How It Works / 工作原理](#-how-it-works--工作原理)
+  - [📦 Make Commands / 构建命令](#-make-commands--构建命令)
+  - [🎨 Customization / 自定义](#-customization--自定义)
     - [Change accent color / 修改主题色](#change-accent-color--修改主题色)
     - [Change section order / 修改章节顺序](#change-section-order--修改章节顺序)
     - [Add/remove sections / 增删章节](#addremove-sections--增删章节)
-  - [Privacy Model / 隐私模型](#privacy-model--隐私模型)
-  - [CI/CD](#cicd)
-  - [License / 许可证](#license--许可证)
+  - [🔒 Privacy Model / 隐私模型](#-privacy-model--隐私模型)
+  - [🤖 CI/CD](#-cicd)
+  - [📜 License / 许可证](#-license--许可证)
 
 ---
 
-## Background: CV vs Resume vs Cover Letter / 背景知识
+## 📚 Background: CV vs Resume vs Cover Letter / 背景知识
 
-> If you already know the difference, skip to [Comparison with Upstream](#comparison-with-upstream--与上游对比).
+> If you already know the difference, skip to [Comparison with Upstream](#-comparison-with-upstream--与上游对比).
 >
-> 如果你已了解区别，可直接跳到[与上游对比](#comparison-with-upstream--与上游对比)。
+> 如果你已了解区别，可直接跳到[与上游对比](#-comparison-with-upstream--与上游对比)。
 
 | Term / 术语 | What it is / 含义 | Length / 篇幅 | When to use / 使用场景 |
 |---|---|---|---|
@@ -58,7 +72,7 @@ In Germany, Austria, and much of the EU, the word "CV" is used interchangeably w
 
 ---
 
-## Comparison with Upstream / 与上游对比
+## 🔀 Comparison with Upstream / 与上游对比
 
 This fork is derived from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV). The original code is preserved in the `upstream-original` branch for reference. / 本 fork 源自 [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV)。原始代码保留在 `upstream-original` 分支中供参考。
 
@@ -134,7 +148,7 @@ These upstream files were removed as they are not needed in this fork: / 这些�
 
 ---
 
-## Prerequisites / 环境要求
+## ⚙️ Prerequisites / 环境要求
 
 You need **LuaLaTeX** (part of TeX Live or MiKTeX). / 你需要 **LuaLaTeX**（TeX Live 或 MiKTeX 自带）。
 
@@ -152,7 +166,7 @@ lualatex --version
 
 ---
 
-## Quick Start / 快速开始
+## 🚀 Quick Start / 快速开始
 
 ### Step 1: Initialize / 第一步：初始化
 
@@ -196,7 +210,7 @@ Output PDFs are in the `build/` directory. / 输出的 PDF 在 `build/` 目录�
 
 ---
 
-## Project Structure / 项目结构
+## 🗂️ Project Structure / 项目结构
 
 ```
 Awesome-CV/
@@ -233,7 +247,7 @@ Awesome-CV/
 
 ---
 
-## How It Works / 工作原理
+## 🔧 How It Works / 工作原理
 
 ```
 config.tex ─────────┐
@@ -259,7 +273,7 @@ awesome-cv.cls ← shared style engine / 共享样式引擎
 
 ---
 
-## Make Commands / 构建命令
+## 📦 Make Commands / 构建命令
 
 | Command / 命令 | Description / 说明 |
 |---|---|
@@ -272,7 +286,7 @@ awesome-cv.cls ← shared style engine / 共享样式引擎
 
 ---
 
-## Customization / 自定义
+## 🎨 Customization / 自定义
 
 ### Change accent color / 修改主题色
 
@@ -308,7 +322,7 @@ Rearrange the `\input` lines in `main.tex`: / 调整 `main.tex` 中 `\input` 的
 
 ---
 
-## Privacy Model / 隐私模型
+## 🔒 Privacy Model / 隐私模型
 
 | Public (tracked by git) / 公开（受版本控制） | Private (gitignored) / 私有（已 gitignore） |
 |---|---|
@@ -322,7 +336,7 @@ Rearrange the `\input` lines in `main.tex`: / 调整 `main.tex` 中 `\input` 的
 
 ---
 
-## CI/CD
+## 🤖 CI/CD
 
 The project includes GitHub Actions CI (`.github/workflows/integration.yaml`) that: / 项目包含 GitHub Actions CI，它会：
 
@@ -335,7 +349,7 @@ This ensures the template always builds correctly, even without your private dat
 
 ---
 
-## License / 许可证
+## 📜 License / 许可证
 
 [LPPL v1.3c](http://www.latex-project.org/lppl) — The LaTeX Project Public License.
 
