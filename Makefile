@@ -1,6 +1,7 @@
 .PHONY: all resume coverletter init clean help
 
 CC = lualatex
+BUILD_DIR = build
 
 #-------------------------------------------------------------------------------
 # Main targets
@@ -8,17 +9,18 @@ CC = lualatex
 
 all: resume coverletter
 
-resume: main.pdf
+resume: | $(BUILD_DIR)
+	$(CC) -output-directory=$(BUILD_DIR) main.tex
+	$(CC) -output-directory=$(BUILD_DIR) main.tex
+	@echo "  -> $(BUILD_DIR)/main.pdf"
 
-coverletter: coverletter.pdf
+coverletter: | $(BUILD_DIR)
+	$(CC) -output-directory=$(BUILD_DIR) coverletter.tex
+	$(CC) -output-directory=$(BUILD_DIR) coverletter.tex
+	@echo "  -> $(BUILD_DIR)/coverletter.pdf"
 
-main.pdf: main.tex config.tex sections/*.tex
-	$(CC) main.tex
-	$(CC) main.tex
-
-coverletter.pdf: coverletter.tex config.tex sections/letter_body.tex
-	$(CC) coverletter.tex
-	$(CC) coverletter.tex
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
 
 #-------------------------------------------------------------------------------
 # Setup for first-time users
@@ -31,6 +33,12 @@ init:
 		echo "  Created config.tex from template"; \
 	else \
 		echo "  config.tex already exists, skipping"; \
+	fi
+	@if [ ! -f letter_config.tex ]; then \
+		cp letter_config.tex.example letter_config.tex; \
+		echo "  Created letter_config.tex from template"; \
+	else \
+		echo "  letter_config.tex already exists, skipping"; \
 	fi
 	@if [ ! -d sections ]; then \
 		mkdir -p sections; \
@@ -45,15 +53,17 @@ init:
 	@echo ""
 	@echo "Setup complete! Next steps:"
 	@echo "  1. Edit config.tex with your personal information"
-	@echo "  2. Edit files in sections/ with your content"
-	@echo "  3. Run 'make resume' or 'make coverletter' or 'make all'"
+	@echo "  2. Edit letter_config.tex for your target job"
+	@echo "  3. Edit files in sections/ with your content"
+	@echo "  4. Run 'make resume' or 'make coverletter' or 'make all'"
 
 #-------------------------------------------------------------------------------
 # Cleanup
 #-------------------------------------------------------------------------------
 
 clean:
-	rm -f *.pdf *.aux *.log *.out *.toc *.fls *.synctex.gz
+	rm -rf $(BUILD_DIR)
+	rm -f *.aux *.log *.out *.toc *.fls *.synctex.gz *.dvi *.pdf
 
 #-------------------------------------------------------------------------------
 # Help
@@ -63,9 +73,9 @@ help:
 	@echo "Awesome-CV Makefile"
 	@echo ""
 	@echo "Targets:"
-	@echo "  make init        - First-time setup"
-	@echo "  make resume      - Build main.pdf (Resume)"
-	@echo "  make coverletter - Build coverletter.pdf"
+	@echo "  make init        - First-time setup (creates private config files)"
+	@echo "  make resume      - Build $(BUILD_DIR)/main.pdf"
+	@echo "  make coverletter - Build $(BUILD_DIR)/coverletter.pdf"
 	@echo "  make all         - Build both"
-	@echo "  make clean       - Remove build artifacts"
+	@echo "  make clean       - Remove all build artifacts"
 	@echo "  make help        - Show this help message"

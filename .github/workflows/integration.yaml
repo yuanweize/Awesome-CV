@@ -24,6 +24,7 @@ jobs:
     - name: Setup for CI (use template data)
       run: |
         cp config.tex.example config.tex
+        cp letter_config.tex.example letter_config.tex
         mkdir -p sections
         cp sections_template/*.tex sections/
         echo "Using template data for CI build"

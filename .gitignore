@@ -15,6 +15,7 @@
 
 ## Build outputs
 *.pdf
+build/
 
 ### Editor ###
 ## Vim & Emacs temp files:
@@ -30,6 +31,9 @@
 # Personal configuration (contains real PII)
 config.tex
 
+# Per-application letter configuration
+letter_config.tex
+
 # Real content directory (contains your actual CV content)
 sections/
 
@@ -38,3 +42,6 @@ sections/
 #-------------------------------------------------------------------------------
 # Keep meta folder private if it contains personal notes
 meta/
+
+# Handoff / internal notes
+PROJECT_HANDOFF.md

@@ -1,0 +1,15 @@
+%-------------------------------------------------------------------------------
+% LETTER CONFIGURATION (per-application)
+% This file is gitignored - edit for each job application
+% Copy to letter_config.tex and fill in your details
+%-------------------------------------------------------------------------------
+
+\recipient
+  {Hiring Manager}
+  {Company Name\\Street Address\\City, Country}
+
+\letterdate{\today}
+\lettertitle{Application for Position Title}
+\letteropening{Dear Hiring Manager,}
+\letterclosing{Sincerely,}
+\letterenclosure[Attached]{Curriculum Vitae}

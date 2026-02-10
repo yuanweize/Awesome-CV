@@ -32,17 +32,9 @@
 
 %-------------------------------------------------------------------------------
 % LETTER INFORMATION
-% These are specific to each application - edit per job
+% Load from letter_config.tex (gitignored - per-application data)
 %-------------------------------------------------------------------------------
-\recipient
-  {Hiring Manager}
-  {Company Name\\Street Address\\City, Country}
-
-\letterdate{\today}
-\lettertitle{Application for Position Title}
-\letteropening{Dear Hiring Manager,}
-\letterclosing{Sincerely,}
-\letterenclosure[Attached]{Curriculum Vitae}
+\input{letter_config.tex}
 
 
 %-------------------------------------------------------------------------------
@@ -52,10 +44,12 @@
 \makecvheader[R]
 
 % Print the footer
+\makeatletter
 \makecvfooter
   {\today}
   {\@firstname~\@lastname~~~·~~~Cover Letter}
   {}
+\makeatother
 
 % Print the title
 \makelettertitle

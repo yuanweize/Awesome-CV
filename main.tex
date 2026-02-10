@@ -63,10 +63,12 @@
 \makecvheader[C]
 
 % Print the footer
+\makeatletter
 \makecvfooter
   {\today}
   {\@firstname~\@lastname~~~·~~~Résumé}
   {\thepage}
+\makeatother
 
 
 %-------------------------------------------------------------------------------
@@ -74,14 +76,11 @@
 % Each section is imported separately
 %-------------------------------------------------------------------------------
 \input{\contentpath/summary.tex}
-\input{\contentpath/experience.tex}
-\input{\contentpath/honors.tex}
-\input{\contentpath/certificates.tex}
-% \input{\contentpath/presentation.tex}
-% \input{\contentpath/writing.tex}
-% \input{\contentpath/committees.tex}
 \input{\contentpath/education.tex}
-% \input{\contentpath/extracurricular.tex}
+\input{\contentpath/skills.tex}
+\input{\contentpath/experience.tex}
+\input{\contentpath/certificates.tex}
+\input{\contentpath/honors.tex}
 
 
 %-------------------------------------------------------------------------------
