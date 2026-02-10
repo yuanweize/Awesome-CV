@@ -1,0 +1,28 @@
+# ─────────────────────────────────────────────────────────────
+# targets.yaml — Remote server configuration for tech-stack-collector
+# Copy to targets.yaml and fill in your details.
+# Supports password and SSH key authentication.
+# ─────────────────────────────────────────────────────────────
+
+targets:
+  - name: web-server-1
+    host: 192.168.1.100
+    port: 22
+    user: root
+    auth: key                        # "key" or "password"
+    key_path: ~/.ssh/id_ed25519      # path to private key
+
+  - name: db-server-1
+    host: 10.0.0.50
+    port: 22
+    user: admin
+    auth: password
+    password: changeme               # or omit to get prompted
+
+  # - name: another-server
+  #   host: example.com
+  #   port: 2222
+  #   user: deploy
+  #   auth: key
+  #   key_path: ~/.ssh/deploy_key
+  #   key_passphrase: optional-passphrase

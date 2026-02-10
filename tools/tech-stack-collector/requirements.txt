@@ -1,0 +1,4 @@
+# remote_runner.py dependencies (for SSH mode only)
+# collector.py has ZERO dependencies — stdlib only
+paramiko>=3.0
+pyyaml>=6.0

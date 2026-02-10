@@ -49,6 +49,7 @@ Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — re
     - [Add/remove sections / 增删章节](#addremove-sections--增删章节)
   - [🔒 Privacy Model / 隐私模型](#-privacy-model--隐私模型)
   - [🤖 CI/CD](#-cicd)
+  - [🧰 Tools / 工具集](#-tools--工具集)
   - [📜 License / 许可证](#-license--许可证)
 
 ---
@@ -236,6 +237,14 @@ Awesome-CV/
 │   └── (same files as above)
 │
 ├── build/                      # [PRIVATE] PDF outputs / PDF 输出
+│
+├── tools/                      # CV building utilities / 简历构建工具集
+│   └── tech-stack-collector/   # Server tech stack scanner / 服务器技术栈扫描器
+│       ├── collector.py        # Main script (stdlib only) / 主脚本（仅标准库）
+│       ├── remote_runner.py    # SSH batch execution / SSH 批量执行
+│       ├── run.sh              # curl|bash wrapper
+│       └── reports/            # [PRIVATE] Collection output / 采集输出
+│
 ├── .gitignore                  # Protects all private files / 保护所有隐私文件
 ├── .github/                    # CI workflows / CI 工作流
 ├── .yamllint.yaml              # YAML linting config / YAML 检查配置
@@ -330,6 +339,7 @@ Rearrange the `\input` lines in `main.tex`: / 调整 `main.tex` 中 `\input` 的
 | `letter_config.tex.example` | `letter_config.tex` |
 | `sections_template/` | `sections/` |
 | `awesome-cv.cls`, `main.tex`, `coverletter.tex` | `build/`, `*.pdf`, `meta/` |
+| `tools/tech-stack-collector/*.py`, `*.sh` | `tools/tech-stack-collector/reports/`, `targets.yaml` |
 | `.github/`, `Makefile`, `README.md` | `PROJECT_HANDOFF.md` |
 
 **Key principle / 核心原则**: All files containing real personal information are listed in `.gitignore`. The repository only contains the structural code and placeholder templates. / 所有包含真实个人信息的文件都在 `.gitignore` 中。仓库只包含结构代码和占位模板。
@@ -354,3 +364,13 @@ This ensures the template always builds correctly, even without your private dat
 [LPPL v1.3c](http://www.latex-project.org/lppl) — The LaTeX Project Public License.
 
 Original template by [posquit0](https://github.com/posquit0/Awesome-CV). / 原始模板作者：[posquit0](https://github.com/posquit0/Awesome-CV)。
+
+---
+
+## 🧰 Tools / 工具集
+
+The `tools/` directory contains standalone utilities that help build and maintain your CV content. Each tool is self-contained with its own README. / `tools/` 目录包含独立的工具，用于辅助构建和维护简历内容。每个工具都是自包含的，有独立的 README。
+
+| Tool / 工具 | Description / 描述 |
+|---|---|
+| [`tech-stack-collector`](tools/tech-stack-collector/) | Scans your servers and generates AI-friendly Markdown reports of installed software, Docker containers, services, etc. Three modes: `curl\|python3` one-liner, local execution, SSH batch execution. <br> 扫描服务器并生成 AI 友好的 Markdown 报告，涵盖已安装软件、Docker 容器、服务等。三种模式：`curl\|python3` 一行命令、本地执行、SSH 批量执行。 |

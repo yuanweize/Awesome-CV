@@ -1,0 +1,8 @@
+# tools/ — ignore runtime outputs & private configs
+reports/
+*.md
+!README.md
+targets.yaml
+targets.json
+__pycache__/
+*.pyc
