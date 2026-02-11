@@ -10,6 +10,9 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   #-----------------------------------------------------------------------------
   # LaTeX Build - Uses template data to verify the code works
@@ -41,17 +44,37 @@ jobs:
         root_file: coverletter.tex
         latexmk_use_lualatex: true
 
+    - name: Rename outputs for release
+      run: |
+        mv main.pdf Awesome-CV_Example_Resume.pdf
+        mv coverletter.pdf Awesome-CV_Example_Cover_Letter.pdf
+
     - name: Upload Resume PDF
       uses: actions/upload-artifact@v4
       with:
         name: resume-pdf
-        path: main.pdf
+        path: Awesome-CV_Example_Resume.pdf
 
     - name: Upload Cover Letter PDF
       uses: actions/upload-artifact@v4
       with:
         name: coverletter-pdf
-        path: coverletter.pdf
+        path: Awesome-CV_Example_Cover_Letter.pdf
+
+    - name: Update latest release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: latest
+        name: Latest Build
+        body: |
+          Automatically built from the latest `main` branch using **template data** (not real personal info).
+
+          These example PDFs demonstrate the template's layout and structure.
+        files: |
+          Awesome-CV_Example_Resume.pdf
+          Awesome-CV_Example_Cover_Letter.pdf
+        make_latest: true
 
   #-----------------------------------------------------------------------------
   # YAML Linting

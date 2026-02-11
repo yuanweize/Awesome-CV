@@ -12,6 +12,8 @@
 [![GitHub stars](https://img.shields.io/github/stars/yuanweize/Awesome-CV?style=social)](https://github.com/yuanweize/Awesome-CV)
 [![Upstream](https://img.shields.io/badge/Upstream-posquit0%2FAwesome--CV-lightgrey.svg?logo=github)](https://github.com/posquit0/Awesome-CV)
 
+[📥 **Download Example Resume**](https://github.com/yuanweize/Awesome-CV/releases/latest/download/Awesome-CV_Example_Resume.pdf) · [📥 **Download Example Cover Letter**](https://github.com/yuanweize/Awesome-CV/releases/latest/download/Awesome-CV_Example_Cover_Letter.pdf)
+
 <br>
 
 Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — restructured for **engineering roles** in EU & international markets. Code stays public; your personal data stays private (gitignored).
