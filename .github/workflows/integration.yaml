@@ -63,7 +63,7 @@ jobs:
 
     - name: Get build date
       id: date
-      run: echo "date=$(date -u +%Y.%m.%d)" >> "$GITHUB_OUTPUT"
+      run: echo "date=$(date -u +'%d %b %Y')" >> "$GITHUB_OUTPUT"
 
     - name: Update latest release
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
