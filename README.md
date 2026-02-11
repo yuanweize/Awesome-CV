@@ -49,8 +49,8 @@ Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — re
     - [Add/remove sections / 增删章节](#addremove-sections--增删章节)
   - [🔒 Privacy Model / 隐私模型](#-privacy-model--隐私模型)
   - [🤖 CI/CD](#-cicd)
-  - [🧰 Tools / 工具集](#-tools--工具集)
   - [📜 License / 许可证](#-license--许可证)
+  - [🧰 Tools / 工具集](#-tools--工具集)
 
 ---
 
