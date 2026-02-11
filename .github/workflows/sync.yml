@@ -14,24 +14,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout target repo
+    - name: Checkout target branch
       uses: actions/checkout@v4
       with:
         ref: upstream-original
+        fetch-depth: 0
 
     - name: Sync upstream changes
-      id: sync
-      uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
-      with:
-        upstream_sync_repo: posquit0/Awesome-CV
-        upstream_sync_branch: master
-        target_sync_branch: upstream-original
-        target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git remote add upstream https://github.com/posquit0/Awesome-CV.git
+        git fetch upstream master
 
-    - name: New commits found
-      if: steps.sync.outputs.has_new_commits == 'true'
-      run: echo "New commits were found to sync."
+        LOCAL=$(git rev-parse HEAD)
+        UPSTREAM=$(git rev-parse upstream/master)
 
-    - name: No new commits
-      if: steps.sync.outputs.has_new_commits == 'false'
-      run: echo "There were no new commits."
+        if [ "$LOCAL" = "$UPSTREAM" ]; then
+          echo "Already up to date."
+        else
+          git merge upstream/master --no-edit
+          git push
+          echo "Synced new commits from upstream."
+        fi
