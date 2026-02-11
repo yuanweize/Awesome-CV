@@ -14,9 +14,9 @@ permissions:
   contents: write
 
 jobs:
-  #-----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # LaTeX Build - Uses template data to verify the code works
-  #-----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   latex:
     runs-on: ubuntu-latest
 
@@ -66,9 +66,9 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: latest
-        name: Latest Build
+        name: "Build ${{ github.run_number }} — ${{ github.event.head_commit.timestamp }}"
         body: |
-          Automatically built from the latest `main` branch using **template data** (not real personal info).
+          Automatically built from `main` @ [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) using **template data** (not real personal info).
 
           These example PDFs demonstrate the template's layout and structure.
         files: |
@@ -76,9 +76,9 @@ jobs:
           Awesome-CV_Example_Cover_Letter.pdf
         make_latest: true
 
-  #-----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   # YAML Linting
-  #-----------------------------------------------------------------------------
+  # ---------------------------------------------------------------------------
   yaml-lint:
     runs-on: ubuntu-latest
 

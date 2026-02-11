@@ -2,8 +2,8 @@ name: Upstream Sync
 
 on:
   schedule:
-    - cron: "0 0 * * *" # Every day at midnight
-  workflow_dispatch:
+  - cron: "0 0 * * *"
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -14,24 +14,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout target repo
-        uses: actions/checkout@v4
-        with:
-          ref: upstream-original
+    - name: Checkout target repo
+      uses: actions/checkout@v4
+      with:
+        ref: upstream-original
 
-      - name: Sync upstream changes
-        id: sync
-        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
-        with:
-          upstream_sync_repo: posquit0/Awesome-CV
-          upstream_sync_branch: master
-          target_sync_branch: upstream-original
-          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Sync upstream changes
+      id: sync
+      uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+      with:
+        upstream_sync_repo: posquit0/Awesome-CV
+        upstream_sync_branch: master
+        target_sync_branch: upstream-original
+        target_repo_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: New commits found
-        if: steps.sync.outputs.has_new_commits == 'true'
-        run: echo "New commits were found to sync."
+    - name: New commits found
+      if: steps.sync.outputs.has_new_commits == 'true'
+      run: echo "New commits were found to sync."
 
-      - name: No new commits
-        if: steps.sync.outputs.has_new_commits == 'false'
-        run: echo "There were no new commits."
+    - name: No new commits
+      if: steps.sync.outputs.has_new_commits == 'false'
+      run: echo "There were no new commits."
