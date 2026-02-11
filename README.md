@@ -123,7 +123,7 @@ The table below shows every content section across all upstream documents and th
 | **LaTeX engine** <br> LaTeX 引擎 | XeLaTeX | LuaLaTeX (better Unicode, OpenType) <br> LuaLaTeX（更好的 Unicode 与 OpenType 支持） |
 | **Output directory** <br> 输出目录 | Same as source (`examples/`) <br> 与源文件同目录 | Separate `build/` directory <br> 独立 `build/` 目录 |
 | **File layout** <br> 文件布局 | All in `examples/` subdirectory <br> 所有文件在 `examples/` 子目录 | Root-level entry points, cleaner structure <br> 根目录入口文件，结构更清晰 |
-| **Build targets** <br> 构建目标 | `make cv`, `make resume`, `make coverletter` | `make resume`, `make coverletter`, `make init`, `make clean`, `make help` |
+| **Build targets** <br> 构建目标 | `make cv`, `make resume`, `make coverletter` | `make resume`, `make coverletter`, `make init`, `make clean`, `make help` — auto-named output via `-jobname` |
 | **CI/CD** | ❌ No workflow / 无工作流 | ✅ GitHub Actions: build + lint + artifact upload <br> ✅ GitHub Actions：构建 + lint + 产物上传 |
 
 ### Style Tweaks / 样式微调
@@ -203,11 +203,11 @@ This copies template files into your **private** working copies: / 该命令会�
 
 ```bash
 make all          # Build both / 构建简历 + 求职信
-make resume       # Resume only / 仅简历   → build/main.pdf
-make coverletter  # Letter only / 仅求职信 → build/coverletter.pdf
+make resume       # Resume only / 仅简历   → build/<Name>_CV.pdf
+make coverletter  # Letter only / 仅求职信 → build/<Name>_Cover_Letter.pdf
 ```
 
-Output PDFs are in the `build/` directory. / 输出的 PDF 在 `build/` 目录下。
+Output PDFs are in the `build/` directory, **automatically named from your `config.tex`** (e.g., `Weize_Yuan_CV.pdf`). / 输出的 PDF 在 `build/` 目录下，**文件名自动从 `config.tex` 中提取**（如 `Weize_Yuan_CV.pdf`）。
 
 ---
 
@@ -260,9 +260,9 @@ Awesome-CV/
 
 ```
 config.tex ─────────┐
-  (who you are)      ├──→ main.tex ──────→ build/main.pdf (Resume)
+  (who you are)      ├──→ main.tex ──────→ build/<Name>_CV.pdf
   (你是谁)           │
-                     ├──→ coverletter.tex → build/coverletter.pdf (Cover Letter)
+                     ├──→ coverletter.tex → build/<Name>_Cover_Letter.pdf
 letter_config.tex ──┘
   (who you apply to)  ↑
   (你投给谁)           │
@@ -273,6 +273,10 @@ sections/*.tex ────────┘
 
 awesome-cv.cls ← shared style engine / 共享样式引擎
 ```
+
+> **Auto-naming**: The Makefile extracts `\name{First}{Last}` from `config.tex` to produce `First_Last_CV.pdf`. If `config.tex` doesn't exist yet, it falls back to `Awesome_CV.pdf`.
+>
+> **自动命名**：Makefile 从 `config.tex` 的 `\name{First}{Last}` 自动提取姓名生成 `First_Last_CV.pdf`。若 `config.tex` 不存在则回退为 `Awesome_CV.pdf`。
 
 - **`main.tex`** — assembles Resume by importing `config.tex` + `sections/*.tex` / 组装简历
 - **`coverletter.tex`** — assembles Cover Letter by importing `config.tex` + `letter_config.tex` + `sections/letter_body.tex` / 组装求职信
@@ -287,8 +291,8 @@ awesome-cv.cls ← shared style engine / 共享样式引擎
 | Command / 命令 | Description / 说明 |
 |---|---|
 | `make init` | First-time setup: copy templates to private files / 初始化：从模板创建私有文件 |
-| `make resume` | Build resume → `build/main.pdf` / 构建简历 |
-| `make coverletter` | Build cover letter → `build/coverletter.pdf` / 构建求职信 |
+| `make resume` | Build resume → `build/<Name>_CV.pdf` / 构建简历 |
+| `make coverletter` | Build cover letter → `build/<Name>_Cover_Letter.pdf` / 构建求职信 |
 | `make all` | Build both / 构建两者 |
 | `make clean` | Remove all build artifacts / 清理所有构建产物 |
 | `make help` | Show available targets / 显示帮助 |

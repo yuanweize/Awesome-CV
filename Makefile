@@ -3,6 +3,11 @@
 CC = lualatex
 BUILD_DIR = build
 
+# Auto-extract author name from config.tex: \name{First}{Last} -> First_Last
+FIRST_NAME := $(shell grep '\\name{' config.tex 2>/dev/null | sed 's/.*\\name{\([^}]*\)}.*/\1/')
+LAST_NAME  := $(shell grep '\\name{' config.tex 2>/dev/null | sed 's/.*\\name{[^}]*}{\([^}]*\)}.*/\1/')
+AUTHOR     := $(if $(FIRST_NAME),$(FIRST_NAME)_$(LAST_NAME),Awesome)
+
 #-------------------------------------------------------------------------------
 # Main targets
 #-------------------------------------------------------------------------------
@@ -10,14 +15,14 @@ BUILD_DIR = build
 all: resume coverletter
 
 resume: | $(BUILD_DIR)
-	$(CC) -output-directory=$(BUILD_DIR) main.tex
-	$(CC) -output-directory=$(BUILD_DIR) main.tex
-	@echo "  -> $(BUILD_DIR)/main.pdf"
+	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_CV main.tex
+	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_CV main.tex
+	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_CV.pdf"
 
 coverletter: | $(BUILD_DIR)
-	$(CC) -output-directory=$(BUILD_DIR) coverletter.tex
-	$(CC) -output-directory=$(BUILD_DIR) coverletter.tex
-	@echo "  -> $(BUILD_DIR)/coverletter.pdf"
+	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_Cover_Letter coverletter.tex
+	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_Cover_Letter coverletter.tex
+	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
@@ -70,12 +75,12 @@ clean:
 #-------------------------------------------------------------------------------
 
 help:
-	@echo "Awesome-CV Makefile"
+	@echo "Awesome-CV Makefile (Author: $(AUTHOR))"
 	@echo ""
 	@echo "Targets:"
 	@echo "  make init        - First-time setup (creates private config files)"
-	@echo "  make resume      - Build $(BUILD_DIR)/main.pdf"
-	@echo "  make coverletter - Build $(BUILD_DIR)/coverletter.pdf"
+	@echo "  make resume      - Build $(BUILD_DIR)/$(AUTHOR)_CV.pdf"
+	@echo "  make coverletter - Build $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
 	@echo "  make all         - Build both"
 	@echo "  make clean       - Remove all build artifacts"
 	@echo "  make help        - Show this help message"

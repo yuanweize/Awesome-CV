@@ -17,7 +17,7 @@
 \documentclass[11pt, a4paper]{awesome-cv}
 
 % Configure page margins with geometry
-\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.8cm, footskip=.5cm}
+\geometry{left=1.4cm, top=1.5cm, right=1.4cm, bottom=1.8cm, footskip=.5cm}
 
 % Color for highlights
 % Options: awesome-emerald, awesome-skyblue, awesome-red, awesome-pink, awesome-orange
@@ -30,6 +30,12 @@
 
 % Social information separator
 \renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
+
+% Enlarge header elements for better first-page presence
+\renewcommand*{\headerpositionstyle}[1]{{\fontsize{10pt}{1em}\bodyfont\scshape\color{awesome} #1}}
+\renewcommand*{\headeraddressstyle}[1]{{\fontsize{10pt}{1em}\headerfont\itshape\color{lighttext} #1}}
+\renewcommand*{\headersocialstyle}[1]{{\fontsize{10pt}{1em}\headerfont\color{text} #1}}
+\renewcommand*{\headerquotestyle}[1]{{\fontsize{10pt}{1em}\bodyfont\itshape\color{darktext} #1}}
 
 
 %-------------------------------------------------------------------------------
@@ -78,6 +84,7 @@
 \input{\contentpath/summary.tex}
 \input{\contentpath/education.tex}
 \input{\contentpath/skills.tex}
+\newpage
 \input{\contentpath/experience.tex}
 \input{\contentpath/certificates.tex}
 \input{\contentpath/honors.tex}
