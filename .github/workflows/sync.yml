@@ -9,11 +9,12 @@ jobs:
   sync_latest_from_upstream:
     name: Sync latest commits from upstream repo
     runs-on: ubuntu-latest
-    if: ${ github.event.repository.fork }
 
     steps:
       - name: Checkout target repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: upstream-original
 
       - name: Sync upstream changes
         id: sync
@@ -21,13 +22,13 @@ jobs:
         with:
           upstream_sync_repo: posquit0/Awesome-CV
           upstream_sync_branch: master
-          target_sync_branch: main
-          target_repo_token: ${ secrets.GITHUB_TOKEN }
+          target_sync_branch: upstream-original
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: New commits found
         if: steps.sync.outputs.has_new_commits == 'true'
         run: echo "New commits were found to sync."
-    
+
       - name: No new commits
         if: steps.sync.outputs.has_new_commits == 'false'
         run: echo "There were no new commits."
