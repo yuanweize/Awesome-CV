@@ -5,19 +5,19 @@
 # ─────────────────────────────────────────────────────────────
 
 targets:
-  - name: web-server-1
-    host: 192.168.1.100
-    port: 22
-    user: root
-    auth: key                        # "key" or "password"
-    key_path: ~/.ssh/id_ed25519      # path to private key
+- name: web-server-1
+  host: 192.168.1.100
+  port: 22
+  user: root
+  auth: key                        # "key" or "password"
+  key_path: ~/.ssh/id_ed25519      # path to private key
 
-  - name: db-server-1
-    host: 10.0.0.50
-    port: 22
-    user: admin
-    auth: password
-    password: changeme               # or omit to get prompted
+- name: db-server-1
+  host: 10.0.0.50
+  port: 22
+  user: admin
+  auth: password
+  password: changeme               # or omit to get prompted
 
   # - name: another-server
   #   host: example.com

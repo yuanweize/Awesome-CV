@@ -51,8 +51,8 @@ Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — re
     - [Add/remove sections / 增删章节](#addremove-sections--增删章节)
   - [🔒 Privacy Model / 隐私模型](#-privacy-model--隐私模型)
   - [🤖 CI/CD](#-cicd)
-  - [📜 License / 许可证](#-license--许可证)
   - [🧰 Tools / 工具集](#-tools--工具集)
+  - [📜 License / 许可证](#-license--许可证)
 
 ---
 
@@ -130,12 +130,13 @@ The table below shows every content section across all upstream documents and th
 
 ### Style Tweaks / 样式微调
 
-Two modifications were made to `awesome-cv.cls`: / 对 `awesome-cv.cls` 做了两处微调：
+Two modifications were made to `awesome-cv.cls`: / 对 `awesome-cv.cls` 做了三处微调：
 
 | Change / 修改 | Upstream / 上游 | This Fork / 本 fork | Why / 原因 |
 |---|---|---|---|
 | Header social info font size <br> 头部社交信息字号 | `\fontsize{6.8pt}{...}` | `\fontsize{9pt}{...}` | Better readability for contact details <br> 联系信息可读性更好 |
-| `\cventry` date column width <br> 日期列宽度 | `4.5cm` | `6.5cm` | Fits longer date ranges like "Oct 2022 – Present" <br> 适配更长的日期格式 |
+| `\cventry` date column width <br> 日期列宽度 | `4.5cm` | `6.5cm` | Fits longer date ranges like “Oct 2022 – Present” <br> 适配更长的日期格式 |
+| `\cvsection` page break <br> 章节标题分页 | No protection <br> 无保护 | `\needspace{5\baselineskip}` | Prevents orphaned section titles at page bottom <br> 防止章节标题孤立在页底 |
 
 ### Files Removed from Upstream / 从上游移除的文件
 
@@ -359,17 +360,12 @@ The project includes GitHub Actions CI (`.github/workflows/integration.yaml`) th
 1. **Copy templates** to simulate private files / 复制模板模拟私有文件
 2. **Compile** both resume and cover letter with LuaLaTeX / 用 LuaLaTeX 编译简历和求职信
 3. **Upload** PDFs as build artifacts / 上传 PDF 为构建产物
-4. **Lint** YAML configuration files / 检查 YAML 配置文件
+4. **Release** example PDFs to the `latest` GitHub Release (auto-updated on every push to `main`) / 发布示例 PDF 到 `latest` GitHub Release（每次 push 到 `main` 自动更新）
+5. **Lint** YAML configuration files / 检查 YAML 配置文件
+
+A separate workflow (`.github/workflows/sync.yml`) syncs upstream changes from `posquit0/Awesome-CV:master` into the `upstream-original` branch daily. / 另一个工作流每天将上游 `posquit0/Awesome-CV:master` 的变更同步到 `upstream-original` 分支。
 
 This ensures the template always builds correctly, even without your private data. / 这确保模板始终能正确构建，即使没有你的私有数据。
-
----
-
-## 📜 License / 许可证
-
-[LPPL v1.3c](http://www.latex-project.org/lppl) — The LaTeX Project Public License.
-
-Original template by [posquit0](https://github.com/posquit0/Awesome-CV). / 原始模板作者：[posquit0](https://github.com/posquit0/Awesome-CV)。
 
 ---
 
@@ -380,3 +376,11 @@ The `tools/` directory contains standalone utilities that help build and maintai
 | Tool / 工具 | Description / 描述 |
 |---|---|
 | [`tech-stack-collector`](tools/tech-stack-collector/) | Scans your servers and generates AI-friendly Markdown reports of installed software, Docker containers, services, etc. Three modes: `curl\|python3` one-liner, local execution, SSH batch execution. <br> 扫描服务器并生成 AI 友好的 Markdown 报告，涵盖已安装软件、Docker 容器、服务等。三种模式：`curl\|python3` 一行命令、本地执行、SSH 批量执行。 |
+
+---
+
+## 📜 License / 许可证
+
+[LPPL v1.3c](http://www.latex-project.org/lppl) — The LaTeX Project Public License.
+
+Original template by [posquit0](https://github.com/posquit0/Awesome-CV). / 原始模板作者：[posquit0](https://github.com/posquit0/Awesome-CV)。
