@@ -61,16 +61,20 @@ jobs:
         name: coverletter-pdf
         path: Awesome-CV_Example_Cover_Letter.pdf
 
+    - name: Get build date
+      id: date
+      run: echo "date=$(date -u +%Y.%m.%d)" >> "$GITHUB_OUTPUT"
+
     - name: Update latest release
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: latest
-        name: "Build ${{ github.run_number }} — ${{ github.event.head_commit.timestamp }}"
+        name: "v${{ steps.date.outputs.date }}"
         body: |
-          Automatically built from `main` @ [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) using **template data** (not real personal info).
+          Built from [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}) on ${{ steps.date.outputs.date }} using **template data**.
 
-          These example PDFs demonstrate the template's layout and structure.
+          These example PDFs demonstrate the template layout — no real personal info included.
         files: |
           Awesome-CV_Example_Resume.pdf
           Awesome-CV_Example_Cover_Letter.pdf
