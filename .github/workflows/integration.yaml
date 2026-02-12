@@ -50,8 +50,12 @@ jobs:
 
     - name: Rename outputs for release
       run: |
-        mv src/main.pdf Awesome-CV_Example_Resume.pdf
-        mv src/coverletter.pdf Awesome-CV_Example_Cover_Letter.pdf
+        # latexmk may place output in CWD or next to source file
+        ls -la *.pdf src/*.pdf 2>/dev/null || true
+        mv main.pdf Awesome-CV_Example_Resume.pdf 2>/dev/null \
+          || mv src/main.pdf Awesome-CV_Example_Resume.pdf
+        mv coverletter.pdf Awesome-CV_Example_Cover_Letter.pdf 2>/dev/null \
+          || mv src/coverletter.pdf Awesome-CV_Example_Cover_Letter.pdf
 
     - name: Upload Resume PDF
       uses: actions/upload-artifact@v4
