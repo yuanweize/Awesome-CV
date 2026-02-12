@@ -12,7 +12,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/yuanweize/Awesome-CV?style=social)](https://github.com/yuanweize/Awesome-CV)
 [![Upstream](https://img.shields.io/badge/Upstream-posquit0%2FAwesome--CV-lightgrey.svg?logo=github)](https://github.com/posquit0/Awesome-CV)
 
-[📥 **Download Example Resume**](https://github.com/yuanweize/Awesome-CV/releases/latest/download/Awesome-CV_Example_Resume.pdf) · [📥 **Download Example Cover Letter**](https://github.com/yuanweize/Awesome-CV/releases/latest/download/Awesome-CV_Example_Cover_Letter.pdf)
+[![Download Resume](https://img.shields.io/badge/📥_Example_Resume-PDF-EC1C24.svg?style=for-the-badge)](https://github.com/yuanweize/Awesome-CV/releases/latest/download/Awesome-CV_Example_Resume.pdf) [![Download Cover Letter](https://img.shields.io/badge/📥_Cover_Letter-PDF-EC1C24.svg?style=for-the-badge)](https://github.com/yuanweize/Awesome-CV/releases/latest/download/Awesome-CV_Example_Cover_Letter.pdf)
 
 <br>
 
@@ -20,7 +20,7 @@ Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — re
 
 基于 [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) 重构，针对欧盟及国际市场的**工程技术岗位**优化。代码公开，个人数据私有（已 gitignore）。
 
-**[English](#quick-start--快速开始)** · **[中文](#quick-start--快速开始)** · **[Report Bug](https://github.com/yuanweize/Awesome-CV/issues)** · **[Request Feature](https://github.com/yuanweize/Awesome-CV/issues)**
+[![Report Bug](https://img.shields.io/badge/🐛_Report_Bug-grey.svg?style=flat-square)](https://github.com/yuanweize/Awesome-CV/issues) [![Request Feature](https://img.shields.io/badge/💡_Request_Feature-grey.svg?style=flat-square)](https://github.com/yuanweize/Awesome-CV/issues)
 
 </div>
 
@@ -421,7 +421,7 @@ The table below shows every content section across all upstream documents and th
 
 ### Style Tweaks / 样式微调
 
-Two modifications were made to `src/awesome-cv.cls`: / 对 `src/awesome-cv.cls` 做了三处微调：
+Three modifications were made to `src/awesome-cv.cls`: / 对 `src/awesome-cv.cls` 做了三处微调：
 
 | Change / 修改 | Upstream / 上游 | This Fork / 本 fork | Why / 原因 |
 |---|---|---|---|
