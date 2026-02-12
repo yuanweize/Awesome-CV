@@ -30,13 +30,6 @@ Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — re
 
 - [📄 Awesome-CV](#-awesome-cv)
   - [Table of Contents / 目录](#table-of-contents--目录)
-  - [📚 Background: CV vs Resume vs Cover Letter / 背景知识](#-background-cv-vs-resume-vs-cover-letter--背景知识)
-  - [🔀 Comparison with Upstream / 与上游对比](#-comparison-with-upstream--与上游对比)
-    - [Document Types / 文档类型](#document-types--文档类型)
-    - [Section Comparison / 章节对比](#section-comparison--章节对比)
-    - [Architecture Comparison / 架构对比](#architecture-comparison--架构对比)
-    - [Style Tweaks / 样式微调](#style-tweaks--样式微调)
-    - [Files Removed from Upstream / 从上游移除的文件](#files-removed-from-upstream--从上游移除的文件)
   - [⚙️ Prerequisites / 环境要求](#️-prerequisites--环境要求)
   - [🚀 Quick Start / 快速开始](#-quick-start--快速开始)
     - [Step 1: Initialize / 第一步：初始化](#step-1-initialize--第一步初始化)
@@ -45,111 +38,25 @@ Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — re
   - [🗂️ Project Structure / 项目结构](#️-project-structure--项目结构)
   - [🔧 How It Works / 工作原理](#-how-it-works--工作原理)
   - [📦 Make Commands / 构建命令](#-make-commands--构建命令)
-  - [� Profile Management / 多版本管理](#-profile-management--多版本管理)
-  - [�🎨 Customization / 自定义](#-customization--自定义)
+  - [📝 Profile Management / 多版本管理](#-profile-management--多版本管理)
+    - [What's in a profile / 配置档包含什么](#whats-in-a-profile--配置档包含什么)
+    - [Commands / 命令](#commands--命令)
+    - [Typical workflow / 典型工作流](#typical-workflow--典型工作流)
+  - [🎨 Customization / 自定义](#-customization--自定义)
     - [Change accent color / 修改主题色](#change-accent-color--修改主题色)
     - [Change section order / 修改章节顺序](#change-section-order--修改章节顺序)
     - [Add/remove sections / 增删章节](#addremove-sections--增删章节)
   - [🔒 Privacy Model / 隐私模型](#-privacy-model--隐私模型)
   - [🤖 CI/CD](#-cicd)
   - [🧰 Tools / 工具集](#-tools--工具集)
+  - [📚 Background: CV vs Resume vs Cover Letter / 背景知识](#-background-cv-vs-resume-vs-cover-letter--背景知识)
+  - [🔀 Comparison with Upstream / 与上游对比](#-comparison-with-upstream--与上游对比)
+    - [Document Types / 文档类型](#document-types--文档类型)
+    - [Section Comparison / 章节对比](#section-comparison--章节对比)
+    - [Architecture Comparison / 架构对比](#architecture-comparison--架构对比)
+    - [Style Tweaks / 样式微调](#style-tweaks--样式微调)
+    - [Files Removed from Upstream / 从上游移除的文件](#files-removed-from-upstream--从上游移除的文件)
   - [📜 License / 许可证](#-license--许可证)
-
----
-
-## 📚 Background: CV vs Resume vs Cover Letter / 背景知识
-
-> If you already know the difference, skip to [Comparison with Upstream](#-comparison-with-upstream--与上游对比).
->
-> 如果你已了解区别，可直接跳到[与上游对比](#-comparison-with-upstream--与上游对比)。
-
-| Term / 术语 | What it is / 含义 | Length / 篇幅 | When to use / 使用场景 |
-|---|---|---|---|
-| **CV** (Curriculum Vitae) | A **complete** academic/professional record: every degree, publication, talk, committee, award. <br> **完整**的学术/职业履历：所有学位、论文、演讲、委员会、获奖 | 2 – 10+ pages <br> 2–10+ 页 | Academia, research positions, EU/UK job markets (where "CV" often = resume) <br> 学术界、科研岗位；欧洲/英国求职（"CV" 常等同于简历） |
-| **Resume** / **简历** (Résumé) | A **concise** highlight reel targeted at one role: key skills, recent experience, measurable results. <br> **精练**的亮点摘要，针对特定岗位：核心技能、近期经历、量化成果 | 1 – 2 pages <br> 1–2 页 | Industry jobs (US, Canada, most of Asia), any role where brevity is valued <br> 工业界（美国、加拿大、多数亚洲市场），任何看重简洁的场合 |
-| **Cover Letter** / **求职信** | A one-page letter explaining *why you* + *why this company/role*, with a personal tone. <br> 一封信，解释*为什么是你* + *为什么是这家公司/岗位*，带个人风格 | 1 page <br> 1 页 | Paired with either a CV or resume when the application asks for it <br> 配合 CV 或简历投递，当招聘方要求时使用 |
-
-**Regional note / 地区惯例**:
-In Germany, Austria, and much of the EU, the word "CV" is used interchangeably with "resume" — a 1–2 page document is expected for most industry roles. A multi-page academic CV is only for research positions. This fork follows the **EU/industry convention**: one concise document + cover letter.
-
-在德国、奥地利及欧盟大部分地区，"CV" 和 "resume" 混用——大多数工业岗位期望的是 1–2 页的文档，多页学术 CV 仅用于科研岗位。本 fork 遵循**欧盟/工业惯例**：一份精简文档 + 求职信。
-
----
-
-## 🔀 Comparison with Upstream / 与上游对比
-
-This fork is derived from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV). The original code is preserved in the `upstream-original` branch for reference. / 本 fork 源自 [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV)。原始代码保留在 `upstream-original` 分支中供参考。
-
-### Document Types / 文档类型
-
-| | Upstream / 上游 | This Fork / 本 fork |
-|---|---|---|
-| **CV** (full academic / 完整学术版) | ✅ `examples/cv.tex` — 9 sections, multi-page <br> 9 个章节，多页 | ❌ Removed (not needed for industry) <br> 已移除（工业求职不需要） |
-| **Resume** (concise / 精简版) | ✅ `examples/resume.tex` — 5 active sections <br> 5 个活跃章节 | ✅ `src/main.tex` — 6 sections, restructured <br> 6 个章节，重构 |
-| **Cover Letter** / **求职信** | ✅ `examples/coverletter.tex` — inline body <br> 内嵌正文 | ✅ `src/coverletter.tex` — externalized body <br> 外部化正文 |
-
-Upstream provides three separate documents for different audiences. This fork keeps only the **resume** and **cover letter** — the two documents needed for industry job applications in EU/international markets. / 上游提供三种文档面向不同场景。本 fork 仅保留**简历**和**求职信**——欧盟/国际市场工业求职所需的两种文档。
-
-### Section Comparison / 章节对比
-
-The table below shows every content section across all upstream documents and this fork: / 下表展示了上游所有文档与本 fork 中的所有内容章节：
-
-| Section / 章节 | Upstream CV | Upstream Resume | This Fork | Notes / 说明 |
-|---|---|---|---|---|
-| **summary** | ❌ | ✅ | ✅ | Professional summary / 个人简介 |
-| **education** | ✅ | ✅ | ✅ | Degrees & universities / 学位与院校 |
-| **skills** | ✅ | ❌ | ✅ | Technical & language skills / 技能（本 fork 新增到简历中） |
-| **experience** | ✅ | ✅ | ✅ | Work history / 工作经历 |
-| **certificates** | ✅ | ✅ | ✅ | Professional certifications / 专业证书 |
-| **honors** | ✅ | ✅ | ✅ | Awards, scholarships / 荣誉、奖学金 |
-| **extracurricular** | ✅ | ❌ (commented) | ❌ | Clubs, volunteering / 课外活动 |
-| **presentation** | ✅ | ❌ (commented) | ❌ | Conference talks / 学术报告 |
-| **writing** | ✅ | ❌ (commented) | ❌ | Publications, blog posts / 出版物、博客 |
-| **committees** | ✅ | ❌ (commented) | ❌ | Academic/org committees / 学术委员会 |
-| **letter_body** | — | — | ✅ | Externalized cover letter body / 外部化的求职信正文 |
-
-**What changed / 变化总结**:
-- **Kept / 核心保留**: summary, education, experience, certificates, honors — the five pillars of an industry resume / 工业简历的五大支柱
-- **Promoted / 提升**: skills — moved from CV-only to the main resume (important for engineering roles) / 从仅限 CV 提升到主简历（对工程岗位很重要）
-- **Removed / 移除**: extracurricular, presentation, writing, committees — academic sections not needed for industry applications (can be re-added if needed) / 学术章节，工业求职不需要（可按需重新添加）
-- **Added / 新增**: letter_body.tex — cover letter body extracted to its own file for cleaner separation / 求职信正文提取为独立文件，分离更清晰
-
-### Architecture Comparison / 架构对比
-
-| Aspect / 方面 | Upstream / 上游 | This Fork / 本 fork |
-|---|---|---|
-| **Personal info** <br> 个人信息 | Hardcoded in each `.tex` file <br> 硬编码在各 `.tex` 文件中 | Centralized in `config.tex` (gitignored) <br> 集中在 `config.tex`（已 gitignore） |
-| **Letter recipient** <br> 信件收件人 | Hardcoded in `coverletter.tex` <br> 硬编码在 `coverletter.tex` 中 | Extracted to `letter_config.tex` (gitignored) <br> 提取到 `letter_config.tex`（已 gitignore） |
-| **Letter body** <br> 信件正文 | Inline in `coverletter.tex` <br> 内嵌在 `coverletter.tex` | External `sections/letter_body.tex` <br> 外部 `sections/letter_body.tex` |
-| **Privacy model** <br> 隐私模型 | ❌ None — real info pushed to git <br> ❌ 无——真实信息会推送到 git | ✅ 3-layer: config / letter_config / sections all gitignored <br> ✅ 三层保护：全部 gitignore |
-| **Template system** <br> 模板系统 | N/A <br> 无 | `.example` files + `templates/sections/` → `make init` copies <br> `.example` 文件 + `templates/sections/` → `make init` 自动复制 |
-| **LaTeX engine** <br> LaTeX 引擎 | XeLaTeX | LuaLaTeX (better Unicode, OpenType) <br> LuaLaTeX（更好的 Unicode 与 OpenType 支持） |
-| **Output directory** <br> 输出目录 | Same as source (`examples/`) <br> 与源文件同目录 | Separate `build/` directory <br> 独立 `build/` 目录 |
-| **File layout** <br> 文件布局 | All in `examples/` subdirectory <br> 所有文件在 `examples/` 子目录 | Root-level entry points, cleaner structure <br> 根目录入口文件，结构更清晰 |
-| **Build targets** <br> 构建目标 | `make cv`, `make resume`, `make coverletter` | `make resume`, `make coverletter`, `make init`, `make clean`, `make help` — auto-named output via `-jobname` |
-| **CI/CD** | ❌ No workflow / 无工作流 | ✅ GitHub Actions: build + lint + artifact upload <br> ✅ GitHub Actions：构建 + lint + 产物上传 |
-
-### Style Tweaks / 样式微调
-
-Two modifications were made to `src/awesome-cv.cls`: / 对 `src/awesome-cv.cls` 做了三处微调：
-
-| Change / 修改 | Upstream / 上游 | This Fork / 本 fork | Why / 原因 |
-|---|---|---|---|
-| Header social info font size <br> 头部社交信息字号 | `\fontsize{6.8pt}{...}` | `\fontsize{9pt}{...}` | Better readability for contact details <br> 联系信息可读性更好 |
-| `\cventry` date column width <br> 日期列宽度 | `4.5cm` | `6.5cm` | Fits longer date ranges like “Oct 2022 – Present” <br> 适配更长的日期格式 |
-| `\cvsection` page break <br> 章节标题分页 | No protection <br> 无保护 | `\needspace{5\baselineskip}` | Prevents orphaned section titles at page bottom <br> 防止章节标题孤立在页底 |
-
-### Files Removed from Upstream / 从上游移除的文件
-
-These upstream files were removed as they are not needed in this fork: / 这些上游文件在本 fork 中已被移除：
-
-| Removed file / 移除的文件 | Reason / 原因 |
-|---|---|
-| `examples/` (entire directory / 整个目录) | Replaced by `src/main.tex` + `src/coverletter.tex` + `templates/sections/` <br> 被 `src/main.tex` + `src/coverletter.tex` + `templates/sections/` 替代 |
-| `icon.png` | Upstream branding, not needed / 上游品牌图标，不需要 |
-| `CODEOWNERS` | Upstream team config / 上游团队配置 |
-| `.github/labeler.yaml`, `labels.yaml` | Upstream issue labeling / 上游 Issue 标签配置 |
-| 2 upstream-specific workflows <br> 2 个上游专用工作流 | Replaced by fork's own CI / 被本 fork 自有 CI 替代 |
 
 ---
 
@@ -304,7 +211,7 @@ src/awesome-cv.cls ← shared style engine / 共享样式引擎
 
 ---
 
-## � Profile Management / 多版本管理
+## 📝 Profile Management / 多版本管理
 
 When applying to multiple companies, each application needs different emphasis — a different quote, cover letter, skill ordering, and experience bullets. The `cv` CLI manages these **profiles** so you can switch between company-specific versions instantly without breaking your working files. / 投递多家公司时，每份申请需要不同的侧重点——不同的座右铭、求职信、技能排序和经历描述。`cv` 命令行工具管理这些**配置档**，让你可以在各公司版本之间即时切换，而不会破坏工作文件。
 
@@ -362,7 +269,7 @@ Structural files (`src/main.tex`, `src/coverletter.tex`, `src/awesome-cv.cls`) a
 
 ---
 
-## �🎨 Customization / 自定义
+## 🎨 Customization / 自定义
 
 ### Change accent color / 修改主题色
 
@@ -437,6 +344,102 @@ The `tools/` directory contains standalone utilities that help build and maintai
 |---|---|
 | [`cv`](cv) | Profile manager CLI — switch between per-company CV/Cover Letter versions. Run `./cv --help` for usage. <br> 多版本管理工具——在各公司版本之间切换。运行 `./cv --help` 查看用法。 |
 | [`tech-stack-collector`](tools/tech-stack-collector/) | Scans your servers and generates AI-friendly Markdown reports of installed software, Docker containers, services, etc. Three modes: `curl\|python3` one-liner, local execution, SSH batch execution. <br> 扫描服务器并生成 AI 友好的 Markdown 报告，涵盖已安装软件、Docker 容器、服务等。三种模式：`curl\|python3` 一行命令、本地执行、SSH 批量执行。 |
+
+---
+
+## 📚 Background: CV vs Resume vs Cover Letter / 背景知识
+
+> If you already know the difference, skip to [Quick Start](#-quick-start--快速开始).
+>
+> 如果你已了解区别，可直接跳到[快速开始](#-quick-start--快速开始)。
+
+| Term / 术语 | What it is / 含义 | Length / 篇幅 | When to use / 使用场景 |
+|---|---|---|---|
+| **CV** (Curriculum Vitae) | A **complete** academic/professional record: every degree, publication, talk, committee, award. <br> **完整**的学术/职业履历：所有学位、论文、演讲、委员会、获奖 | 2 – 10+ pages <br> 2–10+ 页 | Academia, research positions, EU/UK job markets (where "CV" often = resume) <br> 学术界、科研岗位；欧洲/英国求职（"CV" 常等同于简历） |
+| **Resume** / **简历** (Résumé) | A **concise** highlight reel targeted at one role: key skills, recent experience, measurable results. <br> **精练**的亮点摘要，针对特定岗位：核心技能、近期经历、量化成果 | 1 – 2 pages <br> 1–2 页 | Industry jobs (US, Canada, most of Asia), any role where brevity is valued <br> 工业界（美国、加拿大、多数亚洲市场），任何看重简洁的场合 |
+| **Cover Letter** / **求职信** | A one-page letter explaining *why you* + *why this company/role*, with a personal tone. <br> 一封信，解释*为什么是你* + *为什么是这家公司/岗位*，带个人风格 | 1 page <br> 1 页 | Paired with either a CV or resume when the application asks for it <br> 配合 CV 或简历投递，当招聘方要求时使用 |
+
+**Regional note / 地区惯例**:
+In Germany, Austria, and much of the EU, the word "CV" is used interchangeably with "resume" — a 1–2 page document is expected for most industry roles. A multi-page academic CV is only for research positions. This fork follows the **EU/industry convention**: one concise document + cover letter.
+
+在德国、奥地利及欧盟大部分地区，"CV" 和 "resume" 混用——大多数工业岗位期望的是 1–2 页的文档，多页学术 CV 仅用于科研岗位。本 fork 遵循**欧盟/工业惯例**：一份精简文档 + 求职信。
+
+---
+
+## 🔀 Comparison with Upstream / 与上游对比
+
+This fork is derived from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV). The original code is preserved in the `upstream-original` branch for reference. / 本 fork 源自 [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV)。原始代码保留在 `upstream-original` 分支中供参考。
+
+### Document Types / 文档类型
+
+| | Upstream / 上游 | This Fork / 本 fork |
+|---|---|---|
+| **CV** (full academic / 完整学术版) | ✅ `examples/cv.tex` — 9 sections, multi-page <br> 9 个章节，多页 | ❌ Removed (not needed for industry) <br> 已移除（工业求职不需要） |
+| **Resume** (concise / 精简版) | ✅ `examples/resume.tex` — 5 active sections <br> 5 个活跃章节 | ✅ `src/main.tex` — 6 sections, restructured <br> 6 个章节，重构 |
+| **Cover Letter** / **求职信** | ✅ `examples/coverletter.tex` — inline body <br> 内嵌正文 | ✅ `src/coverletter.tex` — externalized body <br> 外部化正文 |
+
+Upstream provides three separate documents for different audiences. This fork keeps only the **resume** and **cover letter** — the two documents needed for industry job applications in EU/international markets. / 上游提供三种文档面向不同场景。本 fork 仅保留**简历**和**求职信**——欧盟/国际市场工业求职所需的两种文档。
+
+### Section Comparison / 章节对比
+
+The table below shows every content section across all upstream documents and this fork: / 下表展示了上游所有文档与本 fork 中的所有内容章节：
+
+| Section / 章节 | Upstream CV | Upstream Resume | This Fork | Notes / 说明 |
+|---|---|---|---|---|
+| **summary** | ❌ | ✅ | ✅ | Professional summary / 个人简介 |
+| **education** | ✅ | ✅ | ✅ | Degrees & universities / 学位与院校 |
+| **skills** | ✅ | ❌ | ✅ | Technical & language skills / 技能（本 fork 新增到简历中） |
+| **experience** | ✅ | ✅ | ✅ | Work history / 工作经历 |
+| **certificates** | ✅ | ✅ | ✅ | Professional certifications / 专业证书 |
+| **honors** | ✅ | ✅ | ✅ | Awards, scholarships / 荣誉、奖学金 |
+| **extracurricular** | ✅ | ❌ (commented) | ❌ | Clubs, volunteering / 课外活动 |
+| **presentation** | ✅ | ❌ (commented) | ❌ | Conference talks / 学术报告 |
+| **writing** | ✅ | ❌ (commented) | ❌ | Publications, blog posts / 出版物、博客 |
+| **committees** | ✅ | ❌ (commented) | ❌ | Academic/org committees / 学术委员会 |
+| **letter_body** | — | — | ✅ | Externalized cover letter body / 外部化的求职信正文 |
+
+**What changed / 变化总结**:
+- **Kept / 核心保留**: summary, education, experience, certificates, honors — the five pillars of an industry resume / 工业简历的五大支柱
+- **Promoted / 提升**: skills — moved from CV-only to the main resume (important for engineering roles) / 从仅限 CV 提升到主简历（对工程岗位很重要）
+- **Removed / 移除**: extracurricular, presentation, writing, committees — academic sections not needed for industry applications (can be re-added if needed) / 学术章节，工业求职不需要（可按需重新添加）
+- **Added / 新增**: letter_body.tex — cover letter body extracted to its own file for cleaner separation / 求职信正文提取为独立文件，分离更清晰
+
+### Architecture Comparison / 架构对比
+
+| Aspect / 方面 | Upstream / 上游 | This Fork / 本 fork |
+|---|---|---|
+| **Personal info** <br> 个人信息 | Hardcoded in each `.tex` file <br> 硬编码在各 `.tex` 文件中 | Centralized in `config.tex` (gitignored) <br> 集中在 `config.tex`（已 gitignore） |
+| **Letter recipient** <br> 信件收件人 | Hardcoded in `coverletter.tex` <br> 硬编码在 `coverletter.tex` 中 | Extracted to `letter_config.tex` (gitignored) <br> 提取到 `letter_config.tex`（已 gitignore） |
+| **Letter body** <br> 信件正文 | Inline in `coverletter.tex` <br> 内嵌在 `coverletter.tex` | External `sections/letter_body.tex` <br> 外部 `sections/letter_body.tex` |
+| **Privacy model** <br> 隐私模型 | ❌ None — real info pushed to git <br> ❌ 无——真实信息会推送到 git | ✅ 3-layer: config / letter_config / sections all gitignored <br> ✅ 三层保护：全部 gitignore |
+| **Template system** <br> 模板系统 | N/A <br> 无 | `.example` files + `templates/sections/` → `make init` copies <br> `.example` 文件 + `templates/sections/` → `make init` 自动复制 |
+| **LaTeX engine** <br> LaTeX 引擎 | XeLaTeX | LuaLaTeX (better Unicode, OpenType) <br> LuaLaTeX（更好的 Unicode 与 OpenType 支持） |
+| **Output directory** <br> 输出目录 | Same as source (`examples/`) <br> 与源文件同目录 | Separate `build/` directory <br> 独立 `build/` 目录 |
+| **File layout** <br> 文件布局 | All in `examples/` subdirectory <br> 所有文件在 `examples/` 子目录 | Root-level entry points, cleaner structure <br> 根目录入口文件，结构更清晰 |
+| **Build targets** <br> 构建目标 | `make cv`, `make resume`, `make coverletter` | `make resume`, `make coverletter`, `make init`, `make clean`, `make help` — auto-named output via `-jobname` |
+| **CI/CD** | ❌ No workflow / 无工作流 | ✅ GitHub Actions: build + lint + artifact upload <br> ✅ GitHub Actions：构建 + lint + 产物上传 |
+
+### Style Tweaks / 样式微调
+
+Two modifications were made to `src/awesome-cv.cls`: / 对 `src/awesome-cv.cls` 做了三处微调：
+
+| Change / 修改 | Upstream / 上游 | This Fork / 本 fork | Why / 原因 |
+|---|---|---|---|
+| Header social info font size <br> 头部社交信息字号 | `\fontsize{6.8pt}{...}` | `\fontsize{9pt}{...}` | Better readability for contact details <br> 联系信息可读性更好 |
+| `\cventry` date column width <br> 日期列宽度 | `4.5cm` | `6.5cm` | Fits longer date ranges like “Oct 2022 – Present” <br> 适配更长的日期格式 |
+| `\cvsection` page break <br> 章节标题分页 | No protection <br> 无保护 | `\needspace{5\baselineskip}` | Prevents orphaned section titles at page bottom <br> 防止章节标题孤立在页底 |
+
+### Files Removed from Upstream / 从上游移除的文件
+
+These upstream files were removed as they are not needed in this fork: / 这些上游文件在本 fork 中已被移除：
+
+| Removed file / 移除的文件 | Reason / 原因 |
+|---|---|
+| `examples/` (entire directory / 整个目录) | Replaced by `src/main.tex` + `src/coverletter.tex` + `templates/sections/` <br> 被 `src/main.tex` + `src/coverletter.tex` + `templates/sections/` 替代 |
+| `icon.png` | Upstream branding, not needed / 上游品牌图标，不需要 |
+| `CODEOWNERS` | Upstream team config / 上游团队配置 |
+| `.github/labeler.yaml`, `labels.yaml` | Upstream issue labeling / 上游 Issue 标签配置 |
+| 2 upstream-specific workflows <br> 2 个上游专用工作流 | Replaced by fork's own CI / 被本 fork 自有 CI 替代 |
 
 ---
 
