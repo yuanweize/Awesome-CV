@@ -26,28 +26,32 @@ jobs:
 
     - name: Setup for CI (use template data)
       run: |
-        cp config.tex.example config.tex
-        cp letter_config.tex.example letter_config.tex
+        cp templates/config.tex.example config.tex
+        cp templates/letter_config.tex.example letter_config.tex
         mkdir -p sections
-        cp sections_template/*.tex sections/
+        cp templates/sections/*.tex sections/
         echo "Using template data for CI build"
 
     - name: Compile Resume
       uses: xu-cheng/latex-action@v3
       with:
-        root_file: main.tex
+        root_file: src/main.tex
         latexmk_use_lualatex: true
+      env:
+        TEXINPUTS: "src/:.:"
 
     - name: Compile Cover Letter
       uses: xu-cheng/latex-action@v3
       with:
-        root_file: coverletter.tex
+        root_file: src/coverletter.tex
         latexmk_use_lualatex: true
+      env:
+        TEXINPUTS: "src/:.:"
 
     - name: Rename outputs for release
       run: |
-        mv main.pdf Awesome-CV_Example_Resume.pdf
-        mv coverletter.pdf Awesome-CV_Example_Cover_Letter.pdf
+        mv src/main.pdf Awesome-CV_Example_Resume.pdf
+        mv src/coverletter.pdf Awesome-CV_Example_Cover_Letter.pdf
 
     - name: Upload Resume PDF
       uses: actions/upload-artifact@v4

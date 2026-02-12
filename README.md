@@ -85,8 +85,8 @@ This fork is derived from [posquit0/Awesome-CV](https://github.com/posquit0/Awes
 | | Upstream / 上游 | This Fork / 本 fork |
 |---|---|---|
 | **CV** (full academic / 完整学术版) | ✅ `examples/cv.tex` — 9 sections, multi-page <br> 9 个章节，多页 | ❌ Removed (not needed for industry) <br> 已移除（工业求职不需要） |
-| **Resume** (concise / 精简版) | ✅ `examples/resume.tex` — 5 active sections <br> 5 个活跃章节 | ✅ `main.tex` — 6 sections, restructured <br> 6 个章节，重构 |
-| **Cover Letter** / **求职信** | ✅ `examples/coverletter.tex` — inline body <br> 内嵌正文 | ✅ `coverletter.tex` — externalized body <br> 外部化正文 |
+| **Resume** (concise / 精简版) | ✅ `examples/resume.tex` — 5 active sections <br> 5 个活跃章节 | ✅ `src/main.tex` — 6 sections, restructured <br> 6 个章节，重构 |
+| **Cover Letter** / **求职信** | ✅ `examples/coverletter.tex` — inline body <br> 内嵌正文 | ✅ `src/coverletter.tex` — externalized body <br> 外部化正文 |
 
 Upstream provides three separate documents for different audiences. This fork keeps only the **resume** and **cover letter** — the two documents needed for industry job applications in EU/international markets. / 上游提供三种文档面向不同场景。本 fork 仅保留**简历**和**求职信**——欧盟/国际市场工业求职所需的两种文档。
 
@@ -122,7 +122,7 @@ The table below shows every content section across all upstream documents and th
 | **Letter recipient** <br> 信件收件人 | Hardcoded in `coverletter.tex` <br> 硬编码在 `coverletter.tex` 中 | Extracted to `letter_config.tex` (gitignored) <br> 提取到 `letter_config.tex`（已 gitignore） |
 | **Letter body** <br> 信件正文 | Inline in `coverletter.tex` <br> 内嵌在 `coverletter.tex` | External `sections/letter_body.tex` <br> 外部 `sections/letter_body.tex` |
 | **Privacy model** <br> 隐私模型 | ❌ None — real info pushed to git <br> ❌ 无——真实信息会推送到 git | ✅ 3-layer: config / letter_config / sections all gitignored <br> ✅ 三层保护：全部 gitignore |
-| **Template system** <br> 模板系统 | N/A <br> 无 | `.example` files + `sections_template/` → `make init` copies <br> `.example` 文件 + `sections_template/` → `make init` 自动复制 |
+| **Template system** <br> 模板系统 | N/A <br> 无 | `.example` files + `templates/sections/` → `make init` copies <br> `.example` 文件 + `templates/sections/` → `make init` 自动复制 |
 | **LaTeX engine** <br> LaTeX 引擎 | XeLaTeX | LuaLaTeX (better Unicode, OpenType) <br> LuaLaTeX（更好的 Unicode 与 OpenType 支持） |
 | **Output directory** <br> 输出目录 | Same as source (`examples/`) <br> 与源文件同目录 | Separate `build/` directory <br> 独立 `build/` 目录 |
 | **File layout** <br> 文件布局 | All in `examples/` subdirectory <br> 所有文件在 `examples/` 子目录 | Root-level entry points, cleaner structure <br> 根目录入口文件，结构更清晰 |
@@ -131,7 +131,7 @@ The table below shows every content section across all upstream documents and th
 
 ### Style Tweaks / 样式微调
 
-Two modifications were made to `awesome-cv.cls`: / 对 `awesome-cv.cls` 做了三处微调：
+Two modifications were made to `src/awesome-cv.cls`: / 对 `src/awesome-cv.cls` 做了三处微调：
 
 | Change / 修改 | Upstream / 上游 | This Fork / 本 fork | Why / 原因 |
 |---|---|---|---|
@@ -145,7 +145,7 @@ These upstream files were removed as they are not needed in this fork: / 这些�
 
 | Removed file / 移除的文件 | Reason / 原因 |
 |---|---|
-| `examples/` (entire directory / 整个目录) | Replaced by root-level `main.tex` + `coverletter.tex` + `sections_template/` <br> 被根目录的 `main.tex` + `coverletter.tex` + `sections_template/` 替代 |
+| `examples/` (entire directory / 整个目录) | Replaced by `src/main.tex` + `src/coverletter.tex` + `templates/sections/` <br> 被 `src/main.tex` + `src/coverletter.tex` + `templates/sections/` 替代 |
 | `icon.png` | Upstream branding, not needed / 上游品牌图标，不需要 |
 | `CODEOWNERS` | Upstream team config / 上游团队配置 |
 | `.github/labeler.yaml`, `labels.yaml` | Upstream issue labeling / 上游 Issue 标签配置 |
@@ -185,9 +185,9 @@ This copies template files into your **private** working copies: / 该命令会�
 
 | Template (tracked) / 模板（受版本控制） | → | Your copy (gitignored) / 你的副本（已 gitignore） |
 |---|---|---|
-| `config.tex.example` | → | `config.tex` |
-| `letter_config.tex.example` | → | `letter_config.tex` |
-| `sections_template/*.tex` | → | `sections/*.tex` |
+| `templates/config.tex.example` | → | `config.tex` |
+| `templates/letter_config.tex.example` | → | `letter_config.tex` |
+| `templates/sections/*.tex` | → | `sections/*.tex` |
 
 ### Step 2: Edit your data / 第二步：填写你的数据
 
@@ -219,21 +219,25 @@ Output PDFs are in the `build/` directory, **automatically named from your `conf
 
 ```
 Awesome-CV/
-├── main.tex                    # Resume entry point / 简历入口
-├── coverletter.tex             # Cover letter entry point / 求职信入口
-├── awesome-cv.cls              # Style engine (fonts, colors, layout) / 样式引擎
 ├── Makefile                    # Build system / 构建系统
+├── cv                          # Profile manager CLI / 多版本管理工具 (./cv --help)
 │
-├── config.tex.example          # [TEMPLATE] Personal info / 个人信息模板
-├── letter_config.tex.example   # [TEMPLATE] Letter target / 申请目标模板
-├── sections_template/          # [TEMPLATE] CV content / 简历内容模板
-│   ├── summary.tex
-│   ├── education.tex
-│   ├── experience.tex
-│   ├── skills.tex
-│   ├── certificates.tex
-│   ├── honors.tex
-│   └── letter_body.tex
+├── src/                        # LaTeX source files / LaTeX 源文件
+│   ├── awesome-cv.cls          # Style engine (fonts, colors, layout) / 样式引擎
+│   ├── main.tex                # Resume entry point / 简历入口
+│   └── coverletter.tex         # Cover letter entry point / 求职信入口
+│
+├── templates/                  # [TEMPLATE] Public placeholders / 公开模板
+│   ├── config.tex.example      # Personal info template / 个人信息模板
+│   ├── letter_config.tex.example # Letter target template / 申请目标模板
+│   └── sections/               # CV content templates / 简历内容模板
+│       ├── summary.tex
+│       ├── education.tex
+│       ├── experience.tex
+│       ├── skills.tex
+│       ├── certificates.tex
+│       ├── honors.tex
+│       └── letter_body.tex
 │
 ├── config.tex                  # [PRIVATE] Your personal info / 你的个人信息
 ├── letter_config.tex           # [PRIVATE] Your letter target / 你的申请目标
@@ -241,19 +245,10 @@ Awesome-CV/
 │   └── (same files as above)
 │
 ├── build/                      # [PRIVATE] PDF outputs / PDF 输出
-│
-├── cv                          # Profile manager CLI / 多版本管理工具 (./cv --help)
 ├── profiles/                   # [PRIVATE] Per-company versions / 各公司版本
-│   ├── porsche/                #   config.tex, letter_config.tex, sections/
-│   ├── honeywell/
-│   └── valeo/
 │
 ├── tools/                      # CV building utilities / 简历构建工具集
 │   └── tech-stack-collector/   # Server tech stack scanner / 服务器技术栈扫描器
-│       ├── collector.py        # Main script (stdlib only) / 主脚本（仅标准库）
-│       ├── remote_runner.py    # SSH batch execution / SSH 批量执行
-│       ├── run.sh              # curl|bash wrapper
-│       └── reports/            # [PRIVATE] Collection output / 采集输出
 │
 ├── .gitignore                  # Protects all private files / 保护所有隐私文件
 ├── .github/                    # CI workflows / CI 工作流
@@ -270,9 +265,9 @@ Awesome-CV/
 
 ```
 config.tex ─────────┐
-  (who you are)      ├──→ main.tex ──────→ build/<Name>_CV.pdf
+  (who you are)      ├──→ src/main.tex ──────→ build/<Name>_CV.pdf
   (你是谁)           │
-                     ├──→ coverletter.tex → build/<Name>_Cover_Letter.pdf
+                     ├──→ src/coverletter.tex → build/<Name>_Cover_Letter.pdf
 letter_config.tex ──┘
   (who you apply to)  ↑
   (你投给谁)           │
@@ -281,16 +276,16 @@ sections/*.tex ────────┘
   (what you write)
   (你写了什么)
 
-awesome-cv.cls ← shared style engine / 共享样式引擎
+src/awesome-cv.cls ← shared style engine / 共享样式引擎
 ```
 
 > **Auto-naming**: The Makefile extracts `\name{First}{Last}` from `config.tex` to produce `First_Last_CV.pdf`. If `config.tex` doesn't exist yet, it falls back to `Awesome_CV.pdf`.
 >
 > **自动命名**：Makefile 从 `config.tex` 的 `\name{First}{Last}` 自动提取姓名生成 `First_Last_CV.pdf`。若 `config.tex` 不存在则回退为 `Awesome_CV.pdf`。
 
-- **`main.tex`** — assembles Resume by importing `config.tex` + `sections/*.tex` / 组装简历
-- **`coverletter.tex`** — assembles Cover Letter by importing `config.tex` + `letter_config.tex` + `sections/letter_body.tex` / 组装求职信
-- **`awesome-cv.cls`** — defines all visual styles (fonts, colors, commands like `\cventry`) / 定义所有视觉样式
+- **`src/main.tex`** — assembles Resume by importing `config.tex` + `sections/*.tex` / 组装简历
+- **`src/coverletter.tex`** — assembles Cover Letter by importing `config.tex` + `letter_config.tex` + `sections/letter_body.tex` / 组装求职信
+- **`src/awesome-cv.cls`** — defines all visual styles (fonts, colors, commands like `\cventry`) / 定义所有视觉样式
 - **`config.tex`** — your real name, phone, email (shared by both documents) / 真实姓名、电话、邮箱（两个文档共用）
 - **`letter_config.tex`** — target company, position (change per application) / 目标公司、职位（每次申请修改）
 
@@ -324,7 +319,7 @@ Each profile stores only the files that change between applications: / 每个配
 | `sections/*.tex` | All 7 section files / 全部 7 个章节文件 |
 | `*.pdf` | Compiled output (auto-saved on build) / 编译输出（构建时自动保存） |
 
-Structural files (`main.tex`, `coverletter.tex`, `awesome-cv.cls`) are **shared** — they define the layout and are tracked by git. / 结构文件（`main.tex`、`coverletter.tex`、`awesome-cv.cls`）是**共享的**——它们定义排版布局，由 git 跟踪。
+Structural files (`src/main.tex`, `src/coverletter.tex`, `src/awesome-cv.cls`) are **shared** — they define the layout and are tracked by git. / 结构文件（`src/main.tex`、`src/coverletter.tex`、`src/awesome-cv.cls`）是**共享的**——它们定义排版布局，由 git 跟踪。
 
 ### Commands / 命令
 
@@ -371,7 +366,7 @@ Structural files (`main.tex`, `coverletter.tex`, `awesome-cv.cls`) are **shared*
 
 ### Change accent color / 修改主题色
 
-Edit `main.tex` (or `coverletter.tex`): / 编辑 `main.tex`（或 `coverletter.tex`）：
+Edit `src/main.tex` (or `src/coverletter.tex`): / 编辑 `src/main.tex`（或 `src/coverletter.tex`）：
 
 ```latex
 % Built-in options / 内置选项:
@@ -385,7 +380,7 @@ Edit `main.tex` (or `coverletter.tex`): / 编辑 `main.tex`（或 `coverletter.t
 
 ### Change section order / 修改章节顺序
 
-Rearrange the `\input` lines in `main.tex`: / 调整 `main.tex` 中 `\input` 的顺序即可：
+Rearrange the `\input` lines in `src/main.tex`: / 调整 `src/main.tex` 中 `\input` 的顺序即可：
 
 ```latex
 \input{\contentpath/summary.tex}
@@ -398,8 +393,8 @@ Rearrange the `\input` lines in `main.tex`: / 调整 `main.tex` 中 `\input` 的
 
 ### Add/remove sections / 增删章节
 
-1. Create `sections/newsection.tex` (and optionally `sections_template/newsection.tex`) <br> 创建 `sections/newsection.tex`（可选地也创建模板版本）
-2. Add `\input{\contentpath/newsection.tex}` in `main.tex` <br> 在 `main.tex` 中添加 `\input{\contentpath/newsection.tex}`
+1. Create `sections/newsection.tex` (and optionally `templates/sections/newsection.tex`) <br> 创建 `sections/newsection.tex`（可选地也创建模板版本）
+2. Add `\input{\contentpath/newsection.tex}` in `src/main.tex` <br> 在 `src/main.tex` 中添加 `\input{\contentpath/newsection.tex}`
 
 ---
 
@@ -407,10 +402,10 @@ Rearrange the `\input` lines in `main.tex`: / 调整 `main.tex` 中 `\input` 的
 
 | Public (tracked by git) / 公开（受版本控制） | Private (gitignored) / 私有（已 gitignore） |
 |---|---|
-| `config.tex.example` | `config.tex` |
-| `letter_config.tex.example` | `letter_config.tex` |
-| `sections_template/` | `sections/` |
-| `awesome-cv.cls`, `main.tex`, `coverletter.tex` | `build/`, `*.pdf`, `meta/` |
+| `templates/config.tex.example` | `config.tex` |
+| `templates/letter_config.tex.example` | `letter_config.tex` |
+| `templates/sections/` | `sections/` |
+| `src/awesome-cv.cls`, `src/main.tex`, `src/coverletter.tex` | `build/`, `*.pdf`, `meta/` |
 | `tools/tech-stack-collector/*.py`, `*.sh` | `tools/tech-stack-collector/reports/`, `targets.yaml` |
 | `.github/`, `Makefile`, `README.md` | `PROJECT_HANDOFF.md` |
 

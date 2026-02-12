@@ -8,7 +8,7 @@
 % Privacy-First Architecture:
 % - config.tex: Your personal info (gitignored)
 % - sections/: Your real content (gitignored)
-% - sections_template/: Generic placeholders (tracked)
+% - templates/sections/: Generic placeholders (tracked)
 %
 
 %-------------------------------------------------------------------------------
@@ -49,15 +49,15 @@
 % CONTENT PATH CONFIGURATION
 % Change this to switch between template and real content
 %-------------------------------------------------------------------------------
-% For CI/demo: use sections_template
+% For CI/demo: use templates/sections
 % For personal use: use sections (gitignored)
 \newcommand{\contentpath}{sections}
 
-% Fallback: check if sections/ exists, otherwise use sections_template/
+% Fallback: check if sections/ exists, otherwise use templates/sections/
 \IfFileExists{sections/summary.tex}{
   \renewcommand{\contentpath}{sections}
 }{
-  \renewcommand{\contentpath}{sections_template}
+  \renewcommand{\contentpath}{templates/sections}
 }
 
 

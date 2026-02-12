@@ -8,7 +8,7 @@ set -euo pipefail
 # Each profile stores the files that change between job applications:
 #   config.tex, letter_config.tex, sections/*.tex, and compiled PDFs.
 #
-# Shared structural files (main.tex, coverletter.tex, awesome-cv.cls)
+# Shared structural files (src/main.tex, src/coverletter.tex, src/awesome-cv.cls)
 # are NOT profiled — they are common infrastructure tracked by git.
 #───────────────────────────────────────────────────────────────────────────────
 
@@ -296,7 +296,7 @@ ${BOLD}Examples:${RESET}
 
 ${BOLD}What's in a profile:${RESET}
   config.tex, letter_config.tex, sections/*.tex, and compiled PDFs.
-  Structural files (main.tex, coverletter.tex, awesome-cv.cls) are shared.
+  Structural files (src/main.tex, src/coverletter.tex, src/awesome-cv.cls) are shared.
 
 EOF
 }
