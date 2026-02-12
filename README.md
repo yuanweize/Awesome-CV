@@ -45,7 +45,8 @@ Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — re
   - [🗂️ Project Structure / 项目结构](#️-project-structure--项目结构)
   - [🔧 How It Works / 工作原理](#-how-it-works--工作原理)
   - [📦 Make Commands / 构建命令](#-make-commands--构建命令)
-  - [🎨 Customization / 自定义](#-customization--自定义)
+  - [� Profile Management / 多版本管理](#-profile-management--多版本管理)
+  - [�🎨 Customization / 自定义](#-customization--自定义)
     - [Change accent color / 修改主题色](#change-accent-color--修改主题色)
     - [Change section order / 修改章节顺序](#change-section-order--修改章节顺序)
     - [Add/remove sections / 增删章节](#addremove-sections--增删章节)
@@ -241,6 +242,12 @@ Awesome-CV/
 │
 ├── build/                      # [PRIVATE] PDF outputs / PDF 输出
 │
+├── cv                          # Profile manager CLI / 多版本管理工具 (./cv --help)
+├── profiles/                   # [PRIVATE] Per-company versions / 各公司版本
+│   ├── porsche/                #   config.tex, letter_config.tex, sections/
+│   ├── honeywell/
+│   └── valeo/
+│
 ├── tools/                      # CV building utilities / 简历构建工具集
 │   └── tech-stack-collector/   # Server tech stack scanner / 服务器技术栈扫描器
 │       ├── collector.py        # Main script (stdlib only) / 主脚本（仅标准库）
@@ -302,7 +309,65 @@ awesome-cv.cls ← shared style engine / 共享样式引擎
 
 ---
 
-## 🎨 Customization / 自定义
+## � Profile Management / 多版本管理
+
+When applying to multiple companies, each application needs different emphasis — a different quote, cover letter, skill ordering, and experience bullets. The `cv` CLI manages these **profiles** so you can switch between company-specific versions instantly without breaking your working files. / 投递多家公司时，每份申请需要不同的侧重点——不同的座右铭、求职信、技能排序和经历描述。`cv` 命令行工具管理这些**配置档**，让你可以在各公司版本之间即时切换，而不会破坏工作文件。
+
+### What's in a profile / 配置档包含什么
+
+Each profile stores only the files that change between applications: / 每个配置档只存储各申请间不同的文件：
+
+| File / 文件 | Purpose / 用途 |
+|---|---|
+| `config.tex` | Quote, personal branding / 座右铭、个人品牌 |
+| `letter_config.tex` | Recipient, position title / 收件方、职位名称 |
+| `sections/*.tex` | All 7 section files / 全部 7 个章节文件 |
+| `*.pdf` | Compiled output (auto-saved on build) / 编译输出（构建时自动保存） |
+
+Structural files (`main.tex`, `coverletter.tex`, `awesome-cv.cls`) are **shared** — they define the layout and are tracked by git. / 结构文件（`main.tex`、`coverletter.tex`、`awesome-cv.cls`）是**共享的**——它们定义排版布局，由 git 跟踪。
+
+### Commands / 命令
+
+| Command / 命令 | Description / 说明 |
+|---|---|
+| `./cv list` | List all profiles (active marked with ▸) / 列出所有配置档（当前活跃标 ▸） |
+| `./cv use <name>` | Load a profile into the working directory / 加载配置档到工作目录 |
+| `./cv save [name]` | Save current working files to a profile / 保存当前工作文件到配置档 |
+| `./cv build [name]` | Build PDFs — current if omitted, or a specific profile / 构建 PDF——省略则构建当前版本，或指定配置档 |
+| `./cv new <name>` | Create a new profile from current files / 从当前文件创建新配置档 |
+| `./cv diff <a> [b]` | Compare two profiles, or a profile vs working files / 比较两个配置档，或与工作文件 |
+| `./cv current` | Show the active profile / 显示当前活跃配置档 |
+| `./cv delete <name>` | Delete a profile / 删除配置档 |
+
+### Typical workflow / 典型工作流
+
+```bash
+# Start a new application / 开始新申请
+./cv new bosch                    # Creates profile from current files
+                                  # 从当前文件创建配置档
+
+# Edit config.tex, letter_config.tex, sections/ for the new target...
+# 编辑各文件以适应新目标公司...
+
+./cv save                         # Save changes to active profile
+                                  # 保存修改到当前配置档
+./cv build                        # Build PDFs
+                                  # 构建 PDF
+
+# Switch to a different version / 切换到其他版本
+./cv use porsche                  # Instantly loads Porsche version
+                                  # 立即加载保时捷版本
+
+# Build another profile without switching / 构建另一版本但不切换
+./cv build valeo                  # Temp swap → build → restore
+                                  # 临时切换 → 构建 → 恢复
+```
+
+> **Note / 注意**: The `profiles/` directory and `.active_profile` are gitignored — your per-company versions stay private. / `profiles/` 目录和 `.active_profile` 已 gitignore——各公司版本保持私有。
+
+---
+
+## �🎨 Customization / 自定义
 
 ### Change accent color / 修改主题色
 
@@ -375,6 +440,7 @@ The `tools/` directory contains standalone utilities that help build and maintai
 
 | Tool / 工具 | Description / 描述 |
 |---|---|
+| [`cv`](cv) | Profile manager CLI — switch between per-company CV/Cover Letter versions. Run `./cv --help` for usage. <br> 多版本管理工具——在各公司版本之间切换。运行 `./cv --help` 查看用法。 |
 | [`tech-stack-collector`](tools/tech-stack-collector/) | Scans your servers and generates AI-friendly Markdown reports of installed software, Docker containers, services, etc. Three modes: `curl\|python3` one-liner, local execution, SSH batch execution. <br> 扫描服务器并生成 AI 友好的 Markdown 报告，涵盖已安装软件、Docker 容器、服务等。三种模式：`curl\|python3` 一行命令、本地执行、SSH 批量执行。 |
 
 ---

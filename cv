@@ -1,0 +1,316 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#───────────────────────────────────────────────────────────────────────────────
+# CV Profile Manager
+# Manage per-company CV / Cover Letter profiles.
+#
+# Each profile stores the files that change between job applications:
+#   config.tex, letter_config.tex, sections/*.tex, and compiled PDFs.
+#
+# Shared structural files (main.tex, coverletter.tex, awesome-cv.cls)
+# are NOT profiled — they are common infrastructure tracked by git.
+#───────────────────────────────────────────────────────────────────────────────
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROFILES_DIR="$SCRIPT_DIR/profiles"
+ACTIVE_FILE="$SCRIPT_DIR/.active_profile"
+SECTIONS_DIR="$SCRIPT_DIR/sections"
+BUILD_DIR="$SCRIPT_DIR/build"
+
+# Files that compose a profile
+ROOT_FILES=(config.tex letter_config.tex)
+SECTION_FILES=(summary.tex experience.tex skills.tex letter_body.tex education.tex certificates.tex honors.tex)
+
+# ── Colors ────────────────────────────────────────────────────────────────────
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[0;33m'
+CYAN=$'\033[0;36m'
+BOLD=$'\033[1m'
+DIM=$'\033[2m'
+RESET=$'\033[0m'
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+get_current() {
+    if [[ -f "$ACTIVE_FILE" ]]; then
+        cat "$ACTIVE_FILE"
+    else
+        echo ""
+    fi
+}
+
+die() { echo -e "${RED}Error:${RESET} $*" >&2; exit 1; }
+
+profile_exists() {
+    [[ -d "$PROFILES_DIR/$1" ]]
+}
+
+available_profiles() {
+    ls "$PROFILES_DIR" 2>/dev/null | tr '\n' ' '
+}
+
+# ── Commands ──────────────────────────────────────────────────────────────────
+
+cmd_list() {
+    local current
+    current=$(get_current)
+
+    if [[ ! -d "$PROFILES_DIR" ]] || [[ -z "$(ls -A "$PROFILES_DIR" 2>/dev/null)" ]]; then
+        echo "No profiles found. Create one with: ./cv save <name>"
+        return
+    fi
+
+    printf "\n${BOLD}  Profiles${RESET}\n\n"
+
+    for dir in "$PROFILES_DIR"/*/; do
+        [[ -d "$dir" ]] || continue
+        local name
+        name=$(basename "$dir")
+
+        # Active marker
+        local marker="  "
+        [[ "$name" == "$current" ]] && marker="${GREEN}▸ ${RESET}"
+
+        # PDF indicator
+        local pdf_status="${DIM}no PDFs${RESET}"
+        if [[ -f "$dir/Weize_Yuan_CV.pdf" ]] && [[ -f "$dir/Weize_Yuan_Cover_Letter.pdf" ]]; then
+            pdf_status="${GREEN}CV + CL${RESET}"
+        elif [[ -f "$dir/Weize_Yuan_CV.pdf" ]]; then
+            pdf_status="${YELLOW}CV only${RESET}"
+        fi
+
+        # Count customized section files
+        local sec_count=0
+        for f in "${SECTION_FILES[@]}"; do
+            [[ -f "$dir/sections/$f" ]] && ((sec_count++))
+        done
+
+        printf "  %b%-16s  %b  ${DIM}(%d sections)${RESET}\n" "$marker" "$name" "$pdf_status" "$sec_count"
+    done
+    echo
+}
+
+cmd_use() {
+    local profile="${1:?Usage: ./cv use <profile>}"
+    profile_exists "$profile" || die "Profile '$profile' not found. Available: $(available_profiles)"
+
+    local profile_dir="$PROFILES_DIR/$profile"
+
+    # Copy root files
+    for f in "${ROOT_FILES[@]}"; do
+        [[ -f "$profile_dir/$f" ]] && cp "$profile_dir/$f" "$SCRIPT_DIR/$f"
+    done
+
+    # Copy section files
+    mkdir -p "$SECTIONS_DIR"
+    for f in "${SECTION_FILES[@]}"; do
+        [[ -f "$profile_dir/sections/$f" ]] && cp "$profile_dir/sections/$f" "$SECTIONS_DIR/$f"
+    done
+
+    echo "$profile" > "$ACTIVE_FILE"
+    echo -e "${GREEN}✓${RESET} Loaded profile: ${BOLD}$profile${RESET}"
+}
+
+cmd_save() {
+    local profile="${1:-$(get_current)}"
+    [[ -n "$profile" ]] || die "No profile name given and no active profile.\nUsage: ./cv save <profile>"
+
+    local profile_dir="$PROFILES_DIR/$profile"
+    mkdir -p "$profile_dir/sections"
+
+    # Copy root files
+    for f in "${ROOT_FILES[@]}"; do
+        [[ -f "$SCRIPT_DIR/$f" ]] && cp "$SCRIPT_DIR/$f" "$profile_dir/$f"
+    done
+
+    # Copy section files
+    for f in "${SECTION_FILES[@]}"; do
+        [[ -f "$SECTIONS_DIR/$f" ]] && cp "$SECTIONS_DIR/$f" "$profile_dir/sections/$f"
+    done
+
+    # Copy PDFs if available
+    for pdf in "$BUILD_DIR"/*.pdf; do
+        [[ -f "$pdf" ]] && cp "$pdf" "$profile_dir/"
+    done
+
+    echo "$profile" > "$ACTIVE_FILE"
+    echo -e "${GREEN}✓${RESET} Saved profile: ${BOLD}$profile${RESET}"
+}
+
+cmd_build() {
+    local profile="${1:-}"
+
+    # No profile specified → build current working version
+    if [[ -z "$profile" ]]; then
+        echo -e "${CYAN}Building current working version...${RESET}"
+        make -C "$SCRIPT_DIR" all
+        return
+    fi
+
+    profile_exists "$profile" || die "Profile '$profile' not found. Available: $(available_profiles)"
+
+    local profile_dir="$PROFILES_DIR/$profile"
+
+    # ── Snapshot current state ──
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    trap "rm -rf '$tmp_dir'" EXIT
+
+    for f in "${ROOT_FILES[@]}"; do
+        [[ -f "$SCRIPT_DIR/$f" ]] && cp "$SCRIPT_DIR/$f" "$tmp_dir/$f"
+    done
+    mkdir -p "$tmp_dir/sections"
+    for f in "${SECTION_FILES[@]}"; do
+        [[ -f "$SECTIONS_DIR/$f" ]] && cp "$SECTIONS_DIR/$f" "$tmp_dir/sections/$f"
+    done
+    local prev_profile
+    prev_profile=$(get_current)
+
+    # ── Build target profile ──
+    echo -e "${CYAN}Building profile: ${BOLD}$profile${RESET}"
+    cmd_use "$profile" > /dev/null
+    make -C "$SCRIPT_DIR" all
+
+    # Save PDFs back to profile
+    for pdf in "$BUILD_DIR"/*.pdf; do
+        [[ -f "$pdf" ]] && cp "$pdf" "$profile_dir/"
+    done
+
+    # ── Restore previous state ──
+    for f in "${ROOT_FILES[@]}"; do
+        [[ -f "$tmp_dir/$f" ]] && cp "$tmp_dir/$f" "$SCRIPT_DIR/$f"
+    done
+    for f in "${SECTION_FILES[@]}"; do
+        [[ -f "$tmp_dir/sections/$f" ]] && cp "$tmp_dir/sections/$f" "$SECTIONS_DIR/$f"
+    done
+    [[ -n "$prev_profile" ]] && echo "$prev_profile" > "$ACTIVE_FILE"
+
+    trap - EXIT
+    rm -rf "$tmp_dir"
+
+    echo -e "${GREEN}✓${RESET} Built profile: ${BOLD}$profile${RESET} → profiles/$profile/"
+}
+
+cmd_new() {
+    local profile="${1:?Usage: ./cv new <profile>}"
+    profile_exists "$profile" && die "Profile '$profile' already exists. Use './cv save $profile' to update it."
+    cmd_save "$profile"
+    echo -e "  ${DIM}Tip: edit files, then run './cv save $profile' to update${RESET}"
+}
+
+cmd_diff() {
+    local a="${1:?Usage: ./cv diff <a> [b]}"
+    local b="${2:-}"
+
+    profile_exists "$a" || die "Profile '$a' not found."
+
+    local dir_a="$PROFILES_DIR/$a"
+
+    if [[ -n "$b" ]]; then
+        # Compare two profiles
+        profile_exists "$b" || die "Profile '$b' not found."
+        local dir_b="$PROFILES_DIR/$b"
+        echo -e "${BOLD}Comparing profiles: ${CYAN}$a${RESET} vs ${CYAN}$b${RESET}\n"
+        diff -rq --exclude='*.pdf' "$dir_a" "$dir_b" 2>/dev/null || true
+    else
+        # Compare profile against current working files
+        echo -e "${BOLD}Comparing profile ${CYAN}$a${RESET} with current working files:\n"
+        local has_diff=false
+        for f in "${ROOT_FILES[@]}"; do
+            if ! diff -q "$dir_a/$f" "$SCRIPT_DIR/$f" &>/dev/null; then
+                echo -e "  ${YELLOW}≠${RESET} $f"
+                has_diff=true
+            else
+                echo -e "  ${GREEN}=${RESET} $f"
+            fi
+        done
+        for f in "${SECTION_FILES[@]}"; do
+            if ! diff -q "$dir_a/sections/$f" "$SECTIONS_DIR/$f" &>/dev/null; then
+                echo -e "  ${YELLOW}≠${RESET} sections/$f"
+                has_diff=true
+            else
+                echo -e "  ${GREEN}=${RESET} sections/$f"
+            fi
+        done
+        echo
+        if $has_diff; then
+            echo -e "  ${DIM}Use 'diff profiles/$a/<file> <file>' for details${RESET}"
+        else
+            echo -e "  ${GREEN}Working files match profile '$a'${RESET}"
+        fi
+    fi
+}
+
+cmd_current() {
+    local current
+    current=$(get_current)
+    if [[ -z "$current" ]]; then
+        echo "No active profile. Use './cv use <profile>' to load one."
+    else
+        echo -e "Active profile: ${BOLD}$current${RESET}"
+    fi
+}
+
+cmd_delete() {
+    local profile="${1:?Usage: ./cv delete <profile>}"
+    profile_exists "$profile" || die "Profile '$profile' not found."
+
+    local current
+    current=$(get_current)
+    [[ "$profile" == "$current" ]] && die "Cannot delete the active profile. Switch first with './cv use <other>'."
+
+    read -rp "Delete profile '$profile'? [y/N] " confirm
+    [[ "$confirm" =~ ^[Yy]$ ]] || { echo "Cancelled."; return; }
+
+    rm -rf "${PROFILES_DIR:?}/$profile"
+    echo -e "${GREEN}✓${RESET} Deleted profile: ${BOLD}$profile${RESET}"
+}
+
+# ── Usage ─────────────────────────────────────────────────────────────────────
+
+usage() {
+    cat <<EOF
+
+${BOLD}CV Profile Manager${RESET} — switch between per-company CV/Cover Letter versions
+
+${BOLD}Usage:${RESET} ./cv <command> [args]
+
+${BOLD}Commands:${RESET}
+  ${CYAN}list${RESET}                  List all profiles (active marked with ▸)
+  ${CYAN}use${RESET} <profile>         Load a profile into the working directory
+  ${CYAN}save${RESET} [profile]        Save current working files to a profile
+  ${CYAN}build${RESET} [profile]       Build PDFs (current if omitted, or specific profile)
+  ${CYAN}new${RESET} <profile>         Create a new profile from current working files
+  ${CYAN}diff${RESET} <a> [b]          Compare two profiles (b = current working if omitted)
+  ${CYAN}current${RESET}               Show the active profile name
+  ${CYAN}delete${RESET} <profile>      Delete a profile
+
+${BOLD}Examples:${RESET}
+  ./cv list                     # See all profiles
+  ./cv use porsche              # Switch to Porsche version
+  ./cv save                     # Save changes to current profile
+  ./cv build honeywell          # Build Honeywell PDFs without switching
+  ./cv new siemens              # Create new profile from current files
+  ./cv diff porsche valeo       # Compare two profiles
+
+${BOLD}What's in a profile:${RESET}
+  config.tex, letter_config.tex, sections/*.tex, and compiled PDFs.
+  Structural files (main.tex, coverletter.tex, awesome-cv.cls) are shared.
+
+EOF
+}
+
+# ── Dispatch ──────────────────────────────────────────────────────────────────
+case "${1:-}" in
+    list)    cmd_list ;;
+    use)     cmd_use "${2:-}" ;;
+    save)    cmd_save "${2:-}" ;;
+    build)   cmd_build "${2:-}" ;;
+    new)     cmd_new "${2:-}" ;;
+    diff)    cmd_diff "${2:-}" "${3:-}" ;;
+    current) cmd_current ;;
+    delete)  cmd_delete "${2:-}" ;;
+    -h|--help|help|"") usage ;;
+    *)       echo -e "${RED}Unknown command:${RESET} $1"; usage; exit 1 ;;
+esac

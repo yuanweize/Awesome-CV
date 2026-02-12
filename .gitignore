@@ -51,3 +51,7 @@ meta/
 
 # Handoff / internal notes
 PROJECT_HANDOFF.md
+
+# Per-company profiles (managed by ./cv)
+profiles/
+.active_profile
