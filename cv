@@ -267,6 +267,79 @@ cmd_delete() {
     echo -e "${GREEN}✓${RESET} Deleted profile: ${BOLD}$profile${RESET}"
 }
 
+# ── Interactive Menu ───────────────────────────────────────────────────────────
+
+cmd_interactive() {
+    local current
+    current=$(get_current)
+    local current_label=""
+    [[ -n "$current" ]] && current_label=" ${DIM}(active: ${RESET}${GREEN}$current${RESET}${DIM})${RESET}"
+
+    printf "\n${BOLD}  CV Profile Manager${RESET}%b\n\n" "$current_label"
+
+    local -a options=(
+        "list      List all profiles"
+        "use       Load a profile"
+        "save      Save current files to profile"
+        "build     Build PDFs"
+        "new       Create new profile"
+        "diff      Compare profiles"
+        "current   Show active profile"
+        "delete    Delete a profile"
+        "help      Show full usage"
+        "quit      Exit"
+    )
+
+    local i=1
+    for opt in "${options[@]}"; do
+        local cmd="${opt%%   *}"
+        local desc="${opt#*   }"
+        # Remove leading whitespace from desc
+        desc="${desc#"${desc%%[![:space:]]*}"}"
+        printf "  ${CYAN}%2d${RESET})  %-10s %s\n" "$i" "$cmd" "$desc"
+        ((i++))
+    done
+    echo
+
+    read -rp "  Choose [1-${#options[@]}]: " choice
+    echo
+
+    case "$choice" in
+        1) cmd_list ;;
+        2)
+            if [[ ! -d "$PROFILES_DIR" ]] || [[ -z "$(ls -A "$PROFILES_DIR" 2>/dev/null)" ]]; then
+                die "No profiles found."
+            fi
+            cmd_list
+            read -rp "  Profile name: " profile_name
+            [[ -n "$profile_name" ]] && cmd_use "$profile_name"
+            ;;
+        3) cmd_save "${1:-}" ;;
+        4)
+            read -rp "  Profile name (empty = current): " profile_name
+            cmd_build "$profile_name"
+            ;;
+        5)
+            read -rp "  New profile name: " profile_name
+            [[ -n "$profile_name" ]] && cmd_new "$profile_name" || die "Profile name required."
+            ;;
+        6)
+            read -rp "  First profile: " pa
+            read -rp "  Second profile (empty = current files): " pb
+            cmd_diff "$pa" "$pb"
+            ;;
+        7) cmd_current ;;
+        8)
+            cmd_list
+            read -rp "  Profile to delete: " profile_name
+            [[ -n "$profile_name" ]] && cmd_delete "$profile_name"
+            ;;
+        9) usage ;;
+        10|q|quit) echo "Bye." ; exit 0 ;;
+        *) die "Invalid choice: $choice" ;;
+    esac
+}
+
 # ── Usage ─────────────────────────────────────────────────────────────────────
 
 usage() {
@@ -311,6 +384,7 @@ case "${1:-}" in
     diff)    cmd_diff "${2:-}" "${3:-}" ;;
     current) cmd_current ;;
     delete)  cmd_delete "${2:-}" ;;
-    -h|--help|help|"") usage ;;
+    -h|--help|help) usage ;;
+    "")      cmd_interactive ;;
     *)       echo -e "${RED}Unknown command:${RESET} $1"; usage; exit 1 ;;
 esac
