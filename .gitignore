@@ -18,6 +18,8 @@
 build/
 
 ### Editor ###
+## VS Code workspace settings:
+.vscode/
 ## Vim & Emacs temp files:
 .*sw[op]
 *~
