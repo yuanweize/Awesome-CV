@@ -1,4 +1,4 @@
-.PHONY: all resume coverletter init clean help
+.PHONY: all resume coverletter merged init clean help
 
 CC = lualatex
 BUILD_DIR = build
@@ -15,7 +15,7 @@ AUTHOR     := $(if $(FIRST_NAME),$(FIRST_NAME)_$(LAST_NAME),Awesome)
 # Main targets
 #-------------------------------------------------------------------------------
 
-all: resume coverletter
+all: resume coverletter merged
 
 resume: | $(BUILD_DIR)
 	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_CV src/main.tex
@@ -26,6 +26,14 @@ coverletter: | $(BUILD_DIR)
 	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_Cover_Letter src/coverletter.tex
 	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_Cover_Letter src/coverletter.tex
 	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
+
+merged: resume coverletter
+	@if command -v pdfunite >/dev/null 2>&1; then \
+		pdfunite $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf $(BUILD_DIR)/$(AUTHOR)_CV.pdf $(BUILD_DIR)/$(AUTHOR)_Application.pdf; \
+		echo "  -> $(BUILD_DIR)/$(AUTHOR)_Application.pdf (merged)"; \
+	else \
+		echo "  ⚠ pdfunite not found, skipping merge (install poppler: brew install poppler)"; \
+	fi
 
 $(BUILD_DIR):
 	@mkdir -p $(BUILD_DIR)
@@ -84,6 +92,7 @@ help:
 	@echo "  make init        - First-time setup (creates private config files)"
 	@echo "  make resume      - Build $(BUILD_DIR)/$(AUTHOR)_CV.pdf"
 	@echo "  make coverletter - Build $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
-	@echo "  make all         - Build both"
+	@echo "  make merged      - Merge Cover Letter + CV into $(BUILD_DIR)/$(AUTHOR)_Application.pdf"
+	@echo "  make all         - Build all (resume + coverletter + merged)"
 	@echo "  make clean       - Remove all build artifacts"
 	@echo "  make help        - Show this help message"
