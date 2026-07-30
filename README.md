@@ -55,32 +55,7 @@ Forked from [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV) — re
     - [Section Comparison / 章节对比](#section-comparison--章节对比)
     - [Architecture Comparison / 架构对比](#architecture-comparison--架构对比)
     - [Style Tweaks / 样式微调](#style-tweaks--样式微调)
-    - [Files Removed from Upstream / 从上游移除的文件](#files-removed-from-upstream--从上游移除的文件)
-  - [📜 License / 许可证](#-license--许可证)
-
----
-
-## ⚙️ Prerequisites / 环境要求
-
-You need **LuaLaTeX** (part of TeX Live or MiKTeX). / 你需要 **LuaLaTeX**（TeX Live 或 MiKTeX 自带）。
-
-| Platform / 平台 | Install command / 安装命令 |
-|---|---|
-| **macOS** | `brew install --cask mactex` or install / 或安装 [TeX Live](https://www.tug.org/texlive/) |
-| **Ubuntu/Debian** | `sudo apt install texlive-full` |
-| **Windows** | Install / 安装 [MiKTeX](https://miktex.org/) or / 或 [TeX Live](https://www.tug.org/texlive/) |
-
-Verify installation / 验证安装：
-
-```bash
-lualatex --version
-```
-
----
-
-## 🚀 Quick Start / 快速开始
-
-### Step 1: Initialize / 第一步：初始化
+    - [Fil### Step 1: Initialize / 第一步：初始化
 
 ```bash
 git clone https://github.com/yuanweize/Awesome-CV.git
@@ -92,6 +67,7 @@ This copies template files into your **private** working copies: / 该命令会�
 
 | Template (tracked) / 模板（受版本控制） | → | Your copy (gitignored) / 你的副本（已 gitignore） |
 |---|---|---|
+| `templates/master_cv.yaml.example` | → | `meta/master_cv.yaml` (Single Source of Truth / 唯一事实源) |
 | `templates/config.tex.example` | → | `config.tex` |
 | `templates/letter_config.tex.example` | → | `letter_config.tex` |
 | `templates/sections/*.tex` | → | `sections/*.tex` |
@@ -100,7 +76,21 @@ This copies template files into your **private** working copies: / 该命令会�
 
 | File / 文件 | What to edit / 编辑内容 |
 |---|---|
+| `meta/master_cv.yaml` | **Single Source of Truth** for all your experience, education, grades & skills / 唯一事实源数据库 |
 | `config.tex` | Name, phone, email, address, GitHub, quote / 姓名、电话、邮箱、地址等个人信息 |
+| `letter_config.tex` | Target company, position, greeting / 目标公司、职位、称呼 |
+| `sections/*.tex` | Section TeX files derived from master_cv.yaml / 各章节 LaTeX 源码 |
+
+### Step 3: Validate & Build / 第三步：校验与构建
+
+```bash
+make validate    # Validate master_cv.yaml schema & integrity / 校验母CV数据
+make all         # Build both CV & Cover Letter / 构建简历 + 求职信
+make resume      # Resume only / 仅简历   → build/<Name>_CV.pdf
+make coverletter # Letter only / 仅求职信 → build/<Name>_Cover_Letter.pdf
+```
+
+Output PDFs are in the `build/` directory, **automatically named from your `config.tex`** (e.g., `Weize_Yuan_CV.pdf`). / 输出的 PDF 在 `build/` 目录下，**文件名自动从 `config.tex` 中提取**（如 `Weize_Yuan_CV.pdf`）。�、电话、邮箱、地址等个人信息 |
 | `letter_config.tex` | Target company, position, greeting / 目标公司、职位、称呼 |
 | `sections/summary.tex` | Professional summary / 个人简介 |
 | `sections/education.tex` | Education history / 教育经历 |

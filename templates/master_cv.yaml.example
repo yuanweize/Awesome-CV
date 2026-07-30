@@ -1,0 +1,142 @@
+# ==============================================================================
+# MASTER CV TEMPLATE - SINGLE SOURCE OF TRUTH (YAML DATABASE)
+# Awesome-CV Open Source Edition
+# 
+# Copy this file to `meta/master_cv.yaml` to initialize your master CV.
+# Run `make validate` to verify schema and data integrity.
+# ==============================================================================
+
+personal_information:
+  full_name: "Steve Jobs"
+  chinese_name: "史蒂夫·乔布斯"
+  date_of_birth: "1955-02-24"
+  location: "Cupertino, California, USA"
+  email: "steve@apple.com"
+  secondary_email: "steve@pixar.com"
+  phone_us: "+1 (408) 996-1010"
+  github: "stevejobs"
+  linkedin: "stevejobs"
+  website: "https://www.apple.com"
+  citizenship: "United States"
+  residency: "United States (Citizen)"
+
+education:
+  institution: "Reed College"
+  faculty: "Department of Humanities & Calligraphy"
+  degree: "Bachelor of Science (B.Sc. - Honorary)"
+  program_code: "RC1974"
+  program_name: "Computer Science & Calligraphy"
+  mode: "Full-time"
+  dates:
+    initiated: "1972-09-01"
+    graduated: "1974-06-01"
+    study_plan_closed: "1974-05-15"
+    official_study_events:
+      - date: "1972-09-01"
+        event: "Initiation of studies"
+      - date: "1974-06-01"
+        event: "Official graduation date"
+  academic_metrics:
+    earned_credits: 120
+    arithmetic_average: 1.0
+    weighted_average: 1.0
+  
+  bachelor_thesis:
+    title: "Typography, Calligraphy, and Graphical User Interfaces in Personal Computing"
+    grade_supervisor: "A (Excellent)"
+    grade_opponent: "A (Excellent)"
+    final_defense_grade: "A (Excellent)"
+    supervisor: "Prof. Robert Palladino"
+    handle_url: "https://hdl.handle.net/example/12345"
+    github_repository: "https://github.com/stevejobs/gui-typography"
+    summary: >
+      Pioneered proportional typography, proportional spacing, and elegant graphical user interfaces for personal computers.
+      Demonstrated how liberal arts and technology intersect to create intuitive human-computer interaction.
+
+  relevant_coursework:
+    electronics_and_hardware:
+      - code: "CS101"
+        name: "Calligraphy & Typography"
+        grade: "A"
+        topics: "Proportional fonts, kerning, type design, aesthetic layout"
+      - code: "CS202"
+        name: "Computer Architecture & Hardware Prototyping"
+        grade: "A"
+        topics: "Logic circuits, breadboarding, microprocessors, Bus systems"
+    
+    systems_control_and_math:
+      - code: "MATH101"
+        name: "Discrete Mathematics"
+        grade: "A"
+        topics: "Logic, set theory, graph theory"
+
+work_experience:
+  - company: "Apple Inc."
+    location: "Cupertino, CA, USA"
+    legal_role: "Co-Founder & CEO"
+    dates: "1997-09 - 2011-08"
+    description: "Led product strategy, design, and hardware-software integration for iconic platforms (iPhone, iPad, Mac, iPod)."
+    
+    divisions:
+      - title: "Chief Executive Officer & Product Architect"
+        dates: "1997 - 2011"
+        location: "Cupertino, CA"
+        highlights:
+          - "Spearheaded the design and launch of iPhone (iOS), iPad, iPod, and MacBook Air, revolutionizing 5 industries."
+          - "Architected NeXTSTEP / Mac OS X Unix-based operating system foundation (Cocoa, Objective-C, Mach kernel)."
+          - "Established Apple Retail stores and App Store ecosystem generating multi-billion dollar developer economies."
+
+  - company: "Pixar Animation Studios"
+    title: "Chief Executive Officer & Majority Owner"
+    location: "Emeryville, CA, USA"
+    dates: "1986-02 - 2006-05"
+    highlights:
+      - "Acquired Lucasfilm Computer Graphics Division and transformed it into premier 3D computer animation studio."
+      - "Executive produced Toy Story (1995), the world's first feature-length computer-animated film."
+
+open_source_and_projects:
+  - name: "NeXTSTEP OS"
+    role: "Architect & Executive"
+    stack: "Objective-C, Mach Kernel, Display PostScript, C"
+    stars: 5000
+    forks: 1200
+    repo: "https://github.com/apple/darwin-xnu"
+    summary: >
+      Object-oriented, multitasking Unix operating system that served as the foundation for Mac OS X and iOS.
+
+  - name: "WebKit Engine"
+    role: "Project Sponsor"
+    stack: "C++, JavaScript, HTML5"
+    stars: 8000
+    forks: 3000
+    repo: "https://github.com/WebKit/WebKit"
+    summary: >
+      Open-source web browser rendering engine powering Safari, iOS, and modern web applications.
+
+technical_skills:
+  programming_languages:
+    - name: "Objective-C / Swift"
+      level: "Expert"
+      tags: ["Cocoa", "Foundation", "AppKit", "UIKit", "CoreData"]
+    - name: "C / C++"
+      level: "Proficient"
+      tags: ["Mach Kernel", "POSIX", "Memory Management", "Graphics"]
+    - name: "Shell Scripting"
+      level: "Proficient"
+      tags: ["Bash", "Zsh", "Automation"]
+
+  embedded_electronics_and_hardware:
+    - category: "Microcontrollers & Systems"
+      items: ["Apple Silicon (M1/M2/A-series)", "MOS Technology 6502", "ARM Architecture"]
+    - category: "Hardware Prototyping"
+      items: ["Breadboarding", "Logic Analyzers", "PCB Layout Concepts", "Industrial Design Calibration"]
+
+  cloud_devops_and_infrastructure:
+    - category: "Operating Systems"
+      items: ["macOS", "iOS", "NeXTSTEP", "BSD", "Unix", "Linux"]
+    - category: "Developer Tools"
+      items: ["Xcode", "Git", "Make", "LLVM/Clang"]
+
+languages:
+  - language: "English"
+    proficiency: "Native"

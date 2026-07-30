@@ -379,7 +379,7 @@ def collect_devops() -> Tuple[str, str]:
         ("Terraform",      "terraform --version 2>&1 | head -1"),
         ("OpenTofu",       "tofu --version 2>&1 | head -1"),
         ("Ansible",        "ansible --version 2>&1 | head -1"),
-        ("kubectl",        "kubectl version --client --short 2>&1 | head -1"),
+        ("kubectl",        "kubectl version --client 2>&1 | head -1"),
         ("Helm",           "helm version --short 2>&1"),
         ("k3s",            "k3s --version 2>&1"),
         ("Minikube",       "minikube version --short 2>&1"),
@@ -1192,6 +1192,8 @@ def _extract_tags_from_sections(tags: TagStore, sections: dict[str, str], full: 
 
 # ── CLI ─────────────────────────────────────────────────────────────────────
 def main() -> None:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    default_reports = os.path.join(script_dir, "reports")
     parser = argparse.ArgumentParser(
         description="Collect server tech stack for CV/resume building.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1203,14 +1205,13 @@ def main() -> None:
         ),
     )
     parser.add_argument(
-        "--output-dir", "-o", default=".",
-        help="Directory to save the report file (default: cwd)",
+        "--output-dir", "-o", default=default_reports,
+        help=f"Directory to save the report file (default: {default_reports})",
     )
-    # When piped via curl, sys.argv may be ['-'] or empty; parse_args handles it.
     try:
         args = parser.parse_args()
     except SystemExit:
-        args = argparse.Namespace(output_dir=".")
+        args = argparse.Namespace(output_dir=default_reports)
 
     build_report(output_dir=args.output_dir)
 

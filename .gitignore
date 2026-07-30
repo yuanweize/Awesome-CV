@@ -32,7 +32,7 @@ build/
 __pycache__/
 
 #-------------------------------------------------------------------------------
-# PRIVACY - NEVER COMMIT THESE
+# PRIVACY - NEVER COMMIT SENSITIVE PRIVATE DATA
 #-------------------------------------------------------------------------------
 # Personal configuration (contains real PII)
 config.tex
@@ -43,15 +43,23 @@ letter_config.tex
 # Real content directory (contains your actual CV content)
 sections/
 
-#-------------------------------------------------------------------------------
-# Project specific
-#-------------------------------------------------------------------------------
-# Keep meta folder private if it contains personal notes
-meta/
-
-# Handoff / internal notes
-PROJECT_HANDOFF.md
+# Private master CV database and personal files in meta/
+meta/master_cv.yaml
+meta/*.pdf
+meta/*.png
+meta/*.jpg
+meta/*.jpeg
+meta/*.txt
+meta/cv_content.md
+meta/Yuan_Weize_Bachelor_Thesis_latest.md
 
 # Per-company profiles (managed by ./cv)
 profiles/
 .active_profile
+
+# Server scan reports (private IPs and node info)
+tools/tech-stack-collector/reports/*
+!tools/tech-stack-collector/reports/.gitkeep
+
+# Handoff / internal notes
+PROJECT_HANDOFF.md

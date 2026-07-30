@@ -1,5 +1,6 @@
-# tools/ — ignore runtime outputs & private configs
-reports/
+# tools/tech-stack-collector — ignore runtime outputs & private configs
+reports/*
+!reports/.gitkeep
 *.md
 !README.md
 targets.yaml

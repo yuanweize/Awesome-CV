@@ -81,24 +81,61 @@
 \defaultfontfeatures{
   Renderer=HarfBuzz,
 }
-% Use SourceSansPro from TeX Live (widely available) as fallback
-% If you have Source Sans 3 installed, you can switch to it
-\setmainfont{SourceSansPro}[
-  UprightFont=*-Regular,
-  ItalicFont=*-It,
-  BoldFont=*-Bold,
-  BoldItalicFont=*-BoldIt,
-  FontFace={l}{n}{Font=*-Light},
-  FontFace={l}{it}{Font=*-LightIt},
-]
-\setsansfont{SourceSansPro}[
-  UprightFont=*-Regular,
-  ItalicFont=*-It,
-  BoldFont=*-Bold,
-  BoldItalicFont=*-BoldIt,
-  FontFace={l}{n}{Font=*-Light},
-  FontFace={l}{it}{Font=*-LightIt},
-]
+% Use SourceSans3 or Roboto from TeX Live (widely available)
+\IfFontExistsTF{SourceSans3}{
+  \setmainfont{SourceSans3}[
+    UprightFont=*-Regular,
+    ItalicFont=*-It,
+    BoldFont=*-Bold,
+    BoldItalicFont=*-BoldIt,
+    FontFace={l}{n}{Font=*-Light},
+    FontFace={l}{it}{Font=*-LightIt},
+  ]
+  \setsansfont{SourceSans3}[
+    UprightFont=*-Regular,
+    ItalicFont=*-It,
+    BoldFont=*-Bold,
+    BoldItalicFont=*-BoldIt,
+    FontFace={l}{n}{Font=*-Light},
+    FontFace={l}{it}{Font=*-LightIt},
+  ]
+}{
+  \IfFontExistsTF{SourceSansPro}{
+    \setmainfont{SourceSansPro}[
+      UprightFont=*-Regular,
+      ItalicFont=*-It,
+      BoldFont=*-Bold,
+      BoldItalicFont=*-BoldIt,
+      FontFace={l}{n}{Font=*-Light},
+      FontFace={l}{it}{Font=*-LightIt},
+    ]
+    \setsansfont{SourceSansPro}[
+      UprightFont=*-Regular,
+      ItalicFont=*-It,
+      BoldFont=*-Bold,
+      BoldItalicFont=*-BoldIt,
+      FontFace={l}{n}{Font=*-Light},
+      FontFace={l}{it}{Font=*-LightIt},
+    ]
+  }{
+    \setmainfont{Roboto}[
+      UprightFont=*-Regular,
+      ItalicFont=*-Italic,
+      BoldFont=*-Bold,
+      BoldItalicFont=*-BoldItalic,
+      FontFace={l}{n}{Font=*-Light},
+      FontFace={l}{it}{Font=*-LightItalic},
+    ]
+    \setsansfont{Roboto}[
+      UprightFont=*-Regular,
+      ItalicFont=*-Italic,
+      BoldFont=*-Bold,
+      BoldItalicFont=*-BoldItalic,
+      FontFace={l}{n}{Font=*-Light},
+      FontFace={l}{it}{Font=*-LightItalic},
+    ]
+  }
+}
 \newfontfamily\roboto{Roboto}[
   UprightFont=*-Regular,
   ItalicFont=*-Italic,

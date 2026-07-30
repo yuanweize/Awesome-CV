@@ -1,4 +1,4 @@
-.PHONY: all resume coverletter merged init clean help
+.PHONY: all resume coverletter merged init clean help validate
 
 CC = lualatex
 BUILD_DIR = build
@@ -15,7 +15,11 @@ AUTHOR     := $(if $(FIRST_NAME),$(FIRST_NAME)_$(LAST_NAME),Awesome)
 # Main targets
 #-------------------------------------------------------------------------------
 
-all: resume coverletter merged
+all: validate resume coverletter merged
+
+validate:
+	@python3 tools/validate_master_cv.py
+
 
 resume: | $(BUILD_DIR)
 	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_CV src/main.tex
@@ -66,12 +70,19 @@ init:
 			echo "  Created sections/$$base from template"; \
 		fi; \
 	done
+	@mkdir -p meta
+	@if [ ! -f meta/master_cv.yaml ]; then \
+		cp templates/master_cv.yaml.example meta/master_cv.yaml; \
+		echo "  Created meta/master_cv.yaml from template"; \
+	else \
+		echo "  meta/master_cv.yaml already exists, skipping"; \
+	fi
 	@echo ""
 	@echo "Setup complete! Next steps:"
-	@echo "  1. Edit config.tex with your personal information"
-	@echo "  2. Edit letter_config.tex for your target job"
-	@echo "  3. Edit files in sections/ with your content"
-	@echo "  4. Run 'make resume' or 'make coverletter' or 'make all'"
+	@echo "  1. Edit meta/master_cv.yaml with your master database"
+	@echo "  2. Run 'make validate' to verify schema"
+	@echo "  3. Edit config.tex and sections/ for target roles"
+	@echo "  4. Run 'make resume' or './cv build <company>'"
 
 #-------------------------------------------------------------------------------
 # Cleanup
