@@ -78,7 +78,10 @@ def validate_master_cv(yaml_path):
     print(f"   • Personal Name: {pi.get('full_name')}")
     print(f"   • Education: {edu.get('degree')} at {edu.get('institution')}")
     print(f"   • Work Entries: {len(exp)} major employers/contracts")
-    print(f"   • Skill Categories: {len(skills)}")
+    certs = data.get('certifications_and_qualifications', [])
+    honors = data.get('honors_and_achievements', [])
+    print(f"   • Certifications: {len(certs)}")
+    print(f"   • Honors & Awards: {len(honors)}")
     if pi.get('driving_license'):
         print(f"   • Driving License: {pi.get('driving_license')}")
     return True
