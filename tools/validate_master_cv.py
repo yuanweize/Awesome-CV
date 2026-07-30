@@ -79,9 +79,15 @@ def validate_master_cv(yaml_path):
     print(f"   • Education: {edu.get('degree')} at {edu.get('institution')}")
     print(f"   • Work Entries: {len(exp)} major employers/contracts")
     certs = data.get('certifications_and_qualifications', [])
-    honors = data.get('honors_and_achievements', [])
+    honors_raw = data.get('honors_and_achievements', {})
+    if isinstance(honors_raw, dict):
+        total_honors = sum(len(v) if isinstance(v, list) else 1 for v in honors_raw.values())
+    elif isinstance(honors_raw, list):
+        total_honors = len(honors_raw)
+    else:
+        total_honors = 0
     print(f"   • Certifications: {len(certs)}")
-    print(f"   • Honors & Awards: {len(honors)}")
+    print(f"   • Honors & Awards: {total_honors} items (Publications, Competitions, Challenges)")
     if pi.get('driving_license'):
         print(f"   • Driving License: {pi.get('driving_license')}")
     return True
