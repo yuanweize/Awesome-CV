@@ -116,6 +116,12 @@ cmd_save() {
     local profile="${1:-$(get_current)}"
     [[ -n "$profile" ]] || die "No profile name given and no active profile.\nUsage: ./cv save <profile>"
 
+    local current
+    current=$(get_current)
+    if [[ -n "${1:-}" ]] && [[ -n "$current" ]] && [[ "$1" != "$current" ]]; then
+        die "Cannot save to profile '$1' because active working profile is '$current'. Switch first with './cv use $1'."
+    fi
+
     local profile_dir="$PROFILES_DIR/$profile"
     mkdir -p "$profile_dir/sections"
 
@@ -170,7 +176,7 @@ cmd_build() {
     # ── Build target profile ──
     echo -e "${CYAN}Building profile: ${BOLD}$profile${RESET}"
     cmd_use "$profile" > /dev/null
-    make -C "$SCRIPT_DIR" all
+    make -C "$SCRIPT_DIR" clean all
 
     # Save PDFs back to profile
     for pdf in "$BUILD_DIR"/*.pdf; do
@@ -195,8 +201,27 @@ cmd_build() {
 cmd_new() {
     local profile="${1:?Usage: ./cv new <profile>}"
     profile_exists "$profile" && die "Profile '$profile' already exists. Use './cv save $profile' to update it."
-    cmd_save "$profile"
-    echo -e "  ${DIM}Tip: edit files, then run './cv save $profile' to update${RESET}"
+
+    local profile_dir="$PROFILES_DIR/$profile"
+    mkdir -p "$profile_dir/sections"
+
+    if [[ -f "$SCRIPT_DIR/templates/config.tex.example" ]]; then
+        cp "$SCRIPT_DIR/templates/config.tex.example" "$profile_dir/config.tex"
+    fi
+    if [[ -f "$SCRIPT_DIR/templates/letter_config.tex.example" ]]; then
+        cp "$SCRIPT_DIR/templates/letter_config.tex.example" "$profile_dir/letter_config.tex"
+    fi
+    for f in "${SECTION_FILES[@]}"; do
+        if [[ -f "$SCRIPT_DIR/templates/sections/$f" ]]; then
+            cp "$SCRIPT_DIR/templates/sections/$f" "$profile_dir/sections/$f"
+        elif [[ -f "$SECTIONS_DIR/$f" ]]; then
+            cp "$SECTIONS_DIR/$f" "$profile_dir/sections/$f"
+        fi
+    done
+
+    cmd_use "$profile" > /dev/null
+    echo -e "${GREEN}✓${RESET} Created new clean profile: ${BOLD}$profile${RESET}"
+    echo -e "  ${DIM}Tip: edit files in root or profiles/$profile/, then run './cv build $profile'${RESET}"
 }
 
 cmd_diff() {
