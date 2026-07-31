@@ -1,4 +1,4 @@
-.PHONY: all resume coverletter merged init clean help validate validate-template context context-smoke privacy test check
+.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy test check dify-check dify-package
 
 CC = lualatex
 PYTHON ?= python3
@@ -24,6 +24,9 @@ validate:
 
 validate-template:
 	@$(PYTHON) tools/validate_master_cv.py templates/master_cv.yaml.example --strict
+
+status:
+	@./cv status
 
 context:
 	@test -n "$(JD)" || (echo "Usage: make context JD=path/to/job.md [ROLE=systems]" >&2; exit 2)
@@ -51,9 +54,18 @@ privacy:
 test:
 	@$(PYTHON) -m unittest discover -s tests -v
 	@$(PYTHON) -m compileall -q skills/evidence-first-cv/scripts tools tests
+	@$(PYTHON) -m compileall -q integrations/dify/plugin/engine integrations/dify/plugin/tools integrations/dify/plugin/provider
+	@$(PYTHON) -m py_compile integrations/dify/plugin/main.py integrations/dify/plugin/engine_adapter.py
 	@bash -n cv tools/tech-stack-collector/run.sh
 
 check: validate-template privacy test context-smoke
+
+dify-check:
+	@cd integrations/dify/plugin && uv sync --frozen
+	@cd integrations/dify/plugin && .venv/bin/python -c 'from dify_plugin.config.config import DifyPluginEnv; from dify_plugin.core.plugin_registration import PluginRegistration; r = PluginRegistration(DifyPluginEnv()); print("Dify plugin OK:", sorted(r.tools_mapping["evidence_first_cv"][2]))'
+
+dify-package:
+	@$(PYTHON) tools/package_dify_plugin.py
 
 
 resume: | $(BUILD_DIR)
@@ -142,11 +154,14 @@ help:
 	@echo "Targets:"
 	@echo "  make init        - First-time setup (creates private config files)"
 	@echo "  make validate    - Validate the private evidence-first master database"
+	@echo "  make status      - Report memory, manifests, applications, and profile drift"
 	@echo "  make context JD=job.md ROLE=systems - Export evidence-bound AI context"
 	@echo "  make context-smoke - Exercise the public JD-to-context workflow"
 	@echo "  make privacy     - Check tracked files for private data and secrets"
 	@echo "  make test        - Run unit and syntax tests"
 	@echo "  make check       - Validate template, privacy, and tests"
+	@echo "  make dify-check  - Sync the locked Dify SDK and load all plugin tools"
+	@echo "  make dify-package - Build and inspect a clean ignored .difypkg archive"
 	@echo "  make resume      - Build $(BUILD_DIR)/$(AUTHOR)_CV.pdf"
 	@echo "  make coverletter - Build $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
 	@echo "  make merged      - Merge Cover Letter + CV into $(BUILD_DIR)/$(AUTHOR)_Application.pdf"

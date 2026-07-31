@@ -41,7 +41,7 @@ job description + role family
       ↓
 generated private AI context
       ↓
-human review → profile source → PDF → ATS/render check
+application manifest → human approval → profile/PDF → outcome ledger
 ```
 
 Every exported claim carries a stable ID, exact scope, role tags, evidence
@@ -90,6 +90,18 @@ The skill is the AI control plane: it decides which workflow to run, maintains m
 maps a JD to claims, audits drafts, invokes deterministic scripts, validates PDFs, and
 records outcomes. The `cv` CLI remains the deterministic local execution layer.
 
+The intended interface is conversational. Open the repository in a compatible IDE
+agent and say:
+
+```text
+I need a new CV. Check the workspace first, then ask me for the JD.
+```
+
+After receiving the JD, the agent saves it privately, selects one role family, maps
+requirements to atomic claims, and returns a short recommendation plus at most three
+material questions. A simple “yes” or small correction unlocks drafting. You should
+not have to drive individual scripts or repeatedly explain your history.
+
 Inside this repository, `AGENTS.md` tells compatible coding agents to use the skill for
 CV/JD tasks. To install the skill in a personal Codex skill directory:
 
@@ -111,21 +123,24 @@ The bundled `assets/master_cv.yaml.example` also makes the skill portable when i
 installed outside this repository. The repository template and skill asset are tested
 for byte-for-byte equality so they cannot silently drift.
 
-## JD → AI context → tailored CV
+## JD → decision manifest → tailored CV
 
-Save the complete job description under an ignored private path:
+Check the workspace, then create the ignored per-application workspace:
 
 ```bash
-mkdir -p meta/jobs
-# Save the vacancy as meta/jobs/acme-systems.md
+./cv status
+./cv start --company "Acme" --title "Systems Engineer" \
+  --role systems --jd /path/to/acme-job.md
 ```
 
-Export only eligible claims for one role family:
+The command saves the exact JD as `meta/applications/<id>/jd.md` and creates an
+`application.yaml` traceability record. Export only eligible claims for the chosen
+role family:
 
 ```bash
 ./cv validate
 ./cv context \
-  --jd meta/jobs/acme-systems.md \
+  --jd meta/applications/<id>/jd.md \
   --role systems \
   --output build/acme-systems.generated.md
 ```
@@ -133,16 +148,22 @@ Export only eligible claims for one role family:
 Equivalent Make command:
 
 ```bash
-make context JD=meta/jobs/acme-systems.md ROLE=systems
+make context JD=meta/applications/<id>/jd.md ROLE=systems
 ```
 
 The generated context contains the JD, selected claim IDs, scopes, evidence
 references, explicit exclusions, and drafting rules. Contact details are excluded
 unless `--include-contact` is explicitly passed.
 
-Paste that Markdown into the AI tool of your choice. Require four outputs:
-requirement-to-claim mapping, one-page draft, claim/metric audit, and likely
-interview questions. A missing requirement must remain a gap.
+Before prose is drafted, record the requirement-to-claim mapping, explicit gaps,
+selected claims, and your approval in the manifest. Every final bullet maps back to
+claim IDs. Then run strict validation:
+
+```bash
+./cv manifest validate meta/applications/<id>/application.yaml --strict
+```
+
+A missing requirement remains a gap. The visible CV never contains internal IDs.
 
 完整流程见 [docs/AI_WORKFLOW.md](docs/AI_WORKFLOW.md)，schema 字段见
 [docs/MASTER_CV_SCHEMA.md](docs/MASTER_CV_SCHEMA.md)。
@@ -193,6 +214,9 @@ files stay shared.
 | `./cv archive <name> [--apply]` | Plan or apply a SHA-256-verified private archive move |
 | `./cv delete <name>` | Permanently delete a non-active profile after exact confirmation |
 | `./cv context ...` | Generate evidence-bound AI context |
+| `./cv status [--json]` | Preflight master, ledger, manifests, profiles, and unsaved state |
+| `./cv start ...` | Save one JD and initialize its private decision manifest |
+| `./cv manifest validate ...` | Check requirement/claim/bullet traceability and approval |
 | `./cv validate [yaml]` | Validate a master database |
 | `./cv privacy-check` | Inspect tracked files for leaks |
 | `./cv track ...` | Record stages, validate claim/role IDs, and report funnel metrics |
@@ -231,6 +255,7 @@ Awesome-CV/
 │   └── coverletter.tex             # Cover-letter entry point
 ├── templates/                      # Public placeholders only
 │   ├── master_cv.yaml.example      # Schema 3.x example
+│   ├── application_manifest.yaml.example # Per-JD traceability schema
 │   ├── config.tex.example
 │   ├── letter_config.tex.example
 │   └── sections/
@@ -239,11 +264,15 @@ Awesome-CV/
 │   ├── generate_ai_context.py
 │   ├── privacy_check.py
 │   ├── application_ledger.py
+│   ├── application_manifest.py
+│   ├── workspace_status.py
+│   ├── package_dify_plugin.py
 │   ├── archive_profile.py
 │   ├── author_slug.py
 │   ├── safe_clean.py
 │   └── tech-stack-collector/
 ├── skills/evidence-first-cv/       # Installable AI workflow + scripts/assets
+├── integrations/dify/              # Dify Tool Plugin + Agent system prompt
 ├── docs/
 ├── tests/
 ├── meta/                           # Private: master, ledger, JDs, durable evidence
@@ -277,6 +306,22 @@ the secret first, then decide whether history rewriting is necessary.
 Read [docs/PRIVACY.md](docs/PRIVACY.md) before using `--include-contact`, the
 tech-stack collector's `--full` mode, or a cloud AI service.
 
+## Dify/web workflow
+
+The Codex Skill is not directly executable by Dify, so the repository also ships a
+real Dify Tool Plugin. It exposes memory status/storage, bounded JD claim selection,
+and strict application-manifest validation while preserving the same deterministic
+engine. The included Agent prompt implements the “brief → a few questions → yes →
+draft” approval loop.
+
+Dify-only mode produces reviewed CV content and a portable manifest. Final LuaLaTeX
+PDF compilation, ATS extraction, and rendered-page inspection remain local unless you
+connect a separate trusted build service. Contact fields are redacted before Dify
+persistent storage by default; self-hosted Dify is recommended for real career data.
+
+See [integrations/dify/README.md](integrations/dify/README.md) for installation,
+packaging, Chatflow setup, and privacy boundaries.
+
 ## Evidence-first rules
 
 - One profile serves one role family.
@@ -307,6 +352,7 @@ example PDFs on pushes to `main`. CI never requires private working data.
 ## Documentation
 
 - [AI workflow](docs/AI_WORKFLOW.md)
+- [Dify integration](integrations/dify/README.md)
 - [Master CV schema](docs/MASTER_CV_SCHEMA.md)
 - [Privacy and secret handling](docs/PRIVACY.md)
 - [Evidence-first SOP](docs/EVIDENCE_FIRST_SOP.md)

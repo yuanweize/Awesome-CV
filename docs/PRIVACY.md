@@ -52,6 +52,18 @@ the allowed claim IDs.
 Use `--include-contact` only when the selected AI service and task genuinely require
 it. Contact details can be inserted locally after drafting.
 
+### Dify
+
+The Dify Tool Plugin persists a validated career memory in plugin storage. By default,
+it replaces direct email, phone, address, and birth-date fields before storage, and the
+JD context exporter never emits contact. The user's name, location, claims, evidence
+titles, JDs, and application manifests remain personal data.
+
+Prefer a private self-hosted Dify deployment for full career memory. On Dify Cloud,
+leave **Store contact details** disabled, review the chosen model provider's retention
+policy, and never upload raw evidence documents. Do not expose a public app backed by
+one person's preloaded memory. See [../integrations/dify/README.md](../integrations/dify/README.md).
+
 ## Tech-stack reports
 
 Safe mode omits high-risk topology sections and redacts host/user. `--full` includes

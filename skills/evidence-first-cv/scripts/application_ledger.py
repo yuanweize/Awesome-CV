@@ -16,6 +16,7 @@ import yaml
 
 STAGES = ("drafted", "applied", "recruiter-screen", "technical", "final", "offer", "rejected", "withdrawn")
 FUNNEL_STAGES = ("drafted", "applied", "recruiter-screen", "technical", "final", "offer")
+ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 
 
 def find_project_root() -> Path:
@@ -68,8 +69,8 @@ def validate_ledger(data: dict[str, Any]) -> None:
         if not isinstance(record, dict):
             raise ValueError(f"Application #{index} must be a mapping")
         application_id = record.get("id")
-        if not isinstance(application_id, str) or not application_id:
-            raise ValueError(f"Application #{index} has no ID")
+        if not isinstance(application_id, str) or not ID_PATTERN.fullmatch(application_id):
+            raise ValueError(f"Application #{index} has an invalid ID")
         if application_id in seen:
             raise ValueError(f"Duplicate application ID: {application_id}")
         seen.add(application_id)
@@ -131,7 +132,11 @@ def find_record(data: dict[str, Any], application_id: str) -> dict[str, Any]:
 def command_add(args: argparse.Namespace, data: dict[str, Any]) -> None:
     prefix = f"{today().replace('-', '')}-{slug(args.company)}-{slug(args.title)}"
     existing = {item.get("id") for item in data["applications"]}
-    application_id = prefix
+    application_id = args.id or prefix
+    if not ID_PATTERN.fullmatch(application_id):
+        raise ValueError("Application ID must use lowercase letters, numbers, dots, underscores, or hyphens")
+    if args.id and application_id in existing:
+        raise ValueError(f"Duplicate application ID: {application_id}")
     suffix = 2
     while application_id in existing:
         application_id = f"{prefix}-{suffix}"
@@ -146,9 +151,9 @@ def command_add(args: argparse.Namespace, data: dict[str, Any]) -> None:
         "source": args.source or "",
         "stage": "drafted",
         "claims_used": [],
-        "created_at": today(),
+        "created_at": args.date or today(),
         "updated_at": today(),
-        "events": [{"date": today(), "stage": "drafted", "note": args.note or ""}],
+        "events": [{"date": args.date or today(), "stage": "drafted", "note": args.note or ""}],
     }
     data["applications"].append(record)
     print(application_id)
@@ -167,7 +172,7 @@ def command_update(args: argparse.Namespace, data: dict[str, Any]) -> None:
         record["claims_used"] = sorted({item.strip() for item in args.claims.split(",") if item.strip()})
     if args.note or args.stage:
         record.setdefault("events", []).append(
-            {"date": today(), "stage": stage, "note": args.note or ""}
+            {"date": args.date or today(), "stage": stage, "note": args.note or ""}
         )
     print(f"Updated {args.id}: {stage}")
 
@@ -236,6 +241,8 @@ def main() -> int:
     add.add_argument("--profile")
     add.add_argument("--source")
     add.add_argument("--note")
+    add.add_argument("--id", help="Stable application ID; useful for importing legacy history")
+    add.add_argument("--date", help="Original event date; use 'unknown' when it was not recorded")
 
     update = subparsers.add_parser("update", help="Record a stage, note, profile, or claims")
     update.add_argument("id")
@@ -243,6 +250,7 @@ def main() -> int:
     update.add_argument("--note")
     update.add_argument("--profile")
     update.add_argument("--claims", help="Comma-separated claim IDs used in the CV")
+    update.add_argument("--date", help="Original event date; use 'unknown' when it was not recorded")
 
     show = subparsers.add_parser("show", help="Show one application")
     show.add_argument("id")

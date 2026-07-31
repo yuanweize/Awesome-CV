@@ -455,6 +455,18 @@ cmd_track() {
     python3 "$SCRIPT_DIR/tools/application_ledger.py" "$@"
 }
 
+cmd_status() {
+    python3 "$SCRIPT_DIR/tools/workspace_status.py" "$@"
+}
+
+cmd_start() {
+    python3 "$SCRIPT_DIR/tools/application_manifest.py" init "$@"
+}
+
+cmd_manifest() {
+    python3 "$SCRIPT_DIR/tools/application_manifest.py" "$@"
+}
+
 cmd_doctor() {
     assert_working_files_are_regular
     local dirty=false
@@ -646,6 +658,9 @@ ${BOLD}Commands:${RESET}
   ${CYAN}archive${RESET} <profile>     Dry-run a verified archive move; add --apply to move
   ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
+  ${CYAN}status${RESET} [--json]       Report memory, application, profile, and warning state
+  ${CYAN}start${RESET} [options]       Create a private JD + application-manifest workspace
+  ${CYAN}manifest${RESET} <command>    Validate an application decision/bullet manifest
   ${CYAN}validate${RESET} [yaml]       Validate the private master database
   ${CYAN}privacy-check${RESET}         Check tracked files for private data/secrets
   ${CYAN}track${RESET} <command>       Maintain the private application/outcome memory
@@ -662,6 +677,9 @@ ${BOLD}Examples:${RESET}
   ./cv archive old-role         # Plan only; no files move
   ./cv archive old-role --apply # Move after review and write SHA-256 manifest
   ./cv context --jd job.md --role systems -o build/job-context.md
+  ./cv status                    # Agent preflight before every application
+  ./cv start --company Acme --title "Systems Engineer" --role systems --jd job.md
+  ./cv manifest validate meta/applications/<id>/application.yaml --strict
   ./cv privacy-check
   ./cv track summary
   ./cv doctor
@@ -686,6 +704,9 @@ case "${1:-}" in
     archive) shift; cmd_archive "$@" ;;
     delete)  cmd_delete "${2:-}" ;;
     context) shift; cmd_context "$@" ;;
+    status) shift; cmd_status "$@" ;;
+    start) shift; cmd_start "$@" ;;
+    manifest) shift; cmd_manifest "$@" ;;
     validate) shift; cmd_validate "$@" ;;
     privacy-check) shift; cmd_privacy_check "$@" ;;
     track) shift; cmd_track "$@" ;;

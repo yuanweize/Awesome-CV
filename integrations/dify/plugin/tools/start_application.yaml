@@ -1,0 +1,72 @@
+identity:
+  name: start_application
+  author: yuanweize
+  label:
+    en_US: Start application manifest
+    zh_Hans: 创建申请清单
+description:
+  human:
+    en_US: Create a schema 1.0 application skeleton bound to the exact JD hash.
+    zh_Hans: 创建与当前 JD 哈希绑定的 schema 1.0 申请清单骨架。
+  llm: >-
+    Call after choosing one role family and before presenting the decision brief.
+    Preserve the returned IDs, JD hash, and path while filling requirements and claims.
+parameters:
+- name: company
+  type: string
+  required: true
+  label:
+    en_US: Company
+    zh_Hans: 公司
+  human_description:
+    en_US: Employer or client name from the JD.
+    zh_Hans: JD 中的雇主或客户名称。
+  llm_description: Exact company name from the vacancy.
+  form: llm
+- name: title
+  type: string
+  required: true
+  label:
+    en_US: Job title
+    zh_Hans: 岗位名称
+  human_description:
+    en_US: Exact vacancy title.
+    zh_Hans: 准确的职位名称。
+  llm_description: Exact vacancy title.
+  form: llm
+- name: role_family
+  type: string
+  required: true
+  label:
+    en_US: Role family
+    zh_Hans: 岗位族
+  human_description:
+    en_US: One role-family ID from career memory.
+    zh_Hans: 职业母库中的一个岗位族 ID。
+  llm_description: Exactly one validated role-family ID.
+  form: llm
+- name: job_description
+  type: string
+  required: true
+  label:
+    en_US: Job description
+    zh_Hans: 职位描述
+  human_description:
+    en_US: The exact complete JD used for analysis.
+    zh_Hans: 用于分析的完整原始 JD。
+  llm_description: Exact unmodified vacancy text.
+  form: llm
+- name: application_id
+  type: string
+  required: false
+  label:
+    en_US: Application ID
+    zh_Hans: 申请 ID
+  human_description:
+    en_US: Optional safe lowercase ID; leave empty for a deterministic company-title ID.
+    zh_Hans: 可选的小写安全 ID；留空则按公司和岗位生成。
+  llm_description: Leave empty unless a unique safe ID is needed.
+  form: llm
+extra:
+  python:
+    source: tools/start_application.py

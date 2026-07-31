@@ -1,0 +1,51 @@
+identity:
+  name: validate_application
+  author: yuanweize
+  label:
+    en_US: Validate application manifest
+    zh_Hans: 校验申请清单
+description:
+  human:
+    en_US: Check a manifest's requirement, claim, gap, and final-bullet references against stored memory.
+    zh_Hans: 根据职业记忆校验申请清单中的要求、事实、缺口和最终 bullet 映射。
+  llm: >-
+    Validate the structured application manifest after user confirmation and again after
+    drafting. A successful result is required before presenting a CV as final.
+parameters:
+- name: application_yaml
+  type: string
+  required: true
+  label:
+    en_US: Application manifest YAML
+    zh_Hans: 申请清单 YAML
+  human_description:
+    en_US: The application.yaml content created for this JD.
+    zh_Hans: 针对当前 JD 创建的 application.yaml 内容。
+  llm_description: Complete application manifest YAML.
+  form: llm
+- name: job_description
+  type: string
+  required: true
+  label:
+    en_US: Saved job description
+    zh_Hans: 已保存职位描述
+  human_description:
+    en_US: The exact JD text used to create the manifest.
+    zh_Hans: 创建清单时使用的完整 JD 文本。
+  llm_description: Exact vacancy text used by this application.
+  form: llm
+- name: strict
+  type: boolean
+  required: false
+  default: true
+  label:
+    en_US: Strict final validation
+    zh_Hans: 严格最终校验
+  human_description:
+    en_US: Require requirements, selected claims, confirmation, and final bullets.
+    zh_Hans: 要求职位需求、选中事实、用户确认和最终 bullet 均完整。
+  llm_description: Use true after the user approves the decision brief.
+  form: llm
+extra:
+  python:
+    source: tools/validate_application.py

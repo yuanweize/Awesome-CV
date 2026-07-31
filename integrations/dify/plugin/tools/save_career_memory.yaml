@@ -1,0 +1,41 @@
+identity:
+  name: save_career_memory
+  author: yuanweize
+  label:
+    en_US: Save career memory
+    zh_Hans: 保存职业记忆
+description:
+  human:
+    en_US: Validate and store a private schema 3.x master career YAML in Dify workspace storage.
+    zh_Hans: 校验并将私有 schema 3.x 职业母库保存到 Dify 工作区存储。
+  llm: >-
+    Validate and store the user's complete evidence-first master career YAML. Call only
+    when the user explicitly asks to initialize or replace Dify career memory. Never
+    echo contact details or private evidence locators in the response.
+parameters:
+- name: master_yaml
+  type: string
+  required: true
+  label:
+    en_US: Master career YAML
+    zh_Hans: 职业母库 YAML
+  human_description:
+    en_US: Complete private meta/master_cv.yaml content.
+    zh_Hans: 完整的私有 meta/master_cv.yaml 内容。
+  llm_description: Complete schema 3.x master YAML supplied by the user.
+  form: llm
+- name: store_contact
+  type: boolean
+  required: false
+  default: false
+  label:
+    en_US: Store contact details
+    zh_Hans: 保存联系方式
+  human_description:
+    en_US: Keep disabled unless this is a trusted self-hosted Dify deployment. The drafting context never exports contact details.
+    zh_Hans: 除非使用可信的自托管 Dify，否则保持关闭。生成上下文始终不导出联系方式。
+  llm_description: Never enable this. Only the user may opt in through the form.
+  form: form
+extra:
+  python:
+    source: tools/save_career_memory.py

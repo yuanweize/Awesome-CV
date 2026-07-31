@@ -17,3 +17,9 @@ Never use either as factual authority, and never move/delete historical files wi
 explicitly reviewed archive plan.
 
 Do not push application materials unless the user explicitly requests publication.
+
+For a natural-language “new CV” request, run `./cv status` first. If no complete JD
+is present, ask for it. After receiving the JD, create the private application workspace,
+map requirements to claims, and show a compact recommendation with at most three
+material questions. Wait for a simple user confirmation before drafting. Validate the
+final application manifest and PDF; do not mark it `applied` until the user says it was sent.

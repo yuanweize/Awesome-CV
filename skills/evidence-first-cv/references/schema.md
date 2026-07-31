@@ -9,6 +9,11 @@
 - `exclusions`: items AI must not promote.
 - human sections: navigation/archive only; not authoritative for AI export.
 
+Application state uses a separate schema 1.0 manifest under
+`meta/applications/<id>/application.yaml`. It binds the saved JD hash, role family,
+requirement matches, selected claims, human confirmation, and final bullets. It never
+adds facts to the master registry.
+
 ## Claim fields
 
 | Field | Rule |

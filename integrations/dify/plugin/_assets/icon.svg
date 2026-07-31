@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Evidence-First CV">
+  <rect width="128" height="128" rx="24" fill="#d94b3d"/>
+  <path d="M35 22h44l18 18v66H35z" fill="#fff"/>
+  <path d="M79 22v19h18" fill="none" stroke="#d94b3d" stroke-width="7"/>
+  <path d="M49 59l9 9 20-22M49 82h31M49 96h24" fill="none" stroke="#d94b3d" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"/>
+</svg>

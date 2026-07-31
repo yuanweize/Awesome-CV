@@ -27,8 +27,10 @@ from application_ledger import (  # noqa: E402
     validate_requested_references,
 )
 from archive_profile import apply_archive, archive_plan  # noqa: E402
+from application_manifest import new_manifest, sha256, validate_manifest  # noqa: E402
 from privacy_check import content_violations, git_files, path_violations  # noqa: E402
 from validate_master_cv import validate_master_cv  # noqa: E402
+from workspace_status import collect_status  # noqa: E402
 
 
 class MasterWorkflowTests(unittest.TestCase):
@@ -61,6 +63,11 @@ class MasterWorkflowTests(unittest.TestCase):
             asset.read_bytes(),
             "Keep the standalone skill asset in sync with the repository template",
         )
+
+    def test_manifest_asset_matches_repository_template(self) -> None:
+        template = ROOT / "templates" / "application_manifest.yaml.example"
+        asset = ROOT / "skills" / "evidence-first-cv" / "assets" / "application_manifest.yaml.example"
+        self.assertEqual(template.read_bytes(), asset.read_bytes())
 
     def test_planned_claim_cannot_be_cv_eligible(self) -> None:
         data = copy.deepcopy(self.template)
@@ -203,6 +210,8 @@ class MasterWorkflowTests(unittest.TestCase):
                 profile="example-systems",
                 source="direct",
                 note="",
+                id=None,
+                date=None,
             ),
             data,
         )
@@ -214,6 +223,7 @@ class MasterWorkflowTests(unittest.TestCase):
                 note="submitted",
                 profile=None,
                 claims="project.signalwatch-features,personal.lab-operation",
+                date=None,
             ),
             data,
         )
@@ -259,6 +269,111 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertIn("Applied: 1", rendered)
         self.assertIn("Recruiter screens: 1", rendered)
         self.assertIn("Technical interviews: 1", rendered)
+
+    def test_application_manifest_binds_requirements_and_bullets_to_claims(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            meta = root / "meta" / "applications" / "example"
+            meta.mkdir(parents=True)
+            jd = meta / "jd.md"
+            jd.write_text("Linux troubleshooting and Python automation\n", encoding="utf-8")
+            claim_id = "project.signalwatch-features"
+            data = new_manifest(
+                "example",
+                "Example Corp",
+                "Systems Engineer",
+                "systems",
+                "meta/applications/example/jd.md",
+                sha256(jd),
+                "example",
+            )
+            data["stage"] = "drafted"
+            data["decision"].update({"recommendation": "apply", "user_confirmed": True})
+            data["selected_claims"] = [claim_id]
+            data["requirements"] = [
+                {
+                    "id": "req.linux",
+                    "text": "Linux troubleshooting",
+                    "priority": "must",
+                    "match": "direct",
+                    "claim_ids": [claim_id],
+                }
+            ]
+            data["final_bullets"] = [
+                {
+                    "id": "bullet.project",
+                    "section": "projects",
+                    "text": "Built the SignalWatch network-probe service.",
+                    "claim_ids": [claim_id],
+                }
+            ]
+            errors = validate_manifest(data, self.template_path, root, strict=True)
+            self.assertEqual([], errors)
+
+    def test_application_manifest_rejects_gap_with_claim(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            meta = root / "meta" / "applications" / "example"
+            meta.mkdir(parents=True)
+            jd = meta / "jd.md"
+            jd.write_text("Kubernetes\n", encoding="utf-8")
+            claim_id = "project.signalwatch-features"
+            data = new_manifest(
+                "example",
+                "Example Corp",
+                "Systems Engineer",
+                "systems",
+                "meta/applications/example/jd.md",
+                sha256(jd),
+                "example",
+            )
+            data["selected_claims"] = [claim_id]
+            data["requirements"] = [
+                {
+                    "id": "req.kubernetes",
+                    "text": "Production Kubernetes",
+                    "priority": "must",
+                    "match": "gap",
+                    "claim_ids": [claim_id],
+                }
+            ]
+            errors = validate_manifest(data, self.template_path, root)
+            self.assertTrue(any("gap and cannot map claims" in error for error in errors))
+
+    def test_application_manifest_rejects_unsafe_profile_name(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            meta = root / "meta" / "applications" / "example"
+            meta.mkdir(parents=True)
+            jd = meta / "jd.md"
+            jd.write_text("Linux\n", encoding="utf-8")
+            data = new_manifest(
+                "example",
+                "Example Corp",
+                "Systems Engineer",
+                "systems",
+                "meta/applications/example/jd.md",
+                sha256(jd),
+                "../../outside",
+            )
+            errors = validate_manifest(data, self.template_path, root)
+            self.assertIn("target.profile must be a safe profile ID", errors)
+
+    def test_workspace_status_detects_dirty_active_profile(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "templates").mkdir()
+            shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
+            (root / "meta").mkdir()
+            shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
+            (root / "profiles" / "example" / "sections").mkdir(parents=True)
+            (root / "sections").mkdir()
+            (root / ".active_profile").write_text("example\n", encoding="utf-8")
+            (root / "config.tex").write_text("working\n", encoding="utf-8")
+            (root / "profiles" / "example" / "config.tex").write_text("saved\n", encoding="utf-8")
+            status = collect_status(root)
+            self.assertTrue(status["profiles"]["active_dirty"])
+            self.assertIn("config.tex", status["profiles"]["active_differences"])
 
     def make_cv_fixture(self, root: Path) -> Path:
         executable = root / "cv"

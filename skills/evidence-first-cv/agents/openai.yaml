@@ -1,4 +1,4 @@
 interface:
   display_name: "Evidence-First CV"
   short_description: "Drive AI CV drafting with verified atomic claims"
-  default_prompt: "Use $evidence-first-cv to turn this job description into an evidence-bound one-page CV and validate the result."
+  default_prompt: "Use $evidence-first-cv to check the workspace, analyse this JD against verified claims, show me a compact decision brief for confirmation, then create and validate a one-page CV."

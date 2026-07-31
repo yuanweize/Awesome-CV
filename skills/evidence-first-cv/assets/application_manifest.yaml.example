@@ -1,0 +1,59 @@
+schema_version: "1.0"
+application_id: "20260115-example-corp-junior-systems-engineer"
+stage: awaiting-confirmation
+created_at: "2026-01-15"
+updated_at: "2026-01-15"
+target:
+  company: "Example Corp"
+  title: "Junior Systems Engineer"
+  role_family: systems
+  profile: "20260115-example-corp-junior-systems-engineer"
+job_description:
+  path: "meta/applications/20260115-example-corp-junior-systems-engineer/jd.md"
+  sha256: "replace-with-the-saved-jd-sha256"
+  source_url: "https://jobs.example.org/example"
+decision:
+  recommendation: apply
+  reason: "Direct Linux and troubleshooting evidence; one adjacent monitoring requirement."
+  must_have_gaps: 0
+  user_confirmed: false
+  confirmed_at: ""
+questions:
+- id: q1
+  question: "Is occasional on-call acceptable?"
+  why_it_matters: "The JD lists a rotating support duty."
+  answer: ""
+requirements:
+- id: req.linux-troubleshooting
+  text: "Troubleshoot Linux services"
+  priority: must
+  match: direct
+  claim_ids:
+  - experience.northstar-linux-support
+  note: ""
+- id: req.kubernetes
+  text: "Production Kubernetes operations"
+  priority: nice
+  match: gap
+  claim_ids: []
+  note: "Do not add Kubernetes to the CV."
+selected_claims:
+- experience.northstar-linux-support
+- project.signalwatch-features
+final_bullets:
+- id: bullet.experience.linux-support
+  section: experience
+  text: "Investigated Linux service failures and documented reproduction steps for the operations team."
+  claim_ids:
+  - experience.northstar-linux-support
+artifacts:
+  profile: "20260115-example-corp-junior-systems-engineer"
+  cv_pdf: ""
+  cover_letter_pdf: ""
+  cv_sha256: ""
+  page_count: 0
+quality:
+  claim_audit: pending
+  ats_text_check: pending
+  visual_check: pending
+  privacy_check: pending

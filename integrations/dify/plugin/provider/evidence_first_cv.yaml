@@ -1,0 +1,22 @@
+identity:
+  author: yuanweize
+  name: evidence_first_cv
+  label:
+    en_US: Evidence-First CV
+    zh_Hans: 证据优先智能简历
+  description:
+    en_US: Evidence-bound career memory and JD-to-claim tools.
+    zh_Hans: 基于证据边界的职业记忆与职位匹配工具。
+  icon: icon.svg
+  tags:
+  - productivity
+credentials_for_provider: {}
+tools:
+- tools/career_memory_status.yaml
+- tools/save_career_memory.yaml
+- tools/build_job_context.yaml
+- tools/start_application.yaml
+- tools/validate_application.yaml
+extra:
+  python:
+    source: provider/evidence_first_cv.py

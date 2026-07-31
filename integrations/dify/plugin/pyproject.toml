@@ -1,0 +1,15 @@
+[project]
+name = "evidence-first-cv-dify"
+version = "0.1.0"
+description = "Dify tool plugin for evidence-bound AI CV workflows"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "dify-plugin>=0.9.0,<0.10.0",
+  "PyYAML>=6.0,<7.0",
+]
+
+[dependency-groups]
+dev = []
+
+[tool.uv]
+package = false

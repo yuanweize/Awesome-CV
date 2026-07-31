@@ -122,6 +122,27 @@ eligibility conflicts, personal-scope wording, and duplicate statements.
 Keep claim IDs stable after they appear in `meta/applications.yaml`; the ledger uses
 them to compare which proof reached recruiter, technical, final, and offer stages.
 
+## Per-application manifest schema 1.0
+
+The master schema answers “what is true?” The ignored
+`meta/applications/<id>/application.yaml` answers “what did this JD require, what did
+we select, what did the user approve, and which facts support each final bullet?”
+
+```bash
+./cv start --company "Example" --title "Systems Engineer" \
+  --role systems --jd /path/to/job.md
+./cv manifest validate meta/applications/<id>/application.yaml --strict
+```
+
+The manifest stores the JD path and SHA-256, target/role family, apply/stretch/defer
+decision, material questions, direct/adjacent/gap mappings, selected claim IDs, final
+bullet-to-claim mappings, artifact hashes, and QA status. It is private and is never a
+source of new career facts.
+
+Use `templates/application_manifest.yaml.example` as the public example. Strict
+validation requires parsed requirements, selected claims, user confirmation, and final
+bullets for drafted/final stages.
+
 中文原则：母库可以很大，但每次给 AI 的上下文必须很小。数据库保存全部事实和
 证据边界，导出器只选择与当前 JD 和岗位族相关、允许用于 CV、且能通过面试追问的
 原子 claim。

@@ -1,0 +1,17 @@
+identity:
+  name: career_memory_status
+  author: yuanweize
+  label:
+    en_US: Career memory status
+    zh_Hans: 职业记忆状态
+description:
+  human:
+    en_US: Report whether Dify career memory is initialized and return only non-sensitive counts.
+    zh_Hans: 检查 Dify 职业记忆是否已初始化，仅返回不敏感的统计信息。
+  llm: >-
+    Call at the start of a new-CV conversation. If memory is not initialized, ask
+    the user to import a validated master YAML. Never infer facts from chat history.
+parameters: []
+extra:
+  python:
+    source: tools/career_memory_status.py

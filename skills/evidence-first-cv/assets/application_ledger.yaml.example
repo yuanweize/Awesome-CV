@@ -4,7 +4,7 @@ applications:
   company: "Example Company"
   title: "Systems Engineer"
   role_family: "systems"
-  jd_file: "meta/jobs/example-systems.md"
+  jd_file: "meta/applications/20260115-example-systems-engineer/jd.md"
   profile: "example-systems"
   source: "company career page"
   stage: "drafted"

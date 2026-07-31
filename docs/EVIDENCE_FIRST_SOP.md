@@ -5,9 +5,10 @@
 1. Evidence registry: where proof exists.
 2. Atomic claim registry: exactly what may be stated.
 3. Role/JD context: which eligible claims matter now.
-4. Profile: human-edited application artifact.
-5. Application ledger: what happened after submission.
-6. Private archive: closed snapshots and research, never factual authority.
+4. Application manifest: requirement, decision, confirmation, claim, and bullet trace.
+5. Profile: human-edited application artifact.
+6. Application ledger: what happened after actual submission.
+7. Private archive: closed snapshots and research, never factual authority.
 
 Old CV wording and AI-generated interview notes are not factual sources.
 
@@ -35,13 +36,14 @@ prevent.
 1. Preserve the full JD privately.
 2. Map must-haves to eligible claim IDs.
 3. Decide apply, stretch, or defer.
-4. Clone a trusted base profile.
-5. Draft one page with two or three leading proof points.
-6. Audit every fact and metric against claim IDs.
-7. Build, extract text, render, and inspect.
-8. Run privacy checks.
-9. Record the application, claims used, stages, and outcome.
-10. After a terminal outcome, archive the snapshot with a verified manifest.
+4. Show a compact brief, ask at most three material questions, and wait for approval.
+5. Create or clone a private application profile.
+6. Draft one page with two or three leading proof points.
+7. Map every final bullet to claims and strictly validate the application manifest.
+8. Audit every fact and metric against claim IDs.
+9. Build, extract text, render, inspect, and run privacy checks.
+10. Record the application only when submitted; then record stages and outcome.
+11. After a terminal outcome, archive the snapshot with a verified archive manifest.
 
 ## Communication
 

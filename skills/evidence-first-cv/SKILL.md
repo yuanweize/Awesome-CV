@@ -31,6 +31,7 @@ cache authoritative.
   [references/claim-policy.md](references/claim-policy.md).
 - For a JD, tailored application, cover letter, or interview preparation: read
   [references/application-workflow.md](references/application-workflow.md) and
+  [references/interaction-contract.md](references/interaction-contract.md) and
   [references/writing-policy.md](references/writing-policy.md). Read
   [references/profile-quality-gates.md](references/profile-quality-gates.md)
   before accepting a final profile or PDF.
@@ -40,6 +41,8 @@ cache authoritative.
   [references/application-workflow.md](references/application-workflow.md).
 - For profile cleanup, migration, deduplication, or closed applications: read
   [references/archive-lifecycle.md](references/archive-lifecycle.md).
+- For Dify deployment or web input: read
+  [references/dify-adapter.md](references/dify-adapter.md).
 
 Read only the relevant references, but read each selected file completely.
 
@@ -56,7 +59,9 @@ Read only the relevant references, but read each selected file completely.
 python3 skills/evidence-first-cv/scripts/validate_master_cv.py
 ```
 
-4. Stop factual drafting when validation fails. Repair IDs, evidence references,
+4. In a repository, run `./cv status` and report material warnings such as an
+   invalid master, empty ledger, missing manifests, or unsaved active-profile changes.
+5. Stop factual drafting when validation fails. Repair IDs, evidence references,
    scopes, statuses, or eligibility first.
 
 ## Ingest evidence into memory
@@ -79,26 +84,45 @@ Require actual use, scope, and interview depth.
 
 ## Drive a job application
 
-1. Save the complete JD under ignored `meta/jobs/`; preserve must-haves and seniority.
-2. Choose exactly one role family. If no family fits, report the gap before drafting.
-3. Generate a bounded context:
+1. If the JD is missing, ask for it and stop. Do not draft a generic CV.
+2. Save the complete JD and initialize its private decision record:
+
+```bash
+./cv start --company "Example" --title "Systems Engineer" \
+  --role systems --jd /path/to/job.md
+```
+
+   This creates `meta/applications/<id>/jd.md` and `application.yaml`. Preserve
+   must-haves, seniority, location, language, work model, and salary when published.
+3. Choose exactly one role family. If no family fits, report the gap before drafting.
+4. Generate a bounded context from the saved JD:
 
 ```bash
 python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
-  --jd meta/jobs/company-role.md \
+  --jd meta/applications/<id>/jd.md \
   --role systems \
   --output build/company-role.generated.md
 ```
 
-4. Read the generated context rather than the full master.
-5. Produce a requirement-to-claim matrix with `direct`, `adjacent`, and `gap`.
-6. Draft only from selected claim IDs. Preserve scope and ownership verbs.
-7. Keep the claim IDs in a private audit, never in visible résumé prose.
-8. Prefer one page and two or three proof points. Do not create a static baseline
+5. Read the generated context rather than the full master.
+6. Populate the manifest with the requirement-to-claim matrix, explicit gaps,
+   recommendation, selected claims, and only questions that can change the output.
+7. Show the user a compact decision brief and at most three material questions.
+   Stop before drafting until the user confirms or corrects it.
+8. After confirmation, record it in the manifest and draft only from selected
+   claim IDs. Preserve scope and ownership verbs.
+9. Map every final bullet to claim IDs in the private manifest; never show IDs in
+   visible résumé prose. Run strict validation:
+
+```bash
+./cv manifest validate meta/applications/<id>/application.yaml --strict
+```
+
+10. Prefer one page and two or three proof points. Do not create a static baseline
    profile unless the user explicitly needs one.
-9. Use `./cv clone <trusted-base> <application>` only when an existing layout is
+11. Use `./cv clone <trusted-base> <application>` only when an existing layout is
    useful. It is a compatibility/build backend, not the intelligence layer.
-10. Tailor the cover letter only when requested or expected; never send the generic template.
+12. Tailor the cover letter only when requested or expected; never send the generic template.
 
 If the repository has `AGENTS.md`, treat it as routing metadata rather than
 career evidence. Never infer candidate facts from agent instructions.
@@ -129,7 +153,7 @@ Use the private application ledger:
 ```bash
 python3 skills/evidence-first-cv/scripts/application_ledger.py add \
   --company "Example" --title "Systems Engineer" --role systems \
-  --jd meta/jobs/example.md --profile example
+  --jd meta/applications/<id>/jd.md --profile example
 
 python3 skills/evidence-first-cv/scripts/application_ledger.py update <id> \
   --stage technical --claims project.example,experience.example
@@ -143,6 +167,9 @@ Use funnel evidence to choose the next change:
 - screens without technical interviews: narrative, eligibility, language, or salary;
 - repeated technical rejection: train the repeated technical gap;
 - offers with poor terms: negotiation and employer selection, not CV rewriting.
+
+Creating a draft does not mean it was submitted. Update the ledger to `applied`
+only when the user explicitly says the application was sent.
 
 ## Non-negotiable guardrails
 
