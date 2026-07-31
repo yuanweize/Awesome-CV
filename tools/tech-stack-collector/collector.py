@@ -61,8 +61,9 @@ UNUSABLE_OUTPUT_MARKERS = (
     "error:",
     "fatal:",
     "usage:",
-    "warning:",
+    "warning",
     "deprecated",
+    "<module>",
 )
 
 
@@ -70,7 +71,11 @@ def first_usable_line(output: str, limit: int = 80) -> str:
     """Return the first plausible version line, excluding shell/error noise."""
     for raw_line in output.splitlines():
         line = ANSI_ESCAPE.sub("", raw_line).strip()
-        if line and not any(marker in line.lower() for marker in UNUSABLE_OUTPUT_MARKERS):
+        if (
+            line
+            and not line.startswith("File \"")
+            and not any(marker in line.lower() for marker in UNUSABLE_OUTPUT_MARKERS)
+        ):
             return line[:limit]
     return ""
 

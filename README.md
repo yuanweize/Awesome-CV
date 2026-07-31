@@ -220,6 +220,7 @@ profiles.
 | `./cv archive <name> [--apply]` | Plan or apply a SHA-256-verified private archive move |
 | `./cv archive-research <source> <name> [--apply]` | Separately archive private research with hashes |
 | `./cv github-audit ...` | Refresh public repository metrics and Actions evidence into a private report |
+| `./cv tech-audit ...` | Refresh a private local technology inventory; safe mode is the default |
 | `./cv delete <name>` | Permanently delete a non-active profile after exact confirmation |
 | `./cv context ...` | Generate evidence-bound AI context |
 | `./cv status [--json]` | Preflight master, ledger, manifests, profiles, and unsaved state |

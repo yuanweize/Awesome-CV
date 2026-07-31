@@ -566,6 +566,11 @@ cmd_github_audit() {
     python3 "$SCRIPT_DIR/tools/github_inventory.py" "$@"
 }
 
+cmd_tech_audit() {
+    local output_dir="$SCRIPT_DIR/meta/inventory/hosts/local-$(date +%Y-%m-%d)"
+    "$SCRIPT_DIR/tools/tech-stack-collector/run.sh" --output-dir "$output_dir" "$@"
+}
+
 # ── Interactive Menu ───────────────────────────────────────────────────────────
 
 cmd_interactive() {
@@ -666,6 +671,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}archive${RESET} <profile>     Dry-run a verified archive move; add --apply to move
   ${CYAN}archive-research${RESET} ...  Archive private research separately with verification
   ${CYAN}github-audit${RESET} ...      Audit public repositories, metrics, and Actions workflows
+  ${CYAN}tech-audit${RESET} ...        Run local technology inventory; safe mode by default
   ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
   ${CYAN}status${RESET} [--json]       Report memory, application, profile, and warning state
@@ -688,6 +694,7 @@ ${BOLD}Examples:${RESET}
   ./cv archive old-role --apply # Move after review and write SHA-256 manifest
   ./cv archive-research profiles/old/interview_prep old-interview --apply
   ./cv github-audit             # Owner from private master; writes dated private JSON
+  ./cv tech-audit               # Write a private safe local technology inventory
   ./cv context --jd job.md --role systems -o build/job-context.md
   ./cv status                    # Agent preflight before every application
   ./cv start --company Acme --title "Systems Engineer" --role systems --jd job.md
@@ -716,6 +723,7 @@ case "${1:-}" in
     archive) shift; cmd_archive "$@" ;;
     archive-research) shift; cmd_archive_research "$@" ;;
     github-audit) shift; cmd_github_audit "$@" ;;
+    tech-audit) shift; cmd_tech_audit "$@" ;;
     delete)  cmd_delete "${2:-}" ;;
     context) shift; cmd_context "$@" ;;
     status) shift; cmd_status "$@" ;;

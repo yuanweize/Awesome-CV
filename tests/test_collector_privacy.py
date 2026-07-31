@@ -18,7 +18,12 @@ class CollectorPrivacyTests(unittest.TestCase):
     def test_version_filter_rejects_errors_and_keeps_real_version(self) -> None:
         output = "WARNING: deprecated flag\npermission denied\nClient Version: v1.33.9"
         self.assertEqual("Client Version: v1.33.9", collector.first_usable_line(output))
-        self.assertEqual("", collector.first_usable_line("Traceback: failed\nPermission denied"))
+        self.assertEqual(
+            "",
+            collector.first_usable_line(
+                'Traceback: failed\n  File "/usr/local/bin/tool", line 5, in <module>\nPermission denied'
+            ),
+        )
 
     def test_safe_system_inventory_redacts_hostname(self) -> None:
         with (

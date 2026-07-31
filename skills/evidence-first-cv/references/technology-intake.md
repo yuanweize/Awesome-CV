@@ -25,7 +25,7 @@ environment. Start in safe mode. Do not run remote collection without the target
 explicitly in scope.
 
 ```bash
-tools/tech-stack-collector/run.sh
+./cv tech-audit
 ```
 
 Safe mode omits raw identifiers, topology, package names, image names, paths, Git
