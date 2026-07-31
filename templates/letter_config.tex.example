@@ -6,10 +6,10 @@
 
 \recipient
   {Hiring Manager}
-  {Company Name\\Street Address\\City, Country}
+  {Example Systems GmbH\\Berlin, Germany}
 
 \letterdate{\today}
-\lettertitle{Application for Position Title}
+\lettertitle{Application for Junior Systems Engineer}
 \letteropening{Dear Hiring Manager,}
 \letterclosing{Sincerely,}
 \letterenclosure[Attached]{Curriculum Vitae}

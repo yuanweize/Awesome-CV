@@ -2,6 +2,14 @@ yaml-files:
 - '*.yaml'
 - '*.yml'
 
+ignore: |
+  meta/**
+  profiles/**
+  sections/**
+  build/**
+  tmp/**
+  tools/tech-stack-collector/targets.yaml
+
 rules:
   braces:
     min-spaces-inside: 0

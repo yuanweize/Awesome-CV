@@ -5,15 +5,13 @@
 %-------------------------------------------------------------------------------
 
 % Your name
-\name{John}{Doe}
-\position{Job Title{\enskip\cdotp\enskip}Another Title}
-\address{123 Main Street, City, Country}
+\name{Alex}{Example}
+\position{Systems Support Graduate{\enskip\cdotp\enskip}Computer Engineering B.Sc.}
+\address{Berlin, Germany}
 
-\mobile{+1 234 567 890}
-\email{email@example.com}
-\homepage{www.example.com}
-\github{username}
-\linkedin{username}
+\email{alex@example.org}
+\github{example-user}
+\linkedin{example-user}
 
 % Optional fields (uncomment as needed)
 % \dateofbirth{January 1st, 1990}
@@ -26,4 +24,4 @@
 % \telegram{telegram-username}
 
 % Quote shown in header
-\quote{``Your personal motto or quote here.''}
+% Keep the header concise; add a quote only when it adds real value.

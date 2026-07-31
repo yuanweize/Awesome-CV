@@ -30,6 +30,11 @@ build/
 ### Python ###
 .venv/
 __pycache__/
+*.py[cod]
+
+# Local QA and generated AI context
+tmp/
+*.generated.md
 
 #-------------------------------------------------------------------------------
 # PRIVACY - NEVER COMMIT SENSITIVE PRIVATE DATA
@@ -43,15 +48,9 @@ letter_config.tex
 # Real content directory (contains your actual CV content)
 sections/
 
-# Private master CV database and personal files in meta/
-meta/master_cv.yaml
-meta/*.pdf
-meta/*.png
-meta/*.jpg
-meta/*.jpeg
-meta/*.txt
-meta/cv_content.md
-meta/Yuan_Weize_Bachelor_Thesis_latest.md
+# Private master database, evidence, interview notes, and personal research.
+# Public guidance belongs in docs/, never in meta/.
+meta/
 
 # Per-company profiles (managed by ./cv)
 profiles/
@@ -60,6 +59,22 @@ profiles/
 # Server scan reports (private IPs and node info)
 tools/tech-stack-collector/reports/*
 !tools/tech-stack-collector/reports/.gitkeep
+tools/tech-stack-collector/targets.yaml
+tools/tech-stack-collector/targets.json
+
+# Secrets and local credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+credentials*.json
+secrets*.yaml
+secrets*.yml
 
 # Handoff / internal notes
 PROJECT_HANDOFF.md

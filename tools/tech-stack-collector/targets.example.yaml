@@ -6,23 +6,26 @@
 
 targets:
 - name: web-server-1
-  host: 192.168.1.100
+  host: 192.0.2.10                 # RFC 5737 documentation address
   port: 22
   user: root
   auth: key                        # "key" or "password"
+  strict_host_key: true            # reject unknown host keys by default
   key_path: ~/.ssh/id_ed25519      # path to private key
 
 - name: db-server-1
-  host: 10.0.0.50
+  host: 198.51.100.20              # RFC 5737 documentation address
   port: 22
   user: admin
   auth: password
-  password: changeme               # or omit to get prompted
+  strict_host_key: true
+  # Omit password so the runner prompts securely.
 
   # - name: another-server
   #   host: example.com
   #   port: 2222
   #   user: deploy
   #   auth: key
+  #   strict_host_key: true
   #   key_path: ~/.ssh/deploy_key
-  #   key_passphrase: optional-passphrase
+  #   key_passphrase: omit-and-use-agent-or-prompt

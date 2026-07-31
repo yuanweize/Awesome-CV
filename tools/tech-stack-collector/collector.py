@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-tech-stack-collector v1.0
+tech-stack-collector v2.0
 =========================
 Collect server technical stack information for CV/resume building.
 
@@ -8,6 +8,9 @@ Self-contained (stdlib only). Three ways to run:
   1. Local:   python3 collector.py [--output-dir /path]
   2. Remote:  curl -fsSL <raw-url>/collector.py | python3
   3. Via SSH:  see remote_runner.py
+
+Safe mode is the default. Use --full only when you understand that hostnames,
+ports, repository paths/remotes, cron entries, and environment data are sensitive.
 
 Output: Structured Markdown → stdout (streaming) + local file.
 """
@@ -27,7 +30,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 # ── Config ──────────────────────────────────────────────────────────────────
-VERSION = "1.0"
+VERSION = "2.0"
 CMD_TIMEOUT = 8          # seconds per shell command
 MAX_WORKERS = 10         # parallel command threads
 GIT_SCAN_DIRS = ["/home", "/root", "/srv", "/var/www", "/opt"]
@@ -79,7 +82,7 @@ def md_bullets(items: List[str]) -> str:
 # Each returns (section_title, markdown_content).
 # Content == "" means section is skipped in output.
 
-def collect_system() -> Tuple[str, str]:
+def collect_system(include_sensitive: bool = False) -> Tuple[str, str]:
     hostname = socket.gethostname()
     pretty = ""
     for line in run("cat /etc/os-release 2>/dev/null").split("\n"):
@@ -96,7 +99,7 @@ def collect_system() -> Tuple[str, str]:
     disk = run("df -h / 2>/dev/null | awk 'NR==2{print $2\" total, \"$3\" used, \"$5\" usage\"}'")
     uptime = run("uptime -p 2>/dev/null") or run("uptime | sed 's/.*up/up/'")
     lines = [
-        f"- **Hostname:** {hostname}",
+        f"- **Hostname:** {hostname if include_sensitive else '[redacted in safe mode]'}",
         f"- **OS:** {pretty or platform.platform()}",
         f"- **Kernel:** {kernel}" if kernel else "",
         f"- **Arch:** {arch}",
@@ -108,46 +111,47 @@ def collect_system() -> Tuple[str, str]:
     return "System", "\n".join(l for l in lines if l)
 
 
-def collect_docker() -> Tuple[str, str]:
+def collect_docker(safe: bool = True) -> Tuple[str, str]:
     if not has("docker") and not has("podman"):
         return "Docker / Containers", ""
     engine = "docker" if has("docker") else "podman"
     parts: list[str] = []
 
-    # Running containers
-    ps = run(f"{engine} ps --format '{{{{.Names}}}}\\t{{{{.Image}}}}\\t{{{{.Ports}}}}\\t{{{{.Status}}}}' 2>/dev/null")
-    if ps:
-        rows = [line.split("\t") for line in ps.split("\n") if line.strip()]
-        parts.append("### Running Containers\n\n" +
-                     md_table(["Name", "Image", "Ports", "Status"], rows))
-    else:
-        norun = run(f"{engine} ps -q 2>/dev/null")
-        parts.append("### Running Containers\n\n" +
-                     ("_None running_" if norun == "" else "_No permission_"))
+    # Names, ports, volumes, and networks may reveal internal topology.
+    if not safe:
+        ps = run(f"{engine} ps --format '{{{{.Names}}}}\\t{{{{.Image}}}}\\t{{{{.Ports}}}}\\t{{{{.Status}}}}' 2>/dev/null")
+        if ps:
+            rows = [line.split("\t") for line in ps.split("\n") if line.strip()]
+            parts.append("### Running Containers\n\n" +
+                         md_table(["Name", "Image", "Ports", "Status"], rows))
+        else:
+            norun = run(f"{engine} ps -q 2>/dev/null")
+            parts.append("### Running Containers\n\n" +
+                         ("_None running_" if norun == "" else "_No permission_"))
 
     # Images
     imgs = run(f"{engine} images --format '{{{{.Repository}}}}:{{{{.Tag}}}}\\t{{{{.Size}}}}' 2>/dev/null | head -30")
     if imgs:
         rows = [line.split("\t") for line in imgs.split("\n") if line.strip()]
+        if safe:
+            rows = [[row[0].rsplit("/", 1)[-1], *row[1:]] for row in rows]
         parts.append("### Images\n\n" + md_table(["Image", "Size"], rows))
 
-    # Compose
-    compose = run("docker compose ls --format 'table' 2>/dev/null | head -20")
-    if compose and "NAME" in compose:
-        parts.append(f"### Compose Projects\n\n```\n{compose}\n```")
+    if not safe:
+        compose = run("docker compose ls --format 'table' 2>/dev/null | head -20")
+        if compose and "NAME" in compose:
+            parts.append(f"### Compose Projects\n\n```\n{compose}\n```")
 
-    # Volumes
-    vols = run(f"{engine} volume ls --format '{{{{.Name}}}}' 2>/dev/null | head -20")
-    if vols:
-        parts.append("### Volumes\n\n" + md_bullets(vols.split("\n")))
+        vols = run(f"{engine} volume ls --format '{{{{.Name}}}}' 2>/dev/null | head -20")
+        if vols:
+            parts.append("### Volumes\n\n" + md_bullets(vols.split("\n")))
 
-    # Custom networks
-    nets = run(f"{engine} network ls --format '{{{{.Name}}}}\\t{{{{.Driver}}}}' 2>/dev/null")
-    if nets:
-        rows = [l.split("\t") for l in nets.split("\n")
-                if l.strip() and l.split("\t")[0] not in ("bridge", "host", "none")]
-        if rows:
-            parts.append("### Custom Networks\n\n" + md_table(["Name", "Driver"], rows))
+        nets = run(f"{engine} network ls --format '{{{{.Name}}}}\\t{{{{.Driver}}}}' 2>/dev/null")
+        if nets:
+            rows = [l.split("\t") for l in nets.split("\n")
+                    if l.strip() and l.split("\t")[0] not in ("bridge", "host", "none")]
+            if rows:
+                parts.append("### Custom Networks\n\n" + md_table(["Name", "Driver"], rows))
 
     return "Docker / Containers", "\n\n".join(parts)
 
@@ -354,7 +358,7 @@ def collect_databases() -> Tuple[str, str]:
     return "Databases", md_table(["Database", "Version", "Status"], rows) if rows else ""
 
 
-def collect_web_servers() -> Tuple[str, str]:
+def collect_web_servers(include_sites: bool = False) -> Tuple[str, str]:
     parts: list[str] = []
     for name, ver_cmd, sites_cmd in [
         ("Nginx",   "nginx -v 2>&1",                       "ls /etc/nginx/sites-enabled/ 2>/dev/null"),
@@ -366,7 +370,7 @@ def collect_web_servers() -> Tuple[str, str]:
         v = run(ver_cmd, timeout=5)
         if v and "not found" not in v.lower():
             line = f"- **{name}:** {v.split(chr(10))[0][:80]}"
-            if sites_cmd:
+            if sites_cmd and include_sites:
                 sites = run(sites_cmd)
                 if sites:
                     line += f"  (sites: {', '.join(sites.split())})"
@@ -958,38 +962,42 @@ SECTION_ORDER = [
 ]
 
 
-def build_report(output_dir: str = ".") -> str:
+def build_report(output_dir: str = ".", full: bool = False) -> str:
     hostname = socket.gethostname()
     ts = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     header = (
         f"# Tech Stack Report\n\n"
-        f"- **Host:** {hostname}\n"
+        f"- **Host:** {hostname if full else '[redacted in safe mode]'}\n"
         f"- **Date:** {ts}\n"
-        f"- **User:** {os.environ.get('USER', os.environ.get('LOGNAME', 'unknown'))}\n"
+        f"- **User:** {os.environ.get('USER', os.environ.get('LOGNAME', 'unknown')) if full else '[redacted in safe mode]'}\n"
         f"- **Collector:** tech-stack-collector v{VERSION}\n"
+        f"- **Mode:** {'full (sensitive)' if full else 'safe'}\n"
     )
     emit(header)
 
     collectors = [
-        collect_system,
-        collect_docker,
+        lambda: collect_system(include_sensitive=full),
+        lambda: collect_docker(safe=not full),
         collect_languages,
         collect_package_managers,
-        collect_key_dirs,
         collect_services,
-        collect_ports,
         collect_databases,
-        collect_web_servers,
+        lambda: collect_web_servers(include_sites=full),
         collect_devops,
         collect_cli_tools,
         collect_network_security,
-        collect_git_repos,
-        collect_cron,
         collect_virtualization,
         collect_monitoring,
-        collect_shell_env,
     ]
+    if full:
+        collectors.extend([
+            collect_key_dirs,
+            collect_ports,
+            collect_git_repos,
+            collect_cron,
+            collect_shell_env,
+        ])
 
     # Run all collectors in parallel
     section_map: dict[str, str] = {}
@@ -1208,12 +1216,22 @@ def main() -> None:
         "--output-dir", "-o", default=default_reports,
         help=f"Directory to save the report file (default: {default_reports})",
     )
+    parser.add_argument(
+        "--full", action="store_true",
+        help="Include sensitive host, topology, path, Git, cron, and environment data",
+    )
     try:
         args = parser.parse_args()
     except SystemExit:
-        args = argparse.Namespace(output_dir=default_reports)
+        args = argparse.Namespace(output_dir=default_reports, full=False)
 
-    build_report(output_dir=args.output_dir)
+    if args.full:
+        print(
+            "WARNING: --full may expose hostnames, internal paths, ports, Git remotes, "
+            "scheduled commands, and environment metadata.",
+            file=sys.stderr,
+        )
+    build_report(output_dir=args.output_dir, full=args.full)
 
 
 if __name__ == "__main__":

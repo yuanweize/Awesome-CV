@@ -1,7 +1,11 @@
-.PHONY: all resume coverletter merged init clean help validate
+.PHONY: all resume coverletter merged init clean help validate validate-template context context-smoke privacy test check
 
 CC = lualatex
+PYTHON ?= python3
 BUILD_DIR = build
+JD ?=
+ROLE ?=
+CONTEXT_OUTPUT ?= $(BUILD_DIR)/ai-context.generated.md
 
 # Add src/ to TeX search path so \documentclass{awesome-cv} finds awesome-cv.cls
 export TEXINPUTS := src/:.:$(TEXINPUTS)
@@ -18,7 +22,40 @@ AUTHOR     := $(if $(FIRST_NAME),$(FIRST_NAME)_$(LAST_NAME),Awesome)
 all: validate resume coverletter merged
 
 validate:
-	@python3 tools/validate_master_cv.py
+	@$(PYTHON) tools/validate_master_cv.py
+
+validate-template:
+	@$(PYTHON) tools/validate_master_cv.py templates/master_cv.yaml.example --strict
+
+context:
+	@test -n "$(JD)" || (echo "Usage: make context JD=path/to/job.md [ROLE=systems]" >&2; exit 2)
+	@mkdir -p $(BUILD_DIR)
+	@$(PYTHON) tools/generate_ai_context.py --jd "$(JD)" $(if $(ROLE),--role "$(ROLE)",) --output "$(CONTEXT_OUTPUT)"
+
+context-smoke:
+	@mkdir -p $(BUILD_DIR)
+	@$(PYTHON) tools/generate_ai_context.py \
+		--master templates/master_cv.yaml.example \
+		--jd tests/fixtures/systems_job.md \
+		--role systems \
+		--output $(BUILD_DIR)/context-smoke.generated.md
+	@grep -q 'project.signalwatch-features' $(BUILD_DIR)/context-smoke.generated.md
+	@if grep -q 'alex@example.org' $(BUILD_DIR)/context-smoke.generated.md; then \
+		echo "Context smoke test leaked contact data" >&2; exit 1; \
+	fi
+	@if grep -q 'private:employment-reference' $(BUILD_DIR)/context-smoke.generated.md; then \
+		echo "Context smoke test leaked a private evidence locator" >&2; exit 1; \
+	fi
+
+privacy:
+	@$(PYTHON) tools/privacy_check.py
+
+test:
+	@$(PYTHON) -m unittest discover -s tests -v
+	@$(PYTHON) -m compileall -q skills/evidence-first-cv/scripts tools tests
+	@bash -n cv tools/tech-stack-collector/run.sh
+
+check: validate-template privacy test context-smoke
 
 
 resume: | $(BUILD_DIR)
@@ -77,6 +114,12 @@ init:
 	else \
 		echo "  meta/master_cv.yaml already exists, skipping"; \
 	fi
+	@if [ ! -f meta/applications.yaml ]; then \
+		cp templates/applications.yaml.example meta/applications.yaml; \
+		echo "  Created meta/applications.yaml from template"; \
+	else \
+		echo "  meta/applications.yaml already exists, skipping"; \
+	fi
 	@echo ""
 	@echo "Setup complete! Next steps:"
 	@echo "  1. Edit meta/master_cv.yaml with your master database"
@@ -101,6 +144,12 @@ help:
 	@echo ""
 	@echo "Targets:"
 	@echo "  make init        - First-time setup (creates private config files)"
+	@echo "  make validate    - Validate the private evidence-first master database"
+	@echo "  make context JD=job.md ROLE=systems - Export evidence-bound AI context"
+	@echo "  make context-smoke - Exercise the public JD-to-context workflow"
+	@echo "  make privacy     - Check tracked files for private data and secrets"
+	@echo "  make test        - Run unit and syntax tests"
+	@echo "  make check       - Validate template, privacy, and tests"
 	@echo "  make resume      - Build $(BUILD_DIR)/$(AUTHOR)_CV.pdf"
 	@echo "  make coverletter - Build $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
 	@echo "  make merged      - Merge Cover Letter + CV into $(BUILD_DIR)/$(AUTHOR)_Application.pdf"

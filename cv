@@ -42,7 +42,15 @@ get_current() {
 
 die() { echo -e "${RED}Error:${RESET} $*" >&2; exit 1; }
 
+validate_profile_name() {
+    local profile="$1"
+    [[ "$profile" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] \
+        && [[ "$profile" != *..* ]] \
+        || die "Invalid profile name '$profile'. Use letters, numbers, dot, underscore, or hyphen; '..' is forbidden."
+}
+
 profile_exists() {
+    validate_profile_name "$1"
     [[ -d "$PROFILES_DIR/$1" ]]
 }
 
@@ -74,16 +82,17 @@ cmd_list() {
 
         # PDF indicator
         local pdf_status="${DIM}no PDFs${RESET}"
-        if [[ -f "$dir/Weize_Yuan_CV.pdf" ]] && [[ -f "$dir/Weize_Yuan_Cover_Letter.pdf" ]]; then
+        if find "$dir" -maxdepth 1 -name '*_CV.pdf' -print -quit | grep -q . \
+            && find "$dir" -maxdepth 1 -name '*_Cover_Letter.pdf' -print -quit | grep -q .; then
             pdf_status="${GREEN}CV + CL${RESET}"
-        elif [[ -f "$dir/Weize_Yuan_CV.pdf" ]]; then
+        elif find "$dir" -maxdepth 1 -name '*_CV.pdf' -print -quit | grep -q .; then
             pdf_status="${YELLOW}CV only${RESET}"
         fi
 
         # Count customized section files
         local sec_count=0
         for f in "${SECTION_FILES[@]}"; do
-            [[ -f "$dir/sections/$f" ]] && ((sec_count++))
+            [[ -f "$dir/sections/$f" ]] && ((sec_count += 1))
         done
 
         printf "  %b%-16s  %b  ${DIM}(%d sections)${RESET}\n" "$marker" "$name" "$pdf_status" "$sec_count"
@@ -97,14 +106,17 @@ cmd_use() {
 
     local profile_dir="$PROFILES_DIR/$profile"
 
-    # Copy root files
+    # Replace the working snapshot exactly. Leaving a missing file in place can
+    # silently carry a previous employer or claim into the selected profile.
     for f in "${ROOT_FILES[@]}"; do
+        rm -f "$SCRIPT_DIR/$f"
         [[ -f "$profile_dir/$f" ]] && cp "$profile_dir/$f" "$SCRIPT_DIR/$f"
     done
 
     # Copy section files
     mkdir -p "$SECTIONS_DIR"
     for f in "${SECTION_FILES[@]}"; do
+        rm -f "$SECTIONS_DIR/$f"
         [[ -f "$profile_dir/sections/$f" ]] && cp "$profile_dir/sections/$f" "$SECTIONS_DIR/$f"
     done
 
@@ -115,6 +127,7 @@ cmd_use() {
 cmd_save() {
     local profile="${1:-$(get_current)}"
     [[ -n "$profile" ]] || die "No profile name given and no active profile.\nUsage: ./cv save <profile>"
+    validate_profile_name "$profile"
 
     local current
     current=$(get_current)
@@ -161,8 +174,6 @@ cmd_build() {
     # ── Snapshot current state ──
     local tmp_dir
     tmp_dir=$(mktemp -d)
-    trap "rm -rf '$tmp_dir'" EXIT
-
     for f in "${ROOT_FILES[@]}"; do
         [[ -f "$SCRIPT_DIR/$f" ]] && cp "$SCRIPT_DIR/$f" "$tmp_dir/$f"
     done
@@ -172,6 +183,28 @@ cmd_build() {
     done
     local prev_profile
     prev_profile=$(get_current)
+    local had_active=false
+    [[ -f "$ACTIVE_FILE" ]] && had_active=true
+
+    restore_build_state() {
+        [[ -d "$tmp_dir" ]] || return 0
+        local file
+        for file in "${ROOT_FILES[@]}"; do
+            rm -f "$SCRIPT_DIR/$file"
+            [[ -f "$tmp_dir/$file" ]] && cp "$tmp_dir/$file" "$SCRIPT_DIR/$file"
+        done
+        for file in "${SECTION_FILES[@]}"; do
+            rm -f "$SECTIONS_DIR/$file"
+            [[ -f "$tmp_dir/sections/$file" ]] && cp "$tmp_dir/sections/$file" "$SECTIONS_DIR/$file"
+        done
+        if $had_active; then
+            printf '%s\n' "$prev_profile" > "$ACTIVE_FILE"
+        else
+            rm -f "$ACTIVE_FILE"
+        fi
+        rm -rf "$tmp_dir"
+    }
+    trap restore_build_state EXIT INT TERM
 
     # ── Build target profile ──
     echo -e "${CYAN}Building profile: ${BOLD}$profile${RESET}"
@@ -183,17 +216,9 @@ cmd_build() {
         [[ -f "$pdf" ]] && cp "$pdf" "$profile_dir/"
     done
 
-    # ── Restore previous state ──
-    for f in "${ROOT_FILES[@]}"; do
-        [[ -f "$tmp_dir/$f" ]] && cp "$tmp_dir/$f" "$SCRIPT_DIR/$f"
-    done
-    for f in "${SECTION_FILES[@]}"; do
-        [[ -f "$tmp_dir/sections/$f" ]] && cp "$tmp_dir/sections/$f" "$SECTIONS_DIR/$f"
-    done
-    [[ -n "$prev_profile" ]] && echo "$prev_profile" > "$ACTIVE_FILE"
-
-    trap - EXIT
-    rm -rf "$tmp_dir"
+    # ── Restore previous state, including after a failed build ──
+    restore_build_state
+    trap - EXIT INT TERM
 
     echo -e "${GREEN}✓${RESET} Built profile: ${BOLD}$profile${RESET} → profiles/$profile/"
 }
@@ -222,6 +247,48 @@ cmd_new() {
     cmd_use "$profile" > /dev/null
     echo -e "${GREEN}✓${RESET} Created new clean profile: ${BOLD}$profile${RESET}"
     echo -e "  ${DIM}Tip: edit files in root or profiles/$profile/, then run './cv build $profile'${RESET}"
+}
+
+cmd_clone() {
+    local source="${1:?Usage: ./cv clone <source> <new-profile>}"
+    local target="${2:?Usage: ./cv clone <source> <new-profile>}"
+    profile_exists "$source" || die "Profile '$source' not found."
+    validate_profile_name "$target"
+    ! profile_exists "$target" || die "Profile '$target' already exists."
+
+    local source_dir="$PROFILES_DIR/$source"
+    local target_dir="$PROFILES_DIR/$target"
+    mkdir -p "$target_dir/sections"
+    local file
+    for file in "${ROOT_FILES[@]}"; do
+        [[ -f "$source_dir/$file" ]] && cp "$source_dir/$file" "$target_dir/$file"
+    done
+    for file in "${SECTION_FILES[@]}"; do
+        [[ -f "$source_dir/sections/$file" ]] && cp "$source_dir/sections/$file" "$target_dir/sections/$file"
+    done
+    cmd_use "$target" > /dev/null
+    echo -e "${GREEN}✓${RESET} Cloned ${BOLD}$source${RESET} → ${BOLD}$target${RESET} (source files only)"
+}
+
+cmd_context() {
+    python3 "$SCRIPT_DIR/tools/generate_ai_context.py" "$@"
+}
+
+cmd_validate() {
+    python3 "$SCRIPT_DIR/tools/validate_master_cv.py" "$@"
+}
+
+cmd_privacy_check() {
+    python3 "$SCRIPT_DIR/tools/privacy_check.py" "$@"
+}
+
+cmd_track() {
+    python3 "$SCRIPT_DIR/tools/application_ledger.py" "$@"
+}
+
+cmd_doctor() {
+    cmd_validate
+    make -C "$SCRIPT_DIR" check
 }
 
 cmd_diff() {
@@ -379,18 +446,29 @@ ${BOLD}Commands:${RESET}
   ${CYAN}use${RESET} <profile>         Load a profile into the working directory
   ${CYAN}save${RESET} [profile]        Save current working files to a profile
   ${CYAN}build${RESET} [profile]       Build PDFs (current if omitted, or specific profile)
-  ${CYAN}new${RESET} <profile>         Create a new profile from current working files
+  ${CYAN}new${RESET} <profile>         Create a clean profile from public templates
+  ${CYAN}clone${RESET} <src> <new>     Clone a profile without stale PDFs
   ${CYAN}diff${RESET} <a> [b]          Compare two profiles (b = current working if omitted)
   ${CYAN}current${RESET}               Show the active profile name
   ${CYAN}delete${RESET} <profile>      Delete a profile
+  ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
+  ${CYAN}validate${RESET} [yaml]       Validate the private master database
+  ${CYAN}privacy-check${RESET}         Check tracked files for private data/secrets
+  ${CYAN}track${RESET} <command>       Maintain the private application/outcome memory
+  ${CYAN}doctor${RESET}                Validate private memory and run repository checks
 
 ${BOLD}Examples:${RESET}
   ./cv list                     # See all profiles
-  ./cv use porsche              # Switch to Porsche version
+  ./cv use acme-systems         # Switch to one application snapshot
   ./cv save                     # Save changes to current profile
-  ./cv build honeywell          # Build Honeywell PDFs without switching
-  ./cv new siemens              # Create new profile from current files
-  ./cv diff porsche valeo       # Compare two profiles
+  ./cv build acme-systems       # Build another profile without switching
+  ./cv new acme-systems         # Create a clean profile from public templates
+  ./cv clone prior-good acme    # Optionally reuse a trusted layout
+  ./cv diff acme beta           # Compare two application snapshots
+  ./cv context --jd job.md --role systems -o build/job-context.md
+  ./cv privacy-check
+  ./cv track summary
+  ./cv doctor
 
 ${BOLD}What's in a profile:${RESET}
   config.tex, letter_config.tex, sections/*.tex, and compiled PDFs.
@@ -406,9 +484,15 @@ case "${1:-}" in
     save)    cmd_save "${2:-}" ;;
     build)   cmd_build "${2:-}" ;;
     new)     cmd_new "${2:-}" ;;
+    clone)   cmd_clone "${2:-}" "${3:-}" ;;
     diff)    cmd_diff "${2:-}" "${3:-}" ;;
     current) cmd_current ;;
     delete)  cmd_delete "${2:-}" ;;
+    context) shift; cmd_context "$@" ;;
+    validate) shift; cmd_validate "$@" ;;
+    privacy-check) shift; cmd_privacy_check "$@" ;;
+    track) shift; cmd_track "$@" ;;
+    doctor) shift; cmd_doctor "$@" ;;
     -h|--help|help) usage ;;
     "")      cmd_interactive ;;
     *)       echo -e "${RED}Unknown command:${RESET} $1"; usage; exit 1 ;;

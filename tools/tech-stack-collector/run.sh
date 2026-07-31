@@ -8,6 +8,7 @@
 #
 # Or directly run the Python script:
 #   curl -fsSL https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/collector.py | python3
+# Safe mode is the default. Pass --full only for sensitive private inventory.
 # ─────────────────────────────────────────────────────────────
 set -euo pipefail
 
@@ -34,6 +35,11 @@ fi
 
 echo "🔍 Using $PY ($($PY --version 2>&1))"
 echo "📥 Fetching collector from GitHub..."
+if [[ " $* " == *" --full "* ]]; then
+    echo "⚠️  Full mode may expose hostnames, ports, paths, Git remotes, cron, and environment data." >&2
+else
+    echo "🔒 Safe privacy mode"
+fi
 echo ""
 
 # Download & run

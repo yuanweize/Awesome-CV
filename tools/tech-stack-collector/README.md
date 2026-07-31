@@ -1,150 +1,124 @@
-# 🔍 tech-stack-collector
+# tech-stack-collector
 
-> Collect server technical stack information for CV / resume building.
-> Run on your VPS, get an AI-friendly Markdown report of your tech skills.
+Inventory technologies that are actually installed on a Linux host, then use the
+result as private evidence while maintaining an evidence-first master CV.
 
-## Quick Start
+The collector does **not** prove professional proficiency. Installed software is
+only a discovery aid; a CV claim still needs scope, personal ownership, evidence,
+and enough interview depth.
 
-### Mode 1: One-liner remote execution (on any Debian/Ubuntu server)
+## Privacy modes
+
+Safe mode is the default in v2. It redacts the hostname and user, strips private
+registry paths from image names, and omits the most sensitive collectors:
+
+- listening ports and bind addresses;
+- Git repository paths and remotes;
+- key directories and project names;
+- crontab and systemd timer commands;
+- shell environment data;
+- container names, Compose project names, volumes, and networks;
+- enabled web-site names.
+
+`--full` restores those sections. A full report is sensitive infrastructure
+documentation. Do not upload it to an AI service, attach it to an application,
+or commit it to Git without manual redaction.
+
+默认是安全模式。`--full` 会包含主机名、端口、路径、Git remote、定时任务和
+环境信息，只能在明确了解风险时使用；完整报告不能直接上传给 AI 或提交到仓库。
+
+## Run locally
 
 ```bash
-# curl
-curl -fsSL https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/collector.py | python3
-
-# wget
-wget -qO- https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/collector.py | python3
-
-# or via bash wrapper (auto-detects python3, curl/wget)
-curl -fsSL https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/run.sh | bash
-```
-
-### Mode 2: Local execution
-
-```bash
+# Safe mode
 python3 collector.py
 python3 collector.py --output-dir /tmp/reports
+
+# Sensitive full inventory — opt in explicitly
+python3 collector.py --full --output-dir /tmp/private-reports
 ```
 
-### Mode 3: SSH remote execution (from your local machine)
+## One-line execution
+
+Review remote code before piping it into an interpreter. The command below runs
+safe mode:
 
 ```bash
-# Install dependencies first
-pip install paramiko pyyaml
+curl -fsSL https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/collector.py | python3
+```
 
-# Single host (SSH key)
-python3 remote_runner.py -H 10.0.0.1 -u root -k ~/.ssh/id_ed25519
+Pass `--full` only when required:
 
-# Single host (password — will prompt)
-python3 remote_runner.py -H 10.0.0.1 -u root -p
+```bash
+curl -fsSL https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/collector.py | python3 - --full
+```
 
-# Multiple hosts from config file
-cp targets.example.yaml targets.yaml   # edit with your servers
+## Run over SSH
+
+```bash
+python3 -m pip install -r requirements.txt
+
+# Safe mode, one host
+python3 remote_runner.py -H 192.0.2.10 -u root -k ~/.ssh/id_ed25519
+
+# Safe mode, multiple hosts
+cp targets.example.yaml targets.yaml
 python3 remote_runner.py -c targets.yaml
 
-# Custom output directory
-python3 remote_runner.py -c targets.yaml -o ~/my-reports
+# Sensitive full inventory
+python3 remote_runner.py -c targets.yaml --full
 ```
 
-## What It Collects
+The example addresses are RFC 5737 documentation networks. Replace them only in
+the ignored `targets.yaml` or `targets.json`; never edit the tracked examples with
+real infrastructure details. Password authentication prompts interactively when
+the password field is omitted. Unknown SSH host keys are rejected by default; add
+the real host key to `known_hosts` after verifying its fingerprint. The
+`--insecure-auto-add-host-key` escape hatch weakens MITM protection and should be
+used only in a controlled, disposable environment.
 
-| Category                  | Details                                              |
-|---------------------------|------------------------------------------------------|
-| **System**                | OS, kernel, arch, CPU, memory, disk, uptime          |
-| **Docker / Containers**   | Running containers, images, compose, volumes, nets   |
-| **Programming Languages** | Python, Node, Java, Go, Rust, Ruby, PHP, .NET, etc.  |
-| **Package Managers**      | pip, npm, cargo, gem, go, snap, composer              |
-| **Key Directories**       | /opt, /usr/local/bin, /srv, /var/www, ~/projects      |
-| **Running Services**      | systemd services (filtered: notable vs system)       |
-| **Listening Ports**       | All TCP listeners with process names                 |
-| **Databases**             | PostgreSQL, MySQL, Redis, MongoDB, SQLite, etc.       |
-| **Web Servers**           | Nginx, Apache, Caddy, Traefik, HAProxy               |
-| **Cloud & DevOps**        | Terraform, Ansible, kubectl, Helm, AWS/Azure/GCP CLI  |
-| **CLI Tools**             | git, tmux, vim, jq, ripgrep, ffmpeg, etc.             |
-| **Network & Security**    | WireGuard, iptables, UFW, Certbot, Fail2ban           |
-| **Git Repos**             | Found repos with remotes and branches                |
-| **Scheduled Tasks**       | Crontab, /etc/cron.d, systemd timers                 |
-| **Virtualization**        | KVM, QEMU, LXC, LXD, platform type                  |
-| **Monitoring**            | Prometheus, Grafana, Telegraf, Netdata                |
-| **Shell Environment**     | Shell, env vars, aliases, SSH keys                   |
+## Safe-mode output
 
-## Output Format
+Safe mode can include:
 
-Structured Markdown with tables and bullet lists — optimized for AI consumption.
-Each report ends with a **Technology Profile** section — categorized tags generated
-by a knowledge-base algorithm (130+ Docker image mappings, service/repo resolution).
+| Category | Examples |
+|---|---|
+| System | OS, kernel, architecture, CPU, memory, disk |
+| Container images | Image basename and size, without registry path |
+| Languages | Python, Go, Rust, Java, C/C++ toolchain |
+| Package managers | pip/npm/cargo summaries |
+| Services | Notable systemd service names |
+| Data stores | PostgreSQL, Redis, SQLite, InfluxDB |
+| Web servers | Nginx, Caddy, Apache versions |
+| DevOps tools | Terraform, Ansible, kubectl, Helm |
+| Security | WireGuard, nftables, Certbot, Fail2ban |
+| Monitoring | Prometheus, Grafana, Telegraf |
+| Virtualisation | KVM/QEMU, libvirt, LXC |
 
-```markdown
-## Technology Profile
+Each report ends with a categorized `Technology Profile`. Treat it as an
+inventory, not a ready-made Skills section.
 
-**🐳 Containers & Orchestration**
-`Docker`, `containerd`
+## Evidence-first workflow
 
-**🗄️ Databases**
-`MariaDB`, `MongoDB`, `PostgreSQL`, `Weaviate (Vector DB)`
+1. Run safe mode and keep the report under the ignored `reports/` directory.
+2. Manually select technology usage that you can explain and demonstrate.
+3. Create an evidence record in `meta/master_cv.yaml`; never paste the raw report.
+4. Write an atomic claim with the correct scope (`personal`, `academic`, or work).
+5. Run `make validate` before exporting a JD context.
+6. Use `./cv context --jd job.md --role systems` to expose only eligible claims.
 
-**📦 Self-Hosted Applications**
-`Dify (AI/LLM)`, `ERPNext`, `Overleaf (LaTeX)`, `OpenSign`
+## Files
 
-**🔨 CLI Tooling**
-`FFmpeg`, `Git`, `Vim`, `jq`, `tmux`
-
----
-**All (43):** `1Panel`, `Caddy`, `Dify (AI/LLM)`, `Docker`, ...
+```text
+tools/tech-stack-collector/
+├── collector.py
+├── remote_runner.py
+├── run.sh
+├── requirements.txt
+├── targets.example.yaml
+├── targets.example.json
+└── reports/                 # ignored except .gitkeep
 ```
 
-## File Structure
-
-```
-tech-stack-collector/
-├── collector.py              # Main script (stdlib only, zero deps)
-├── remote_runner.py          # SSH batch execution via SSH
-├── run.sh                    # Bash wrapper for curl|bash
-├── targets.example.yaml      # Config template (YAML)
-├── targets.example.json      # Config template (JSON)
-├── requirements.txt          # Deps for remote mode only
-├── .gitignore                # Ignores reports/, targets.yaml, etc.
-├── reports/                  # Output directory (gitignored)
-│   └── run_20260210_132618/  # Timestamped run folder
-│       ├── _index.md         # Summary table of this run
-│       ├── Server_A.md       # Per-host report
-│       ├── Server_B.md
-│       └── ...
-└── README.md
-```
-
-## Design Principles
-
-- **collector.py** uses **only Python stdlib** — safe for `curl | python3`
-- **Parallel execution** — commands run concurrently via `ThreadPoolExecutor`
-- **Graceful degradation** — missing commands are silently skipped
-- **Streaming output** — lines flush immediately for real-time feedback
-- **AI-friendly** — Markdown tables, clear sections, categorized technology profile
-- **Smart tagging** — 130+ Docker image mappings, service/repo resolution, 13 categories
-- **Dual output** — always prints to stdout AND saves to local file
-- **Organized reports** — timestamped run folders with `_index.md` summary
-
-## Output Files
-
-**Local mode** — saved in cwd with timestamped filenames:
-
-```
-techstack_myserver_20260210_143052.md
-```
-
-**Remote mode** — each run creates a timestamped folder under `reports/`:
-
-```
-reports/
-└── run_20260210_132618/     # one folder per batch run
-    ├── _index.md            # summary: success/fail table
-    ├── Server_A.md          # clean name per host
-    ├── Server_B.md
-    └── ...
-```
-
-## Workflow
-
-1. Run `collector.py` on each of your VPS servers
-2. Collect the generated `.md` files
-3. Feed them to your AI agent for tech stack analysis
-4. AI summarizes your skills and updates your CV sections
+Runtime reports, target files, passwords, key paths, hostnames, and internal IPs
+must remain private. Run `./cv privacy-check` before every push.

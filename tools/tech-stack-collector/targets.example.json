@@ -1,18 +1,19 @@
 [
   {
     "name": "web-server-1",
-    "host": "192.168.1.100",
+    "host": "192.0.2.10",
     "port": 22,
     "user": "root",
     "auth": "key",
+    "strict_host_key": true,
     "key_path": "~/.ssh/id_ed25519"
   },
   {
     "name": "db-server-1",
-    "host": "10.0.0.50",
+    "host": "198.51.100.20",
     "port": 22,
     "user": "admin",
     "auth": "password",
-    "password": "changeme"
+    "strict_host_key": true
   }
 ]

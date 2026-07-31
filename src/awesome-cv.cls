@@ -585,7 +585,7 @@
       \ifthenelse{\isundefined{\@mobile}}%
         {}%
         {%
-          \href{\@teluri}{\faAlt{tel:\@mobile}{\faMobile}{\@mobile}}%
+          \href{\@teluri}{\faAlt{\@mobile}{\faMobile}{\@mobile}}%
           \setbool{isstart}{false}%
         }%
       \ifthenelse{\isundefined{\@whatsapp}}%
@@ -598,7 +598,7 @@
         {}%
         {%
           \ifbool{isstart}{\setbool{isstart}{false}}{\acvHeaderSocialSep}%
-          \href{mailto:\@email}{\faAlt{mailto:\@email}{\faEnvelope}{\@email}}%
+          \href{mailto:\@email}{\faAlt{\@email}{\faEnvelope}{\@email}}%
         }%
       \ifthenelse{\isundefined{\@dateofbirth}}%
         {}%
@@ -610,13 +610,13 @@
         {}%
         {%
           \ifbool{isstart}{\setbool{isstart}{false}}{\acvHeaderSocialSep}%
-          \href{\@homepage}{\faAlt{homepage: \@homepage}{\faHouseChimney}{\@homepage}}%
+          \href{\@homepage}{\faAlt{\@homepage}{\faHouseChimney}{\@homepage}}%
         }%
       \ifthenelse{\isundefined{\@github}}%
         {}%
         {%
           \ifbool{isstart}{\setbool{isstart}{false}}{\acvHeaderSocialSep}%
-          \href{https://github.com/\@github}{\faAlt{GitHub: @\@github}{\faSquareGithub}{\@github}}%
+          \href{https://github.com/\@github}{\faAlt{github.com/\@github}{\faSquareGithub}{\@github}}%
         }%
       \ifthenelse{\isundefined{\@gitlab}}%
         {}%
@@ -640,7 +640,7 @@
         {}%
         {%
           \ifbool{isstart}{\setbool{isstart}{false}}{\acvHeaderSocialSep}%
-          \href{https://www.linkedin.com/in/\@linkedin}{\faAlt{LinkedIn: /in/\@linkedin}{\faLinkedin}{\@linkedin}}%
+          \href{https://www.linkedin.com/in/\@linkedin}{\faAlt{linkedin.com/in/\@linkedin}{\faLinkedin}{\@linkedin}}%
         }%
       \ifthenelse{\isundefined{\@orcid}}%
         {}%
