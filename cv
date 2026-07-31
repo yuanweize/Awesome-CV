@@ -364,15 +364,26 @@ cmd_build() {
     trap restore_build_state EXIT INT TERM
 
     # ── Build target profile ──
+    # Keep failures inside an explicit conditional. Relying only on a global
+    # EXIT trap after `set -e` is not portable: some Bash versions unwind the
+    # function's local variables before the trap can restore the snapshot.
     echo -e "${CYAN}Building profile: ${BOLD}$profile${RESET}"
-    cmd_use "$profile" --force > /dev/null
-    make -C "$SCRIPT_DIR" clean all
+    local build_status=0
+    if cmd_use "$profile" --force > /dev/null \
+        && make -C "$SCRIPT_DIR" clean all \
+        && sync_profile_pdfs "$profile_dir"; then
+        build_status=0
+    else
+        build_status=$?
+    fi
 
-    sync_profile_pdfs "$profile_dir"
-
-    # ── Restore previous state, including after a failed build ──
+    # ── Restore previous state before returning success or failure ──
     restore_build_state
     trap - EXIT INT TERM
+
+    if ((build_status != 0)); then
+        return "$build_status"
+    fi
 
     echo -e "${GREEN}✓${RESET} Built profile: ${BOLD}$profile${RESET} → profiles/$profile/"
 }
