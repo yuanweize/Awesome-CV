@@ -33,25 +33,25 @@ or commit it to Git without manual redaction.
 # Safe mode
 python3 collector.py
 python3 collector.py --output-dir /tmp/reports
+./run.sh
 
 # Sensitive full inventory — opt in explicitly
 python3 collector.py --full --output-dir /tmp/private-reports
 ```
 
-## One-line execution
+## Installation safety
 
-Review remote code before piping it into an interpreter. The command below runs
-safe mode:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/collector.py | python3
-```
-
-Pass `--full` only when required:
+Clone or download a release, inspect the collector, and run the local copy. The
+project intentionally does not recommend `curl | python` or `curl | bash`: a moving
+remote branch is not a stable trust boundary.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/collector.py | python3 - --full
+git clone --depth 1 https://github.com/yuanweize/Awesome-CV.git
+cd Awesome-CV/tools/tech-stack-collector
+./run.sh
 ```
+
+Pass `--full` only when required: `./run.sh --full`.
 
 ## Run over SSH
 

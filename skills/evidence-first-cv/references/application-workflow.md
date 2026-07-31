@@ -12,6 +12,7 @@
 8. Record application and claim IDs in the ledger.
 9. Update stages and notes after every external event.
 10. Use funnel summary to choose targeting, narrative, training, or negotiation work.
+11. After a terminal outcome, move the snapshot to the verified private archive.
 
 ## Recommended private application files
 
@@ -19,6 +20,7 @@
 meta/jobs/<slug>.md
 build/<slug>.generated.md
 profiles/<slug>/                    # optional compiled snapshot
+archive/applications/YYYY/<slug>/   # closed snapshot after explicit archive approval
 meta/applications.yaml              # ledger
 ```
 
@@ -31,6 +33,7 @@ Claims describe the candidate; application files describe the opportunity.
 - Clone it for a live JD; do not mutate the base during tailoring.
 - Do not keep dozens of static profiles as memory.
 - PDFs are outputs and may be regenerated; claim IDs and evidence are durable.
+- Use the archive dry-run and SHA-256 manifest before moving or deduplicating history.
 
 ## Funnel stages
 

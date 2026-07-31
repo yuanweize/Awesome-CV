@@ -5,6 +5,10 @@ on:
   - cron: "45 20 * * *"
   workflow_dispatch: {}
 
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -15,7 +19,7 @@ jobs:
 
     steps:
     - name: Checkout target branch
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       with:
         ref: upstream-original
         fetch-depth: 0
@@ -31,7 +35,7 @@ jobs:
         if [ "$LOCAL" = "$UPSTREAM" ]; then
           echo "Already up to date."
         else
-          git merge upstream/master --no-edit
-          git push
+          git merge --ff-only upstream/master
+          git push origin HEAD:upstream-original
           echo "Synced new commits from upstream."
         fi

@@ -7,6 +7,7 @@
 3. Role/JD context: which eligible claims matter now.
 4. Profile: human-edited application artifact.
 5. Application ledger: what happened after submission.
+6. Private archive: closed snapshots and research, never factual authority.
 
 Old CV wording and AI-generated interview notes are not factual sources.
 
@@ -40,6 +41,7 @@ prevent.
 7. Build, extract text, render, and inspect.
 8. Run privacy checks.
 9. Record the application, claims used, stages, and outcome.
+10. After a terminal outcome, archive the snapshot with a verified manifest.
 
 ## Communication
 

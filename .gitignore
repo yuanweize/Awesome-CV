@@ -56,6 +56,10 @@ meta/
 profiles/
 .active_profile
 
+# Closed applications and private research archives. Archive manifests may
+# contain private filenames even when they do not contain file contents.
+archive/
+
 # Server scan reports (private IPs and node info)
 tools/tech-stack-collector/reports/*
 !tools/tech-stack-collector/reports/.gitkeep

@@ -149,11 +149,12 @@ interview questions. A missing requirement must remain a gap.
 
 ## Profile workflow
 
-Profiles are private application artifacts, not career memory and not mandatory
-role-family baselines. You do **not** need to maintain a permanent “systems CV” and
-“field CV”. Create a clean company-role profile for a live application; clone an
-older profile only when its layout and ordering are genuinely reusable. Structural
-LaTeX files stay shared.
+Profiles are private, editable application artifacts, not career memory and not
+mandatory role-family baselines. You do **not** need to maintain a permanent “systems
+CV” and “field CV”. Create a clean company-role profile for a live application; clone
+an older profile only when its layout and ordering are genuinely reusable. Move closed
+applications to the ignored archive after recording the outcome. Structural LaTeX
+files stay shared.
 
 ```bash
 # Create a clean profile for a live application
@@ -174,6 +175,10 @@ LaTeX files stay shared.
 
 # Build another profile and restore the current workspace afterwards
 ./cv build acme-systems
+
+# Closed application: inspect a dry-run, then archive only after review
+./cv archive old-company-role
+./cv archive old-company-role --apply
 ```
 
 | Command | Purpose |
@@ -181,19 +186,24 @@ LaTeX files stay shared.
 | `./cv list` | List private profiles |
 | `./cv new <name>` | Create a clean profile from templates |
 | `./cv clone <source> <new>` | Clone trusted source files, excluding PDFs |
-| `./cv use <name>` | Load a profile into working files |
+| `./cv use <name>` | Load a profile; refuse to overwrite unsaved working changes |
 | `./cv save [name]` | Save working files to the active profile |
 | `./cv build [name]` | Build current/specified profile and restore state safely |
 | `./cv diff <a> [b]` | Compare profiles or working files |
-| `./cv delete <name>` | Delete a non-active profile after confirmation |
+| `./cv archive <name> [--apply]` | Plan or apply a SHA-256-verified private archive move |
+| `./cv delete <name>` | Permanently delete a non-active profile after exact confirmation |
 | `./cv context ...` | Generate evidence-bound AI context |
 | `./cv validate [yaml]` | Validate a master database |
 | `./cv privacy-check` | Inspect tracked files for leaks |
 | `./cv track ...` | Record stages, validate claim/role IDs, and report funnel metrics |
-| `./cv doctor` | Validate private memory and run all deterministic repository checks |
+| `./cv doctor` | Validate memory/checks and detect unsaved active-profile changes |
 
 Profile names are restricted to safe letters, numbers, dots, underscores, and
-hyphens. Path traversal is rejected.
+hyphens. Path traversal and profile/section symbolic links are rejected. `./cv use`
+stops when working files differ from the active snapshot; save first. `--force` exists
+for deliberate replacement, including the CLI's isolated build/restore flow.
+
+See [docs/ARCHIVE_LIFECYCLE.md](docs/ARCHIVE_LIFECYCLE.md) before bulk profile cleanup.
 
 ## Build commands
 
@@ -203,10 +213,11 @@ hyphens. Path traversal is rejected.
 | `make coverletter` | `build/<Name>_Cover_Letter.pdf` |
 | `make merged` | Cover letter + résumé application PDF |
 | `make all` | Validate and build all outputs |
-| `make clean` | Remove generated build artifacts |
+| `make clean` | Remove generated build artifacts inside the repository only |
 | `make check` | Schema, privacy, unit, Python, and shell checks |
 
-The author name is read from `\name{First}{Last}` in private `config.tex`.
+The author name is read from `\name{First}{Last}` in private `config.tex` and
+normalized to a shell-safe PDF filename stem.
 
 ## Project structure
 
@@ -228,13 +239,17 @@ Awesome-CV/
 │   ├── generate_ai_context.py
 │   ├── privacy_check.py
 │   ├── application_ledger.py
+│   ├── archive_profile.py
+│   ├── author_slug.py
+│   ├── safe_clean.py
 │   └── tech-stack-collector/
 ├── skills/evidence-first-cv/       # Installable AI workflow + scripts/assets
 ├── docs/
 ├── tests/
-├── meta/                           # Private: master, JDs, evidence notes
+├── meta/                           # Private: master, ledger, JDs, durable evidence
 ├── sections/                       # Private: current CV content
-├── profiles/                       # Private: application variants
+├── profiles/                       # Private: active/editable application variants
+├── archive/                        # Private: closed applications and research
 └── build/                          # Private: PDFs and generated contexts
 ```
 
@@ -250,9 +265,11 @@ git diff --cached
 ./cv privacy-check --staged
 ```
 
-The checker rejects tracked private directories, real config files, PDFs, common
+The default checker covers tracked files plus untracked, non-ignored candidates and
+rejects private directories (including `archive/`), real config files, PDFs, common
 credential files, private keys, common tokens, non-example emails, international
-phone numbers, and non-documentation IPv4 addresses.
+phone numbers, and non-documentation IPv4 addresses. Findings identify file and line
+without echoing the matched secret or private address back into logs.
 
 If a secret was ever committed, adding it to `.gitignore` is insufficient: rotate
 the secret first, then decide whether history rewriting is necessary.

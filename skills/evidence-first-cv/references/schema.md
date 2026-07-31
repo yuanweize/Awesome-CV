@@ -18,7 +18,7 @@
 | `subject` | Employer, project, degree, or status described |
 | `statement` | One defensible fact with accurate ownership verb |
 | `dates` | Exact or intentionally coarse date boundary |
-| `scope` | Employment, contract, academic, personal, etc. |
+| `scope` | One validator-approved relationship/environment value |
 | `role_families` | Existing role IDs only |
 | `tags` | Plain search/ranking terms, not aspirational keywords |
 | `evidence` | Existing evidence IDs only |
@@ -27,7 +27,14 @@
 | `interview_depth` | `strong`, `moderate`, or `limited` |
 
 Planned, unverified, and expired claims cannot be CV-eligible. Personal-scope
-statements must visibly say personal/owner-operated.
+statements must visibly say personal, owner-operated, or open-source.
+
+Use only: `employee`, `contractor`, `internship`,
+`intermittent_contract_assignment`, `academic`, `academic_project`,
+`academic_benchmark`, `personal`, `personal_infrastructure`,
+`personal_open_source`, `public_repository_metrics`, `self_reported_language`, or
+`legal_status`. Extend the validator and schema deliberately before adding another
+scope.
 
 ## Evidence visibility
 

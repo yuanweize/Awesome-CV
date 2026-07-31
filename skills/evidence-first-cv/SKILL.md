@@ -1,6 +1,6 @@
 ---
 name: evidence-first-cv
-description: Maintain and drive an evidence-first CV system from a private atomic master memory. Use when a user provides a job description, wants a tailored CV or cover letter, needs to ingest or correct experience/evidence, audit résumé claims, create or compare application variants, track application outcomes, diagnose a weak job-search funnel, compile and inspect LaTeX/PDF output, or check that personal data and secrets will not be pushed to Git.
+description: Maintain and drive an evidence-first CV system from a private atomic master memory. Use when a user provides a job description, wants a tailored CV or cover letter, needs to ingest or correct experience/evidence, audit résumé claims, create, compare, archive, or clean application variants, track outcomes, diagnose a weak job-search funnel, compile and inspect LaTeX/PDF output, or check that personal data and secrets will not be pushed to Git.
 ---
 
 # Evidence-First CV
@@ -16,6 +16,7 @@ privacy, and outcome tracking.
 - Store one defensible fact per `claim_registry` entry.
 - Generate a small JD-specific context instead of loading the full master into AI.
 - Treat profiles as optional build snapshots, not the source of truth.
+- Move closed application snapshots to a private, verified archive; never delete history by default.
 - Store application events in the private ledger; do not rewrite facts to explain rejection.
 
 Do not add a vector database by default. YAML plus deterministic filtering is
@@ -37,6 +38,8 @@ cache authoritative.
   [references/privacy.md](references/privacy.md).
 - For funnel diagnosis or application history: read
   [references/application-workflow.md](references/application-workflow.md).
+- For profile cleanup, migration, deduplication, or closed applications: read
+  [references/archive-lifecycle.md](references/archive-lifecycle.md).
 
 Read only the relevant references, but read each selected file completely.
 
@@ -150,6 +153,7 @@ Use funnel evidence to choose the next change:
 - Do not proactively advertise AI assistance in the résumé.
 - Do not expose contact data to AI unless required; exporter excludes it by default.
 - Do not commit `meta/`, `sections/`, `profiles/`, PDFs, reports, JDs, or real config.
+- Do not commit `archive/` or archive manifests; filenames can contain private data.
 - Do not push until tracked/staged privacy checks and the diff are clean.
 - Do not claim that this workflow guarantees interviews or offers.
 

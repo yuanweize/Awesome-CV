@@ -15,9 +15,10 @@ mitigation when known. Remove real secrets and personal data from screenshots/lo
 
 ## Scope
 
-Relevant reports include path traversal, unsafe profile deletion/restoration, secret or
-PII tracking bypasses, unsafe context export, collector disclosure, command injection,
-and malicious LaTeX/template behaviour.
+Relevant reports include path traversal, profile/archive symbolic-link escapes, unsafe
+profile deletion/restoration, build cleanup outside the repository, secret or PII
+tracking bypasses, unsafe context export, collector disclosure, command injection, and
+malicious LaTeX/template behaviour.
 
 If a live credential is exposed, rotate it immediately; do not wait for repository
 cleanup or maintainer response.

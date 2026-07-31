@@ -10,10 +10,8 @@ CONTEXT_OUTPUT ?= $(BUILD_DIR)/ai-context.generated.md
 # Add src/ to TeX search path so \documentclass{awesome-cv} finds awesome-cv.cls
 export TEXINPUTS := src/:.:$(TEXINPUTS)
 
-# Auto-extract author name from config.tex: \name{First}{Last} -> First_Last
-FIRST_NAME := $(shell grep '\\name{' config.tex 2>/dev/null | sed 's/.*\\name{\([^}]*\)}.*/\1/')
-LAST_NAME  := $(shell grep '\\name{' config.tex 2>/dev/null | sed 's/.*\\name{[^}]*}{\([^}]*\)}.*/\1/')
-AUTHOR     := $(if $(FIRST_NAME),$(FIRST_NAME)_$(LAST_NAME),Awesome)
+# Extract and whitelist the author slug before it reaches a shell command.
+AUTHOR := $(shell $(PYTHON) tools/author_slug.py config.tex 2>/dev/null)
 
 #-------------------------------------------------------------------------------
 # Main targets
@@ -29,21 +27,21 @@ validate-template:
 
 context:
 	@test -n "$(JD)" || (echo "Usage: make context JD=path/to/job.md [ROLE=systems]" >&2; exit 2)
-	@mkdir -p $(BUILD_DIR)
+	@mkdir -p "$(BUILD_DIR)"
 	@$(PYTHON) tools/generate_ai_context.py --jd "$(JD)" $(if $(ROLE),--role "$(ROLE)",) --output "$(CONTEXT_OUTPUT)"
 
 context-smoke:
-	@mkdir -p $(BUILD_DIR)
+	@mkdir -p "$(BUILD_DIR)"
 	@$(PYTHON) tools/generate_ai_context.py \
 		--master templates/master_cv.yaml.example \
 		--jd tests/fixtures/systems_job.md \
 		--role systems \
-		--output $(BUILD_DIR)/context-smoke.generated.md
-	@grep -q 'project.signalwatch-features' $(BUILD_DIR)/context-smoke.generated.md
-	@if grep -q 'alex@example.org' $(BUILD_DIR)/context-smoke.generated.md; then \
+		--output "$(BUILD_DIR)/context-smoke.generated.md"
+	@grep -q 'project.signalwatch-features' "$(BUILD_DIR)/context-smoke.generated.md"
+	@if grep -q 'alex@example.org' "$(BUILD_DIR)/context-smoke.generated.md"; then \
 		echo "Context smoke test leaked contact data" >&2; exit 1; \
 	fi
-	@if grep -q 'private:employment-reference' $(BUILD_DIR)/context-smoke.generated.md; then \
+	@if grep -q 'private:employment-reference' "$(BUILD_DIR)/context-smoke.generated.md"; then \
 		echo "Context smoke test leaked a private evidence locator" >&2; exit 1; \
 	fi
 
@@ -59,25 +57,25 @@ check: validate-template privacy test context-smoke
 
 
 resume: | $(BUILD_DIR)
-	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_CV src/main.tex
-	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_CV src/main.tex
+	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_CV" src/main.tex
+	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_CV" src/main.tex
 	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_CV.pdf"
 
 coverletter: | $(BUILD_DIR)
-	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_Cover_Letter src/coverletter.tex
-	$(CC) -output-directory=$(BUILD_DIR) -jobname=$(AUTHOR)_Cover_Letter src/coverletter.tex
+	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_Cover_Letter" src/coverletter.tex
+	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_Cover_Letter" src/coverletter.tex
 	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
 
 merged: resume coverletter
 	@if command -v pdfunite >/dev/null 2>&1; then \
-		pdfunite $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf $(BUILD_DIR)/$(AUTHOR)_CV.pdf $(BUILD_DIR)/$(AUTHOR)_Application.pdf; \
+		pdfunite "$(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf" "$(BUILD_DIR)/$(AUTHOR)_CV.pdf" "$(BUILD_DIR)/$(AUTHOR)_Application.pdf"; \
 		echo "  -> $(BUILD_DIR)/$(AUTHOR)_Application.pdf (merged)"; \
 	else \
 		echo "  ⚠ pdfunite not found, skipping merge (install poppler: brew install poppler)"; \
 	fi
 
 $(BUILD_DIR):
-	@mkdir -p $(BUILD_DIR)
+	@mkdir -p "$(BUILD_DIR)"
 
 #-------------------------------------------------------------------------------
 # Setup for first-time users
@@ -132,8 +130,7 @@ init:
 #-------------------------------------------------------------------------------
 
 clean:
-	rm -rf $(BUILD_DIR)
-	rm -f *.aux *.log *.out *.toc *.fls *.synctex.gz *.dvi *.pdf
+	@$(PYTHON) tools/safe_clean.py --build-dir "$(BUILD_DIR)"
 
 #-------------------------------------------------------------------------------
 # Help

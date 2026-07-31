@@ -4,10 +4,9 @@ tech-stack-collector v2.0
 =========================
 Collect server technical stack information for CV/resume building.
 
-Self-contained (stdlib only). Three ways to run:
+Self-contained (stdlib only). Two ways to run:
   1. Local:   python3 collector.py [--output-dir /path]
-  2. Remote:  curl -fsSL <raw-url>/collector.py | python3
-  3. Via SSH:  see remote_runner.py
+  2. Via SSH: see remote_runner.py
 
 Safe mode is the default. Use --full only when you understand that hostnames,
 ports, repository paths/remotes, cron entries, and environment data are sensitive.
@@ -22,6 +21,7 @@ import datetime
 import os
 import platform
 import re
+import shlex
 import socket
 import subprocess
 import sys
@@ -51,6 +51,8 @@ def run(cmd: str, timeout: int = CMD_TIMEOUT) -> str:
 
 
 def has(name: str) -> bool:
+    if not re.fullmatch(r"[A-Za-z0-9_.+-]+", name):
+        return False
     return run(f"command -v {name}") != ""
 
 
@@ -499,8 +501,9 @@ def collect_git_repos() -> Tuple[str, str]:
             repo = os.path.dirname(git_dir.strip())
             if not repo:
                 continue
-            remote = run(f"git -C '{repo}' remote get-url origin 2>/dev/null")
-            branch = run(f"git -C '{repo}' branch --show-current 2>/dev/null")
+            quoted_repo = shlex.quote(repo)
+            remote = run(f"git -C {quoted_repo} remote get-url origin 2>/dev/null")
+            branch = run(f"git -C {quoted_repo} branch --show-current 2>/dev/null")
             repos.append([repo, remote or "local-only", branch or "—"])
     return "Git Repositories", md_table(["Path", "Remote", "Branch"], repos) if repos else ""
 
@@ -1209,7 +1212,7 @@ def main() -> None:
             "Examples:\n"
             "  python3 collector.py\n"
             "  python3 collector.py --output-dir /tmp/reports\n"
-            "  curl -fsSL <url>/collector.py | python3\n"
+            "  python3 remote_runner.py -c targets.yaml\n"
         ),
     )
     parser.add_argument(

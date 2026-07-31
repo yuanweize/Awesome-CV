@@ -140,8 +140,8 @@ claim_registry:
   type: project
   subject: "SignalWatch"
   statement: >-
-    Built a Python service that schedules network probes, stores results in
-    SQLite, and exposes health and history through an HTTP API.
+    Built a personal open-source Python service that schedules network probes,
+    stores results in SQLite, and exposes health and history through an HTTP API.
   dates: "2025-03 to present"
   scope: personal_open_source
   role_families:
@@ -162,8 +162,8 @@ claim_registry:
   type: project
   subject: "SignalWatch"
   statement: >-
-    Replayed 10,000 probe results in a repeatable benchmark and documented the
-    test environment, throughput, and limitations.
+    Replayed 10,000 probe results for a personal open-source service in a
+    repeatable benchmark and documented the test environment, throughput, and limitations.
   dates: "2025-12"
   scope: personal_open_source
   role_families:

@@ -14,7 +14,7 @@ Private:
 
 - `meta/`: master database, application ledger, JDs, evidence notes, interviews;
 - `config.tex`, `letter_config.tex`, and `sections/`;
-- `profiles/`, `build/`, `tmp/`, PDFs and render images;
+- `profiles/`, `archive/`, `build/`, `tmp/`, PDFs and render images;
 - collector reports and real target files;
 - credentials, keys, tokens, internal addresses, and evidence documents.
 
@@ -27,8 +27,13 @@ git diff --cached
 ./cv privacy-check --staged
 ```
 
-The automated check is a guardrail, not a guarantee. Review new binary files and unusual
-file names manually.
+The default check includes tracked files and untracked files that are not ignored. The
+automated check is a guardrail, not a guarantee. Review new binary files and unusual file
+names manually.
+
+Privacy findings deliberately redact the matched value. File and line number are enough
+to investigate locally; CI logs must not become a second copy of a token, email, phone,
+or internal address.
 
 `--staged` reads the content from Git's index, not from the working tree, and ignores
 staged deletions. This prevents a clean working copy from hiding different content that

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import os
 import re
 import sys
 from pathlib import Path
@@ -52,6 +53,7 @@ def save_ledger(path: Path, data: dict[str, Any]) -> None:
         encoding="utf-8",
     )
     temporary.replace(path)
+    os.chmod(path, 0o600)
 
 
 def validate_ledger(data: dict[str, Any]) -> None:
@@ -82,24 +84,29 @@ def validate_ledger(data: dict[str, Any]) -> None:
                 raise ValueError(f"Application {application_id} has an invalid event")
 
 
-def load_master_index(path: Path) -> tuple[set[str], set[str]]:
+def load_master_index(path: Path) -> tuple[set[str], set[str], set[str]]:
     if not path.is_file():
         raise ValueError(f"Master database not found: {path}; run make init first")
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise ValueError(f"Invalid master database: {path}")
-    claims = {
+    claim_items = [item for item in data.get("claim_registry", []) if isinstance(item, dict)]
+    claims = {item.get("id") for item in claim_items if isinstance(item.get("id"), str)}
+    eligible_claims = {
         item.get("id")
-        for item in data.get("claim_registry", [])
-        if isinstance(item, dict) and isinstance(item.get("id"), str)
+        for item in claim_items
+        if isinstance(item.get("id"), str)
+        and item.get("cv_eligible") is True
+        and item.get("status") in {"verified", "self_reported"}
     }
     roles = set(data.get("role_families", {})) if isinstance(data.get("role_families"), dict) else set()
-    return claims, roles
+    return claims, eligible_claims, roles
 
 
 def validate_requested_references(
     args: argparse.Namespace,
     claim_ids: set[str],
+    eligible_claim_ids: set[str],
     role_ids: set[str],
 ) -> None:
     if args.command == "add" and args.role not in role_ids:
@@ -109,6 +116,9 @@ def validate_requested_references(
         unknown = sorted(requested - claim_ids)
         if unknown:
             raise ValueError("Unknown claim ID(s): " + ", ".join(unknown))
+        ineligible = sorted(requested - eligible_claim_ids)
+        if ineligible:
+            raise ValueError("Claim ID(s) are not CV-eligible: " + ", ".join(ineligible))
 
 
 def find_record(data: dict[str, Any], application_id: str) -> dict[str, Any]:
@@ -243,8 +253,8 @@ def main() -> int:
     try:
         data = load_ledger(args.ledger)
         if args.command in {"add", "update"}:
-            claim_ids, role_ids = load_master_index(args.master)
-            validate_requested_references(args, claim_ids, role_ids)
+            claim_ids, eligible_claim_ids, role_ids = load_master_index(args.master)
+            validate_requested_references(args, claim_ids, eligible_claim_ids, role_ids)
         if args.command == "add":
             command_add(args, data)
             save_ledger(args.ledger, data)

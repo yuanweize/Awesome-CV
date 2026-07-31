@@ -17,6 +17,21 @@ ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 ALLOWED_STATUSES = {"verified", "self_reported", "planned", "unverified", "expired"}
 ALLOWED_DEPTHS = {"strong", "moderate", "limited"}
 ALLOWED_VISIBILITY = {"public", "private", "self_reported"}
+ALLOWED_SCOPES = {
+    "academic",
+    "academic_benchmark",
+    "academic_project",
+    "contractor",
+    "employee",
+    "internship",
+    "intermittent_contract_assignment",
+    "legal_status",
+    "personal",
+    "personal_infrastructure",
+    "personal_open_source",
+    "public_repository_metrics",
+    "self_reported_language",
+}
 INELIGIBLE_STATUSES = {"planned", "unverified", "expired"}
 REQUIRED_TOP_LEVEL = {
     "personal_information",
@@ -229,6 +244,10 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         if depth not in ALLOWED_DEPTHS:
             errors.append(f"{prefix}.interview_depth must be one of {sorted(ALLOWED_DEPTHS)}")
 
+        scope = claim.get("scope")
+        if scope not in ALLOWED_SCOPES:
+            errors.append(f"{prefix}.scope must be one of {sorted(ALLOWED_SCOPES)}")
+
         eligible = claim.get("cv_eligible")
         if not isinstance(eligible, bool):
             errors.append(f"{prefix}.cv_eligible must be true or false")
@@ -263,8 +282,12 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         ):
             errors.append(f"{claim_id} is verified but all supporting evidence is self-reported")
 
-        if claim.get("scope") == "personal" and "personal" not in statement.lower():
-            warnings.append(f"{claim_id} has personal scope but the statement does not label it personal")
+        if str(scope).startswith("personal"):
+            lowered_statement = statement.lower()
+            if "personal" not in lowered_statement and "open-source" not in lowered_statement:
+                warnings.append(
+                    f"{claim_id} has personal scope but the statement does not label it personal/open-source"
+                )
 
     exclusions = data.get("exclusions")
     if is_v3 and not isinstance(exclusions, list):

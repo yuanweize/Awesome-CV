@@ -8,8 +8,12 @@ Use `meta/master_cv.yaml` as private career memory and `claim_registry` as the o
 source for AI-drafted claims. Use `meta/applications.yaml` for outcomes. Never treat an
 old profile, generated draft, chat transcript, or server inventory as factual authority.
 
-Keep `meta/`, `profiles/`, `sections/`, `config.tex`, `letter_config.tex`, `build/`,
+Keep `meta/`, `profiles/`, `archive/`, `sections/`, `config.tex`, `letter_config.tex`, `build/`,
 `tmp/`, PDFs, job descriptions, and evidence private. Run the privacy checker before
 staging and after staging.
+
+Treat `profiles/` as editable application snapshots and `archive/` as closed history.
+Never use either as factual authority, and never move/delete historical files without an
+explicitly reviewed archive plan.
 
 Do not push application materials unless the user explicitly requests publication.

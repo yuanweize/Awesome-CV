@@ -99,6 +99,11 @@ future revision into measured learning instead of repeatedly generating new CV s
 New role and claim references are checked against the master database, and reaching a
 later stage counts the earlier funnel stages even if an intermediate event was omitted.
 
+When an application reaches `rejected`, `withdrawn`, or a completed `offer` decision,
+keep the ledger record and archive the editable snapshot instead of deleting it. Run
+`./cv archive company-role` first; `--apply` is required to move files. See
+[ARCHIVE_LIFECYCLE.md](ARCHIVE_LIFECYCLE.md).
+
 ## 9. Feedback policy
 
 - Fewer than three screens after 30 well-matched applications: inspect role targeting,
@@ -113,7 +118,8 @@ later stage counts the earlier funnel stages even if an intermediate event was o
 
 The master database may become large. That is acceptable because it is memory, not a
 prompt. Keep each generated context small with one role family and a claim cap. Archive
-raw evidence outside the YAML and reference it by ID.
+raw evidence outside the YAML and reference it by ID. Archive closed application
+snapshots separately from durable evidence and interview research.
 
 Do not add a vector database merely because the master grows. YAML remains the
 authority; a future search index may be added only as a disposable derived cache after

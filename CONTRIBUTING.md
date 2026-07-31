@@ -17,6 +17,7 @@ job description, server report, contact detail, or application history.
 ## Development rules
 
 - Keep private data under ignored paths.
+- Keep archive operations dry-run by default and reject symbolic links.
 - Add or update tests for validator, selection, ledger, privacy, or CLI behaviour.
 - Keep skill instructions concise; put detailed policy in one-level references.
 - Preserve the LPPL attribution and document material `awesome-cv.cls` changes.
@@ -33,7 +34,9 @@ git diff --check
 ```
 
 When changing LaTeX, compile the public templates and visually inspect the PDFs. When
-changing the skill, run its quick validator and exercise at least one JD workflow.
+changing the skill, run its quick validator and exercise at least one JD workflow. When
+changing profile/archive code, test rollback, stale-file removal, symlink rejection,
+dry-run behaviour, and manifest verification.
 
 ## Pull requests
 

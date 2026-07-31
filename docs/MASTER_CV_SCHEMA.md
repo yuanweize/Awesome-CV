@@ -86,6 +86,15 @@ The context exporter reads `claim_registry` only.
 This separation prevents a large master file from becoming a large model prompt. The
 database can grow for years while each JD export stays small and role-specific.
 
+## Allowed claim scopes
+
+Use one explicit relationship or environment value: `employee`, `contractor`,
+`internship`, `intermittent_contract_assignment`, `academic`, `academic_project`,
+`academic_benchmark`, `personal`, `personal_infrastructure`,
+`personal_open_source`, `public_repository_metrics`, `self_reported_language`, or
+`legal_status`. Add a schema migration before introducing another value; do not hide
+an unclear relationship in free text.
+
 ## Validation
 
 ```bash

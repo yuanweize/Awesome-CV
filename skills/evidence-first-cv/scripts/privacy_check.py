@@ -16,6 +16,7 @@ PRIVATE_PATHS = (
     "letter_config.tex",
     "sections/",
     "profiles/",
+    "archive/",
     "meta/",
     "build/",
     "tmp/",
@@ -27,6 +28,9 @@ SECRET_PATTERNS = {
     "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     "AWS access key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
     "GitHub token": re.compile(r"\b(?:ghp|github_pat)_[A-Za-z0-9_]{20,}\b"),
+    "GitLab token": re.compile(r"\bglpat-[A-Za-z0-9_-]{20,}\b"),
+    "OpenAI API key": re.compile(r"\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b"),
+    "npm token": re.compile(r"\bnpm_[A-Za-z0-9]{30,}\b"),
     "Slack token": re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{20,}\b"),
     "generic bearer token": re.compile(r"(?i)authorization\s*:\s*bearer\s+[A-Za-z0-9._-]{16,}"),
     "non-example email": re.compile(r"\b[A-Z0-9._%+-]+@(?!example\.(?:com|org|net)\b)[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I),
@@ -49,7 +53,7 @@ def git_files(root: Path, staged: bool) -> list[str]:
     command = (
         ["git", "diff", "--cached", "--diff-filter=ACMR", "--name-only", "-z"]
         if staged
-        else ["git", "ls-files", "-z"]
+        else ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"]
     )
     result = subprocess.run(command, cwd=root, check=True, capture_output=True)
     return [item.decode("utf-8") for item in result.stdout.split(b"\0") if item]
@@ -121,11 +125,13 @@ def content_violations(root: Path, paths: list[str], staged: bool = False) -> li
                     match.group(0).lower(),
                 ) in PUBLIC_ATTRIBUTION_EMAILS:
                     continue
-                issues.append(f"{relative}:{line_number}: possible {label}: {match.group(0)[:80]}")
+                issues.append(f"{relative}:{line_number}: possible {label} [value redacted]")
             for match in IP_PATTERN.finditer(line):
                 value = match.group(0)
                 if not is_documentation_ip(value):
-                    issues.append(f"{relative}:{line_number}: non-documentation IP address: {value}")
+                    issues.append(
+                        f"{relative}:{line_number}: non-documentation IP address [value redacted]"
+                    )
     return issues
 
 
@@ -160,7 +166,7 @@ def main() -> int:
         print("Remove the file from Git tracking, rotate exposed credentials, and rerun the check.")
         return 1
 
-    scope = "staged" if args.staged else "tracked"
+    scope = "staged" if args.staged else "tracked/untracked non-ignored"
     print(f"Privacy check passed: {len(paths)} {scope} files inspected")
     return 0
 

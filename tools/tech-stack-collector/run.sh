@@ -1,19 +1,15 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────
-# tech-stack-collector  —  one-liner remote execution wrapper
+# tech-stack-collector — reviewed local execution wrapper
 #
-# Usage (pick one):
-#   curl -fsSL https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/run.sh | bash
-#   wget -qO- https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/run.sh | bash
-#
-# Or directly run the Python script:
-#   curl -fsSL https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector/collector.py | python3
-# Safe mode is the default. Pass --full only for sensitive private inventory.
+# Run this wrapper from a reviewed local checkout. It deliberately does not
+# download or pipe remote code into an interpreter. Safe mode is the default;
+# pass --full only for sensitive private inventory.
 # ─────────────────────────────────────────────────────────────
 set -euo pipefail
 
-REPO_BASE="https://raw.githubusercontent.com/yuanweize/Awesome-CV/main/tools/tech-stack-collector"
-SCRIPT_URL="${REPO_BASE}/collector.py"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+COLLECTOR="$SCRIPT_DIR/collector.py"
 
 # Find python3
 PY=""
@@ -34,7 +30,6 @@ if [ -z "$PY" ]; then
 fi
 
 echo "🔍 Using $PY ($($PY --version 2>&1))"
-echo "📥 Fetching collector from GitHub..."
 if [[ " $* " == *" --full "* ]]; then
     echo "⚠️  Full mode may expose hostnames, ports, paths, Git remotes, cron, and environment data." >&2
 else
@@ -42,12 +37,10 @@ else
 fi
 echo ""
 
-# Download & run
-if command -v curl &>/dev/null; then
-    curl -fsSL "$SCRIPT_URL" | "$PY" - "$@"
-elif command -v wget &>/dev/null; then
-    wget -qO- "$SCRIPT_URL" | "$PY" - "$@"
-else
-    echo "❌ curl or wget required" >&2
+# Run the reviewed local copy.
+if [ ! -f "$COLLECTOR" ]; then
+    echo "❌ collector.py not found next to run.sh" >&2
+    echo "   Clone the repository, review it, and run this wrapper from the checkout." >&2
     exit 1
 fi
+exec "$PY" "$COLLECTOR" "$@"

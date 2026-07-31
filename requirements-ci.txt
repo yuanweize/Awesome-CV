@@ -1,0 +1,3 @@
+# Deterministic public-schema and YAML checks. Update deliberately with Dependabot/manual review.
+PyYAML==6.0.3
+yamllint==1.37.1

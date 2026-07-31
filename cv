@@ -17,6 +17,7 @@ PROFILES_DIR="$SCRIPT_DIR/profiles"
 ACTIVE_FILE="$SCRIPT_DIR/.active_profile"
 SECTIONS_DIR="$SCRIPT_DIR/sections"
 BUILD_DIR="$SCRIPT_DIR/build"
+ARCHIVE_DIR="$SCRIPT_DIR/archive/applications"
 
 # Files that compose a profile
 ROOT_FILES=(config.tex letter_config.tex)
@@ -34,7 +35,13 @@ RESET=$'\033[0m'
 # ── Helpers ───────────────────────────────────────────────────────────────────
 get_current() {
     if [[ -f "$ACTIVE_FILE" ]]; then
-        cat "$ACTIVE_FILE"
+        [[ ! -L "$ACTIVE_FILE" ]] || die "Active-profile marker must not be a symbolic link."
+        local current
+        current=$(cat "$ACTIVE_FILE")
+        if [[ -n "$current" ]]; then
+            validate_profile_name "$current"
+        fi
+        echo "$current"
     else
         echo ""
     fi
@@ -49,18 +56,157 @@ validate_profile_name() {
         || die "Invalid profile name '$profile'. Use letters, numbers, dot, underscore, or hyphen; '..' is forbidden."
 }
 
+ensure_profiles_root() {
+    [[ ! -L "$PROFILES_DIR" ]] || die "profiles/ must not be a symbolic link."
+    mkdir -p "$PROFILES_DIR"
+    [[ -d "$PROFILES_DIR" ]] || die "profiles/ is not a directory."
+}
+
+assert_safe_profile_dir() {
+    local profile="$1"
+    local profile_dir="$PROFILES_DIR/$profile"
+    [[ ! -L "$profile_dir" ]] || die "Profile '$profile' must not be a symbolic link."
+    [[ -d "$profile_dir" ]] || die "Profile '$profile' not found."
+    [[ ! -L "$profile_dir/sections" ]] || die "Profile '$profile' has an unsafe sections symlink."
+}
+
+assert_profile_files_are_regular() {
+    local profile_dir="$1"
+    local file
+    for file in "${ROOT_FILES[@]}"; do
+        [[ ! -L "$profile_dir/$file" ]] || die "Profile contains unsafe symlink: $file"
+    done
+    for file in "${SECTION_FILES[@]}"; do
+        [[ ! -L "$profile_dir/sections/$file" ]] || die "Profile contains unsafe symlink: sections/$file"
+    done
+}
+
+assert_working_files_are_regular() {
+    [[ ! -L "$SECTIONS_DIR" ]] || die "sections/ must not be a symbolic link."
+    local file
+    for file in "${ROOT_FILES[@]}"; do
+        [[ ! -L "$SCRIPT_DIR/$file" ]] || die "Working file must not be a symbolic link: $file"
+    done
+    for file in "${SECTION_FILES[@]}"; do
+        [[ ! -L "$SECTIONS_DIR/$file" ]] || die "Working file must not be a symbolic link: sections/$file"
+    done
+}
+
+write_active() {
+    local profile="$1"
+    [[ ! -L "$ACTIVE_FILE" ]] || die "Active-profile marker must not be a symbolic link."
+    printf '%s\n' "$profile" > "$ACTIVE_FILE"
+}
+
+files_differ() {
+    local first="$1"
+    local second="$2"
+    if [[ -L "$first" ]] || [[ -L "$second" ]]; then
+        return 0
+    fi
+    if [[ -f "$first" ]] && [[ -f "$second" ]]; then
+        ! cmp -s "$first" "$second"
+        return
+    fi
+    [[ -e "$first" ]] || [[ -e "$second" ]]
+}
+
+working_tree_differs_from_profile() {
+    local profile="$1"
+    local profile_dir="$PROFILES_DIR/$profile"
+    local file
+    for file in "${ROOT_FILES[@]}"; do
+        files_differ "$SCRIPT_DIR/$file" "$profile_dir/$file" && return 0
+    done
+    for file in "${SECTION_FILES[@]}"; do
+        files_differ "$SECTIONS_DIR/$file" "$profile_dir/sections/$file" && return 0
+    done
+    return 1
+}
+
+ensure_switch_is_safe() {
+    local force="${1:-}"
+    [[ "$force" == "--force" ]] && return 0
+    local current
+    current=$(get_current)
+    if [[ -z "$current" ]]; then
+        local file
+        for file in "${ROOT_FILES[@]}"; do
+            [[ -e "$SCRIPT_DIR/$file" || -L "$SCRIPT_DIR/$file" ]] \
+                && die "Working files are not attached to a profile. Save them or use --force."
+        done
+        for file in "${SECTION_FILES[@]}"; do
+            [[ -e "$SECTIONS_DIR/$file" || -L "$SECTIONS_DIR/$file" ]] \
+                && die "Working files are not attached to a profile. Save them or use --force."
+        done
+        return 0
+    fi
+    profile_exists "$current" || die "Active profile '$current' is missing. Repair .active_profile or use --force."
+    if working_tree_differs_from_profile "$current"; then
+        die "Working files differ from active profile '$current'. Run './cv save' first or use --force."
+    fi
+}
+
+sync_file() {
+    local source="$1"
+    local destination="$2"
+    [[ ! -L "$source" ]] || die "Refusing to copy symbolic link: $source"
+    rm -f "$destination"
+    if [[ -f "$source" ]]; then
+        cp "$source" "$destination"
+    fi
+    return 0
+}
+
+sync_profile_pdfs() {
+    local profile_dir="$1"
+    [[ ! -L "$BUILD_DIR" ]] || die "build/ must not be a symbolic link when saving PDFs."
+    local existing pdf destination
+    local -a pdf_sources=()
+    for pdf in "$BUILD_DIR"/*.pdf; do
+        [[ -e "$pdf" ]] || continue
+        [[ ! -L "$pdf" && -f "$pdf" ]] || die "Refusing unsafe PDF source: $pdf"
+        pdf_sources+=("$pdf")
+    done
+    ((${#pdf_sources[@]} > 0)) || return 0
+    for existing in "$profile_dir"/*.pdf; do
+        [[ -e "$existing" || -L "$existing" ]] && rm -f "$existing"
+    done
+    for pdf in "${pdf_sources[@]}"; do
+        destination="$profile_dir/$(basename "$pdf")"
+        rm -f "$destination"
+        cp "$pdf" "$destination"
+    done
+}
+
 profile_exists() {
     validate_profile_name "$1"
-    [[ -d "$PROFILES_DIR/$1" ]]
+    ensure_profiles_root
+    if [[ -L "$PROFILES_DIR/$1" ]]; then
+        die "Profile '$1' must not be a symbolic link."
+    fi
+    if [[ -d "$PROFILES_DIR/$1" ]]; then
+        assert_safe_profile_dir "$1"
+        return 0
+    fi
+    return 1
 }
 
 available_profiles() {
-    ls "$PROFILES_DIR" 2>/dev/null | tr '\n' ' '
+    ensure_profiles_root
+    local path name
+    for path in "$PROFILES_DIR"/*; do
+        [[ -d "$path" && ! -L "$path" ]] || continue
+        name=$(basename "$path")
+        [[ "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] && [[ "$name" != *..* ]] || continue
+        printf '%s ' "$name"
+    done
 }
 
 # ── Commands ──────────────────────────────────────────────────────────────────
 
 cmd_list() {
+    ensure_profiles_root
     local current
     current=$(get_current)
 
@@ -72,7 +218,7 @@ cmd_list() {
     printf "\n${BOLD}  Profiles${RESET}\n\n"
 
     for dir in "$PROFILES_DIR"/*/; do
-        [[ -d "$dir" ]] || continue
+        [[ -d "$dir" && ! -L "${dir%/}" ]] || continue
         local name
         name=$(basename "$dir")
 
@@ -102,9 +248,13 @@ cmd_list() {
 
 cmd_use() {
     local profile="${1:?Usage: ./cv use <profile>}"
+    local force="${2:-}"
     profile_exists "$profile" || die "Profile '$profile' not found. Available: $(available_profiles)"
+    assert_profile_files_are_regular "$PROFILES_DIR/$profile"
+    ensure_switch_is_safe "$force"
 
     local profile_dir="$PROFILES_DIR/$profile"
+    [[ ! -L "$SECTIONS_DIR" ]] || die "sections/ must not be a symbolic link."
 
     # Replace the working snapshot exactly. Leaving a missing file in place can
     # silently carry a previous employer or claim into the selected profile.
@@ -120,7 +270,7 @@ cmd_use() {
         [[ -f "$profile_dir/sections/$f" ]] && cp "$profile_dir/sections/$f" "$SECTIONS_DIR/$f"
     done
 
-    echo "$profile" > "$ACTIVE_FILE"
+    write_active "$profile"
     echo -e "${GREEN}✓${RESET} Loaded profile: ${BOLD}$profile${RESET}"
 }
 
@@ -128,6 +278,8 @@ cmd_save() {
     local profile="${1:-$(get_current)}"
     [[ -n "$profile" ]] || die "No profile name given and no active profile.\nUsage: ./cv save <profile>"
     validate_profile_name "$profile"
+    ensure_profiles_root
+    assert_working_files_are_regular
 
     local current
     current=$(get_current)
@@ -136,29 +288,34 @@ cmd_save() {
     fi
 
     local profile_dir="$PROFILES_DIR/$profile"
+    [[ ! -L "$SECTIONS_DIR" ]] || die "sections/ must not be a symbolic link."
+    if [[ -e "$profile_dir" || -L "$profile_dir" ]]; then
+        assert_safe_profile_dir "$profile"
+    else
+        mkdir -p "$profile_dir/sections"
+    fi
+    [[ ! -L "$profile_dir/sections" ]] || die "Profile '$profile' has an unsafe sections symlink."
     mkdir -p "$profile_dir/sections"
 
-    # Copy root files
+    # Synchronize source exactly so a removed working file cannot leave stale
+    # employer or claim data in the profile.
     for f in "${ROOT_FILES[@]}"; do
-        [[ -f "$SCRIPT_DIR/$f" ]] && cp "$SCRIPT_DIR/$f" "$profile_dir/$f"
+        sync_file "$SCRIPT_DIR/$f" "$profile_dir/$f"
     done
 
-    # Copy section files
     for f in "${SECTION_FILES[@]}"; do
-        [[ -f "$SECTIONS_DIR/$f" ]] && cp "$SECTIONS_DIR/$f" "$profile_dir/sections/$f"
+        sync_file "$SECTIONS_DIR/$f" "$profile_dir/sections/$f"
     done
 
-    # Copy PDFs if available
-    for pdf in "$BUILD_DIR"/*.pdf; do
-        [[ -f "$pdf" ]] && cp "$pdf" "$profile_dir/"
-    done
+    sync_profile_pdfs "$profile_dir"
 
-    echo "$profile" > "$ACTIVE_FILE"
+    write_active "$profile"
     echo -e "${GREEN}✓${RESET} Saved profile: ${BOLD}$profile${RESET}"
 }
 
 cmd_build() {
     local profile="${1:-}"
+    assert_working_files_are_regular
 
     # No profile specified → build current working version
     if [[ -z "$profile" ]]; then
@@ -198,7 +355,7 @@ cmd_build() {
             [[ -f "$tmp_dir/sections/$file" ]] && cp "$tmp_dir/sections/$file" "$SECTIONS_DIR/$file"
         done
         if $had_active; then
-            printf '%s\n' "$prev_profile" > "$ACTIVE_FILE"
+            write_active "$prev_profile"
         else
             rm -f "$ACTIVE_FILE"
         fi
@@ -208,13 +365,10 @@ cmd_build() {
 
     # ── Build target profile ──
     echo -e "${CYAN}Building profile: ${BOLD}$profile${RESET}"
-    cmd_use "$profile" > /dev/null
+    cmd_use "$profile" --force > /dev/null
     make -C "$SCRIPT_DIR" clean all
 
-    # Save PDFs back to profile
-    for pdf in "$BUILD_DIR"/*.pdf; do
-        [[ -f "$pdf" ]] && cp "$pdf" "$profile_dir/"
-    done
+    sync_profile_pdfs "$profile_dir"
 
     # ── Restore previous state, including after a failed build ──
     restore_build_state
@@ -225,6 +379,8 @@ cmd_build() {
 
 cmd_new() {
     local profile="${1:?Usage: ./cv new <profile>}"
+    validate_profile_name "$profile"
+    ensure_switch_is_safe ""
     profile_exists "$profile" && die "Profile '$profile' already exists. Use './cv save $profile' to update it."
 
     local profile_dir="$PROFILES_DIR/$profile"
@@ -244,7 +400,7 @@ cmd_new() {
         fi
     done
 
-    cmd_use "$profile" > /dev/null
+    cmd_use "$profile" --force > /dev/null
     echo -e "${GREEN}✓${RESET} Created new clean profile: ${BOLD}$profile${RESET}"
     echo -e "  ${DIM}Tip: edit files in root or profiles/$profile/, then run './cv build $profile'${RESET}"
 }
@@ -253,7 +409,9 @@ cmd_clone() {
     local source="${1:?Usage: ./cv clone <source> <new-profile>}"
     local target="${2:?Usage: ./cv clone <source> <new-profile>}"
     profile_exists "$source" || die "Profile '$source' not found."
+    assert_profile_files_are_regular "$PROFILES_DIR/$source"
     validate_profile_name "$target"
+    ensure_switch_is_safe ""
     ! profile_exists "$target" || die "Profile '$target' already exists."
 
     local source_dir="$PROFILES_DIR/$source"
@@ -266,7 +424,7 @@ cmd_clone() {
     for file in "${SECTION_FILES[@]}"; do
         [[ -f "$source_dir/sections/$file" ]] && cp "$source_dir/sections/$file" "$target_dir/sections/$file"
     done
-    cmd_use "$target" > /dev/null
+    cmd_use "$target" --force > /dev/null
     echo -e "${GREEN}✓${RESET} Cloned ${BOLD}$source${RESET} → ${BOLD}$target${RESET} (source files only)"
 }
 
@@ -287,8 +445,19 @@ cmd_track() {
 }
 
 cmd_doctor() {
+    assert_working_files_are_regular
+    local dirty=false
+    local current
+    current=$(get_current)
+    if [[ -n "$current" ]]; then
+        profile_exists "$current" || die "Active profile '$current' is missing."
+        working_tree_differs_from_profile "$current" && dirty=true
+    fi
     cmd_validate
     make -C "$SCRIPT_DIR" check
+    if $dirty; then
+        die "Working files differ from active profile '$current'. Review './cv diff $current' and save deliberately."
+    fi
 }
 
 cmd_diff() {
@@ -296,12 +465,14 @@ cmd_diff() {
     local b="${2:-}"
 
     profile_exists "$a" || die "Profile '$a' not found."
+    assert_profile_files_are_regular "$PROFILES_DIR/$a"
 
     local dir_a="$PROFILES_DIR/$a"
 
     if [[ -n "$b" ]]; then
         # Compare two profiles
         profile_exists "$b" || die "Profile '$b' not found."
+        assert_profile_files_are_regular "$PROFILES_DIR/$b"
         local dir_b="$PROFILES_DIR/$b"
         echo -e "${BOLD}Comparing profiles: ${CYAN}$a${RESET} vs ${CYAN}$b${RESET}\n"
         diff -rq --exclude='*.pdf' "$dir_a" "$dir_b" 2>/dev/null || true
@@ -352,11 +523,16 @@ cmd_delete() {
     current=$(get_current)
     [[ "$profile" == "$current" ]] && die "Cannot delete the active profile. Switch first with './cv use <other>'."
 
-    read -rp "Delete profile '$profile'? [y/N] " confirm
-    [[ "$confirm" =~ ^[Yy]$ ]] || { echo "Cancelled."; return; }
+    echo "Permanent deletion bypasses the archive manifest. Prefer: ./cv archive '$profile'"
+    read -rp "Type 'DELETE $profile' to permanently delete: " confirm
+    [[ "$confirm" == "DELETE $profile" ]] || { echo "Cancelled."; return; }
 
     rm -rf "${PROFILES_DIR:?}/$profile"
     echo -e "${GREEN}✓${RESET} Deleted profile: ${BOLD}$profile${RESET}"
+}
+
+cmd_archive() {
+    python3 "$SCRIPT_DIR/tools/archive_profile.py" --archive-dir "$ARCHIVE_DIR" "$@"
 }
 
 # ── Interactive Menu ───────────────────────────────────────────────────────────
@@ -377,7 +553,8 @@ cmd_interactive() {
         "new       Create new profile"
         "diff      Compare profiles"
         "current   Show active profile"
-        "delete    Delete a profile"
+        "archive   Plan or apply a verified archive move"
+        "delete    Permanently delete a profile"
         "help      Show full usage"
         "quit      Exit"
     )
@@ -423,11 +600,16 @@ cmd_interactive() {
         7) cmd_current ;;
         8)
             cmd_list
+            read -rp "  Profile to archive (dry run): " profile_name
+            [[ -n "$profile_name" ]] && cmd_archive "$profile_name"
+            ;;
+        9)
+            cmd_list
             read -rp "  Profile to delete: " profile_name
             [[ -n "$profile_name" ]] && cmd_delete "$profile_name"
             ;;
-        9) usage ;;
-        10|q|quit) echo "Bye." ; exit 0 ;;
+        10) usage ;;
+        11|q|quit) echo "Bye." ; exit 0 ;;
         *) die "Invalid choice: $choice" ;;
     esac
 }
@@ -443,19 +625,20 @@ ${BOLD}Usage:${RESET} ./cv <command> [args]
 
 ${BOLD}Commands:${RESET}
   ${CYAN}list${RESET}                  List all profiles (active marked with ▸)
-  ${CYAN}use${RESET} <profile>         Load a profile into the working directory
+  ${CYAN}use${RESET} <profile>         Load a profile; refuses to overwrite unsaved changes
   ${CYAN}save${RESET} [profile]        Save current working files to a profile
   ${CYAN}build${RESET} [profile]       Build PDFs (current if omitted, or specific profile)
   ${CYAN}new${RESET} <profile>         Create a clean profile from public templates
   ${CYAN}clone${RESET} <src> <new>     Clone a profile without stale PDFs
   ${CYAN}diff${RESET} <a> [b]          Compare two profiles (b = current working if omitted)
   ${CYAN}current${RESET}               Show the active profile name
-  ${CYAN}delete${RESET} <profile>      Delete a profile
+  ${CYAN}archive${RESET} <profile>     Dry-run a verified archive move; add --apply to move
+  ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
   ${CYAN}validate${RESET} [yaml]       Validate the private master database
   ${CYAN}privacy-check${RESET}         Check tracked files for private data/secrets
   ${CYAN}track${RESET} <command>       Maintain the private application/outcome memory
-  ${CYAN}doctor${RESET}                Validate private memory and run repository checks
+  ${CYAN}doctor${RESET}                Validate memory/checks and detect an unsaved active profile
 
 ${BOLD}Examples:${RESET}
   ./cv list                     # See all profiles
@@ -465,6 +648,8 @@ ${BOLD}Examples:${RESET}
   ./cv new acme-systems         # Create a clean profile from public templates
   ./cv clone prior-good acme    # Optionally reuse a trusted layout
   ./cv diff acme beta           # Compare two application snapshots
+  ./cv archive old-role         # Plan only; no files move
+  ./cv archive old-role --apply # Move after review and write SHA-256 manifest
   ./cv context --jd job.md --role systems -o build/job-context.md
   ./cv privacy-check
   ./cv track summary
@@ -480,13 +665,14 @@ EOF
 # ── Dispatch ──────────────────────────────────────────────────────────────────
 case "${1:-}" in
     list)    cmd_list ;;
-    use)     cmd_use "${2:-}" ;;
+    use)     cmd_use "${2:-}" "${3:-}" ;;
     save)    cmd_save "${2:-}" ;;
     build)   cmd_build "${2:-}" ;;
     new)     cmd_new "${2:-}" ;;
     clone)   cmd_clone "${2:-}" "${3:-}" ;;
     diff)    cmd_diff "${2:-}" "${3:-}" ;;
     current) cmd_current ;;
+    archive) shift; cmd_archive "$@" ;;
     delete)  cmd_delete "${2:-}" ;;
     context) shift; cmd_context "$@" ;;
     validate) shift; cmd_validate "$@" ;;
