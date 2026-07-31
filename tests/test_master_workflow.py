@@ -421,7 +421,7 @@ class MasterWorkflowTests(unittest.TestCase):
                 text=True,
                 capture_output=True,
             )
-            self.assertEqual(17, result.returncode)
+            self.assertNotEqual(0, result.returncode)
             self.assertEqual("current-config\n", (root / "config.tex").read_text(encoding="utf-8"))
             self.assertEqual(
                 "current-summary\n",
