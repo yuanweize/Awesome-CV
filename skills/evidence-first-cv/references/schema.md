@@ -16,7 +16,7 @@ requirement matches, selected claims, human confirmation, and final bullets. It 
 adds facts to the master registry.
 
 Every human-readable job, project, or qualification must either link to valid
-`claim_ids` or declare `cv_eligible: false`. Reject duplicate YAML keys and duplicate
+`claim_ids` or declare `cv_eligible: false` with a short reason. Reject duplicate YAML keys and duplicate
 role, tag, evidence, or claim-link values; silent overwrites make the memory unsafe.
 
 ## Claim fields

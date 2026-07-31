@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-tech-stack-collector v2.0
+tech-stack-collector v2.1
 =========================
 Collect server technical stack information for CV/resume building.
 
@@ -30,11 +30,12 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 # ── Config ──────────────────────────────────────────────────────────────────
-VERSION = "2.0"
+VERSION = "2.1"
 CMD_TIMEOUT = 8          # seconds per shell command
 MAX_WORKERS = 10         # parallel command threads
 GIT_SCAN_DIRS = ["/home", "/root", "/srv", "/var/www", "/opt"]
 GIT_SCAN_DEPTH = 4
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
@@ -45,9 +46,33 @@ def run(cmd: str, timeout: int = CMD_TIMEOUT) -> str:
             cmd, shell=True, capture_output=True, text=True,
             timeout=timeout, env={**os.environ, "LC_ALL": "C", "LANG": "C"},
         )
-        return r.stdout.strip()
+        return ANSI_ESCAPE.sub("", r.stdout).strip()
     except Exception:
         return ""
+
+
+UNUSABLE_OUTPUT_MARKERS = (
+    "command not found",
+    "no such file",
+    "not found",
+    "permission denied",
+    "traceback",
+    "exception:",
+    "error:",
+    "fatal:",
+    "usage:",
+    "warning:",
+    "deprecated",
+)
+
+
+def first_usable_line(output: str, limit: int = 80) -> str:
+    """Return the first plausible version line, excluding shell/error noise."""
+    for raw_line in output.splitlines():
+        line = ANSI_ESCAPE.sub("", raw_line).strip()
+        if line and not any(marker in line.lower() for marker in UNUSABLE_OUTPUT_MARKERS):
+            return line[:limit]
+    return ""
 
 
 def has(name: str) -> bool:
@@ -80,6 +105,19 @@ def md_bullets(items: List[str]) -> str:
     return "\n".join(f"- {i}" for i in items if i.strip())
 
 
+def md_table_rows(markdown: str) -> list[list[str]]:
+    """Return Markdown table data rows without headers or separator cells."""
+    rows: list[list[str]] = []
+    for line in markdown.splitlines():
+        if not line.strip().startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if not cells or all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
+            continue
+        rows.append(cells)
+    return rows[1:] if rows else []
+
+
 # ── Collectors ──────────────────────────────────────────────────────────────
 # Each returns (section_title, markdown_content).
 # Content == "" means section is skipped in output.
@@ -101,15 +139,21 @@ def collect_system(include_sensitive: bool = False) -> Tuple[str, str]:
     disk = run("df -h / 2>/dev/null | awk 'NR==2{print $2\" total, \"$3\" used, \"$5\" usage\"}'")
     uptime = run("uptime -p 2>/dev/null") or run("uptime | sed 's/.*up/up/'")
     lines = [
-        f"- **Hostname:** {hostname if include_sensitive else '[redacted in safe mode]'}",
-        f"- **OS:** {pretty or platform.platform()}",
-        f"- **Kernel:** {kernel}" if kernel else "",
+        "- **Hostname:** [redacted in safe mode]",
+        f"- **OS family:** {platform.system() or 'unknown'}",
         f"- **Arch:** {arch}",
-        f"- **CPU:** {cpus} cores" + (f" — {model}" if model else ""),
-        f"- **Memory:** {mem}" if mem else "",
-        f"- **Disk (/):** {disk}" if disk else "",
-        f"- **Uptime:** {uptime}" if uptime else "",
     ]
+    if include_sensitive:
+        lines = [
+            f"- **Hostname:** {hostname}",
+            f"- **OS:** {pretty or platform.platform()}",
+            f"- **Kernel:** {kernel}" if kernel else "",
+            f"- **Arch:** {arch}",
+            f"- **CPU:** {cpus} cores" + (f" — {model}" if model else ""),
+            f"- **Memory:** {mem}" if mem else "",
+            f"- **Disk (/):** {disk}" if disk else "",
+            f"- **Uptime:** {uptime}" if uptime else "",
+        ]
     return "System", "\n".join(l for l in lines if l)
 
 
@@ -136,8 +180,21 @@ def collect_docker(safe: bool = True) -> Tuple[str, str]:
     if imgs:
         rows = [line.split("\t") for line in imgs.split("\n") if line.strip()]
         if safe:
-            rows = [[row[0].rsplit("/", 1)[-1], *row[1:]] for row in rows]
-        parts.append("### Images\n\n" + md_table(["Image", "Size"], rows))
+            discovered = TagStore()
+            for row in rows:
+                discovered.resolve_docker_image(row[0])
+            technologies = [
+                [category, name]
+                for category, names in discovered.items()
+                for name in sorted(names)
+            ]
+            parts.append(
+                "### Image inventory\n\n"
+                + (md_table(["Category", "Technology"], technologies) + "\n\n" if technologies else "")
+                + f"_{len(rows)} images scanned; raw names, registries, and sizes omitted in safe mode_"
+            )
+        else:
+            parts.append("### Images\n\n" + md_table(["Image", "Size"], rows))
 
     if not safe:
         compose = run("docker compose ls --format 'table' 2>/dev/null | head -20")
@@ -182,12 +239,11 @@ def collect_languages() -> Tuple[str, str]:
         ("Deno",     "deno --version 2>&1 | head -1"),
         ("Bun",      "bun --version 2>&1"),
     ]
-    BAD = {"not found", "no such file", "command not found"}
-
     def _chk(name: str, cmd: str) -> Optional[List[str]]:
         v = run(cmd, timeout=5)
-        if v and not any(b in v.lower() for b in BAD):
-            return [name, v.split("\n")[0][:80]]
+        version = first_usable_line(v)
+        if version:
+            return [name, version]
         return None
 
     rows: list[list[str]] = []
@@ -201,52 +257,68 @@ def collect_languages() -> Tuple[str, str]:
     return "Programming Languages", md_table(["Language", "Version"], rows) if rows else ""
 
 
-def collect_package_managers() -> Tuple[str, str]:
+def collect_package_managers(include_details: bool = False) -> Tuple[str, str]:
     parts: list[str] = []
+    summaries: list[str] = []
 
     # pip
     pip_out = run("pip3 list --format=columns 2>/dev/null | tail -n +3 | head -50") \
            or run("pip list --format=columns 2>/dev/null | tail -n +3 | head -50")
     if pip_out:
         cnt = run("pip3 list 2>/dev/null | tail -n +3 | wc -l")
-        parts.append(f"### pip ({cnt.strip()} packages, showing first 50)\n\n```\n{pip_out}\n```")
+        summaries.append(f"pip: {cnt.strip() or 'unknown'} packages; names omitted")
+        if include_details:
+            parts.append(f"### pip ({cnt.strip()} packages, showing first 50)\n\n```\n{pip_out}\n```")
 
     # npm global
     npm_out = run("npm -g list --depth=0 2>/dev/null | tail -n +2")
     if npm_out and "empty" not in npm_out.lower():
-        parts.append(f"### npm (global)\n\n```\n{npm_out}\n```")
+        summaries.append(f"npm global: {len(npm_out.splitlines())} entries; names omitted")
+        if include_details:
+            parts.append(f"### npm (global)\n\n```\n{npm_out}\n```")
 
     # cargo
     if has("cargo"):
         cargo_out = run("cargo install --list 2>/dev/null | head -30")
         if cargo_out:
-            parts.append(f"### cargo installed\n\n```\n{cargo_out}\n```")
+            summaries.append("cargo: installed packages detected; names omitted")
+            if include_details:
+                parts.append(f"### cargo installed\n\n```\n{cargo_out}\n```")
 
     # go binaries
     gobin = Path.home() / "go" / "bin"
     if gobin.is_dir():
         bins = sorted(f.name for f in gobin.iterdir() if f.is_file())[:30]
         if bins:
-            parts.append("### Go binaries (~/go/bin)\n\n" + md_bullets(bins))
+            summaries.append(f"Go binaries: {len(bins)} detected; names omitted")
+            if include_details:
+                parts.append("### Go binaries (~/go/bin)\n\n" + md_bullets(bins))
 
     # snap
     snap_out = run("snap list 2>/dev/null | tail -n +2 | head -25")
     if snap_out:
-        parts.append(f"### snap\n\n```\n{snap_out}\n```")
+        summaries.append(f"snap: {len(snap_out.splitlines())} entries; names omitted")
+        if include_details:
+            parts.append(f"### snap\n\n```\n{snap_out}\n```")
 
     # gem
     if has("gem"):
         gem_out = run("gem list --local --no-details 2>/dev/null | head -30")
         if gem_out:
-            parts.append(f"### gem\n\n```\n{gem_out}\n```")
+            summaries.append(f"gem: {len(gem_out.splitlines())} entries; names omitted")
+            if include_details:
+                parts.append(f"### gem\n\n```\n{gem_out}\n```")
 
     # composer
     if has("composer"):
         comp_out = run("composer global show --name-only 2>/dev/null | head -20")
         if comp_out:
-            parts.append(f"### composer (global)\n\n```\n{comp_out}\n```")
+            summaries.append(f"composer global: {len(comp_out.splitlines())} entries; names omitted")
+            if include_details:
+                parts.append(f"### composer (global)\n\n```\n{comp_out}\n```")
 
-    return "Package Managers", "\n\n".join(parts) if parts else ""
+    content = "\n\n".join(parts) if include_details else md_bullets(summaries)
+    return "Package Managers", content
 
 
 def collect_key_dirs() -> Tuple[str, str]:
@@ -291,7 +363,7 @@ def collect_key_dirs() -> Tuple[str, str]:
     return "Key Directories", "\n\n".join(parts) if parts else ""
 
 
-def collect_services() -> Tuple[str, str]:
+def collect_services(safe: bool = True) -> Tuple[str, str]:
     raw = run("systemctl list-units --type=service --state=running --no-pager --plain 2>/dev/null "
               "| awk '{print $1}' | grep '\\.service$' | sort")
     if not raw:
@@ -315,9 +387,20 @@ def collect_services() -> Tuple[str, str]:
             notable.append(s)
 
     parts: list[str] = []
-    if notable:
-        parts.append("### Notable\n\n" + md_bullets(notable))
-    parts.append(f"\n_{sys_count} standard system services omitted_")
+    if safe:
+        discovered = TagStore()
+        for service in notable:
+            discovered.resolve_service(service)
+        technologies = discovered.flat_tags()
+        if technologies:
+            parts.append("### Recognized technologies\n\n" + md_bullets(technologies))
+        parts.append(
+            f"_{len(services)} running services scanned; raw unit names omitted in safe mode_"
+        )
+    else:
+        if notable:
+            parts.append("### Notable\n\n" + md_bullets(notable))
+        parts.append(f"\n_{sys_count} standard system services omitted_")
     return "Running Services", "\n".join(parts)
 
 
@@ -350,13 +433,13 @@ def collect_databases() -> Tuple[str, str]:
         ("CockroachDB",     "cockroach version 2>&1 | head -1", "cockroach"),
         ("ClickHouse",      "clickhouse-client --version 2>&1", "clickhouse"),
     ]
-    BAD = {"not found", "command not found"}
     rows: list[list[str]] = []
     for name, cmd, proc in checks:
         v = run(cmd, timeout=5)
-        if v and not any(b in v.lower() for b in BAD):
+        version = first_usable_line(v)
+        if version:
             running = "✓ running" if run(f"pgrep -x {proc} 2>/dev/null") else "installed"
-            rows.append([name, v.split("\n")[0][:80], running])
+            rows.append([name, version, running])
     return "Databases", md_table(["Database", "Version", "Status"], rows) if rows else ""
 
 
@@ -370,8 +453,9 @@ def collect_web_servers(include_sites: bool = False) -> Tuple[str, str]:
         ("HAProxy", "haproxy -v 2>&1 | head -1",            ""),
     ]:
         v = run(ver_cmd, timeout=5)
-        if v and "not found" not in v.lower():
-            line = f"- **{name}:** {v.split(chr(10))[0][:80]}"
+        version = first_usable_line(v)
+        if version:
+            line = f"- **{name}:** {version}"
             if sites_cmd and include_sites:
                 sites = run(sites_cmd)
                 if sites:
@@ -385,7 +469,7 @@ def collect_devops() -> Tuple[str, str]:
         ("Terraform",      "terraform --version 2>&1 | head -1"),
         ("OpenTofu",       "tofu --version 2>&1 | head -1"),
         ("Ansible",        "ansible --version 2>&1 | head -1"),
-        ("kubectl",        "kubectl version --client 2>&1 | head -1"),
+        ("kubectl",        "kubectl version --client 2>/dev/null | head -1"),
         ("Helm",           "helm version --short 2>&1"),
         ("k3s",            "k3s --version 2>&1"),
         ("Minikube",       "minikube version --short 2>&1"),
@@ -403,12 +487,11 @@ def collect_devops() -> Tuple[str, str]:
         ("Vault",          "vault --version 2>&1"),
         ("Consul",         "consul --version 2>&1 | head -1"),
     ]
-    BAD = {"not found", "command not found"}
-
     def _chk(name: str, cmd: str) -> Optional[List[str]]:
         v = run(cmd, timeout=5)
-        if v and not any(b in v.lower() for b in BAD):
-            return [name, v.split("\n")[0][:80]]
+        version = first_usable_line(v)
+        if version:
+            return [name, version]
         return None
 
     rows: list[list[str]] = []
@@ -449,12 +532,11 @@ def collect_cli_tools() -> Tuple[str, str]:
         ("strace",      "strace --version 2>&1 | head -1"),
         ("lsof",        "lsof -v 2>&1 | head -1"),
     ]
-    BAD = {"not found", "command not found"}
-
     def _chk(name: str, cmd: str) -> Optional[List[str]]:
         v = run(cmd, timeout=5)
-        if v and not any(b in v.lower() for b in BAD):
-            return [name, v.split("\n")[0][:80]]
+        version = first_usable_line(v)
+        if version:
+            return [name, version]
         return None
 
     rows: list[list[str]] = []
@@ -479,12 +561,12 @@ def collect_network_security() -> Tuple[str, str]:
         ("Fail2ban",   "fail2ban-server --version 2>&1"),
         ("CrowdSec",   "cscli version 2>&1 | head -1"),
     ]
-    BAD = {"not found", "command not found"}
     found: list[str] = []
     for name, cmd in tools:
         v = run(cmd, timeout=5)
-        if v and not any(b in v.lower() for b in BAD):
-            found.append(f"- **{name}:** {v.split(chr(10))[0][:80]}")
+        version = first_usable_line(v)
+        if version:
+            found.append(f"- **{name}:** {version}")
     return "Network & Security", "\n".join(found) if found else ""
 
 
@@ -533,8 +615,9 @@ def collect_virtualization() -> Tuple[str, str]:
         ("Incus",    "incus version 2>&1"),
     ]:
         v = run(cmd, timeout=5)
-        if v and "not found" not in v.lower():
-            parts.append(f"- **{name}:** {v.split(chr(10))[0]}")
+        version = first_usable_line(v)
+        if version:
+            parts.append(f"- **{name}:** {version}")
     return "Virtualization", "\n".join(parts)
 
 
@@ -547,12 +630,12 @@ def collect_monitoring() -> Tuple[str, str]:
         ("Zabbix Agent",   "zabbix_agentd --version 2>&1 | head -1"),
         ("Netdata",        "netdata -v 2>&1"),
     ]
-    BAD = {"not found", "command not found"}
     found: list[str] = []
     for name, cmd in checks:
         v = run(cmd, timeout=5)
-        if v and not any(b in v.lower() for b in BAD):
-            found.append(f"- **{name}:** {v.split(chr(10))[0][:80]}")
+        version = first_usable_line(v)
+        if version:
+            found.append(f"- **{name}:** {version}")
     return "Monitoring & Observability", "\n".join(found) if found else ""
 
 
@@ -617,9 +700,13 @@ class TagStore:
             if n:
                 bucket.add(n)
 
-    def merge(self, other: "TagStore") -> None:
-        for cat, names in other._tags.items():
-            self._tags.setdefault(cat, set()).update(names)
+    def flat_tags(self) -> list[str]:
+        """Return canonical technology names without their source identifiers."""
+        return sorted({name for names in self._tags.values() for name in names})
+
+    def items(self) -> list[tuple[str, set[str]]]:
+        """Return a stable copy of categorized canonical technologies."""
+        return [(category, set(self._tags[category])) for category in sorted(self._tags)]
 
     # ── Docker image → tag resolution ───────────────────────────────────
     # Maps image-name fragments to (category, canonical_name).
@@ -983,8 +1070,8 @@ def build_report(output_dir: str = ".", full: bool = False) -> str:
         lambda: collect_system(include_sensitive=full),
         lambda: collect_docker(safe=not full),
         collect_languages,
-        collect_package_managers,
-        collect_services,
+        lambda: collect_package_managers(include_details=full),
+        lambda: collect_services(safe=not full),
         collect_databases,
         lambda: collect_web_servers(include_sites=full),
         collect_devops,
@@ -1030,8 +1117,7 @@ def build_report(output_dir: str = ".", full: bool = False) -> str:
 
     # ── Tag extraction from structured data ─────────────────────────────
     tags = TagStore()
-    full_text = "\n".join(body_parts)
-    _extract_tags_from_sections(tags, section_map, full_text)
+    _extract_tags_from_sections(tags, section_map)
 
     tag_sec = ""
     formatted = tags.format_tags()
@@ -1042,14 +1128,19 @@ def build_report(output_dir: str = ".", full: bool = False) -> str:
     report = header + "\n".join(body_parts) + tag_sec
 
     # Save to file
-    safe_host = re.sub(r'[^\w\-.]', '_', hostname)
     ts_file = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"techstack_{safe_host}_{ts_file}.md"
+    if full:
+        safe_host = re.sub(r'[^\w\-.]', '_', hostname)
+        filename = f"techstack_{safe_host}_{ts_file}.md"
+    else:
+        filename = f"techstack_safe_{ts_file}.md"
     filepath = os.path.join(output_dir, filename)
     try:
         os.makedirs(output_dir, exist_ok=True)
         with open(filepath, "w", encoding="utf-8") as f:
             f.write(report)
+        os.chmod(filepath, 0o600)
+        os.chmod(output_dir, 0o700)
         emit(f"\n---\n✅ Report saved → {os.path.abspath(filepath)}")
     except OSError as exc:
         print(f"\n⚠️  Save failed: {exc}", file=sys.stderr)
@@ -1057,12 +1148,16 @@ def build_report(output_dir: str = ".", full: bool = False) -> str:
     return report
 
 
-def _extract_tags_from_sections(tags: TagStore, sections: dict[str, str], full: str) -> None:
+def _extract_tags_from_sections(tags: TagStore, sections: dict[str, str]) -> None:
     """Feed structured section data into TagStore for intelligent tagging."""
 
-    # 1. Docker images — parse from the rendered tables
+    # 1. Docker images — safe mode contains only canonical category/name rows;
+    # full mode contains raw image identifiers.
     docker_sec = sections.get("Docker / Containers", "")
     if docker_sec:
+        for row in md_table_rows(docker_sec):
+            if len(row) >= 2 and row[0] in {category for category, _ in TagStore._CAT_ORDER}:
+                tags.add(row[0], row[1])
         # Extract image names from table rows and compose output
         for m in re.finditer(r'(?:^|\|)\s*(\S+/\S+:\S+|\w[\w.-]+:\w[\w.-]+)', docker_sec, re.M):
             tags.resolve_docker_image(m.group(1))
@@ -1092,24 +1187,21 @@ def _extract_tags_from_sections(tags: TagStore, sections: dict[str, str], full: 
 
     # 3. Programming languages — from table rows
     lang_sec = sections.get("Programming Languages", "")
-    for m in re.finditer(r'\|\s*(\w[\w.+ ]*?)\s*\|', lang_sec):
-        name = m.group(1).strip()
-        if name and name not in ("Language", "Version", "---"):
-            tags.resolve_tool(name, "Languages")
+    for row in md_table_rows(lang_sec):
+        if row and row[0]:
+            tags.resolve_tool(row[0], "Languages")
 
     # 4. DevOps tools
     devops_sec = sections.get("Cloud & DevOps Tools", "")
-    for m in re.finditer(r'\|\s*(\w[\w. ]*?)\s*\|', devops_sec):
-        name = m.group(1).strip()
-        if name and name not in ("Tool", "Version", "---"):
-            tags.resolve_tool(name, "DevOps")
+    for row in md_table_rows(devops_sec):
+        if row and row[0]:
+            tags.resolve_tool(row[0], "DevOps")
 
     # 5. Databases (installed, not just Docker)
     db_sec = sections.get("Databases", "")
-    for m in re.finditer(r'\|\s*(\w[\w./ ]*?)\s*\|', db_sec):
-        name = m.group(1).strip()
-        if name and name not in ("Database", "Version", "Status", "---"):
-            tags.resolve_tool(name, "Databases")
+    for row in md_table_rows(db_sec):
+        if row and row[0]:
+            tags.resolve_tool(row[0], "Databases")
 
     # 6. Web servers
     web_sec = sections.get("Web Servers", "")
@@ -1123,8 +1215,8 @@ def _extract_tags_from_sections(tags: TagStore, sections: dict[str, str], full: 
         "fd", "bat", "ffmpeg", "imagemagick", "pandoc", "rsync",
         "btop", "htop", "strace", "lsof",
     }
-    for m in re.finditer(r'\|\s*(\w[\w./]*?)\s*\|', cli_sec):
-        name = m.group(1).strip()
+    for row in md_table_rows(cli_sec):
+        name = row[0].strip() if row else ""
         if name.lower() in _CLI_SKILL_SET:
             tags.resolve_tool(name, "CLI")
 

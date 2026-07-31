@@ -562,6 +562,10 @@ cmd_archive_research() {
     python3 "$SCRIPT_DIR/tools/archive_research.py" "$@"
 }
 
+cmd_github_audit() {
+    python3 "$SCRIPT_DIR/tools/github_inventory.py" "$@"
+}
+
 # ── Interactive Menu ───────────────────────────────────────────────────────────
 
 cmd_interactive() {
@@ -661,6 +665,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}current${RESET}               Show the active profile name
   ${CYAN}archive${RESET} <profile>     Dry-run a verified archive move; add --apply to move
   ${CYAN}archive-research${RESET} ...  Archive private research separately with verification
+  ${CYAN}github-audit${RESET} ...      Audit public repositories, metrics, and Actions workflows
   ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
   ${CYAN}status${RESET} [--json]       Report memory, application, profile, and warning state
@@ -682,6 +687,7 @@ ${BOLD}Examples:${RESET}
   ./cv archive old-role         # Plan only; no files move
   ./cv archive old-role --apply # Move after review and write SHA-256 manifest
   ./cv archive-research profiles/old/interview_prep old-interview --apply
+  ./cv github-audit             # Owner from private master; writes dated private JSON
   ./cv context --jd job.md --role systems -o build/job-context.md
   ./cv status                    # Agent preflight before every application
   ./cv start --company Acme --title "Systems Engineer" --role systems --jd job.md
@@ -709,6 +715,7 @@ case "${1:-}" in
     current) cmd_current ;;
     archive) shift; cmd_archive "$@" ;;
     archive-research) shift; cmd_archive_research "$@" ;;
+    github-audit) shift; cmd_github_audit "$@" ;;
     delete)  cmd_delete "${2:-}" ;;
     context) shift; cmd_context "$@" ;;
     status) shift; cmd_status "$@" ;;

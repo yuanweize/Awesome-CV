@@ -38,6 +38,8 @@ cache authoritative.
   before accepting a final profile or PDF.
 - For Git, AI-service, contact-data, or server-report questions: read
   [references/privacy.md](references/privacy.md).
+- For public GitHub metrics, Actions evidence, or installed-technology discovery:
+  read [references/technology-intake.md](references/technology-intake.md).
 - For funnel diagnosis or application history: read
   [references/application-workflow.md](references/application-workflow.md).
 - For profile cleanup, migration, deduplication, or closed applications: read

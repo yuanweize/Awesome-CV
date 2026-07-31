@@ -364,7 +364,17 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                 continue
             references = item.get("claim_ids")
             if references is None:
-                if item.get("cv_eligible") is not False:
+                if item.get("cv_eligible") is False:
+                    reason = (
+                        item.get("eligibility_reason")
+                        or item.get("exclusion_reason")
+                        or item.get("details")
+                    )
+                    if not _is_nonempty_string(reason):
+                        errors.append(
+                            f"{prefix} is CV-ineligible but has no eligibility_reason"
+                        )
+                else:
                     warnings.append(
                         f"{prefix} is not classified: add claim_ids or set cv_eligible: false"
                     )

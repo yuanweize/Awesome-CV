@@ -84,7 +84,9 @@ useful for a human owner and backward compatibility. They are not the AI prompt 
 The context exporter reads `claim_registry` only.
 
 Every human-readable job, project, or qualification must therefore be classified:
-give it valid `claim_ids`, or set `cv_eligible: false` with a short reason. Put the
+give it valid `claim_ids`, or set `cv_eligible: false` with a short
+`eligibility_reason` (legacy `exclusion_reason` or explanatory `details` are also
+accepted). Put the
 usable subset of the broad technology inventory under `technical_skills.evidenced`
 and map each entry to claim IDs. This prevents a valid YAML file from silently hiding
 useful facts from AI or promoting tools that were merely installed once.

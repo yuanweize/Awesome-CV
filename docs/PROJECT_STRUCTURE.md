@@ -18,6 +18,9 @@ responsibility and one lifetime; generated CV prose must never become career tru
 
 The canonical script implementations live under the Skill. Matching files in
 `tools/` are thin compatibility entry points so old commands continue to work.
+Repository-only build and packaging utilities remain under `tools/`; the optional
+tech-stack collector is an evidence-discovery input, not Skill business logic. See
+[TOOLING.md](TOOLING.md) for the complete ownership matrix.
 
 ## 2. Private canonical memory (ignored by Git)
 
@@ -28,10 +31,13 @@ The canonical script implementations live under the Skill. Matching files in
 | `meta/applications/<id>/` | One saved JD and its decision/claim manifest |
 | `meta/profile_catalog.yaml` | Explicit classification of reusable reference profiles |
 | `meta/evidence/` | Durable private proof such as degree or contract records |
+| `meta/inventory/` | Dated derived discovery caches such as GitHub API snapshots; never factual authority |
 
 Only eligible `claim_registry` entries are factual input to CV drafting. Human-readable
 history and technical inventory are navigation aids; the validator warns when a
 project, job, qualification, or evidenced skill is not classified or linked to claims.
+Installed-tool and GitHub inventories must pass human review before they create or
+change evidence records or claims.
 
 ## 3. Private application/build layer (ignored by Git)
 
@@ -61,6 +67,7 @@ evidence, and historical source are never mass-deleted during routine cleanup.
 ```text
 evidence -> master claim -> JD manifest -> working snapshot -> submitted profile
                                                        -> outcome ledger
+discovery inventory -> human review -> evidence/claim (or no promotion)
 closed profile/research -> verified private archive
 build/tmp/cache -> disposable cleanup
 ```

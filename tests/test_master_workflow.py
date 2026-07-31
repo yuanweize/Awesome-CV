@@ -18,6 +18,12 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "skills" / "evidence-first-cv" / "scripts"))
 
 from generate_ai_context import build_context, load_yaml, markdown_fence  # noqa: E402
+from github_inventory import (  # noqa: E402
+    build_inventory,
+    normalize_repository,
+    owner_from_master,
+    summarize_repositories,
+)
 from application_ledger import (  # noqa: E402
     command_add,
     command_summary,
@@ -69,6 +75,74 @@ class MasterWorkflowTests(unittest.TestCase):
         template = ROOT / "templates" / "application_manifest.yaml.example"
         asset = ROOT / "skills" / "evidence-first-cv" / "assets" / "application_manifest.yaml.example"
         self.assertEqual(template.read_bytes(), asset.read_bytes())
+
+    def test_every_skill_script_has_a_tools_compatibility_entrypoint(self) -> None:
+        scripts = ROOT / "skills" / "evidence-first-cv" / "scripts"
+        wrappers = ROOT / "tools"
+        missing = sorted(
+            path.name
+            for path in scripts.glob("*.py")
+            if not (wrappers / path.name).is_file()
+        )
+        self.assertEqual([], missing)
+
+    def test_github_inventory_separates_originals_forks_and_actions(self) -> None:
+        original = normalize_repository(
+            {
+                "name": "owned-project",
+                "html_url": "https://example.test/owned-project",
+                "fork": False,
+                "stargazers_count": 8,
+                "forks_count": 3,
+            }
+        )
+        original["actions_workflows"] = [
+            {
+                "name": "CI",
+                "path": ".github/workflows/ci.yml",
+                "state": "active",
+                "kind": "repository",
+            },
+            {
+                "name": "Dependabot Updates",
+                "path": "dynamic/dependabot/dependabot-updates",
+                "state": "active",
+                "kind": "github_managed",
+            },
+        ]
+        fork = normalize_repository(
+            {
+                "name": "upstream-fork",
+                "html_url": "https://example.test/upstream-fork",
+                "fork": True,
+                "stargazers_count": 50,
+                "forks_count": 10,
+            }
+        )
+
+        summary = summarize_repositories([original, fork])
+
+        self.assertEqual(1, summary["originals"])
+        self.assertEqual(1, summary["forks"])
+        self.assertEqual(8, summary["original_stars"])
+        self.assertEqual(3, summary["original_forks"])
+        self.assertEqual(1, summary["original_repositories_with_actions"])
+        self.assertEqual(1, summary["original_active_actions_workflows"])
+        self.assertEqual(1, summary["original_github_managed_workflows"])
+        self.assertEqual(0, summary["fork_repositories_with_actions"])
+
+    def test_github_owner_is_read_from_private_master(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "master.yaml"
+            path.write_text(
+                yaml.safe_dump({"personal_information": {"github": "example-owner"}}),
+                encoding="utf-8",
+            )
+            self.assertEqual("example-owner", owner_from_master(path))
+
+    def test_github_inventory_rejects_unsafe_owner_without_network(self) -> None:
+        with self.assertRaisesRegex(ValueError, "valid GitHub username"):
+            build_inventory("../outside")
 
     def test_planned_claim_cannot_be_cv_eligible(self) -> None:
         data = copy.deepcopy(self.template)
@@ -474,6 +548,15 @@ class MasterWorkflowTests(unittest.TestCase):
         result = self.validate_copy(data)
         self.assertFalse(result["ok"])
         self.assertTrue(any("unknown claim" in error for error in result["errors"]))
+
+    def test_validator_requires_reason_for_ineligible_human_inventory(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["open_source_and_projects"].append(
+            {"name": "Installed-only experiment", "cv_eligible": False}
+        )
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("no eligibility_reason" in error for error in result["errors"]))
 
     def make_cv_fixture(self, root: Path) -> Path:
         executable = root / "cv"

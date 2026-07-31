@@ -219,6 +219,7 @@ profiles.
 | `./cv diff <a> [b]` | Compare profiles or working files |
 | `./cv archive <name> [--apply]` | Plan or apply a SHA-256-verified private archive move |
 | `./cv archive-research <source> <name> [--apply]` | Separately archive private research with hashes |
+| `./cv github-audit ...` | Refresh public repository metrics and Actions evidence into a private report |
 | `./cv delete <name>` | Permanently delete a non-active profile after exact confirmation |
 | `./cv context ...` | Generate evidence-bound AI context |
 | `./cv status [--json]` | Preflight master, ledger, manifests, profiles, and unsaved state |
@@ -274,6 +275,7 @@ Awesome-CV/
 │   ├── application_ledger.py
 │   ├── application_manifest.py
 │   ├── workspace_status.py
+│   ├── github_inventory.py
 │   ├── package_dify_plugin.py
 │   ├── archive_profile.py
 │   ├── archive_research.py
@@ -294,6 +296,15 @@ Awesome-CV/
 
 See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for ownership, lifecycle,
 canonical-vs-compatibility boundaries, and cleanup rules.
+
+Refresh public GitHub evidence without promoting dynamic metrics into CV prose:
+
+```bash
+python3 tools/github_inventory.py
+```
+
+The dated JSON snapshot stays private under `meta/inventory/github/`. It separates
+original repositories from forks and inspects GitHub Actions through the `gh` CLI.
 
 ## Privacy model
 
@@ -368,6 +379,7 @@ example PDFs on pushes to `main`. CI never requires private working data.
 - [Dify integration](integrations/dify/README.md)
 - [Master CV schema](docs/MASTER_CV_SCHEMA.md)
 - [Project structure and data ownership](docs/PROJECT_STRUCTURE.md)
+- [Tool ownership and boundaries](docs/TOOLING.md)
 - [Privacy and secret handling](docs/PRIVACY.md)
 - [Evidence-first SOP](docs/EVIDENCE_FIRST_SOP.md)
 - [Contributing](CONTRIBUTING.md)

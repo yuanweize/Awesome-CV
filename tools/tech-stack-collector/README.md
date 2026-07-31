@@ -9,15 +9,16 @@ and enough interview depth.
 
 ## Privacy modes
 
-Safe mode is the default in v2. It redacts the hostname and user, strips private
-registry paths from image names, and omits the most sensitive collectors:
+Safe mode is the default in v2. It redacts the hostname and user; omits raw image,
+package, and remote-target names; and skips the most sensitive collectors:
 
 - listening ports and bind addresses;
 - Git repository paths and remotes;
 - key directories and project names;
 - crontab and systemd timer commands;
 - shell environment data;
-- container names, Compose project names, volumes, and networks;
+- container/image names, Compose project names, volumes, and networks;
+- installed package names and remote target labels;
 - enabled web-site names.
 
 `--full` restores those sections. A full report is sensitive infrastructure
@@ -83,11 +84,11 @@ Safe mode can include:
 
 | Category | Examples |
 |---|---|
-| System | OS, kernel, architecture, CPU, memory, disk |
-| Container images | Image basename and size, without registry path |
+| System | OS family and architecture only |
+| Containers | Normalized recognized technologies and image count; no raw names |
 | Languages | Python, Go, Rust, Java, C/C++ toolchain |
-| Package managers | pip/npm/cargo summaries |
-| Services | Notable systemd service names |
+| Package managers | Counts/presence only; raw names require `--full` |
+| Services | Recognized standard technologies and unit count; no raw names |
 | Data stores | PostgreSQL, Redis, SQLite, InfluxDB |
 | Web servers | Nginx, Caddy, Apache versions |
 | DevOps tools | Terraform, Ansible, kubectl, Helm |
