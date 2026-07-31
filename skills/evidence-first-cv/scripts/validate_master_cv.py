@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from yaml.constructor import ConstructorError
 
 
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
@@ -42,6 +43,33 @@ REQUIRED_TOP_LEVEL = {
 }
 
 
+class UniqueKeyLoader(yaml.SafeLoader):
+    """Safe YAML loader that rejects silent duplicate mapping keys."""
+
+
+def _construct_unique_mapping(
+    loader: UniqueKeyLoader, node: yaml.MappingNode, deep: bool = False
+) -> dict[Any, Any]:
+    mapping: dict[Any, Any] = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in mapping:
+            raise ConstructorError(
+                "while constructing a mapping",
+                node.start_mark,
+                f"found duplicate key {key!r}",
+                key_node.start_mark,
+            )
+        mapping[key] = loader.construct_object(value_node, deep=deep)
+    return mapping
+
+
+UniqueKeyLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    _construct_unique_mapping,
+)
+
+
 def find_project_root() -> Path:
     candidates = [Path.cwd(), *Path.cwd().parents, Path(__file__).resolve(), *Path(__file__).resolve().parents]
     for candidate in candidates:
@@ -65,6 +93,14 @@ def _validate_identifier(value: Any, label: str, errors: list[str]) -> None:
         errors.append(f"{label} must match {ID_PATTERN.pattern!r}: {value!r}")
 
 
+def _validate_unique_strings(value: Any, label: str, errors: list[str]) -> None:
+    if not isinstance(value, list) or not all(_is_nonempty_string(item) for item in value):
+        return
+    duplicates = sorted({item for item in value if value.count(item) > 1})
+    if duplicates:
+        errors.append(f"{label} contains duplicate values: {', '.join(duplicates)}")
+
+
 def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -73,7 +109,7 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         return {"ok": False, "errors": [f"File not found: {yaml_path}"], "warnings": []}
 
     try:
-        data = yaml.safe_load(yaml_path.read_text(encoding="utf-8"))
+        data = yaml.load(yaml_path.read_text(encoding="utf-8"), Loader=UniqueKeyLoader)
     except (OSError, yaml.YAMLError) as exc:
         return {"ok": False, "errors": [f"Invalid YAML: {exc}"], "warnings": []}
 
@@ -147,6 +183,8 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         errors.append("privacy.ai_context_include_contact must remain false; contact export requires an explicit CLI flag")
     if is_v3 and not _list_of_strings(privacy.get("sensitive_fields", [])):
         errors.append("privacy.sensitive_fields must be a non-empty list of strings")
+    else:
+        _validate_unique_strings(privacy.get("sensitive_fields", []), "privacy.sensitive_fields", errors)
 
     role_families = data.get("role_families", {})
     if is_v3 and (not isinstance(role_families, dict) or not role_families):
@@ -163,8 +201,12 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         titles = role.get("target_titles", []) if isinstance(role, dict) else []
         if not _list_of_strings(keywords):
             errors.append(f"role_families.{role_id}.keywords must be a non-empty list of strings")
+        else:
+            _validate_unique_strings(keywords, f"role_families.{role_id}.keywords", errors)
         if not _list_of_strings(titles):
             errors.append(f"role_families.{role_id}.target_titles must be a non-empty list of strings")
+        else:
+            _validate_unique_strings(titles, f"role_families.{role_id}.target_titles", errors)
 
     evidence_items = data.get("evidence_registry", [])
     if is_v3 and (not isinstance(evidence_items, list) or not evidence_items):
@@ -260,6 +302,7 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         if not _list_of_strings(claim_roles):
             errors.append(f"{prefix}.role_families must be a non-empty list of strings")
         else:
+            _validate_unique_strings(claim_roles, f"{prefix}.role_families", errors)
             for role_id in claim_roles:
                 if role_id not in role_families:
                     errors.append(f"{claim_id} references unknown role family: {role_id}")
@@ -267,11 +310,14 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         tags = claim.get("tags", [])
         if tags and not _list_of_strings(tags):
             errors.append(f"{prefix}.tags must be a list of strings")
+        elif tags:
+            _validate_unique_strings(tags, f"{prefix}.tags", errors)
 
         evidence_refs = claim.get("evidence", [])
         if not _list_of_strings(evidence_refs):
             errors.append(f"{prefix}.evidence must be a non-empty list of IDs")
         else:
+            _validate_unique_strings(evidence_refs, f"{prefix}.evidence", errors)
             for evidence_id in evidence_refs:
                 if evidence_id not in evidence_by_id:
                     errors.append(f"{claim_id} references unknown evidence: {evidence_id}")
@@ -305,6 +351,60 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         for field in ("item", "reason"):
             if not _is_nonempty_string(exclusion.get(field)):
                 errors.append(f"exclusions[{index}].{field} is required")
+
+    def validate_history_links(items: Any, label: str) -> None:
+        if items is None:
+            return
+        if not isinstance(items, list):
+            errors.append(f"{label} must be a list")
+            return
+        for index, item in enumerate(items, 1):
+            prefix = f"{label}[{index}]"
+            if not isinstance(item, dict):
+                continue
+            references = item.get("claim_ids")
+            if references is None:
+                if item.get("cv_eligible") is not False:
+                    warnings.append(
+                        f"{prefix} is not classified: add claim_ids or set cv_eligible: false"
+                    )
+                continue
+            if not _list_of_strings(references):
+                errors.append(f"{prefix}.claim_ids must be a non-empty list of IDs")
+                continue
+            _validate_unique_strings(references, f"{prefix}.claim_ids", errors)
+            for claim_id in references:
+                if claim_id not in claim_ids:
+                    errors.append(f"{prefix} references unknown claim: {claim_id}")
+
+    validate_history_links(data.get("work_experience"), "work_experience")
+    validate_history_links(data.get("open_source_and_projects"), "open_source_and_projects")
+    validate_history_links(
+        data.get("certifications_and_qualifications"),
+        "certifications_and_qualifications",
+    )
+
+    evidenced_skills = skills.get("evidenced") if isinstance(skills, dict) else None
+    if is_v3 and not isinstance(evidenced_skills, list):
+        warnings.append(
+            "technical_skills.evidenced is missing; skill inventory is not mapped to atomic claims"
+        )
+    elif isinstance(evidenced_skills, list):
+        for index, item in enumerate(evidenced_skills, 1):
+            prefix = f"technical_skills.evidenced[{index}]"
+            if not isinstance(item, dict):
+                errors.append(f"{prefix} must be a mapping")
+                continue
+            if not _is_nonempty_string(item.get("name")):
+                errors.append(f"{prefix}.name is required")
+            references = item.get("claim_ids")
+            if not _list_of_strings(references):
+                errors.append(f"{prefix}.claim_ids must be a non-empty list of IDs")
+                continue
+            _validate_unique_strings(references, f"{prefix}.claim_ids", errors)
+            for claim_id in references:
+                if claim_id not in claim_ids:
+                    errors.append(f"{prefix} references unknown claim: {claim_id}")
 
     return {
         "ok": not errors,

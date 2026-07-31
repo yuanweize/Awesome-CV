@@ -83,6 +83,12 @@ The legacy-style education, experience, projects, skills, and languages sections
 useful for a human owner and backward compatibility. They are not the AI prompt source.
 The context exporter reads `claim_registry` only.
 
+Every human-readable job, project, or qualification must therefore be classified:
+give it valid `claim_ids`, or set `cv_eligible: false` with a short reason. Put the
+usable subset of the broad technology inventory under `technical_skills.evidenced`
+and map each entry to claim IDs. This prevents a valid YAML file from silently hiding
+useful facts from AI or promoting tools that were merely installed once.
+
 This separation prevents a large master file from becoming a large model prompt. The
 database can grow for years while each JD export stays small and role-specific.
 
@@ -102,9 +108,14 @@ an unclear relationship in free text.
 python3 tools/validate_master_cv.py meta/master_cv.yaml --json
 ```
 
-Validation checks unique IDs, evidence references, role references, required scope,
-allowed status/depth/visibility, non-empty evidence and role lists, privacy defaults,
-eligibility conflicts, personal-scope wording, and duplicate statements.
+Validation checks duplicate YAML mapping keys, unique IDs and list values, evidence
+references, role references, required scope, allowed status/depth/visibility, non-empty
+evidence and role lists, privacy defaults, eligibility conflicts, personal-scope wording,
+duplicate statements, human-history classification, and evidenced-skill claim links.
+
+`metadata.last_full_audit` is an optional private date for recording a deliberate
+whole-memory review. It does not make older evidence current; each evidence record
+retains its own `verified_on` date.
 
 ## Migration from an older master YAML
 

@@ -31,3 +31,13 @@ Treat interview cases such as recruiter correspondence or technical papers as
 research. Separate that material from the application source snapshot before
 deduplicating files. Never remove duplicates until an archive manifest has been
 created and verified.
+
+Use a separate dry-run and verified move for research:
+
+```bash
+./cv archive-research profiles/company-role/interview_prep company-role-interview
+./cv archive-research profiles/company-role/interview_prep company-role-interview --apply
+```
+
+This command accepts child directories below `profiles/` or `meta/chat/`; it never
+treats research content as career evidence.

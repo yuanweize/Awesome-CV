@@ -476,7 +476,7 @@ cmd_doctor() {
         profile_exists "$current" || die "Active profile '$current' is missing."
         working_tree_differs_from_profile "$current" && dirty=true
     fi
-    cmd_validate
+    cmd_validate --strict
     make -C "$SCRIPT_DIR" check
     if $dirty; then
         die "Working files differ from active profile '$current'. Review './cv diff $current' and save deliberately."
@@ -556,6 +556,10 @@ cmd_delete() {
 
 cmd_archive() {
     python3 "$SCRIPT_DIR/tools/archive_profile.py" --archive-dir "$ARCHIVE_DIR" "$@"
+}
+
+cmd_archive_research() {
+    python3 "$SCRIPT_DIR/tools/archive_research.py" "$@"
 }
 
 # ── Interactive Menu ───────────────────────────────────────────────────────────
@@ -656,6 +660,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}diff${RESET} <a> [b]          Compare two profiles (b = current working if omitted)
   ${CYAN}current${RESET}               Show the active profile name
   ${CYAN}archive${RESET} <profile>     Dry-run a verified archive move; add --apply to move
+  ${CYAN}archive-research${RESET} ...  Archive private research separately with verification
   ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
   ${CYAN}status${RESET} [--json]       Report memory, application, profile, and warning state
@@ -676,6 +681,7 @@ ${BOLD}Examples:${RESET}
   ./cv diff acme beta           # Compare two application snapshots
   ./cv archive old-role         # Plan only; no files move
   ./cv archive old-role --apply # Move after review and write SHA-256 manifest
+  ./cv archive-research profiles/old/interview_prep old-interview --apply
   ./cv context --jd job.md --role systems -o build/job-context.md
   ./cv status                    # Agent preflight before every application
   ./cv start --company Acme --title "Systems Engineer" --role systems --jd job.md
@@ -702,6 +708,7 @@ case "${1:-}" in
     diff)    cmd_diff "${2:-}" "${3:-}" ;;
     current) cmd_current ;;
     archive) shift; cmd_archive "$@" ;;
+    archive-research) shift; cmd_archive_research "$@" ;;
     delete)  cmd_delete "${2:-}" ;;
     context) shift; cmd_context "$@" ;;
     status) shift; cmd_status "$@" ;;

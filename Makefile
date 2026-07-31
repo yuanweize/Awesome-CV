@@ -20,7 +20,7 @@ AUTHOR := $(shell $(PYTHON) tools/author_slug.py config.tex 2>/dev/null)
 all: validate resume coverletter merged
 
 validate:
-	@$(PYTHON) tools/validate_master_cv.py
+	@$(PYTHON) tools/validate_master_cv.py --strict
 
 validate-template:
 	@$(PYTHON) tools/validate_master_cv.py templates/master_cv.yaml.example --strict
@@ -117,7 +117,7 @@ init:
 			echo "  Created sections/$$base from template"; \
 		fi; \
 	done
-	@mkdir -p meta
+	@mkdir -p meta meta/applications profiles archive/applications archive/research
 	@if [ ! -f meta/master_cv.yaml ]; then \
 		cp templates/master_cv.yaml.example meta/master_cv.yaml; \
 		echo "  Created meta/master_cv.yaml from template"; \
@@ -129,6 +129,12 @@ init:
 		echo "  Created meta/applications.yaml from template"; \
 	else \
 		echo "  meta/applications.yaml already exists, skipping"; \
+	fi
+	@if [ ! -f meta/profile_catalog.yaml ]; then \
+		cp templates/profile_catalog.yaml.example meta/profile_catalog.yaml; \
+		echo "  Created meta/profile_catalog.yaml from template"; \
+	else \
+		echo "  meta/profile_catalog.yaml already exists, skipping"; \
 	fi
 	@echo ""
 	@echo "Setup complete! Next steps:"

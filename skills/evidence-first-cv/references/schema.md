@@ -7,12 +7,17 @@
   `visibility`, and `verified_on`.
 - `claim_registry`: one factual statement per ID.
 - `exclusions`: items AI must not promote.
+- `technical_skills.evidenced`: human-friendly skill groups linked back to claim IDs.
 - human sections: navigation/archive only; not authoritative for AI export.
 
 Application state uses a separate schema 1.0 manifest under
 `meta/applications/<id>/application.yaml`. It binds the saved JD hash, role family,
 requirement matches, selected claims, human confirmation, and final bullets. It never
 adds facts to the master registry.
+
+Every human-readable job, project, or qualification must either link to valid
+`claim_ids` or declare `cv_eligible: false`. Reject duplicate YAML keys and duplicate
+role, tag, evidence, or claim-link values; silent overwrites make the memory unsafe.
 
 ## Claim fields
 

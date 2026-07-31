@@ -27,6 +27,7 @@ from application_ledger import (  # noqa: E402
     validate_requested_references,
 )
 from archive_profile import apply_archive, archive_plan  # noqa: E402
+from archive_research import apply_research_archive, research_plan  # noqa: E402
 from application_manifest import new_manifest, sha256, validate_manifest  # noqa: E402
 from privacy_check import content_violations, git_files, path_violations  # noqa: E402
 from validate_master_cv import validate_master_cv  # noqa: E402
@@ -98,6 +99,22 @@ class MasterWorkflowTests(unittest.TestCase):
         result = self.validate_copy(data)
         self.assertFalse(result["ok"])
         self.assertTrue(any("scope must be one of" in error for error in result["errors"]))
+
+    def test_duplicate_yaml_mapping_key_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "master.yaml"
+            path.write_text("schema_version: '3.0'\nschema_version: '3.1'\n", encoding="utf-8")
+            result = validate_master_cv(path)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("duplicate key" in error for error in result["errors"]))
+
+    def test_duplicate_claim_role_is_rejected(self) -> None:
+        data = copy.deepcopy(self.template)
+        role = data["claim_registry"][0]["role_families"][0]
+        data["claim_registry"][0]["role_families"].append(role)
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("duplicate values" in error for error in result["errors"]))
 
     def test_context_loader_refuses_invalid_master(self) -> None:
         data = copy.deepcopy(self.template)
@@ -375,6 +392,89 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertTrue(status["profiles"]["active_dirty"])
             self.assertIn("config.tex", status["profiles"]["active_differences"])
 
+    def test_workspace_status_classifies_application_and_reference_profiles(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "templates").mkdir()
+            shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
+            (root / "meta").mkdir()
+            shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
+            (root / "profiles" / "company-role").mkdir(parents=True)
+            (root / "profiles" / "reference-systems").mkdir(parents=True)
+            (root / "meta" / "applications.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "schema_version": "1.0",
+                        "applications": [{"profile": "company-role", "stage": "applied"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (root / "meta" / "profile_catalog.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "schema_version": "1.0",
+                        "profiles": [
+                            {
+                                "profile": "reference-systems",
+                                "kind": "reference",
+                                "role_family": "systems",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            status = collect_status(root)
+
+            self.assertEqual(1, status["profiles"]["applications"])
+            self.assertEqual(1, status["profiles"]["references"])
+            self.assertEqual(0, status["profiles"]["unclassified"])
+
+    def test_workspace_status_rejects_unsafe_reference_catalog_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "templates").mkdir()
+            shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
+            (root / "meta").mkdir()
+            shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
+            (root / "meta" / "profile_catalog.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "schema_version": "1.0",
+                        "profiles": [
+                            {
+                                "profile": "../outside",
+                                "kind": "reference",
+                                "role_family": "systems",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            status = collect_status(root)
+
+            self.assertTrue(any("unsafe profile ID" in warning for warning in status["warnings"]))
+
+    def test_validator_warns_for_unclassified_human_project(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["open_source_and_projects"].append(
+            {"name": "Unclassified", "repo": "https://example.org/repo"}
+        )
+        result = self.validate_copy(data)
+        self.assertTrue(result["ok"], result["errors"])
+        self.assertTrue(any("not classified" in warning for warning in result["warnings"]))
+
+    def test_validator_rejects_unknown_human_claim_link(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["open_source_and_projects"][0]["claim_ids"] = ["project.missing"]
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("unknown claim" in error for error in result["errors"]))
+
     def make_cv_fixture(self, root: Path) -> Path:
         executable = root / "cv"
         shutil.copy2(ROOT / "cv", executable)
@@ -517,6 +617,29 @@ class MasterWorkflowTests(unittest.TestCase):
 
             with self.assertRaisesRegex(ValueError, "symbolic-link path component"):
                 archive_plan(profiles, root / "archive" / "applications", "closed-role", "2026")
+
+    def test_research_archive_is_separate_and_hash_verified(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "profiles" / "closed-role" / "interview_prep"
+            source.mkdir(parents=True)
+            (source / "notes.md").write_text("private research\n", encoding="utf-8")
+
+            plan = research_plan(root, source, "closed-role-interview", "2026")
+            self.assertEqual("archive/research/2026/closed-role-interview", plan["destination"])
+            destination = apply_research_archive(plan)
+
+            self.assertFalse(source.exists())
+            self.assertTrue((destination / "_archive_manifest.json").is_file())
+            self.assertEqual("private research\n", (destination / "notes.md").read_text(encoding="utf-8"))
+
+    def test_research_archive_rejects_sources_outside_private_roots(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "public-docs"
+            source.mkdir()
+            with self.assertRaisesRegex(ValueError, "inside profiles/ or meta/chat"):
+                research_plan(root, source, "unsafe", "2026")
 
     def test_failed_profile_build_restores_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

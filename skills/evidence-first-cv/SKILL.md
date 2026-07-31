@@ -17,6 +17,7 @@ privacy, and outcome tracking.
 - Generate a small JD-specific context instead of loading the full master into AI.
 - Treat profiles as optional build snapshots, not the source of truth.
 - Move closed application snapshots to a private, verified archive; never delete history by default.
+- Move interview research and chat exports separately with `archive_research.py` so application source stays small.
 - Store application events in the private ledger; do not rewrite facts to explain rejection.
 
 Do not add a vector database by default. YAML plus deterministic filtering is
@@ -56,7 +57,7 @@ Read only the relevant references, but read each selected file completely.
 3. Run the validator before reasoning from the memory:
 
 ```bash
-python3 skills/evidence-first-cv/scripts/validate_master_cv.py
+python3 skills/evidence-first-cv/scripts/validate_master_cv.py --strict
 ```
 
 4. In a repository, run `./cv status` and report material warnings such as an
@@ -76,8 +77,10 @@ python3 skills/evidence-first-cv/scripts/validate_master_cv.py
 6. Mark plans, pending qualifications, expired items, and unsupported marketing
    language as excluded or ineligible.
 7. Reconcile duplicates and conflicts by stable ID; do not append near-identical claims.
-8. Update human-readable legacy sections only for navigation. The registry remains authoritative.
-9. Validate again and summarize the new/changed claim IDs to the user.
+8. Classify every human-readable job, project, and qualification with `claim_ids` or
+   `cv_eligible: false`; map usable inventory entries under `technical_skills.evidenced`.
+9. Update human-readable legacy sections only for navigation. The registry remains authoritative.
+10. Validate again and summarize the new/changed claim IDs to the user.
 
 Never promote an installed tool to a skill merely because a scanner found it.
 Require actual use, scope, and interview depth.

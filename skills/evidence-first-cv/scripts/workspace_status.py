@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -29,6 +30,7 @@ SECTION_FILES = (
     "certificates.tex",
     "honors.tex",
 )
+PROFILE_NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 
 
 def find_project_root() -> Path:
@@ -99,8 +101,75 @@ def collect_status(root: Path) -> dict[str, Any]:
     manifests = sorted(manifest_root.glob("*/application.yaml")) if manifest_root.is_dir() else []
     manifest_stages = Counter(safe_yaml(path).get("stage", "unknown") for path in manifests)
 
-    profile_count, profile_bytes = directory_inventory(root / "profiles")
+    profiles_root = root / "profiles"
+    profile_count, profile_bytes = directory_inventory(profiles_root)
+    profile_names = (
+        {
+            item.name
+            for item in profiles_root.iterdir()
+            if item.is_dir() and not item.is_symlink()
+        }
+        if profiles_root.is_dir()
+        else set()
+    )
+
+    ledger_profiles = {
+        item.get("profile")
+        for item in applications
+        if isinstance(item.get("profile"), str) and item.get("profile")
+    }
+    manifest_profiles = {
+        target.get("profile")
+        for path in manifests
+        for target in [safe_yaml(path).get("target", {})]
+        if isinstance(target, dict)
+        and isinstance(target.get("profile"), str)
+        and target.get("profile")
+    }
+
+    catalog = safe_yaml(root / "meta" / "profile_catalog.yaml")
+    catalog_items = catalog.get("profiles", [])
+    reference_profiles: set[str] = set()
+    catalog_seen: set[str] = set()
+    catalog_warnings: list[str] = []
+    if catalog_items and not isinstance(catalog_items, list):
+        catalog_warnings.append("profile catalog entries must be a list")
+        catalog_items = []
+    for index, item in enumerate(catalog_items, 1):
+        if not isinstance(item, dict):
+            catalog_warnings.append(f"profile catalog entry {index} is not a mapping")
+            continue
+        profile_id = item.get("profile")
+        kind = item.get("kind")
+        if (
+            not isinstance(profile_id, str)
+            or not PROFILE_NAME_PATTERN.fullmatch(profile_id)
+            or ".." in profile_id
+        ):
+            catalog_warnings.append(f"profile catalog entry {index} has an unsafe profile ID")
+            continue
+        if profile_id in catalog_seen:
+            catalog_warnings.append(f"duplicate profile catalog entry: {profile_id}")
+            continue
+        catalog_seen.add(profile_id)
+        if kind != "reference":
+            catalog_warnings.append(f"profile catalog entry {profile_id} must use kind 'reference'")
+            continue
+        role_family = item.get("role_family")
+        if role_family not in master.get("role_families", {}):
+            catalog_warnings.append(
+                f"profile catalog entry {profile_id} has unknown role family {role_family!r}"
+            )
+            continue
+        reference_profiles.add(profile_id)
+
+    linked_application_profiles = (ledger_profiles | manifest_profiles) & profile_names
+    existing_reference_profiles = reference_profiles & profile_names
+    overlapping_profiles = linked_application_profiles & existing_reference_profiles
+    unclassified_profiles = profile_names - linked_application_profiles - existing_reference_profiles
+    missing_catalog_profiles = reference_profiles - profile_names
     archive_count = len(list((root / "archive" / "applications").glob("*/*"))) if (root / "archive" / "applications").is_dir() else 0
+    research_archive_count = len(list((root / "archive" / "research").glob("*/*"))) if (root / "archive" / "research").is_dir() else 0
 
     active_file = root / ".active_profile"
     active = active_file.read_text(encoding="utf-8").strip() if active_file.is_file() and not active_file.is_symlink() else ""
@@ -118,6 +187,21 @@ def collect_status(root: Path) -> dict[str, Any]:
             warnings.append("profiles exist but no application manifests have been created")
     if active_dirty:
         warnings.append("working files differ from the active profile")
+    warnings.extend(catalog_warnings)
+    if overlapping_profiles:
+        warnings.append(
+            "profiles classified as both application and reference: "
+            + ", ".join(sorted(overlapping_profiles))
+        )
+    if unclassified_profiles:
+        warnings.append(
+            "unclassified profile directories: " + ", ".join(sorted(unclassified_profiles))
+        )
+    if missing_catalog_profiles:
+        warnings.append(
+            "profile catalog references missing directories: "
+            + ", ".join(sorted(missing_catalog_profiles))
+        )
     abandoned = root / "skills" / "drive-evidence-first-cv"
     if abandoned.is_dir() and not (abandoned / "SKILL.md").is_file():
         warnings.append("empty skills/drive-evidence-first-cv skeleton exists")
@@ -144,6 +228,12 @@ def collect_status(root: Path) -> dict[str, Any]:
             "count": profile_count,
             "bytes": profile_bytes,
             "archived": archive_count,
+            "archived_research": research_archive_count,
+            "applications": len(linked_application_profiles),
+            "references": len(existing_reference_profiles),
+            "unclassified": len(unclassified_profiles),
+            "reference_names": sorted(existing_reference_profiles),
+            "unclassified_names": sorted(unclassified_profiles),
         },
         "warnings": warnings,
     }
@@ -158,9 +248,14 @@ def render_text(status: dict[str, Any]) -> str:
         f"Master: {'OK' if master['valid'] else 'INVALID'}; {master['eligible_claims']}/{master['claims']} eligible claims; "
         f"{master['evidence']} evidence records; roles={','.join(master['role_families'])}",
         f"Applications: {applications['records']} ledger records; {applications['manifests']} manifests; stages={applications['stages']}",
-        f"Profiles: {profiles['count']} active/editable; {profiles['archived']} archived; current={profiles['active'] or 'none'}; "
+        f"Profiles: {profiles['count']} total ({profiles['applications']} application, "
+        f"{profiles['references']} reference, {profiles['unclassified']} unclassified); "
+        f"{profiles['archived']} application archives, {profiles['archived_research']} research archives; "
+        f"current={profiles['active'] or 'none'}; "
         f"dirty={'yes' if profiles['active_dirty'] else 'no'}",
     ]
+    if profiles["reference_names"]:
+        lines.append("Reference profiles: " + ", ".join(profiles["reference_names"]))
     if profiles["active_differences"]:
         lines.append("Active differences: " + ", ".join(profiles["active_differences"]))
     if status["warnings"]:
