@@ -49,19 +49,40 @@ Visibility values:
   type: project
   subject: "Network Tool"
   statement: >-
-    Built scheduled network probes and stored historical results in SQLite.
+    Created and operate a personal service that schedules network probes and stores
+    historical results for connectivity diagnosis.
   dates: "2025 to present"
   scope: personal_open_source
   role_families: [systems, test]
   tags: [python, sqlite, networking]
   evidence: [ev-network-tool-repo]
+  delivery:
+    mode: ai_assisted
+    owned_actions: [requirements, architecture, review, testing, deployment, operation]
+    boundaries:
+    - "Repository language is project-stack context, not automatic proficiency"
+  adjacent_values: [execution_leverage, autonomy]
   status: verified
   cv_eligible: true
-  interview_depth: strong
+  interview_depth: moderate
 ```
 
 One claim should be independently selectable. Split a feature claim from a benchmark
 or mutable repository metric because they have different evidence and dates.
+
+## Delivery ownership and skill presentation (schema 3.3+)
+
+Every `personal_open_source` project claim records `delivery.mode` (`direct`,
+`ai_assisted`, `mixed`, or `not_applicable`), a non-empty controlled list of personally
+owned actions, and plain-language boundaries. This preserves genuine product ownership
+without pretending AI-generated code proves independent proficiency in every language,
+framework, ORM, or implementation term.
+
+`technical_skills.evidenced` groups add `cv_usage` (`skill`, `project_only`, or
+`exclude`), `level`, and `boundaries`. The context exporter emits only `skill` groups
+into the visible Skills candidate set. `adjacent_values` is optional; when present it
+must use execution leverage, delivery-risk reduction, cross-functional bridge, or
+autonomy and permits the claim to enter the outside-role review pool.
 
 ## Role-family positioning (schema 3.1+)
 

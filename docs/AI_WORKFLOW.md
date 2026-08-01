@@ -24,6 +24,11 @@ When public projects change, run `./cv github-audit` and
 repository remains in supporting/catalog memory until authorship, scope, evidence,
 limitations, and interview depth have been reviewed.
 
+For AI-assisted projects, store delivery mode and owner actions instead of choosing
+between two false extremes (“I hand-coded everything” versus “the project proves
+nothing”). The product outcome remains usable; repository languages stay project-only
+until direct proficiency is separately confirmed.
+
 ## 2. Start with workspace status
 
 ```bash
@@ -82,6 +87,8 @@ The agent populates the manifest's requirement-to-claim map with `direct`,
 useful adjacent differentiators. This is a separate pass: a differentiator is not a
 JD match and cannot hide a gap. It must add execution leverage, reduce delivery risk,
 bridge functions, or prove autonomy, and it must have a low-prominence placement.
+Schema 3.3 exports only outside-role claims that already carry one of those governed
+transfer values, reducing accidental matches on ambiguous words such as `export`.
 
 The agent then shows only:
 
@@ -99,8 +106,10 @@ keeps the human in control without forcing them to edit schemas or long prompts.
 After approval, require:
 
 1. a one-page draft using only approved selected claim IDs;
-2. a visible three-to-five-row Skills section near the top, with each row mapped to
-   selected claims instead of copied from the broad inventory;
+2. a visible three-to-five-row role-appropriate Skills section near the top, with
+   each row mapped to selected claims instead of copied from the broad inventory;
+   evidenced `cv_usage: skill` groups plus selected language or qualification claims
+   may appear there, while `project_only` stack stays with the project;
 3. a claim/metric audit;
 4. likely interview questions for top-half claims;
 5. every final bullet and skill row mapped to claim IDs in the private manifest.

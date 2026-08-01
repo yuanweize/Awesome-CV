@@ -21,6 +21,10 @@
 Evidence proves that an artifact exists; it does not automatically prove every
 interpretation of it.
 
+A repository also does not prove independent proficiency in every language,
+framework, ORM, database mode, or generated implementation term found in its source.
+Record AI-assisted delivery separately from product outcome and direct candidate use.
+
 ## Status and eligibility
 
 | Status | CV eligible | Meaning |
@@ -47,6 +51,12 @@ Keep responsibility verbs exact:
 - `maintain` for current repeatable operation;
 - `evaluated` for experiments, not deployments.
 
+For AI-assisted repositories, record `delivery.mode`, `owned_actions`, and
+`boundaries`. A candidate may truthfully own the problem, requirements, architecture,
+review, testing, deployment, and operation without claiming unassisted implementation
+in the repository language. Use `built` or `implemented` only when the recorded owned
+actions and interview depth support that inference.
+
 ## Atomicity
 
 One claim should survive reuse on its own. Split features, metrics, and outcomes when
@@ -57,6 +67,10 @@ Role families define the claim's normal selection lane; they do not force every 
 claim into every CV. An application may deliberately select an eligible claim outside
 the target family only as a recorded adjacent differentiator. This exception is capped
 at two and does not reclassify the claim or turn it into a JD match.
+
+In schema 3.3+, only outside-role claims with explicit `adjacent_values` enter the
+complement pool. This prevents accidental word matches such as a file “export” being
+treated as import/export logistics experience.
 
 ## Metrics
 

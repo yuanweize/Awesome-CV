@@ -96,6 +96,15 @@ def collect_status(root: Path) -> dict[str, Any]:
     master_path = root / "meta" / "master_cv.yaml"
     validation = validate_master_cv(master_path)
     master = safe_yaml(master_path)
+    personal = master.get("personal_information", {})
+    metadata = master.get("metadata", {})
+    example_data = (
+        isinstance(personal, dict)
+        and personal.get("full_name") == "Alex Example"
+    ) or (
+        isinstance(metadata, dict)
+        and metadata.get("owner") == "Alex Example"
+    )
     claims = [item for item in master.get("claim_registry", []) if isinstance(item, dict)]
     eligible = [
         item
@@ -212,6 +221,10 @@ def collect_status(root: Path) -> dict[str, Any]:
     warnings: list[str] = []
     if not validation.get("ok"):
         warnings.append("private master database is invalid")
+    if example_data:
+        warnings.append(
+            "master still contains fictional example data; replace it before drafting"
+        )
     if not applications:
         warnings.append("application ledger is empty")
     if linked_application_profiles and not manifests:
@@ -250,6 +263,7 @@ def collect_status(root: Path) -> dict[str, Any]:
         "schema_version": "1.0",
         "master": {
             "valid": bool(validation.get("ok")),
+            "example_data": example_data,
             "claims": len(claims),
             "eligible_claims": len(eligible),
             "evidence": len(master.get("evidence_registry", [])),

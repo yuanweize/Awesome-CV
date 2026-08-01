@@ -47,6 +47,9 @@ application manifest → human approval → profile/PDF → outcome ledger
 
 Every exported claim carries a stable ID, exact scope, role tags, evidence
 references, verification status, CV eligibility, and interview-depth confidence.
+Schema 3.3 also records AI/direct delivery mode, personally owned actions, and
+authorship boundaries. A repository may prove a useful product without turning every
+language, framework, or source-level term inside it into a candidate skill.
 
 ## Requirements
 
@@ -75,6 +78,7 @@ idempotent and never overwrites an existing private file:
 
 | Public template | Private working file |
 |---|---|
+| `templates/meta_README.md.example` | `meta/README.md` |
 | `templates/master_cv.yaml.example` | `meta/master_cv.yaml` |
 | `templates/applications.yaml.example` | `meta/applications.yaml` |
 | `templates/profile_catalog.yaml.example` | `meta/profile_catalog.yaml` |
@@ -82,7 +86,8 @@ idempotent and never overwrites an existing private file:
 | `templates/letter_config.tex.example` | `letter_config.tex` |
 | `templates/sections/*.tex` | `sections/*.tex` |
 
-Edit private files only; never put real data into `templates/`.
+Open `meta/README.md` for the private directory map. Edit private files only; never
+put real data into `templates/`.
 
 初始化后只编辑私有文件。`meta/`、`sections/`、`profiles/`、真实联系方式、PDF 和
 构建产物默认不会进入 Git。空的 `profiles/`、`archive/`、`build/` 和 `tmp/` 会由
@@ -92,6 +97,7 @@ Public examples deliberately use a fictional person and reserved example domains
 They demonstrate the schema and layout, not a résumé that should be submitted. A real
 celebrity such as Steve Jobs would be a worse fixture because biography and metrics
 could be mistaken for verified claims.
+`./cv status` warns until the fictional master fixture has been replaced.
 
 ## AI skill: the primary interface
 
@@ -115,6 +121,11 @@ example, an automotive automation CV can mention a defensible Linux/CI capabilit
 it improves diagnostics or delivery, without turning the profile into a server CV.
 A simple “yes” or small correction unlocks drafting. You should not have to drive
 individual scripts or repeatedly explain your history.
+
+Project prose is outcome-first: explain what the system does and why it matters before
+depending on an unknown repository name. Evidenced skill groups distinguish direct
+candidate skills from `project_only` stack, so an AI-assisted Go repository can remain
+valuable proof without falsely labelling its owner a Go developer.
 
 Inside this repository, `AGENTS.md` tells compatible coding agents to use the skill for
 CV/JD tasks. To install the skill in a personal Codex skill directory:
@@ -178,8 +189,10 @@ must establish direct fit first, then select zero to two adjacent differentiator
 when they add concrete transfer value. Contact details are excluded unless
 `--include-contact` is explicitly passed.
 
-Generated CVs include a compact `Technical Skills` section near the top by default.
-Each of its three to five rows must be backed by selected claim IDs. The workflow
+Generated CVs include a compact role-appropriate `Skills` section near the top by
+default. For technical roles it may be titled `Technical Skills`; for logistics or
+operations it should use natural groups such as languages, records, coordination,
+and systems. Each of its three to five rows must be backed by selected claim IDs. The workflow
 prevents both failure modes: deleting Skills in the name of minimalism and copying the
 entire mother inventory into an unreadable keyword wall.
 
@@ -297,6 +310,7 @@ Awesome-CV/
 │   └── coverletter.tex             # Cover-letter entry point
 ├── templates/                      # Public placeholders only
 │   ├── master_cv.yaml.example      # Schema 3.x example
+│   ├── meta_README.md.example      # Runtime directory map copied by init
 │   ├── application_manifest.yaml.example # Per-JD traceability schema
 │   ├── profile_catalog.yaml.example # Optional reference-profile classification
 │   ├── config.tex.example
@@ -358,7 +372,9 @@ inspect the coverage without suppressing the direction:
 ```
 
 AI-agent use can support an evidence-bound AI-assisted engineering claim, but does not
-automatically prove model training or ML research. An ESP32 thesis can directly support
+automatically prove model training, ML research, or independent proficiency in every
+generated-code language. Equally, AI assistance does not erase genuine requirements,
+architecture, review, testing, deployment, operation, and product outcomes. An ESP32 thesis can directly support
 IoT integration and hardware validation while FPGA/PCB design remains title-specific
 stretch work. See
 [`role-strategy.md`](skills/evidence-first-cv/references/role-strategy.md).
@@ -416,6 +432,9 @@ packaging, Chatflow setup, and privacy boundaries.
 - Personal infrastructure must be labelled personal/owner-operated.
 - Plans and pending certificates are never current skills.
 - Generated framework code is not hand-written product-language experience.
+- Repository technologies marked `project_only` stay with the project and never leak
+  into the candidate Skills section.
+- Explain a project's function or result before relying on its repository name.
 - Metrics require evidence and an `as of` date when they can change.
 - Mention AI-assisted engineering only when a relevant eligible claim supports it;
   tool use alone is not an AI/ML capability.

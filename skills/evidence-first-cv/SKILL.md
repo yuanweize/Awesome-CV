@@ -88,6 +88,9 @@ python3 skills/evidence-first-cv/scripts/validate_master_cv.py --strict
 4. Record exact scope: employment, contractor, intermittent assignment,
    internship, academic, personal open source, or personal infrastructure.
 5. Set `status`, `cv_eligible`, role families, tags, and interview depth honestly.
+   For schema 3.3+ personal open-source projects, also record delivery mode, the
+   candidate's owned actions, and explicit authorship/language boundaries. A repository
+   technology is not candidate proficiency.
 6. Mark plans, pending qualifications, expired items, and unsupported marketing
    language as excluded or ineligible.
 7. Reconcile duplicates and conflicts by stable ID; do not append near-identical claims.
@@ -96,6 +99,11 @@ python3 skills/evidence-first-cv/scripts/validate_master_cv.py --strict
    entries; map usable inventory entries under `technical_skills.evidenced`.
 9. Update human-readable legacy sections only for navigation. The registry remains authoritative.
 10. Validate again and summarize the new/changed claim IDs to the user.
+
+For evidenced skill groups, use `cv_usage: skill` only for directly defensible
+candidate capability. Use `project_only` for a repository language/framework that may
+appear beside the project but must not enter Skills, and `exclude` for discovery-only
+terms. Record a plain-language level and at least one boundary.
 
 Never promote an installed tool to a skill merely because a scanner found it.
 Require actual use, scope, and interview depth.
@@ -113,8 +121,8 @@ inventory facts have been left unlinked. Do not interpret `stretch` as “do not
    attribution and scope are clear.
 4. Use `primary`, `supporting`, and `catalog` to control review priority, not truth.
 5. Never auto-create claims from repository descriptions, languages, stars, forks,
-   commits, or Actions workflows. Ask for authorship, implementation scope,
-   limitations, and interview depth first.
+   commits, or Actions workflows. Ask for AI/direct delivery mode, personally owned
+   actions, implementation scope, limitations, and interview depth first.
 6. Keep reference CVs small. Refresh one only when verified claims change its role
    ordering or the representative PDF layout needs a new regression case.
 
@@ -147,18 +155,24 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
 6. Populate the manifest with the requirement-to-claim matrix, explicit gaps,
    recommendation, selected claims, and only questions that can change the output.
    Then perform a second-pass complement review: inspect unused role-bound claims and
-   the exported outside-role pool for zero to two adjacent differentiators. Accept one
+   the exported outside-role pool for zero to two adjacent differentiators. In schema
+   3.3+, that pool contains only claims with pre-governed `adjacent_values`. Accept one
    only when it adds execution leverage, reduces delivery risk, bridges functions, or
    proves autonomy. Record its value, reason, and low-prominence placement in
    `adjacent_differentiators`; never use it to disguise a JD gap.
 7. Show the user a compact decision brief and at most three material questions.
    Stop before drafting until the user confirms or corrects it.
 8. After confirmation, record it in the manifest and draft only from selected
-   claim IDs. Preserve scope and ownership verbs. Keep the target identity and top
+   claim IDs. Preserve scope, delivery mode, owned actions, and ownership verbs.
+   Explain what a project does before relying on its proper name, and keep
+   `project_only` technologies out of the visible Skills section. Keep the target identity and top
    proof points role-specific; place approved differentiators only in skills, projects,
    or secondary experience, and keep them to roughly 10-15% of visible content.
-   Include a visible three-to-five-row Skills section derived from evidenced skill
-   groups and map every row to selected claim IDs. Do not treat omission as minimalism.
+   Include a visible three-to-five-row role-appropriate Skills section derived from
+   evidenced skill groups and selected language or qualification claims. Use
+   `Technical Skills` for technical roles and a natural `Core Skills` or `Skills`
+   title for roles such as logistics or operations. Map every row to selected claim
+   IDs. Do not treat omission as minimalism.
 9. Map every final bullet to claim IDs in the private manifest; never show IDs in
    visible résumé prose. Run strict validation:
 
@@ -222,6 +236,11 @@ outcome distinct from `rejected` and `withdrawn`, and the profile may then be ar
 
 Creating a draft does not mean it was submitted. Update the ledger to `applied`
 only when the user explicitly says the application was sent.
+
+If the owner corrects a claim after submission, keep the sent artifact unchanged,
+move the manifest to `sent`, and record the correction under
+`post_submission_corrections`. Do not let history force a deprecated claim back into
+future eligibility.
 
 ## Non-negotiable guardrails
 

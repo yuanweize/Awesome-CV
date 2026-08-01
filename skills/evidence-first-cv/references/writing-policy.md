@@ -36,6 +36,13 @@ Narrow the claim when any answer is vague.
 - Never use Senior/Expert/enterprise-scale/zero-downtime without direct proof.
 - Generated framework output is not automatically hand-written language expertise.
 - AI tools are workflow details, not résumé differentiators unless the JD asks.
+- Repository stack is project context, not a candidate skill, unless a separate
+  direct-use claim and evidenced skill group establish proficiency.
+- Lead a project bullet with the problem solved, service function, operational value,
+  or measured result. A project name such as `RouteLens` explains nothing by itself.
+- Preserve AI-assisted delivery boundaries internally. Do not volunteer an AI
+  disclaimer in ordinary CV prose, but never imply unassisted implementation when the
+  recorded owner actions do not include it.
 
 ## Adjacent differentiators
 
@@ -53,6 +60,8 @@ unless its value to the target work can be explained in one sentence.
 - Default to a visible `Technical Skills` section after the profile/summary.
 - Use maintained labels from `technical_skills.evidenced`, filtered to selected
   claims. Do not copy the broad legacy inventory.
+- Export only groups with `cv_usage: skill`. Keep `project_only` languages and
+  frameworks beside the relevant project, and omit `exclude` groups entirely.
 - Keep three to five rows with short role-coherent groups; order direct skills before
   approved adjacent skills and languages.
 - Map each row to claim IDs as a `final_bullets` entry with `section: skills` in the

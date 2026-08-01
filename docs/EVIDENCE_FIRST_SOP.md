@@ -35,6 +35,11 @@ private directories; the initializer is the reproducible directory contract.
    and interview depth. README text, languages, stars, forks, and Actions are discovery
    signals, not automatic résumé facts.
 
+For AI-assisted repositories, separately record what the product does, how it was
+delivered, which actions the owner personally controls, and which repository
+technologies are project-only context. Do not suppress the real product; do not turn
+its generated source stack into personal language or framework proficiency.
+
 Reference profiles remain compact role-order and PDF-regression examples. They do not
 expand merely because the portfolio catalog grows.
 
@@ -44,6 +49,8 @@ expand merely because the portfolio catalog grows.
 - Never turn a plan into completed work.
 - Never turn personal infrastructure into enterprise production experience.
 - Never turn generated framework code into hand-written product-language experience.
+- Never use source-level terms such as an ORM, WAL mode, concurrency primitive, or
+  framework internals unless the owner independently understands and can defend them.
 - Never list a pending or expired qualification as current.
 - Record evidence for every metric and date mutable public numbers.
 - Use strong titles/adjectives only when evidence and interview depth support their
@@ -70,18 +77,24 @@ after changing direction. Boundaries override old résumé wording and prevent p
 projects or coursework from being inflated into professional seniority; they must not
 be so broad that they suppress every adjacent application.
 
+Schema 3.3 adds governed AI/direct delivery ownership, `project_only` stack handling,
+skill levels/boundaries, and curated `adjacent_values`. This prevents repository
+languages from leaking into Skills and prevents lexical accidents in the complement
+pool.
+
 ## Tailoring sequence
 
 1. Preserve the full JD privately.
 2. Map must-haves to eligible claim IDs.
 3. Decide apply, stretch, or defer.
-4. Review the unused complement for zero to two adjacent differentiators; require a
-   concrete transfer value and low-prominence placement, or select none.
+4. Review the pre-governed unused complement for zero to two adjacent differentiators;
+   require a concrete transfer value and low-prominence placement, or select none.
 5. Show a compact brief, ask at most three material questions, and wait for approval.
 6. Create or clone a private application profile.
 7. Draft one page with two or three leading proof points.
-8. Add a visible three-to-five-row Skills section from evidenced groups; map every
-   skill row and final bullet to claims and strictly validate the application manifest.
+8. Add a visible three-to-five-row role-appropriate Skills section from evidenced
+   groups and selected language or qualification claims; map every skill row and final
+   bullet to claims and strictly validate the application manifest.
 9. Audit every fact and metric against claim IDs.
 10. Build, extract text, render, inspect, and run privacy checks.
 11. Record the application only when submitted; then record stages and outcome.

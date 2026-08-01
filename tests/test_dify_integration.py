@@ -63,6 +63,7 @@ class DifyIntegrationTests(unittest.TestCase):
     def test_memory_validation_and_context_remain_private(self) -> None:
         master = parse_master(self.master_text)
         summary = memory_summary(master)
+        self.assertTrue(summary["example_data"])
         self.assertGreater(summary["eligible_claims"], 0)
         self.assertEqual(
             {

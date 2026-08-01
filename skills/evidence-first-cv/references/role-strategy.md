@@ -39,6 +39,12 @@ Treat these as different facts:
 Using an agent is useful evidence for the first category, but does not by itself prove
 the second or third.
 
+Do not make the opposite mistake either: AI-assisted implementation does not erase a
+real product or the human's engineering work. Model the owned actions explicitly and
+sell the defensible problem definition, architecture, integration, review, testing,
+deployment, operation, and outcomes. Keep the repository language at code-reading or
+project-stack level unless direct proficiency is separately confirmed.
+
 ## Hardware and electronics evidence
 
 Distinguish hardware validation and IoT integration from FPGA/PCB/circuit design.

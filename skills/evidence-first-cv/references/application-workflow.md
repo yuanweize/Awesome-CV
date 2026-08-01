@@ -12,7 +12,8 @@
    tie-breakers, not as permission for a strong but unrelated claim to displace a JD match.
 5. Map JD requirements to claim IDs and gaps in the manifest.
 6. Review the remaining eligible claims for zero to two adjacent differentiators;
-   record their concrete transfer value and low-prominence placement.
+   review only claims pre-governed with `adjacent_values`, then record their concrete
+   transfer value and low-prominence placement.
 7. Show the decision brief and wait for human confirmation.
 8. Draft résumé and optional letter, including a three-to-five-row evidence-bound
    Skills section; map every final bullet and skill row to claims.
@@ -55,6 +56,11 @@ meta/applications.yaml              # ledger
 
 The per-application manifest is the traceability record. The ledger is the funnel
 record. A draft can have a manifest without appearing as `applied` in the ledger.
+
+After submission, never rewrite the manifest to pretend a bad claim was not sent.
+Move it to `sent`, retain the PDF/text, and record owner corrections under
+`post_submission_corrections`. A corrected claim may become ineligible for future
+drafts while the sent manifest remains a valid historical record.
 
 Do not store company-specific JD wording in the canonical claim statements.
 Claims describe the candidate; application files describe the opportunity.

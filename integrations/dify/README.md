@@ -86,6 +86,8 @@ On the first run only, supply a validated `meta/master_cv.yaml` to
 `save_career_memory`. Direct contact fields are redacted before persistent
 storage unless the user manually enables **Store contact details**. Keep that
 option disabled on Dify Cloud. The job-context tool never returns contact data.
+Memory status flags the public fictional fixture as `example_data`; the supplied
+Agent prompt stops drafting until it has been replaced.
 Memory uses Dify's
 [plugin persistent storage](https://docs.dify.ai/en/develop-plugin/features-and-specs/plugin-types/persistent-storage-kv),
 not a vector database.

@@ -1,0 +1,24 @@
+# Private workspace guide
+
+This directory is the ignored, local memory layer for one person. It is created by
+`./cv init` and must never be committed or used as a public template source.
+
+## Canonical files
+
+- `master_cv.yaml`: lifelong career memory. Only eligible entries in
+  `claim_registry` may supply factual résumé prose.
+- `applications.yaml`: application stages and outcomes.
+- `profile_catalog.yaml`: optional reference-profile classification.
+
+## Subdirectories
+
+- `applications/<id>/`: one exact JD and its decision/claim manifest.
+- `evidence/`: durable private proof such as degree records, contracts,
+  certificates, thesis source, and historical source material.
+- `inventory/`: dated discovery snapshots from GitHub or technical environments.
+  Inventory is not résumé evidence until reviewed.
+- `audits/`: dated private analyses and reconciliation reports.
+
+Generated contexts and PDFs belong in `../build/`; disposable render output belongs
+in `../tmp/`; editable application snapshots belong in `../profiles/`; closed history
+belongs in `../archive/`. Run `./cv status` before beginning a new application.

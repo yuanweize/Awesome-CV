@@ -48,8 +48,16 @@ def memory_summary(data: dict[str, Any]) -> dict[str, Any]:
         ),
         key=lambda item: item["role_family"],
     )
+    personal = data.get("personal_information", {})
+    metadata = data.get("metadata", {})
+    example_data = (
+        isinstance(personal, dict) and personal.get("full_name") == "Alex Example"
+    ) or (
+        isinstance(metadata, dict) and metadata.get("owner") == "Alex Example"
+    )
     return {
         "schema_version": str(data.get("schema_version", "")),
+        "example_data": example_data,
         "claims": len(claims),
         "eligible_claims": len(eligible),
         "evidence": len(data.get("evidence_registry", [])),

@@ -56,6 +56,7 @@ final_bullets:
   text: "Built a personal Python service for scheduled network probes and historical results."
   claim_ids:
   - project.signalwatch-features
+post_submission_corrections: []
 artifacts:
   profile: "20260115-example-corp-junior-systems-engineer"
   cv_pdf: ""

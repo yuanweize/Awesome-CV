@@ -22,6 +22,28 @@ ALLOWED_VISIBILITY = {"public", "private", "self_reported"}
 ALLOWED_ROLE_READINESS = {"core", "credible", "stretch"}
 ALLOWED_INTEREST_LEVELS = {"high", "medium", "low"}
 ALLOWED_APPLICATION_PRIORITIES = {"active", "selective", "explore", "paused"}
+ALLOWED_DELIVERY_MODES = {"direct", "ai_assisted", "mixed", "not_applicable"}
+ALLOWED_OWNER_ACTIONS = {
+    "requirements",
+    "architecture",
+    "implementation",
+    "integration",
+    "review",
+    "testing",
+    "debugging",
+    "deployment",
+    "operation",
+    "documentation",
+    "analysis",
+    "training",
+}
+ALLOWED_SKILL_USAGES = {"skill", "project_only", "exclude"}
+ALLOWED_ADJACENT_VALUES = {
+    "execution_leverage",
+    "delivery_risk_reduction",
+    "cross_functional_bridge",
+    "autonomy",
+}
 ALLOWED_SCOPES = {
     "academic",
     "academic_benchmark",
@@ -181,6 +203,10 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
     governed_preferences = bool(
         version_match
         and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 2)
+    )
+    governed_delivery = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 3)
     )
     if not is_v3:
         warnings.append(
@@ -384,6 +410,51 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         if scope not in ALLOWED_SCOPES:
             errors.append(f"{prefix}.scope must be one of {sorted(ALLOWED_SCOPES)}")
 
+        delivery = claim.get("delivery")
+        requires_delivery = (
+            governed_delivery
+            and claim.get("type") == "project"
+            and scope == "personal_open_source"
+        )
+        if requires_delivery and not isinstance(delivery, dict):
+            errors.append(
+                f"{prefix}.delivery is required for schema 3.3+ personal open-source projects"
+            )
+        if delivery is not None:
+            if not isinstance(delivery, dict):
+                errors.append(f"{prefix}.delivery must be a mapping")
+            else:
+                mode = delivery.get("mode")
+                if mode not in ALLOWED_DELIVERY_MODES:
+                    errors.append(
+                        f"{prefix}.delivery.mode must be one of: "
+                        + ", ".join(sorted(ALLOWED_DELIVERY_MODES))
+                    )
+                owned_actions = delivery.get("owned_actions")
+                if not _list_of_strings(owned_actions):
+                    errors.append(
+                        f"{prefix}.delivery.owned_actions must be a non-empty list of strings"
+                    )
+                else:
+                    _validate_unique_strings(
+                        owned_actions, f"{prefix}.delivery.owned_actions", errors
+                    )
+                    unknown_actions = sorted(set(owned_actions) - ALLOWED_OWNER_ACTIONS)
+                    if unknown_actions:
+                        errors.append(
+                            f"{prefix}.delivery.owned_actions has unknown values: "
+                            + ", ".join(unknown_actions)
+                        )
+                boundaries = delivery.get("boundaries")
+                if not _list_of_strings(boundaries):
+                    errors.append(
+                        f"{prefix}.delivery.boundaries must be a non-empty list of strings"
+                    )
+                else:
+                    _validate_unique_strings(
+                        boundaries, f"{prefix}.delivery.boundaries", errors
+                    )
+
         eligible = claim.get("cv_eligible")
         if not isinstance(eligible, bool):
             errors.append(f"{prefix}.cv_eligible must be true or false")
@@ -406,6 +477,21 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
             errors.append(f"{prefix}.tags must be a list of strings")
         elif tags:
             _validate_unique_strings(tags, f"{prefix}.tags", errors)
+
+        adjacent_values = claim.get("adjacent_values")
+        if adjacent_values is not None:
+            if not _list_of_strings(adjacent_values):
+                errors.append(f"{prefix}.adjacent_values must be a non-empty list of strings")
+            else:
+                _validate_unique_strings(
+                    adjacent_values, f"{prefix}.adjacent_values", errors
+                )
+                unknown_values = sorted(set(adjacent_values) - ALLOWED_ADJACENT_VALUES)
+                if unknown_values:
+                    errors.append(
+                        f"{prefix}.adjacent_values has unknown values: "
+                        + ", ".join(unknown_values)
+                    )
 
         evidence_refs = claim.get("evidence", [])
         if not _list_of_strings(evidence_refs):
@@ -604,6 +690,21 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                 continue
             if not _is_nonempty_string(item.get("name")):
                 errors.append(f"{prefix}.name is required")
+            if governed_delivery:
+                if item.get("cv_usage") not in ALLOWED_SKILL_USAGES:
+                    errors.append(
+                        f"{prefix}.cv_usage must be one of: "
+                        + ", ".join(sorted(ALLOWED_SKILL_USAGES))
+                    )
+                if not _is_nonempty_string(item.get("level")):
+                    errors.append(f"{prefix}.level is required for schema 3.3+")
+                boundaries = item.get("boundaries")
+                if not _list_of_strings(boundaries):
+                    errors.append(
+                        f"{prefix}.boundaries must be a non-empty list of strings for schema 3.3+"
+                    )
+                else:
+                    _validate_unique_strings(boundaries, f"{prefix}.boundaries", errors)
             references = item.get("claim_ids")
             if not _list_of_strings(references):
                 errors.append(f"{prefix}.claim_ids must be a non-empty list of IDs")

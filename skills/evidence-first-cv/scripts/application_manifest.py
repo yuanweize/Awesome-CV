@@ -124,6 +124,7 @@ def new_manifest(
         "selected_claims": [],
         "adjacent_differentiators": [],
         "final_bullets": [],
+        "post_submission_corrections": [],
         "artifacts": {
             "profile": profile,
             "cv_pdf": "",
@@ -225,6 +226,31 @@ def validate_manifest(
         if not isinstance(item.get("reason"), str) or not item.get("reason", "").strip():
             errors.append(f"{prefix}.reason is required")
 
+    corrections = data.get("post_submission_corrections", [])
+    if not isinstance(corrections, list):
+        errors.append("post_submission_corrections must be a list")
+        corrections = []
+    if corrections and stage not in {"sent", "closed"}:
+        errors.append("post_submission_corrections are allowed only for sent or closed manifests")
+    corrected_ids: set[str] = set()
+    for index, item in enumerate(corrections, 1):
+        prefix = f"post_submission_corrections[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{prefix} must be a mapping")
+            continue
+        claim_id = item.get("claim_id")
+        if not isinstance(claim_id, str) or not ID_PATTERN.fullmatch(claim_id):
+            errors.append(f"{prefix}.claim_id is invalid")
+            continue
+        if claim_id in corrected_ids:
+            errors.append(f"duplicate post-submission correction: {claim_id}")
+        corrected_ids.add(claim_id)
+        if claim_id not in claims:
+            errors.append(f"{prefix} references unknown claim: {claim_id}")
+        for field in ("corrected_on", "reason"):
+            if not isinstance(item.get(field), str) or not item.get(field, "").strip():
+                errors.append(f"{prefix}.{field} is required")
+
     selected = data.get("selected_claims")
     if not isinstance(selected, list) or not all(isinstance(item, str) for item in selected):
         errors.append("selected_claims must be a list of claim IDs")
@@ -237,15 +263,29 @@ def validate_manifest(
         if claim is None:
             errors.append(f"selected_claims references unknown claim: {claim_id}")
             continue
-        if claim.get("cv_eligible") is not True or claim.get("status") not in {"verified", "self_reported"}:
+        current_claim_is_eligible = (
+            claim.get("cv_eligible") is True
+            and claim.get("status") in {"verified", "self_reported"}
+        )
+        historical_exception = stage in {"sent", "closed"} and claim_id in corrected_ids
+        if not current_claim_is_eligible and not historical_exception:
             errors.append(f"selected claim is not CV-eligible: {claim_id}")
-        if role and role not in claim.get("role_families", []) and claim_id not in adjacent_ids:
+        if (
+            role
+            and role not in claim.get("role_families", [])
+            and claim_id not in adjacent_ids
+            and not historical_exception
+        ):
             errors.append(f"selected claim {claim_id} is outside role family {role}")
     for claim_id in sorted(adjacent_ids):
         if claim_id not in selected_set:
             errors.append(
                 f"adjacent differentiator is not present in selected_claims: {claim_id}"
             )
+    for claim_id in sorted(corrected_ids - selected_set):
+        errors.append(
+            f"post-submission correction is not present in selected_claims: {claim_id}"
+        )
 
     requirements = data.get("requirements")
     if not isinstance(requirements, list):

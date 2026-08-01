@@ -26,6 +26,7 @@ RUNTIME_DIRECTORIES = (
 )
 
 TEMPLATE_FILES = (
+    ("templates/meta_README.md.example", "meta/README.md"),
     ("templates/master_cv.yaml.example", "meta/master_cv.yaml"),
     ("templates/applications.yaml.example", "meta/applications.yaml"),
     ("templates/profile_catalog.yaml.example", "meta/profile_catalog.yaml"),
@@ -171,6 +172,7 @@ def main() -> int:
         print(json.dumps({"root": str(root), **result}, indent=2))
     else:
         print("\nWorkspace ready. Public example data was copied only into ignored paths.")
+        print("Directory map: meta/README.md")
         print("Next: replace the fictional master data, run './cv validate --strict',")
         print("then tell the agent you want a new CV and provide the complete JD.")
     return 0

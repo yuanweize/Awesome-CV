@@ -1,7 +1,7 @@
 # Awesome-CV evidence-first master database (public example)
 # Copy to meta/master_cv.yaml. The destination is gitignored.
 
-schema_version: "3.2"
+schema_version: "3.3"
 
 metadata:
   owner: "Alex Example"
@@ -191,8 +191,24 @@ claim_registry:
   - sqlite
   - http
   - networking
+  adjacent_values:
+  - execution_leverage
+  - autonomy
   evidence:
   - ev-project-repository
+  delivery:
+    mode: ai_assisted
+    owned_actions:
+    - requirements
+    - architecture
+    - integration
+    - review
+    - testing
+    - deployment
+    - operation
+    - documentation
+    boundaries:
+    - "Repository technologies describe the artifact, not automatic independent language proficiency"
   status: verified
   cv_eligible: true
   interview_depth: strong
@@ -214,6 +230,16 @@ claim_registry:
   - performance
   evidence:
   - ev-project-benchmark
+  delivery:
+    mode: direct
+    owned_actions:
+    - requirements
+    - implementation
+    - testing
+    - analysis
+    - documentation
+    boundaries:
+    - "Benchmark results apply only to the documented test environment"
   status: verified
   cv_eligible: true
   interview_depth: strong
@@ -234,6 +260,9 @@ claim_registry:
   - wireguard
   - prometheus
   - grafana
+  adjacent_values:
+  - execution_leverage
+  - autonomy
   evidence:
   - ev-personal-lab
   status: self_reported
@@ -283,13 +312,25 @@ open_source_and_projects:
 technical_skills:
   evidenced:
   - name: "Python"
+    cv_usage: skill
+    level: "Working project experience"
+    boundaries:
+    - "AI-assisted project delivery does not imply unassisted mastery of every library"
     claim_ids:
     - project.signalwatch-features
   - name: "Linux and systemd"
+    cv_usage: skill
+    level: "Professional internship plus personal operation"
+    boundaries:
+    - "Personal lab operation is not enterprise production ownership"
     claim_ids:
     - experience.northstar-linux-support
     - personal.lab-operation
   - name: "TCP/IP troubleshooting"
+    cv_usage: skill
+    level: "Working support and project experience"
+    boundaries:
+    - "No carrier-core or enterprise network ownership"
     claim_ids:
     - experience.northstar-linux-support
 

@@ -96,6 +96,25 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertTrue(any("must also appear in target_titles" in error for error in result["errors"]))
 
+    def test_schema_33_requires_delivery_boundaries_for_personal_open_source(self) -> None:
+        data = copy.deepcopy(self.template)
+        claim = next(
+            item
+            for item in data["claim_registry"]
+            if item["id"] == "project.signalwatch-features"
+        )
+        del claim["delivery"]
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("delivery is required" in error for error in result["errors"]))
+
+    def test_schema_33_rejects_unknown_delivery_action(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["claim_registry"][2]["delivery"]["owned_actions"].append("magic")
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("unknown values: magic" in error for error in result["errors"]))
+
     def test_schema_30_remains_backward_compatible_without_role_positioning(self) -> None:
         data = copy.deepcopy(self.template)
         data["schema_version"] = "3.0"
@@ -170,7 +189,9 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertTrue((root / "meta" / "master_cv.yaml").is_file())
             self.assertTrue((root / "meta" / "applications.yaml").is_file())
             self.assertTrue((root / "meta" / "profile_catalog.yaml").is_file())
-            self.assertEqual(12, len(first["created_files"]))
+            self.assertTrue((root / "meta" / "README.md").is_file())
+            self.assertIn("Only eligible entries", (root / "meta" / "README.md").read_text())
+            self.assertEqual(13, len(first["created_files"]))
 
             marker = "owner-private-content\n"
             master = root / "meta" / "master_cv.yaml"
@@ -179,7 +200,7 @@ class MasterWorkflowTests(unittest.TestCase):
 
             self.assertEqual(marker, master.read_text(encoding="utf-8"))
             self.assertEqual([], second["created_files"])
-            self.assertEqual(12, len(second["preserved_files"]))
+            self.assertEqual(13, len(second["preserved_files"]))
 
     def test_workspace_init_rejects_private_symlink_destination(self) -> None:
         with (
@@ -202,6 +223,20 @@ class MasterWorkflowTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Required public template is missing"):
                 initialize_workspace(root)
             self.assertFalse((root / "meta").exists())
+
+    def test_workspace_status_warns_before_fictional_template_can_be_drafted(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(ROOT / "templates", root / "templates")
+            initialize_workspace(root)
+
+            status = collect_status(root)
+
+            self.assertTrue(status["master"]["example_data"])
+            self.assertIn(
+                "master still contains fictional example data; replace it before drafting",
+                status["warnings"],
+            )
 
     def test_github_inventory_separates_originals_forks_and_actions(self) -> None:
         original = normalize_repository(
@@ -392,7 +427,7 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertIn("personal.lab-operation", context)
         self.assertIn("## Evidence-bound skill groups", context)
         self.assertIn("| Python | `direct` |", context)
-        self.assertIn("explicit three-to-five-row Skills section", context)
+        self.assertIn("explicit three-to-five-row role-appropriate Skills section", context)
         self.assertNotIn("alex@example.org", context)
         self.assertNotIn("+49", context)
         self.assertIn("- Market readiness: credible", context)
@@ -489,6 +524,44 @@ class MasterWorkflowTests(unittest.TestCase):
             max_adjacent=0,
         )
         self.assertNotIn("personal.lab-operation", without_adjacent)
+
+    def test_context_excludes_ungoverned_adjacent_claims_in_schema_33(self) -> None:
+        data = copy.deepcopy(self.template)
+        lab = next(
+            item for item in data["claim_registry"] if item["id"] == "personal.lab-operation"
+        )
+        del lab["adjacent_values"]
+        context = build_context(
+            data,
+            "Linux operations and test automation",
+            "test",
+            20,
+            include_contact=False,
+            explain_scores=False,
+        )
+        self.assertNotIn("personal.lab-operation", context)
+
+    def test_project_only_technology_never_enters_skill_groups(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["technical_skills"]["evidenced"].insert(
+            0,
+            {
+                "name": "Repository-only Go",
+                "cv_usage": "project_only",
+                "level": "Artifact stack",
+                "boundaries": ["Not candidate proficiency"],
+                "claim_ids": ["project.signalwatch-features"],
+            },
+        )
+        context = build_context(
+            data,
+            "Python network probes",
+            "systems",
+            20,
+            include_contact=False,
+            explain_scores=False,
+        )
+        self.assertNotIn("Repository-only Go", context)
 
     def test_skill_groups_rank_direct_relevance_before_yaml_order(self) -> None:
         data = {
@@ -770,6 +843,58 @@ class MasterWorkflowTests(unittest.TestCase):
             ]
             errors = validate_manifest(data, self.template_path, root)
             self.assertTrue(any("gap and cannot map claims" in error for error in errors))
+
+    def test_sent_manifest_can_record_post_submission_claim_correction(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            meta = root / "meta" / "applications" / "example"
+            meta.mkdir(parents=True)
+            jd = meta / "jd.md"
+            jd.write_text("Linux troubleshooting\n", encoding="utf-8")
+            master = copy.deepcopy(self.template)
+            claim_id = "project.signalwatch-features"
+            next(item for item in master["claim_registry"] if item["id"] == claim_id)[
+                "cv_eligible"
+            ] = False
+            master_path = root / "master.yaml"
+            master_path.write_text(yaml.safe_dump(master, sort_keys=False), encoding="utf-8")
+            data = new_manifest(
+                "example",
+                "Example Corp",
+                "Systems Engineer",
+                "systems",
+                "meta/applications/example/jd.md",
+                sha256(jd),
+                "example",
+            )
+            data["stage"] = "sent"
+            data["decision"].update({"recommendation": "apply", "user_confirmed": True})
+            data["selected_claims"] = [claim_id]
+            data["requirements"] = [
+                {
+                    "id": "req.linux",
+                    "text": "Linux troubleshooting",
+                    "priority": "must",
+                    "match": "direct",
+                    "claim_ids": [claim_id],
+                }
+            ]
+            data["final_bullets"] = [
+                {
+                    "id": "bullet.sent",
+                    "section": "projects",
+                    "text": "Sent wording retained for audit.",
+                    "claim_ids": [claim_id],
+                }
+            ]
+            data["post_submission_corrections"] = [
+                {
+                    "claim_id": claim_id,
+                    "corrected_on": "2026-01-16",
+                    "reason": "Owner corrected the claim after submission.",
+                }
+            ]
+            self.assertEqual([], validate_manifest(data, master_path, root, strict=True))
 
     def test_manifest_allows_only_capped_low_prominence_differentiators(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

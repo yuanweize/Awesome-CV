@@ -18,8 +18,9 @@ responsibility and one lifetime; generated CV prose must never become career tru
 
 Run `./cv init` after cloning. The Skill-owned initializer reconstructs the ignored
 runtime layer from `templates/`, creates every required private/build directory, and
-preserves any file that already exists. The ignored directories intentionally have no
-tracked `.gitkeep` files.
+preserves any file that already exists. It also copies a short directory map to
+`meta/README.md`, so the otherwise invisible private layer is self-describing. The
+ignored directories intentionally have no tracked `.gitkeep` files.
 
 The canonical script implementations live under the Skill. Matching files in
 `tools/` are thin compatibility entry points so old commands continue to work.
@@ -32,6 +33,7 @@ tech-stack collector is an evidence-discovery input, not Skill business logic. S
 | Path | Responsibility |
 |---|---|
 | `meta/master_cv.yaml` | Career preferences, role strategy, facts, evidence IDs, atomic claims, governed portfolio, and exclusions |
+| `meta/README.md` | Local map of the ignored runtime layer; guidance only, never career evidence |
 | `meta/applications.yaml` | Application events and funnel outcomes |
 | `meta/applications/<id>/` | One saved JD and its decision/claim manifest |
 | `meta/profile_catalog.yaml` | Explicit classification of reusable reference profiles |

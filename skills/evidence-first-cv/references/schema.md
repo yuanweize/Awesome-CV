@@ -34,6 +34,13 @@ stores `interest` (`high`, `medium`, or `low`), `application_priority` (`active`
 `selective`, `explore`, or `paused`), and a note. Interest may justify analysing a
 stretch JD; it never changes claim eligibility.
 
+Schema 3.3 separates product delivery from language proficiency. Every personal
+open-source project claim records `delivery.mode`, the owner's `owned_actions`, and
+explicit `boundaries`. Optional `adjacent_values` pre-governs whether an outside-role
+claim may enter the complement pool. Evidenced skill groups add `cv_usage`, `level`,
+and `boundaries`; `project_only` technologies may describe a project stack but are
+never exported as candidate skills.
+
 ## Claim fields
 
 | Field | Rule |
@@ -50,6 +57,8 @@ stretch JD; it never changes claim eligibility.
 | `status` | `verified`, `self_reported`, `planned`, `unverified`, `expired` |
 | `cv_eligible` | Explicit boolean |
 | `interview_depth` | `strong`, `moderate`, or `limited` |
+| `delivery` | Required in schema 3.3+ for personal open-source project claims; separates AI assistance and owned actions from artifact technologies |
+| `adjacent_values` | Optional governed transfer values: execution leverage, delivery-risk reduction, cross-functional bridge, or autonomy |
 
 Planned, unverified, and expired claims cannot be CV-eligible. Personal-scope
 statements must visibly say personal, owner-operated, or open-source.

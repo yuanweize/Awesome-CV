@@ -16,6 +16,7 @@ Run once from the repository root:
 `make init` is an alias for the same deterministic initializer. It creates:
 
 - `meta/master_cv.yaml`, `meta/applications.yaml`, and `meta/profile_catalog.yaml`;
+- `meta/README.md`, a local map of the ignored runtime layer;
 - `meta/applications/`, `meta/evidence/`, `meta/inventory/`, and `meta/audits/`;
 - the current private LaTeX files under `config.tex`, `letter_config.tex`, and `sections/`;
 - empty `profiles/`, `archive/applications/`, `archive/research/`, `build/`, and `tmp/` paths.
@@ -42,6 +43,8 @@ After initialization:
 5. keep unused directories empty until their lifecycle creates content.
 
 The template demonstrates the schema; it is not a generic CV to submit.
+`./cv status` explicitly warns while the fictional `Alex Example` fixture remains, so
+an agent following the normal preflight cannot silently draft from sample claims.
 
 ## Standalone Skill boundary
 
