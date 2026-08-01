@@ -109,6 +109,8 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertGreaterEqual(
             systems["eligible_claim_count"], systems["substantive_claim_count"]
         )
+        self.assertTrue(systems["strengths"])
+        self.assertTrue(systems["boundaries"])
         self.assertTrue(result["policy"]["interest_is_not_evidence"])
 
     def test_new_graduate_may_have_no_work_experience(self) -> None:
@@ -775,6 +777,43 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertEqual(1, status["profiles"]["applications"])
             self.assertEqual(1, status["profiles"]["references"])
             self.assertEqual(0, status["profiles"]["unclassified"])
+
+    def test_workspace_status_does_not_treat_reference_profiles_as_legacy_applications(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "templates").mkdir()
+            shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
+            (root / "meta").mkdir()
+            shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
+            (root / "profiles" / "reference-systems").mkdir(parents=True)
+            (root / "meta" / "applications.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "schema_version": "1.0",
+                        "applications": [{"profile": "archived-role", "stage": "rejected"}],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (root / "meta" / "profile_catalog.yaml").write_text(
+                yaml.safe_dump(
+                    {
+                        "schema_version": "1.0",
+                        "profiles": [
+                            {
+                                "profile": "reference-systems",
+                                "kind": "reference",
+                                "role_family": "systems",
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            status = collect_status(root)
+
+            self.assertFalse(any("without manifests" in item for item in status["warnings"]))
 
     def test_workspace_status_rejects_unsafe_reference_catalog_entry(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

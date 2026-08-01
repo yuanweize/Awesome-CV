@@ -214,11 +214,10 @@ def collect_status(root: Path) -> dict[str, Any]:
         warnings.append("private master database is invalid")
     if not applications:
         warnings.append("application ledger is empty")
-    if profile_count and not manifests:
-        if applications:
-            warnings.append("legacy profiles/ledger exist without manifests; create one for the next JD")
-        else:
-            warnings.append("profiles exist but no application manifests have been created")
+    if linked_application_profiles and not manifests:
+        warnings.append(
+            "legacy application profiles exist without manifests; create one for the next JD"
+        )
     if active_dirty:
         warnings.append("working files differ from the active profile")
     if active and active_skill_entries == 0:

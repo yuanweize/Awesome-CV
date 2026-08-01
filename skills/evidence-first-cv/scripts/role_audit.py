@@ -79,6 +79,8 @@ def audit_roles(data: dict[str, Any]) -> dict[str, Any]:
             "readiness": role.get("readiness", "unspecified"),
             "interest": preference.get("interest", "unspecified"),
             "application_priority": preference.get("application_priority", "unspecified"),
+            "strengths": role.get("strengths", []),
+            "boundaries": role.get("boundaries", []),
             "target_titles": role.get("target_titles", []),
             "stretch_titles": role.get("stretch_titles", []),
             "claim_count": len(role_claims),
@@ -139,6 +141,13 @@ def render_text(result: dict[str, Any]) -> str:
             f"({depth['strong']}/{depth['moderate']}/{depth['limited']}) | "
             f"{', '.join(role['stretch_titles']) or 'none'}"
         )
+        if role["interest"] == "high":
+            lines.append(
+                "  Strengths: " + ("; ".join(role["strengths"]) or "none recorded")
+            )
+            lines.append(
+                "  Boundaries: " + ("; ".join(role["boundaries"]) or "none recorded")
+            )
     if result["warnings"]:
         lines.append("Warnings:")
         lines.extend(f"- {warning}" for warning in result["warnings"])

@@ -64,6 +64,15 @@ class DifyIntegrationTests(unittest.TestCase):
         master = parse_master(self.master_text)
         summary = memory_summary(master)
         self.assertGreater(summary["eligible_claims"], 0)
+        self.assertEqual(
+            {
+                "role_family": "systems",
+                "interest": "high",
+                "application_priority": "active",
+            },
+            next(item for item in summary["role_interests"] if item["role_family"] == "systems"),
+        )
+        self.assertNotIn("notes", summary["role_interests"][0])
         context = context_from_memory(
             self.master_text,
             "Troubleshoot Linux services with systemd and Python.",

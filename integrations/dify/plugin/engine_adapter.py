@@ -36,12 +36,25 @@ def memory_summary(data: dict[str, Any]) -> dict[str, Any]:
         for item in claims
         if item.get("cv_eligible") is True and item.get("status") in {"verified", "self_reported"}
     ]
+    role_interests = sorted(
+        (
+            {
+                "role_family": item.get("role_family", ""),
+                "interest": item.get("interest", ""),
+                "application_priority": item.get("application_priority", ""),
+            }
+            for item in data.get("career_preferences", {}).get("role_interests", [])
+            if isinstance(item, dict) and isinstance(item.get("role_family"), str)
+        ),
+        key=lambda item: item["role_family"],
+    )
     return {
         "schema_version": str(data.get("schema_version", "")),
         "claims": len(claims),
         "eligible_claims": len(eligible),
         "evidence": len(data.get("evidence_registry", [])),
         "role_families": sorted(data.get("role_families", {})),
+        "role_interests": role_interests,
     }
 
 

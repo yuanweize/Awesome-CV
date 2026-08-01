@@ -6,11 +6,12 @@ identity:
     zh_Hans: 职业记忆状态
 description:
   human:
-    en_US: Report whether Dify career memory is initialized and return only non-sensitive counts.
-    zh_Hans: 检查 Dify 职业记忆是否已初始化，仅返回不敏感的统计信息。
+    en_US: Report whether Dify career memory is initialized and return non-sensitive counts and career directions.
+    zh_Hans: 检查 Dify 职业记忆是否已初始化，返回不敏感的统计信息与职业方向。
   llm: >-
     Call at the start of a new-CV conversation. If memory is not initialized, ask
-    the user to import a validated master YAML. Never infer facts from chat history.
+    the user to import a validated master YAML. Use role interests for targeting, not
+    as résumé evidence. Never infer facts from chat history.
 parameters: []
 extra:
   python:

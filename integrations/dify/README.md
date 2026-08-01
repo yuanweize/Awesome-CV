@@ -19,7 +19,7 @@ The plugin provides five tools:
 
 | Tool | Purpose |
 |---|---|
-| `career_memory_status` | Check whether memory exists; return counts only |
+| `career_memory_status` | Check whether memory exists; return safe counts and career-direction priorities |
 | `save_career_memory` | Validate and persist schema 3.x career YAML |
 | `build_job_context` | Select role-bound claims plus a capped outside-role differentiator review pool |
 | `start_application` | Create a schema 1.0 manifest skeleton bound to the exact JD hash |

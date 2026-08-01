@@ -27,3 +27,5 @@ beside public templates or documentation.
 Run `./cv doctor` for the full local health path: workspace status, strict master
 validation, role-strategy audit, portfolio coverage when a private GitHub inventory
 exists, repository tests, privacy checks, and active-profile drift detection.
+Reference-only profiles and terminal archived applications are not reported as legacy
+application workspaces merely because no manifest remains active.
