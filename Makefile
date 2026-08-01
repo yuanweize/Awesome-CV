@@ -113,54 +113,7 @@ $(BUILD_DIR):
 #-------------------------------------------------------------------------------
 
 init:
-	@echo "Setting up Awesome-CV..."
-	@if [ ! -f config.tex ]; then \
-		cp templates/config.tex.example config.tex; \
-		echo "  Created config.tex from template"; \
-	else \
-		echo "  config.tex already exists, skipping"; \
-	fi
-	@if [ ! -f letter_config.tex ]; then \
-		cp templates/letter_config.tex.example letter_config.tex; \
-		echo "  Created letter_config.tex from template"; \
-	else \
-		echo "  letter_config.tex already exists, skipping"; \
-	fi
-	@if [ ! -d sections ]; then \
-		mkdir -p sections; \
-	fi
-	@for f in templates/sections/*.tex; do \
-		base=$$(basename $$f); \
-		if [ ! -f sections/$$base ]; then \
-			cp $$f sections/$$base; \
-			echo "  Created sections/$$base from template"; \
-		fi; \
-	done
-	@mkdir -p meta meta/applications profiles archive/applications archive/research
-	@if [ ! -f meta/master_cv.yaml ]; then \
-		cp templates/master_cv.yaml.example meta/master_cv.yaml; \
-		echo "  Created meta/master_cv.yaml from template"; \
-	else \
-		echo "  meta/master_cv.yaml already exists, skipping"; \
-	fi
-	@if [ ! -f meta/applications.yaml ]; then \
-		cp templates/applications.yaml.example meta/applications.yaml; \
-		echo "  Created meta/applications.yaml from template"; \
-	else \
-		echo "  meta/applications.yaml already exists, skipping"; \
-	fi
-	@if [ ! -f meta/profile_catalog.yaml ]; then \
-		cp templates/profile_catalog.yaml.example meta/profile_catalog.yaml; \
-		echo "  Created meta/profile_catalog.yaml from template"; \
-	else \
-		echo "  meta/profile_catalog.yaml already exists, skipping"; \
-	fi
-	@echo ""
-	@echo "Setup complete! Next steps:"
-	@echo "  1. Edit meta/master_cv.yaml with your master database"
-	@echo "  2. Run 'make validate' to verify schema"
-	@echo "  3. Edit config.tex and sections/ for target roles"
-	@echo "  4. Run 'make resume' or './cv build <company>'"
+	@./cv init
 
 #-------------------------------------------------------------------------------
 # Cleanup
@@ -177,7 +130,7 @@ help:
 	@echo "Awesome-CV Makefile (Author: $(AUTHOR))"
 	@echo ""
 	@echo "Targets:"
-	@echo "  make init        - First-time setup (creates private config files)"
+	@echo "  make init        - Idempotent first-time setup of the ignored private workspace"
 	@echo "  make validate    - Validate the private evidence-first master database"
 	@echo "  make status      - Report memory, manifests, applications, and profile drift"
 	@echo "  make context JD=job.md ROLE=systems - Export evidence-bound AI context"

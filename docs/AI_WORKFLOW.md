@@ -4,6 +4,10 @@ The AI is a compiler and reviewer over verified career memory, not the factual
 source. The normal user interface is conversation; scripts provide deterministic
 state, selection, and validation underneath it.
 
+For a fresh clone, begin with `./cv init`. It creates the ignored private memory,
+application, evidence, profile, archive, section, build, and temporary paths from
+fictional public templates without overwriting existing work.
+
 ## 1. Maintain memory once
 
 Store stable career facts in `meta/master_cv.yaml`. Use evidence IDs and atomic claim

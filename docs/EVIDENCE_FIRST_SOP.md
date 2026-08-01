@@ -12,6 +12,14 @@
 
 Old CV wording and AI-generated interview notes are not factual sources.
 
+## First-time initialization
+
+Run `./cv init` in a fresh clone. It reconstructs all ignored private/runtime paths
+from fictional public templates, rejects symbolic-link destinations, and preserves
+every existing file. Replace the fictional master data before drafting, then run
+`./cv validate --strict` and `./cv status`. Do not commit placeholder files inside
+private directories; the initializer is the reproducible directory contract.
+
 ## Portfolio intake
 
 1. Capture public repository state with `./cv github-audit`.

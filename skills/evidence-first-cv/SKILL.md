@@ -29,6 +29,8 @@ cache authoritative.
 
 ## Route the task
 
+- For a fresh clone, missing private directories, first-time setup, or questions about
+  ignored files: read [references/onboarding.md](references/onboarding.md).
 - For new experience, certificates, projects, corrections, or evidence: read
   [references/schema.md](references/schema.md) and
   [references/claim-policy.md](references/claim-policy.md).
@@ -58,10 +60,11 @@ Read only the relevant references, but read each selected file completely.
 ## Start every operation
 
 1. Locate the repository root containing `templates/master_cv.yaml.example`.
-2. Confirm private `meta/master_cv.yaml` exists. In a repository, initialize it
-   from `templates/master_cv.yaml.example`; when the installed skill is being
-   used standalone, initialize from `assets/master_cv.yaml.example`. Never
-   overwrite an existing private master.
+2. Confirm private `meta/master_cv.yaml` exists. In a repository, run `./cv init`
+   when the ignored runtime layer is missing; it creates all required directories and
+   copies public templates without overwriting private files. When the installed Skill
+   is used without a repository, its assets can illustrate the memory schema but cannot
+   replace the repository's LaTeX/build layer. Never overwrite an existing private master.
 3. Run the validator before reasoning from the memory:
 
 ```bash

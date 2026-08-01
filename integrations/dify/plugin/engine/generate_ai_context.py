@@ -159,8 +159,12 @@ def evidenced_skill_groups(
     data: dict[str, Any],
     direct_claim_ids: set[str],
     adjacent_claim_ids: set[str],
+    direct_claim_scores: dict[str, int] | None = None,
+    adjacent_claim_scores: dict[str, int] | None = None,
 ) -> list[dict[str, Any]]:
     """Return only human-maintained skill groups backed by exported claims."""
+    direct_claim_scores = direct_claim_scores or {}
+    adjacent_claim_scores = adjacent_claim_scores or {}
     skills = data.get("technical_skills", {})
     evidenced = skills.get("evidenced", []) if isinstance(skills, dict) else []
     groups: list[dict[str, Any]] = []
@@ -172,15 +176,41 @@ def evidenced_skill_groups(
         adjacent_matches = sorted(claim_ids & adjacent_claim_ids)
         if direct_matches:
             groups.append(
-                {"name": item.get("name", ""), "lane": "direct", "claim_ids": direct_matches}
+                {
+                    "name": item.get("name", ""),
+                    "lane": "direct",
+                    "claim_ids": direct_matches,
+                    "rank": max(
+                        (direct_claim_scores.get(value, 0) for value in direct_matches),
+                        default=0,
+                    ),
+                }
             )
         elif adjacent_matches:
             groups.append(
-                {"name": item.get("name", ""), "lane": "adjacent-review", "claim_ids": adjacent_matches}
+                {
+                    "name": item.get("name", ""),
+                    "lane": "adjacent-review",
+                    "claim_ids": adjacent_matches,
+                    "rank": max(
+                        (adjacent_claim_scores.get(value, 0) for value in adjacent_matches),
+                        default=0,
+                    ),
+                }
             )
-    # Keep the exported candidate pool bounded so an agent cannot turn a broad
-    # memory inventory into a keyword wall. Direct groups are encountered first;
-    # adjacent groups fill only the remaining slots.
+    # Keep the candidate pool bounded without letting YAML insertion order hide a
+    # later, higher-value role-specific group. Direct groups always outrank adjacent
+    # review groups, then claim score and matched-claim coverage decide the order.
+    groups.sort(
+        key=lambda group: (
+            group["lane"] != "direct",
+            -group["rank"],
+            -len(group["claim_ids"]),
+            str(group["name"]).lower(),
+        )
+    )
+    for group in groups:
+        group.pop("rank", None)
     return groups[:5]
 
 
@@ -228,7 +258,17 @@ def build_context(
     adjacent_ranked = adjacent_ranked[:max_adjacent]
     direct_claim_ids = {str(claim.get("id", "")) for _, _, claim in ranked}
     adjacent_claim_ids = {str(claim.get("id", "")) for _, _, claim in adjacent_ranked}
-    skill_groups = evidenced_skill_groups(data, direct_claim_ids, adjacent_claim_ids)
+    direct_claim_scores = {str(claim.get("id", "")): score for score, _, claim in ranked}
+    adjacent_claim_scores = {
+        str(claim.get("id", "")): score for score, _, claim in adjacent_ranked
+    }
+    skill_groups = evidenced_skill_groups(
+        data,
+        direct_claim_ids,
+        adjacent_claim_ids,
+        direct_claim_scores,
+        adjacent_claim_scores,
+    )
 
     evidence_by_id = {
         item.get("id"): item

@@ -48,6 +48,21 @@ can support bounded VHDL/FSM or microcontroller claims when authorship and lab s
 clear. Do not generalize those facts into professional PCB design, RF design, production
 firmware ownership, or electrical authorisation.
 
+## Personal domain work and professional transfer
+
+Personal work may be CV-eligible when it records a repeatable action the person can
+defend, uses explicit personal-scope language, and has a self-reported evidence record.
+For example, owner maintenance with a manufacturer diagnostic tool can support bounded
+diagnostics, fault-finding, and repair-verification claims. It does not become OEM
+employment, dealership authority, vehicle-development ownership, or proof of protocols
+and safety processes that were not actually implemented.
+
+Create a dedicated role family when a desired domain changes the proof order. A vehicle
+systems application may lead with personal diagnostics, professional device/GNSS test,
+and electronics integration, while keeping industrial commissioning as an adjacent
+differentiator. Do not force that identity into generic field service merely because
+some evidence is transferable.
+
 ## Recommendation rule
 
 For a high-interest family, do not recommend `defer` solely because it is marked

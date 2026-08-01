@@ -453,6 +453,10 @@ cmd_context() {
     python3 "$SCRIPT_DIR/tools/generate_ai_context.py" "$@"
 }
 
+cmd_init() {
+    python3 "$SCRIPT_DIR/tools/workspace_init.py" --root "$SCRIPT_DIR" "$@"
+}
+
 cmd_validate() {
     python3 "$SCRIPT_DIR/tools/validate_master_cv.py" "$@"
 }
@@ -684,6 +688,7 @@ ${BOLD}CV Profile Manager${RESET} — switch between per-company CV/Cover Letter
 ${BOLD}Usage:${RESET} ./cv <command> [args]
 
 ${BOLD}Commands:${RESET}
+  ${CYAN}init${RESET}                  Create the ignored private workspace from public templates
   ${CYAN}list${RESET}                  List all profiles (active marked with ▸)
   ${CYAN}use${RESET} <profile>         Load a profile; refuses to overwrite unsaved changes
   ${CYAN}save${RESET} [profile]        Save current working files to a profile
@@ -709,6 +714,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}doctor${RESET}                Audit workspace, roles, portfolio, tests, privacy, and profile drift
 
 ${BOLD}Examples:${RESET}
+  ./cv init                     # First-time, idempotent private workspace setup
   ./cv list                     # See all profiles
   ./cv use acme-systems         # Switch to one application snapshot
   ./cv save                     # Save changes to current profile
@@ -740,6 +746,7 @@ EOF
 
 # ── Dispatch ──────────────────────────────────────────────────────────────────
 case "${1:-}" in
+    init)    shift; cmd_init "$@" ;;
     list)    cmd_list ;;
     use)     cmd_use "${2:-}" "${3:-}" ;;
     save)    cmd_save "${2:-}" ;;

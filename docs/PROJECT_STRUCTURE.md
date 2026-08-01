@@ -16,6 +16,11 @@ responsibility and one lifetime; generated CV prose must never become career tru
 | `tests/` | Unit, safety, privacy, and integration tests |
 | `.github/workflows/` | Public CI, example-PDF release, and upstream sync |
 
+Run `./cv init` after cloning. The Skill-owned initializer reconstructs the ignored
+runtime layer from `templates/`, creates every required private/build directory, and
+preserves any file that already exists. The ignored directories intentionally have no
+tracked `.gitkeep` files.
+
 The canonical script implementations live under the Skill. Matching files in
 `tools/` are thin compatibility entry points so old commands continue to work.
 Repository-only build and packaging utilities remain under `tools/`; the optional
@@ -32,6 +37,7 @@ tech-stack collector is an evidence-discovery input, not Skill business logic. S
 | `meta/profile_catalog.yaml` | Explicit classification of reusable reference profiles |
 | `meta/evidence/` | Durable private proof such as degree or contract records |
 | `meta/inventory/` | Dated derived discovery caches such as GitHub API snapshots; never factual authority |
+| `meta/audits/` | Private dated review output and reconciliation notes |
 
 Only eligible `claim_registry` entries are factual input to CV drafting. Human-readable
 history and technical inventory are navigation aids; the validator warns when a

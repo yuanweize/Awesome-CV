@@ -64,12 +64,14 @@ python3 -m pip install pyyaml
 ```bash
 git clone https://github.com/yuanweize/Awesome-CV.git
 cd Awesome-CV
-make init
+./cv init
 make validate
 make all
 ```
 
-`make init` copies public placeholders into private, ignored paths:
+`./cv init` (also available as `make init`) creates the complete ignored runtime
+directory tree and copies public placeholders into private working paths. It is
+idempotent and never overwrites an existing private file:
 
 | Public template | Private working file |
 |---|---|
@@ -83,7 +85,13 @@ make all
 Edit private files only; never put real data into `templates/`.
 
 初始化后只编辑私有文件。`meta/`、`sections/`、`profiles/`、真实联系方式、PDF 和
-构建产物默认不会进入 Git。
+构建产物默认不会进入 Git。空的 `profiles/`、`archive/`、`build/` 和 `tmp/` 会由
+初始化器创建，但不会用 `.gitkeep` 提交；这样 Git 永远看不到以后放进去的真实材料。
+
+Public examples deliberately use a fictional person and reserved example domains.
+They demonstrate the schema and layout, not a résumé that should be submitted. A real
+celebrity such as Steve Jobs would be a worse fixture because biography and metrics
+could be mistaken for verified claims.
 
 ## AI skill: the primary interface
 
@@ -125,11 +133,12 @@ profile, build and audit the PDF, and record the application.
 
 The Skill entrypoint stays concise so an agent can route a task without loading the
 whole system. The package itself is complete: one routing contract, focused references
-for claims, applications, role strategy, writing, PDF quality, privacy, archives,
-technology intake, portfolio lifecycle, and Dify, plus bundled scripts for validation,
+for onboarding, claims, applications, role strategy, writing, PDF quality, privacy,
+archives, technology intake, portfolio lifecycle, and Dify, plus bundled scripts for validation,
 context generation, manifests, outcomes, workspace status, GitHub inventory, portfolio
-and role audits, privacy, and verified archiving. `assets/` carries standalone
-initialization templates. The
+and role audits, privacy, verified archiving, and safe workspace initialization.
+`assets/` carries standalone schema/manifest examples; the full LaTeX workspace is
+initialized from the repository's tracked `templates/`. The
 repository template and Skill asset are tested for byte-for-byte equality so they
 cannot silently drift.
 
@@ -227,6 +236,7 @@ profiles.
 
 | Command | Purpose |
 |---|---|
+| `./cv init` | Safely reconstruct the complete ignored runtime workspace |
 | `./cv list` | List private profiles |
 | `./cv new <name>` | Create a clean profile from templates |
 | `./cv clone <source> <new>` | Clone trusted source files, excluding PDFs |
@@ -296,6 +306,7 @@ Awesome-CV/
 │   ├── privacy_check.py
 │   ├── application_ledger.py
 │   ├── application_manifest.py
+│   ├── workspace_init.py
 │   ├── workspace_status.py
 │   ├── github_inventory.py
 │   ├── portfolio_audit.py

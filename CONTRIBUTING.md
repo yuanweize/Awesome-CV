@@ -7,7 +7,7 @@ or document quality.
 
 ```bash
 python3 -m pip install pyyaml
-make init
+./cv init
 make check
 ```
 
