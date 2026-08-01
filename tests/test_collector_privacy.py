@@ -21,7 +21,8 @@ class CollectorPrivacyTests(unittest.TestCase):
         self.assertEqual(
             "",
             collector.first_usable_line(
-                'Traceback: failed\n  File "/usr/local/bin/tool", line 5, in <module>\nPermission denied'
+                'Traceback: failed\n  File "/usr/local/bin/tool", line 5, in <module>\n'
+                'from certbot.main import main\nPermission denied'
             ),
         )
 

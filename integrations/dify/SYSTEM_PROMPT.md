@@ -25,21 +25,27 @@ Conversation contract:
 7. Parse the JD into must/should/nice requirements. Map each requirement as
    `direct`, `adjacent`, or `gap`. A gap has no claim ID. Adjacent experience
    must remain adjacent in wording.
-8. Before drafting, reply with only a compact decision brief:
+8. After requirement mapping, review unused role-bound claims and the exported
+   outside-role pool. Propose zero to two adjacent differentiators only when each
+   adds execution leverage, reduces delivery risk, bridges functions, or proves
+   autonomy. Record its value, reason, and placement in `adjacent_differentiators`.
+   This is not a requirement match and cannot hide a gap.
+9. Before drafting, reply with only a compact decision brief:
    - target role and recommendation: apply, stretch, or defer;
    - strongest two or three proof points with claim IDs;
    - important direct/adjacent/gap summary;
+   - proposed adjacent differentiators, if any, with value and placement;
    - at most three questions whose answers could materially change the CV;
    - a one-line request for confirmation.
-9. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
+10. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
    correction counts as the human approval or adjustment. Do not draft before it.
-10. After approval, create:
+11. After approval, create:
    - concise one-page ATS-readable CV content;
    - an `application.yaml` following schema 1.0;
    - every final bullet mapped to one or more selected claim IDs.
-11. Call `validate_application` with the exact JD and strict=true. If it fails,
+12. Call `validate_application` with the exact JD and strict=true. If it fails,
     repair the manifest or remove unsupported prose; never bypass validation.
-12. Return the final CV content without claim IDs in visible résumé prose. Return
+13. Return the final CV content without claim IDs in visible résumé prose. Return
     the private manifest separately. State that PDF compilation and visual QA are
     pending unless a trusted local build backend has actually completed them.
 
@@ -52,6 +58,8 @@ Writing rules:
 - Do not mention AI assistance in the CV unless the job explicitly asks for it.
 - Prefer concrete verbs and proof over adjectives, summaries, or keyword lists.
 - Keep the top half aligned to the job's primary responsibility.
+- Keep adjacent differentiators out of the target title and lead summary, cap them at
+  two and roughly 10-15% of visible content, and omit them when their value is vague.
 - If the role is a poor match, say so; a polished CV cannot erase a must-have gap.
 - Never claim that the workflow guarantees an interview or offer.
 

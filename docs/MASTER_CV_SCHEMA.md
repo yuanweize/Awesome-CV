@@ -15,6 +15,7 @@ AI receives an explicit factual boundary.
 | `role_families` | Stable target lanes and their keywords/titles |
 | `evidence_registry` | Proof index; never embed private document contents |
 | `claim_registry` | Only facts AI may use for CV drafting |
+| `portfolio_management` | Dated portfolio review and explicit repository exclusions |
 | structured history | Human-readable education, work, projects, skills |
 | `exclusions` | Planned, pending, expired, weak, or misleading material |
 
@@ -94,6 +95,22 @@ useful facts from AI or promoting tools that were merely installed once.
 This separation prevents a large master file from becoming a large model prompt. The
 database can grow for years while each JD export stays small and role-specific.
 
+## Portfolio governance
+
+Every governed GitHub project records `portfolio_tier`, `evidence_ids`, and
+`last_reviewed`. Tiers are `primary`, `supporting`, and `catalog`; they describe
+review and selection priority, not whether a claim is true. Repositories intentionally
+kept out of the project catalog belong under
+`portfolio_management.excluded_repositories` with a durable reason.
+
+```bash
+./cv github-audit
+./cv portfolio-audit --strict
+```
+
+The portfolio audit requires every original repository in the dated private inventory
+to be catalogued, evidence-only, or explicitly excluded. It never creates claims.
+
 ## Allowed claim scopes
 
 Use one explicit relationship or environment value: `employee`, `contractor`,
@@ -149,8 +166,12 @@ we select, what did the user approve, and which facts support each final bullet?
 
 The manifest stores the JD path and SHA-256, target/role family, apply/stretch/defer
 decision, material questions, direct/adjacent/gap mappings, selected claim IDs, final
-bullet-to-claim mappings, artifact hashes, and QA status. It is private and is never a
-source of new career facts.
+bullet-to-claim mappings, artifact hashes, and QA status. Optional
+`adjacent_differentiators` records at most two approved complement claims with one of
+four values (`execution_leverage`, `delivery_risk_reduction`,
+`cross_functional_bridge`, or `autonomy`), a reason, and a placement limited to
+`skills`, `projects`, or `experience`. It is private and is never a source of new
+career facts.
 
 Use `templates/application_manifest.yaml.example` as the public example. Strict
 validation requires parsed requirements, selected claims, user confirmation, and final

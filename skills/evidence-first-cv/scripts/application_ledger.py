@@ -14,8 +14,19 @@ from typing import Any
 import yaml
 
 
-STAGES = ("drafted", "applied", "recruiter-screen", "technical", "final", "offer", "rejected", "withdrawn")
+STAGES = (
+    "drafted",
+    "applied",
+    "recruiter-screen",
+    "technical",
+    "final",
+    "offer",
+    "rejected",
+    "withdrawn",
+    "no-response",
+)
 FUNNEL_STAGES = ("drafted", "applied", "recruiter-screen", "technical", "final", "offer")
+TERMINAL_STAGES = ("rejected", "withdrawn", "no-response")
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 
 
@@ -201,9 +212,9 @@ def command_summary(data: dict[str, Any]) -> None:
             furthest = max(progress)
             for stage in FUNNEL_STAGES[: furthest + 1]:
                 reached[stage] += 1
-        for stage in ("rejected", "withdrawn"):
-            if stage in seen:
-                reached[stage] += 1
+        current_stage = item.get("stage")
+        if current_stage in TERMINAL_STAGES:
+            reached[current_stage] += 1
     applied = reached["applied"]
     screens = reached["recruiter-screen"]
     technical = reached["technical"]
@@ -214,6 +225,8 @@ def command_summary(data: dict[str, Any]) -> None:
     print(f"Technical interviews: {technical} ({technical / screens:.1%} of screens)" if screens else "Technical interviews: 0")
     print(f"Offers: {offers} ({offers / technical:.1%} of technical)" if technical else "Offers: 0")
     print(f"Rejected: {reached['rejected']}")
+    print(f"Withdrawn: {reached['withdrawn']}")
+    print(f"Closed without response: {reached['no-response']}")
 
 
 def main() -> int:

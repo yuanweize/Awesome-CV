@@ -16,6 +16,9 @@
 - Keep stretch skills out unless the JD is explicitly junior/graduate and the gap is
   disclosed.
 - Omit low-signal history that consumes attention without improving fit.
+- Allow at most two approved adjacent differentiators and keep them out of the target
+  title, lead summary, and first proof points. Reject any that cannot state a concrete
+  transfer value or that push direct evidence down the page.
 
 ## Claim audit
 

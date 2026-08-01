@@ -40,12 +40,22 @@ requirements:
 selected_claims:
 - experience.northstar-linux-support
 - project.signalwatch-features
+adjacent_differentiators:
+- claim_id: project.signalwatch-features
+  value: execution_leverage
+  reason: "Shows practical automation beyond the JD without changing the target identity."
+  placement: projects
 final_bullets:
 - id: bullet.experience.linux-support
   section: experience
   text: "Investigated Linux service failures and documented reproduction steps for the operations team."
   claim_ids:
   - experience.northstar-linux-support
+- id: bullet.project.signalwatch
+  section: projects
+  text: "Built a personal Python service for scheduled network probes and historical results."
+  claim_ids:
+  - project.signalwatch-features
 artifacts:
   profile: "20260115-example-corp-junior-systems-engineer"
   cv_pdf: ""

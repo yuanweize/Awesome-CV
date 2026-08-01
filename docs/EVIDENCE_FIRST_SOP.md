@@ -12,6 +12,20 @@
 
 Old CV wording and AI-generated interview notes are not factual sources.
 
+## Portfolio intake
+
+1. Capture public repository state with `./cv github-audit`.
+2. Run `./cv portfolio-audit --strict`.
+3. Resolve every original repository as primary, supporting, catalog, or explicitly
+   excluded with a reason.
+4. Add repository evidence and a review date before considering a project governed.
+5. Create a claim only after reviewing authorship, implementation scope, limitations,
+   and interview depth. README text, languages, stars, forks, and Actions are discovery
+   signals, not automatic résumé facts.
+
+Reference profiles remain compact role-order and PDF-regression examples. They do not
+expand merely because the portfolio catalog grows.
+
 ## Claim rules
 
 - Label employment, contractor, internship, academic, open-source, and personal scope.
@@ -36,14 +50,21 @@ prevent.
 1. Preserve the full JD privately.
 2. Map must-haves to eligible claim IDs.
 3. Decide apply, stretch, or defer.
-4. Show a compact brief, ask at most three material questions, and wait for approval.
-5. Create or clone a private application profile.
-6. Draft one page with two or three leading proof points.
-7. Map every final bullet to claims and strictly validate the application manifest.
-8. Audit every fact and metric against claim IDs.
-9. Build, extract text, render, inspect, and run privacy checks.
-10. Record the application only when submitted; then record stages and outcome.
-11. After a terminal outcome, archive the snapshot with a verified archive manifest.
+4. Review the unused complement for zero to two adjacent differentiators; require a
+   concrete transfer value and low-prominence placement, or select none.
+5. Show a compact brief, ask at most three material questions, and wait for approval.
+6. Create or clone a private application profile.
+7. Draft one page with two or three leading proof points.
+8. Map every final bullet to claims and strictly validate the application manifest.
+9. Audit every fact and metric against claim IDs.
+10. Build, extract text, render, inspect, and run privacy checks.
+11. Record the application only when submitted; then record stages and outcome.
+12. After a terminal outcome, archive the snapshot with a verified archive manifest.
+
+The complement review prevents two opposite failures: mirroring the JD so narrowly
+that useful range disappears, and listing every true skill until the candidate's role
+identity becomes unclear. Direct fit owns the headline and top half. Adjacent value is
+capped, subordinate, and never allowed to manufacture a missing requirement.
 
 ## Communication
 
@@ -59,3 +80,5 @@ context, future business plans, and explanations of AI usage.
 - Three technical failures: train repeated gaps before rewriting the CV again.
 
 Track stages and offers, not praise or interview length.
+Record a silent application as `no-response` only after the user explicitly closes it;
+do not silently convert old `applied` records based on age.

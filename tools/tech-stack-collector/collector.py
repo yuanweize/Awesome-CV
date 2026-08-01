@@ -74,6 +74,7 @@ def first_usable_line(output: str, limit: int = 80) -> str:
         if (
             line
             and not line.startswith("File \"")
+            and not re.match(r"^(?:from\s+\S+\s+import|import\s+\S+)", line)
             and not any(marker in line.lower() for marker in UNUSABLE_OUTPUT_MARKERS)
         ):
             return line[:limit]

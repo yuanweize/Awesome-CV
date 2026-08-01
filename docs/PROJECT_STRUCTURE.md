@@ -26,7 +26,7 @@ tech-stack collector is an evidence-discovery input, not Skill business logic. S
 
 | Path | Responsibility |
 |---|---|
-| `meta/master_cv.yaml` | Career facts, evidence IDs, atomic claims, and exclusions |
+| `meta/master_cv.yaml` | Career facts, evidence IDs, atomic claims, governed portfolio, and exclusions |
 | `meta/applications.yaml` | Application events and funnel outcomes |
 | `meta/applications/<id>/` | One saved JD and its decision/claim manifest |
 | `meta/profile_catalog.yaml` | Explicit classification of reusable reference profiles |
@@ -67,11 +67,12 @@ evidence, and historical source are never mass-deleted during routine cleanup.
 ```text
 evidence -> master claim -> JD manifest -> working snapshot -> submitted profile
                                                        -> outcome ledger
-discovery inventory -> human review -> evidence/claim (or no promotion)
+discovery inventory -> portfolio audit -> catalog/exclusion -> human-reviewed claim (or no promotion)
 closed profile/research -> verified private archive
 build/tmp/cache -> disposable cleanup
 ```
 
 Run `./cv status` at the start of every AI operation. It separates application,
 reference, unclassified, and archived profile counts and reports unsaved active-profile
-drift. Run `./cv privacy-check` before and after staging public changes.
+drift. Run `./cv portfolio-audit --strict` after a GitHub inventory refresh, and run
+`./cv privacy-check` before and after staging public changes.

@@ -16,8 +16,15 @@ class BuildJobContextTool(Tool):
         jd = str(tool_parameters.get("job_description", ""))
         role = str(tool_parameters.get("role_family", ""))
         max_claims = int(tool_parameters.get("max_claims", 10))
+        max_adjacent = int(tool_parameters.get("max_adjacent", 4))
         try:
-            context = context_from_memory(stored.decode("utf-8"), jd, role, max(1, min(max_claims, 20)))
+            context = context_from_memory(
+                stored.decode("utf-8"),
+                jd,
+                role,
+                max(1, min(max_claims, 20)),
+                max(0, min(max_adjacent, 6)),
+            )
             yield self.create_variable_message("context", context)
             yield self.create_text_message(context)
         except (TypeError, ValueError) as exc:

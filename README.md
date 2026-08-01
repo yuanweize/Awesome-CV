@@ -21,7 +21,8 @@ with a private master database, evidence IDs, atomic claims, JD-aware AI context
 export, profile management, validation, and pre-push privacy checks.
 
 它不是“让 AI 自由发挥”的简历生成器。它先把每条经历拆成有范围、有证据、有
-岗位标签的事实，再只把与 JD 匹配且允许用于 CV 的事实交给 AI。这样可以减少夸大、
+岗位标签的事实，优先导出与 JD/岗位匹配的 claim，再用一个小型补集候选池防止
+有价值的相邻能力被过度过滤。最终补充最多两项。这样可以减少夸大、
 事实漂移、关键词堆砌和不同版本互相污染。它不能保证面试或 offer，但可以显著提高
 一致性、可验证性和维护效率。
 
@@ -100,8 +101,12 @@ I need a new CV. Check the workspace first, then ask me for the JD.
 
 After receiving the JD, the agent saves it privately, selects one role family, maps
 requirements to atomic claims, and returns a short recommendation plus at most three
-material questions. A simple “yes” or small correction unlocks drafting. You should
-not have to drive individual scripts or repeatedly explain your history.
+material questions. Before that approval gate it also reviews facts outside the JD
+intersection and may propose at most two low-prominence adjacent differentiators. For
+example, an automotive automation CV can mention a defensible Linux/CI capability when
+it improves diagnostics or delivery, without turning the profile into a server CV.
+A simple “yes” or small correction unlocks drafting. You should not have to drive
+individual scripts or repeatedly explain your history.
 
 Inside this repository, `AGENTS.md` tells compatible coding agents to use the skill for
 CV/JD tasks. To install the skill in a personal Codex skill directory:
@@ -118,11 +123,14 @@ Use $evidence-first-cv to analyse this JD, select defensible claims, create a pr
 profile, build and audit the PDF, and record the application.
 ```
 
-The skill is intentionally small; detailed decisions live in its one-level references,
-and deterministic validation/export/ledger/privacy work lives in bundled scripts.
-The bundled `assets/master_cv.yaml.example` also makes the skill portable when it is
-installed outside this repository. The repository template and skill asset are tested
-for byte-for-byte equality so they cannot silently drift.
+The Skill entrypoint stays concise so an agent can route a task without loading the
+whole system. The package itself is complete: one routing contract, focused references
+for claims, applications, writing, PDF quality, privacy, archives, technology intake,
+portfolio lifecycle, and Dify, plus bundled scripts for validation, context generation,
+manifests, outcomes, workspace status, GitHub inventory, portfolio audit, privacy, and
+verified archiving. `assets/` carries standalone initialization templates. The
+repository template and Skill asset are tested for byte-for-byte equality so they
+cannot silently drift.
 
 ## JD → decision manifest → tailored CV
 
@@ -135,8 +143,8 @@ Check the workspace, then create the ignored per-application workspace:
 ```
 
 The command saves the exact JD as `meta/applications/<id>/jd.md` and creates an
-`application.yaml` traceability record. Export only eligible claims for the chosen
-role family:
+`application.yaml` traceability record. Export eligible role-bound claims plus a
+small, separately labelled adjacent review pool:
 
 ```bash
 ./cv validate
@@ -152,9 +160,11 @@ Equivalent Make command:
 make context JD=meta/applications/<id>/jd.md ROLE=systems
 ```
 
-The generated context contains the JD, selected claim IDs, scopes, evidence
-references, explicit exclusions, and drafting rules. Contact details are excluded
-unless `--include-contact` is explicitly passed.
+The generated context contains the JD, role-bound claims, a small outside-role review
+pool, scopes, evidence references, explicit exclusions, and drafting rules. The agent
+must establish direct fit first, then select zero to two adjacent differentiators only
+when they add concrete transfer value. Contact details are excluded unless
+`--include-contact` is explicitly passed.
 
 Before prose is drafted, record the requirement-to-claim mapping, explicit gaps,
 selected claims, and your approval in the manifest. Every final bullet maps back to
@@ -237,6 +247,8 @@ stops when working files differ from the active snapshot; save first. `--force` 
 for deliberate replacement, including the CLI's isolated build/restore flow.
 
 See [docs/ARCHIVE_LIFECYCLE.md](docs/ARCHIVE_LIFECYCLE.md) before bulk profile cleanup.
+Use the terminal ledger stage `no-response` only when you deliberately close a silent
+application; the system never assumes rejection from elapsed time.
 
 ## Build commands
 
@@ -277,6 +289,7 @@ Awesome-CV/
 │   ├── application_manifest.py
 │   ├── workspace_status.py
 │   ├── github_inventory.py
+│   ├── portfolio_audit.py
 │   ├── package_dify_plugin.py
 │   ├── archive_profile.py
 │   ├── archive_research.py
@@ -298,14 +311,19 @@ Awesome-CV/
 See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for ownership, lifecycle,
 canonical-vs-compatibility boundaries, and cleanup rules.
 
-Refresh public GitHub evidence without promoting dynamic metrics into CV prose:
+Refresh public GitHub discovery data, then verify that every original repository has
+an intentional place in career memory:
 
 ```bash
-python3 tools/github_inventory.py
+./cv github-audit
+./cv portfolio-audit --strict
 ```
 
 The dated JSON snapshot stays private under `meta/inventory/github/`. It separates
 original repositories from forks and inspects GitHub Actions through the `gh` CLI.
+The portfolio audit reports claimed, catalogued, evidence-only, missing, and explicit
+risk exclusions. Neither command promotes a repository description or mutable metric
+into a CV claim.
 
 ## Privacy model
 

@@ -57,9 +57,23 @@ def storage_yaml(data: dict[str, Any], store_contact: bool = False) -> str:
     return yaml.safe_dump(stored, sort_keys=False, allow_unicode=True)
 
 
-def context_from_memory(master_yaml: str, jd: str, role: str, max_claims: int) -> str:
+def context_from_memory(
+    master_yaml: str,
+    jd: str,
+    role: str,
+    max_claims: int,
+    max_adjacent: int = 4,
+) -> str:
     data = parse_master(master_yaml)
-    return build_context(data, jd, role, max_claims, include_contact=False, explain_scores=False)
+    return build_context(
+        data,
+        jd,
+        role,
+        max_claims,
+        include_contact=False,
+        explain_scores=False,
+        max_adjacent=max_adjacent,
+    )
 
 
 def new_application_text(

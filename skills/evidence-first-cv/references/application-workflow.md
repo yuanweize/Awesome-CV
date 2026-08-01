@@ -7,13 +7,35 @@
 3. Create `meta/applications/<id>/application.yaml`.
 4. Select one role family and export bounded context.
 5. Map JD requirements to claim IDs and gaps in the manifest.
-6. Show the decision brief and wait for human confirmation.
-7. Draft résumé and optional letter; map every final bullet to claims.
-8. Strictly validate the manifest, build, extract text, render, and inspect.
-9. Record the application and claim IDs in the ledger only after it is sent.
-10. Update stages and notes after every external event.
-11. Use funnel summary to choose targeting, narrative, training, or negotiation work.
-12. After a terminal outcome, move the snapshot to the verified private archive.
+6. Review the remaining eligible claims for zero to two adjacent differentiators;
+   record their concrete transfer value and low-prominence placement.
+7. Show the decision brief and wait for human confirmation.
+8. Draft résumé and optional letter; map every final bullet to claims.
+9. Strictly validate the manifest, build, extract text, render, and inspect.
+10. Record the application and claim IDs in the ledger only after it is sent.
+11. Update stages and notes after every external event.
+12. Use funnel summary to choose targeting, narrative, training, or negotiation work.
+13. After a terminal outcome, move the snapshot to the verified private archive.
+
+## Complement review: value without identity drift
+
+Requirement mapping answers “can this candidate do what the JD asks?” It does not
+answer “what useful capability would this employer miss if we only mirrored the JD?”
+Run a separate complement review after mapping, never before it.
+
+An adjacent differentiator must pass all four gates:
+
+1. it is an eligible, interview-defensible claim;
+2. it adds execution leverage, reduces delivery risk, bridges teams, or proves autonomy;
+3. one sentence can explain why it helps this specific role;
+4. it fits in skills, projects, or secondary experience without displacing direct proof.
+
+Use zero by default and at most two. Keep them near 10-15% of visible content. Never
+put a server/homelab skill in the target title or lead summary of an automotive role,
+never turn it into production experience, and never use several adjacent claims to
+simulate a missing must-have. A compact Linux/CI/automation line may strengthen an
+automotive test profile when it signals better diagnostics or automation ownership;
+a long infrastructure inventory would dilute the identity and must stay in memory.
 
 ## Recommended private application files
 
@@ -44,7 +66,9 @@ Claims describe the candidate; application files describe the opportunity.
 
 `drafted → applied → recruiter-screen → technical → final → offer`
 
-Terminal alternatives: `rejected`, `withdrawn`.
+Terminal alternatives: `rejected`, `withdrawn`, `no-response`. Use `no-response`
+only after the user decides a silent application is closed; never infer it from a
+hard-coded number of days.
 
 Record facts, not emotional interpretations. A rejection does not prove which
 claim failed unless feedback or repeated patterns support that conclusion.

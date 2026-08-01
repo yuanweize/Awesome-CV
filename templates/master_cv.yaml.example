@@ -95,6 +95,20 @@ evidence_registry:
   visibility: self_reported
   verified_on: "2026-01-15"
 
+- id: ev-github-inventory
+  type: derived_public_inventory
+  title: "Dated public GitHub portfolio inventory"
+  locator: "private:github-public-portfolio-inventory"
+  visibility: private
+  verified_on: "2026-01-15"
+
+portfolio_management:
+  last_reviewed: "2026-01-15"
+  inventory_evidence_id: ev-github-inventory
+  excluded_repositories:
+  - repo: "https://github.com/example-user/obsolete-tutorial"
+    reason: "Obsolete tutorial material with no useful authorship or interview signal"
+
 claim_registry:
 - id: education.bsc-computer-engineering
   type: education
@@ -222,6 +236,10 @@ work_experience:
 open_source_and_projects:
 - name: "SignalWatch"
   repo: "https://github.com/example-user/signalwatch"
+  portfolio_tier: primary
+  evidence_ids:
+  - ev-project-repository
+  last_reviewed: "2026-01-15"
   claim_ids:
   - project.signalwatch-features
   - project.signalwatch-benchmark

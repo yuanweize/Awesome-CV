@@ -29,6 +29,13 @@ MANIFEST_STAGES = (
 PRIORITIES = {"must", "should", "nice"}
 MATCH_LEVELS = {"direct", "adjacent", "gap"}
 SECTIONS = {"headline", "summary", "projects", "experience", "education", "skills"}
+ADJACENT_VALUES = {
+    "execution_leverage",
+    "delivery_risk_reduction",
+    "cross_functional_bridge",
+    "autonomy",
+}
+ADJACENT_SECTIONS = {"projects", "experience", "skills"}
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 
 
@@ -115,6 +122,7 @@ def new_manifest(
         "questions": [],
         "requirements": [],
         "selected_claims": [],
+        "adjacent_differentiators": [],
         "final_bullets": [],
         "artifacts": {
             "profile": profile,
@@ -184,6 +192,39 @@ def validate_manifest(
         elif not isinstance(expected_hash, str) or sha256(candidate) != expected_hash:
             errors.append("job_description.sha256 does not match the saved JD")
 
+    adjacent = data.get("adjacent_differentiators", [])
+    if not isinstance(adjacent, list):
+        errors.append("adjacent_differentiators must be a list")
+        adjacent = []
+    if len(adjacent) > 2:
+        errors.append("adjacent_differentiators may contain at most two claims")
+    adjacent_ids: set[str] = set()
+    adjacent_placements: dict[str, str] = {}
+    for index, item in enumerate(adjacent, 1):
+        prefix = f"adjacent_differentiators[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{prefix} must be a mapping")
+            continue
+        claim_id = item.get("claim_id")
+        if not isinstance(claim_id, str) or not ID_PATTERN.fullmatch(claim_id):
+            errors.append(f"{prefix}.claim_id is invalid")
+            continue
+        if claim_id in adjacent_ids:
+            errors.append(f"duplicate adjacent differentiator: {claim_id}")
+        adjacent_ids.add(claim_id)
+        value = item.get("value")
+        if value not in ADJACENT_VALUES:
+            errors.append(
+                f"{prefix}.value must be one of: {', '.join(sorted(ADJACENT_VALUES))}"
+            )
+        placement = item.get("placement")
+        if placement not in ADJACENT_SECTIONS:
+            errors.append(f"{prefix}.placement must be projects, experience, or skills")
+        else:
+            adjacent_placements[claim_id] = placement
+        if not isinstance(item.get("reason"), str) or not item.get("reason", "").strip():
+            errors.append(f"{prefix}.reason is required")
+
     selected = data.get("selected_claims")
     if not isinstance(selected, list) or not all(isinstance(item, str) for item in selected):
         errors.append("selected_claims must be a list of claim IDs")
@@ -198,8 +239,13 @@ def validate_manifest(
             continue
         if claim.get("cv_eligible") is not True or claim.get("status") not in {"verified", "self_reported"}:
             errors.append(f"selected claim is not CV-eligible: {claim_id}")
-        if role and role not in claim.get("role_families", []):
+        if role and role not in claim.get("role_families", []) and claim_id not in adjacent_ids:
             errors.append(f"selected claim {claim_id} is outside role family {role}")
+    for claim_id in sorted(adjacent_ids):
+        if claim_id not in selected_set:
+            errors.append(
+                f"adjacent differentiator is not present in selected_claims: {claim_id}"
+            )
 
     requirements = data.get("requirements")
     if not isinstance(requirements, list):
@@ -263,6 +309,12 @@ def validate_manifest(
         for claim_id in mapped:
             if claim_id not in selected_set:
                 errors.append(f"{prefix} uses claim not present in selected_claims: {claim_id}")
+            placement = adjacent_placements.get(claim_id)
+            if placement and bullet.get("section") != placement:
+                errors.append(
+                    f"{prefix} places adjacent claim {claim_id} in {bullet.get('section')}; "
+                    f"approved placement is {placement}"
+                )
 
     decision = data.get("decision")
     if not isinstance(decision, dict):

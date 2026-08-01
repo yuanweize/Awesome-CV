@@ -5,7 +5,7 @@ points may delegate to it, but must not fork business logic.
 
 | Category | Canonical location | Purpose |
 |---|---|---|
-| Career workflow | `skills/evidence-first-cv/scripts/` | Validate memory, select claims, manage manifests/ledger, audit public GitHub, archive private work, and report status |
+| Career workflow | `skills/evidence-first-cv/scripts/` | Validate memory, select claims, manage manifests/ledger, inventory and govern public GitHub, archive private work, and report status |
 | CLI compatibility | `tools/*.py` wrappers and `./cv` | Preserve short commands and older automation without duplicating logic |
 | Build safety | `tools/author_slug.py`, `tools/safe_clean.py` | Safe PDF names and bounded generated-file cleanup |
 | Dify packaging | `tools/package_dify_plugin.py` | Stage and inspect a portable plugin archive |

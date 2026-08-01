@@ -21,7 +21,7 @@ The plugin provides five tools:
 |---|---|
 | `career_memory_status` | Check whether memory exists; return counts only |
 | `save_career_memory` | Validate and persist schema 3.x career YAML |
-| `build_job_context` | Select a bounded set of eligible claims for one JD and role family |
+| `build_job_context` | Select role-bound claims plus a capped outside-role differentiator review pool |
 | `start_application` | Create a schema 1.0 manifest skeleton bound to the exact JD hash |
 | `validate_application` | Enforce requirement/claim/gap/bullet traceability after confirmation |
 
@@ -30,6 +30,12 @@ drafting. The plugin constrains its input and validates its output. It does not
 run LuaLaTeX, so a Dify-only deployment produces reviewed CV content and a
 portable application manifest, while this repository remains the recommended
 backend for final LaTeX/PDF build and visual QA.
+
+GitHub discovery and `portfolio-audit` remain local maintenance operations. They
+require a dated private inventory and, for refreshes, local GitHub authentication;
+shipping those capabilities into a hosted CV-writing app would expand permissions
+without improving the normal JD-to-CV flow. Upload the strictly validated master to
+Dify after local portfolio review instead.
 
 ## Install and package
 
@@ -85,12 +91,14 @@ The normal conversation is:
 1. check career-memory status;
 2. request the JD when it is missing;
 3. select one role family and build bounded context;
-4. create the hash-bound manifest skeleton, then show a compact decision brief
+4. map requirements, then review the complement for zero to two useful adjacent
+   differentiators without allowing them to dominate the target identity;
+5. create the hash-bound manifest skeleton, then show a compact decision brief
    and at most three material questions;
-5. stop until the user confirms or adjusts;
-6. draft CV content and an `application.yaml` manifest;
-7. call strict manifest validation;
-8. return the reviewed content and tell the user that local PDF build/visual QA
+6. stop until the user confirms or adjusts;
+7. draft CV content and an `application.yaml` manifest;
+8. call strict manifest validation;
+9. return the reviewed content and tell the user that local PDF build/visual QA
    is still pending unless a separate trusted build service is connected.
 
 ## Privacy boundary

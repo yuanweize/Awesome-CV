@@ -9,6 +9,7 @@ import re
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 import yaml
 from yaml.constructor import ConstructorError
@@ -34,6 +35,7 @@ ALLOWED_SCOPES = {
     "self_reported_language",
 }
 INELIGIBLE_STATUSES = {"planned", "unverified", "expired"}
+PORTFOLIO_TIERS = {"primary", "supporting", "catalog"}
 REQUIRED_TOP_LEVEL = {
     "personal_information",
     "education",
@@ -99,6 +101,16 @@ def _validate_unique_strings(value: Any, label: str, errors: list[str]) -> None:
     duplicates = sorted({item for item in value if value.count(item) > 1})
     if duplicates:
         errors.append(f"{label} contains duplicate values: {', '.join(duplicates)}")
+
+
+def _normalize_repo_url(value: Any) -> str:
+    if not _is_nonempty_string(value):
+        return ""
+    parsed = urlsplit(value.strip())
+    path = parsed.path.rstrip("/")
+    if path.endswith(".git"):
+        path = path[:-4]
+    return urlunsplit((parsed.scheme.lower(), parsed.netloc.lower(), path.lower(), "", ""))
 
 
 def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
@@ -352,6 +364,41 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
             if not _is_nonempty_string(exclusion.get(field)):
                 errors.append(f"exclusions[{index}].{field} is required")
 
+    portfolio_management = data.get("portfolio_management")
+    governed_portfolio = portfolio_management is not None
+    excluded_repo_urls: set[str] = set()
+    if governed_portfolio:
+        if not isinstance(portfolio_management, dict):
+            errors.append("portfolio_management must be a mapping")
+            portfolio_management = {}
+        for field in ("last_reviewed", "inventory_evidence_id"):
+            if not _is_nonempty_string(portfolio_management.get(field)):
+                errors.append(f"portfolio_management.{field} is required")
+        inventory_evidence_id = portfolio_management.get("inventory_evidence_id")
+        if _is_nonempty_string(inventory_evidence_id) and inventory_evidence_id not in evidence_by_id:
+            errors.append(
+                "portfolio_management.inventory_evidence_id references unknown evidence: "
+                f"{inventory_evidence_id}"
+            )
+        excluded_repositories = portfolio_management.get("excluded_repositories")
+        if not isinstance(excluded_repositories, list):
+            errors.append("portfolio_management.excluded_repositories must be a list")
+            excluded_repositories = []
+        for index, exclusion in enumerate(excluded_repositories, 1):
+            prefix = f"portfolio_management.excluded_repositories[{index}]"
+            if not isinstance(exclusion, dict):
+                errors.append(f"{prefix} must be a mapping")
+                continue
+            repo_url = _normalize_repo_url(exclusion.get("repo"))
+            if not repo_url or "github.com/" not in repo_url:
+                errors.append(f"{prefix}.repo must be a GitHub repository URL")
+            elif repo_url in excluded_repo_urls:
+                errors.append(f"{prefix}.repo is duplicated")
+            else:
+                excluded_repo_urls.add(repo_url)
+            if not _is_nonempty_string(exclusion.get("reason")):
+                errors.append(f"{prefix}.reason is required")
+
     def validate_history_links(items: Any, label: str) -> None:
         if items is None:
             return
@@ -362,6 +409,35 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
             prefix = f"{label}[{index}]"
             if not isinstance(item, dict):
                 continue
+            if governed_portfolio and label == "open_source_and_projects":
+                repo_url = _normalize_repo_url(item.get("repo"))
+                if not repo_url or "github.com/" not in repo_url:
+                    errors.append(f"{prefix}.repo must be a GitHub repository URL")
+                elif repo_url in excluded_repo_urls:
+                    errors.append(f"{prefix}.repo is also listed as a portfolio exclusion")
+                tier = item.get("portfolio_tier")
+                if tier not in PORTFOLIO_TIERS:
+                    errors.append(
+                        f"{prefix}.portfolio_tier must be one of: {', '.join(sorted(PORTFOLIO_TIERS))}"
+                    )
+                if not _is_nonempty_string(item.get("last_reviewed")):
+                    errors.append(f"{prefix}.last_reviewed is required")
+                project_evidence = item.get("evidence_ids")
+                if not _list_of_strings(project_evidence):
+                    errors.append(f"{prefix}.evidence_ids must be a non-empty list of IDs")
+                else:
+                    _validate_unique_strings(project_evidence, f"{prefix}.evidence_ids", errors)
+                    matched_repo_evidence = False
+                    for evidence_id in project_evidence:
+                        evidence = evidence_by_id.get(evidence_id)
+                        if evidence is None:
+                            errors.append(f"{prefix} references unknown evidence: {evidence_id}")
+                        elif _normalize_repo_url(evidence.get("locator")) == repo_url:
+                            matched_repo_evidence = True
+                    if repo_url and not matched_repo_evidence:
+                        errors.append(
+                            f"{prefix}.evidence_ids must include public evidence for its repository URL"
+                        )
             references = item.get("claim_ids")
             if references is None:
                 if item.get("cv_eligible") is False:

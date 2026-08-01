@@ -53,6 +53,11 @@ One claim should survive reuse on its own. Split features, metrics, and outcomes
 they have different evidence or role relevance. Do not create one paragraph that
 combines a project, ten tools, three metrics, and a future plan.
 
+Role families define the claim's normal selection lane; they do not force every true
+claim into every CV. An application may deliberately select an eligible claim outside
+the target family only as a recorded adjacent differentiator. This exception is capped
+at two and does not reclassify the claim or turn it into a JD match.
+
 ## Metrics
 
 Record the source, environment, sample size, and date. Public repository numbers need

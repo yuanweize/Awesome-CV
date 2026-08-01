@@ -9,6 +9,7 @@ projects, or GitHub Actions evidence:
 
 ```bash
 ./cv github-audit
+./cv portfolio-audit --strict
 ```
 
 The dated JSON report stays under `meta/inventory/github/` by default and is a
@@ -17,6 +18,10 @@ forks, and workflow files do not prove authorship, proficiency, production use, 
 interview depth. Link relevant public repositories directly from evidence records;
 record mutable metrics with an `as of` date and normally keep them out of reusable CV
 claims.
+
+The second command compares the inventory with governed portfolio memory. It reports
+claimed, catalogued, evidence-only, missing, and explicitly risk-excluded repositories.
+Follow [portfolio-lifecycle.md](portfolio-lifecycle.md) when resolving that report.
 
 ## Host technology inventory
 

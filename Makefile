@@ -1,4 +1,4 @@
-.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy test check dify-check dify-package
+.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy portfolio-audit test check dify-check dify-package
 
 CC = lualatex
 PYTHON ?= python3
@@ -6,6 +6,8 @@ BUILD_DIR = build
 JD ?=
 ROLE ?=
 CONTEXT_OUTPUT ?= $(BUILD_DIR)/ai-context.generated.md
+PYTHONPYCACHEPREFIX ?= /tmp/awesome-cv-pycache
+export PYTHONPYCACHEPREFIX
 
 # Add src/ to TeX search path so \documentclass{awesome-cv} finds awesome-cv.cls
 export TEXINPUTS := src/:.:$(TEXINPUTS)
@@ -34,22 +36,26 @@ context:
 	@$(PYTHON) tools/generate_ai_context.py --jd "$(JD)" $(if $(ROLE),--role "$(ROLE)",) --output "$(CONTEXT_OUTPUT)"
 
 context-smoke:
-	@mkdir -p "$(BUILD_DIR)"
-	@$(PYTHON) tools/generate_ai_context.py \
+	@output=$$(mktemp "$${TMPDIR:-/tmp}/awesome-cv-context.XXXXXX"); \
+	trap 'rm -f "$$output"' EXIT; \
+	$(PYTHON) tools/generate_ai_context.py \
 		--master templates/master_cv.yaml.example \
 		--jd tests/fixtures/systems_job.md \
 		--role systems \
-		--output "$(BUILD_DIR)/context-smoke.generated.md"
-	@grep -q 'project.signalwatch-features' "$(BUILD_DIR)/context-smoke.generated.md"
-	@if grep -q 'alex@example.org' "$(BUILD_DIR)/context-smoke.generated.md"; then \
+		--output "$$output"; \
+	grep -q 'project.signalwatch-features' "$$output"; \
+	if grep -q 'alex@example.org' "$$output"; then \
 		echo "Context smoke test leaked contact data" >&2; exit 1; \
-	fi
-	@if grep -q 'private:employment-reference' "$(BUILD_DIR)/context-smoke.generated.md"; then \
+	fi; \
+	if grep -q 'private:employment-reference' "$$output"; then \
 		echo "Context smoke test leaked a private evidence locator" >&2; exit 1; \
 	fi
 
 privacy:
 	@$(PYTHON) tools/privacy_check.py
+
+portfolio-audit:
+	@$(PYTHON) tools/portfolio_audit.py --strict
 
 test:
 	@$(PYTHON) -m unittest discover -s tests -v
@@ -164,6 +170,7 @@ help:
 	@echo "  make context JD=job.md ROLE=systems - Export evidence-bound AI context"
 	@echo "  make context-smoke - Exercise the public JD-to-context workflow"
 	@echo "  make privacy     - Check tracked files for private data and secrets"
+	@echo "  make portfolio-audit - Compare private GitHub inventory with governed portfolio memory"
 	@echo "  make test        - Run unit and syntax tests"
 	@echo "  make check       - Validate template, privacy, and tests"
 	@echo "  make dify-check  - Sync the locked Dify SDK and load all plugin tools"

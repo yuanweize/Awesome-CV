@@ -34,6 +34,17 @@ Narrow the claim when any answer is vague.
 - Generated framework output is not automatically hand-written language expertise.
 - AI tools are workflow details, not résumé differentiators unless the JD asks.
 
+## Adjacent differentiators
+
+After mapping requirements, review facts left unused. Select zero to two only when a
+claim adds one of: execution leverage, delivery-risk reduction, a cross-functional
+bridge, or credible autonomy. State that reason in the private manifest.
+
+Keep adjacent differentiators to roughly 10-15% of visible content and place them in
+skills, projects, or secondary experience. They must not alter the target title, lead
+summary, or first proof points. “I also know this technology” is not enough; omit it
+unless its value to the target work can be explained in one sentence.
+
 ## Requirement mapping
 
 - `direct`: claim proves the exact requirement.

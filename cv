@@ -467,6 +467,10 @@ cmd_manifest() {
     python3 "$SCRIPT_DIR/tools/application_manifest.py" "$@"
 }
 
+cmd_portfolio_audit() {
+    python3 "$SCRIPT_DIR/tools/portfolio_audit.py" "$@"
+}
+
 cmd_doctor() {
     assert_working_files_are_regular
     local dirty=false
@@ -671,6 +675,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}archive${RESET} <profile>     Dry-run a verified archive move; add --apply to move
   ${CYAN}archive-research${RESET} ...  Archive private research separately with verification
   ${CYAN}github-audit${RESET} ...      Audit public repositories, metrics, and Actions workflows
+  ${CYAN}portfolio-audit${RESET} ...   Compare GitHub inventory with governed career memory
   ${CYAN}tech-audit${RESET} ...        Run local technology inventory; safe mode by default
   ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
@@ -694,6 +699,7 @@ ${BOLD}Examples:${RESET}
   ./cv archive old-role --apply # Move after review and write SHA-256 manifest
   ./cv archive-research profiles/old/interview_prep old-interview --apply
   ./cv github-audit             # Owner from private master; writes dated private JSON
+  ./cv portfolio-audit --strict # Require every original repo to be governed or excluded
   ./cv tech-audit               # Write a private safe local technology inventory
   ./cv context --jd job.md --role systems -o build/job-context.md
   ./cv status                    # Agent preflight before every application
@@ -723,6 +729,7 @@ case "${1:-}" in
     archive) shift; cmd_archive "$@" ;;
     archive-research) shift; cmd_archive_research "$@" ;;
     github-audit) shift; cmd_github_audit "$@" ;;
+    portfolio-audit) shift; cmd_portfolio_audit "$@" ;;
     tech-audit) shift; cmd_tech_audit "$@" ;;
     delete)  cmd_delete "${2:-}" ;;
     context) shift; cmd_context "$@" ;;

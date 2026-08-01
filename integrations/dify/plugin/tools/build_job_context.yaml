@@ -49,6 +49,20 @@ parameters:
     zh_Hans: 保持精简；写作模型最终仍只选择两到三个主要证据点。
   llm_description: Maximum eligible candidate claims to return.
   form: llm
+- name: max_adjacent
+  type: number
+  required: false
+  default: 4
+  min: 0
+  max: 6
+  label:
+    en_US: Adjacent review pool
+    zh_Hans: 邻近差异化候选池
+  human_description:
+    en_US: Outside-role claims shown for review; the CV may use no more than two.
+    zh_Hans: 供审查的岗位族外事实；最终简历最多使用两项。
+  llm_description: Maximum outside-role candidates to review, not a quota to include.
+  form: llm
 extra:
   python:
     source: tools/build_job_context.py

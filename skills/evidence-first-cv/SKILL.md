@@ -1,6 +1,6 @@
 ---
 name: evidence-first-cv
-description: Maintain and drive an evidence-first CV system from a private atomic master memory. Use when a user provides a job description, wants a tailored CV or cover letter, needs to ingest or correct experience/evidence, audit résumé claims, create, compare, archive, or clean application variants, track outcomes, diagnose a weak job-search funnel, compile and inspect LaTeX/PDF output, or check that personal data and secrets will not be pushed to Git.
+description: Maintain and drive an evidence-first CV system from a private atomic master memory. Use when a user provides a job description, wants a tailored CV or cover letter, needs to ingest or correct experience/evidence, govern a public project portfolio or GitHub inventory, audit résumé claims, create, compare, archive, or clean application variants, track outcomes, diagnose a weak job-search funnel, compile and inspect LaTeX/PDF output, or check that personal data and secrets will not be pushed to Git.
 ---
 
 # Evidence-First CV
@@ -39,7 +39,9 @@ cache authoritative.
 - For Git, AI-service, contact-data, or server-report questions: read
   [references/privacy.md](references/privacy.md).
 - For public GitHub metrics, Actions evidence, or installed-technology discovery:
-  read [references/technology-intake.md](references/technology-intake.md).
+  read [references/technology-intake.md](references/technology-intake.md). For
+  portfolio coverage, tiers, exclusions, or master-memory synchronization, also read
+  [references/portfolio-lifecycle.md](references/portfolio-lifecycle.md).
 - For funnel diagnosis or application history: read
   [references/application-workflow.md](references/application-workflow.md).
 - For profile cleanup, migration, deduplication, or closed applications: read
@@ -87,6 +89,20 @@ python3 skills/evidence-first-cv/scripts/validate_master_cv.py --strict
 Never promote an installed tool to a skill merely because a scanner found it.
 Require actual use, scope, and interview depth.
 
+## Govern the public portfolio
+
+1. Capture a dated discovery inventory with `./cv github-audit`.
+2. Run `./cv portfolio-audit --strict` before claiming the mother memory is complete.
+3. Resolve every original repository into a governed project, repository evidence,
+   or an explicit risk exclusion. Keep a materially maintained fork manually when
+   attribution and scope are clear.
+4. Use `primary`, `supporting`, and `catalog` to control review priority, not truth.
+5. Never auto-create claims from repository descriptions, languages, stars, forks,
+   commits, or Actions workflows. Ask for authorship, implementation scope,
+   limitations, and interview depth first.
+6. Keep reference CVs small. Refresh one only when verified claims change its role
+   ordering or the representative PDF layout needs a new regression case.
+
 ## Drive a job application
 
 1. If the JD is missing, ask for it and stop. Do not draft a generic CV.
@@ -112,10 +128,17 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
 5. Read the generated context rather than the full master.
 6. Populate the manifest with the requirement-to-claim matrix, explicit gaps,
    recommendation, selected claims, and only questions that can change the output.
+   Then perform a second-pass complement review: inspect unused role-bound claims and
+   the exported outside-role pool for zero to two adjacent differentiators. Accept one
+   only when it adds execution leverage, reduces delivery risk, bridges functions, or
+   proves autonomy. Record its value, reason, and low-prominence placement in
+   `adjacent_differentiators`; never use it to disguise a JD gap.
 7. Show the user a compact decision brief and at most three material questions.
    Stop before drafting until the user confirms or corrects it.
 8. After confirmation, record it in the manifest and draft only from selected
-   claim IDs. Preserve scope and ownership verbs.
+   claim IDs. Preserve scope and ownership verbs. Keep the target identity and top
+   proof points role-specific; place approved differentiators only in skills, projects,
+   or secondary experience, and keep them to roughly 10-15% of visible content.
 9. Map every final bullet to claim IDs in the private manifest; never show IDs in
    visible résumé prose. Run strict validation:
 
@@ -173,6 +196,10 @@ Use funnel evidence to choose the next change:
 - repeated technical rejection: train the repeated technical gap;
 - offers with poor terms: negotiation and employer selection, not CV rewriting.
 
+Use `no-response` only when the user explicitly closes a silent application. Never
+infer it automatically from elapsed time; hiring timelines vary. It is a terminal
+outcome distinct from `rejected` and `withdrawn`, and the profile may then be archived.
+
 Creating a draft does not mean it was submitted. Update the ledger to `applied`
 only when the user explicitly says the application was sent.
 
@@ -188,6 +215,8 @@ only when the user explicitly says the application was sent.
 - Do not commit `archive/` or archive manifests; filenames can contain private data.
 - Do not push until tracked/staged privacy checks and the diff are clean.
 - Do not claim that this workflow guarantees interviews or offers.
+- Do not dump every real skill into a CV. Relevant truth is primary; useful adjacent
+  truth is capped; unrelated truth stays in memory.
 
 ## Completion report
 
