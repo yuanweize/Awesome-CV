@@ -102,6 +102,24 @@ def collect_status(root: Path) -> dict[str, Any]:
         for item in claims
         if item.get("cv_eligible") is True and item.get("status") in {"verified", "self_reported"}
     ]
+    role_interests = sorted(
+        (
+            {
+                "role_family": item.get("role_family", ""),
+                "interest": item.get("interest", ""),
+                "application_priority": item.get("application_priority", ""),
+            }
+            for item in master.get("career_preferences", {}).get("role_interests", [])
+            if isinstance(item, dict) and isinstance(item.get("role_family"), str)
+        ),
+        key=lambda item: (
+            {"high": 0, "medium": 1, "low": 2}.get(item["interest"], 3),
+            {"active": 0, "selective": 1, "explore": 2, "paused": 3}.get(
+                item["application_priority"], 4
+            ),
+            item["role_family"],
+        ),
+    )
 
     ledger = safe_yaml(root / "meta" / "applications.yaml")
     applications = [item for item in ledger.get("applications", []) if isinstance(item, dict)]
@@ -237,6 +255,7 @@ def collect_status(root: Path) -> dict[str, Any]:
             "eligible_claims": len(eligible),
             "evidence": len(master.get("evidence_registry", [])),
             "role_families": sorted(master.get("role_families", {})),
+            "role_interests": role_interests,
         },
         "applications": {
             "records": len(applications),
@@ -272,13 +291,25 @@ def render_text(status: dict[str, Any]) -> str:
         "Evidence-First CV workspace",
         f"Master: {'OK' if master['valid'] else 'INVALID'}; {master['eligible_claims']}/{master['claims']} eligible claims; "
         f"{master['evidence']} evidence records; roles={','.join(master['role_families'])}",
-        f"Applications: {applications['records']} ledger records; {applications['manifests']} manifests; stages={applications['stages']}",
-        f"Profiles: {profiles['count']} total ({profiles['applications']} application, "
-        f"{profiles['references']} reference, {profiles['unclassified']} unclassified); "
-        f"{profiles['archived']} application archives, {profiles['archived_research']} research archives; "
-        f"current={profiles['active'] or 'none'}; "
-        f"dirty={'yes' if profiles['active_dirty'] else 'no'}",
     ]
+    if master["role_interests"]:
+        lines.append(
+            "Career directions: "
+            + ", ".join(
+                f"{item['role_family']} ({item['interest']}/{item['application_priority']})"
+                for item in master["role_interests"]
+            )
+        )
+    lines.extend(
+        [
+            f"Applications: {applications['records']} ledger records; {applications['manifests']} manifests; stages={applications['stages']}",
+            f"Profiles: {profiles['count']} total ({profiles['applications']} application, "
+            f"{profiles['references']} reference, {profiles['unclassified']} unclassified); "
+            f"{profiles['archived']} application archives, {profiles['archived_research']} research archives; "
+            f"current={profiles['active'] or 'none'}; "
+            f"dirty={'yes' if profiles['active_dirty'] else 'no'}",
+        ]
+    )
     if profiles["reference_names"]:
         lines.append("Reference profiles: " + ", ".join(profiles["reference_names"]))
     if profiles["active_differences"]:

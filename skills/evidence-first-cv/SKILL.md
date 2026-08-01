@@ -12,6 +12,8 @@ privacy, and outcome tracking.
 ## Core architecture
 
 - Keep `meta/master_cv.yaml` as the canonical private memory.
+- Keep career direction in `career_preferences`; interest guides targeting but never
+  becomes résumé evidence.
 - Store proof locations in `evidence_registry`; never embed raw private evidence.
 - Store one defensible fact per `claim_registry` entry.
 - Generate a small JD-specific context instead of loading the full master into AI.
@@ -33,7 +35,8 @@ cache authoritative.
 - For a JD, tailored application, cover letter, or interview preparation: read
   [references/application-workflow.md](references/application-workflow.md) and
   [references/interaction-contract.md](references/interaction-contract.md) and
-  [references/writing-policy.md](references/writing-policy.md). Read
+  [references/writing-policy.md](references/writing-policy.md) and
+  [references/role-strategy.md](references/role-strategy.md). Read
   [references/profile-quality-gates.md](references/profile-quality-gates.md)
   before accepting a final profile or PDF.
 - For Git, AI-service, contact-data, or server-report questions: read
@@ -43,7 +46,8 @@ cache authoritative.
   portfolio coverage, tiers, exclusions, or master-memory synchronization, also read
   [references/portfolio-lifecycle.md](references/portfolio-lifecycle.md).
 - For funnel diagnosis or application history: read
-  [references/application-workflow.md](references/application-workflow.md).
+  [references/application-workflow.md](references/application-workflow.md) and
+  [references/role-strategy.md](references/role-strategy.md).
 - For profile cleanup, migration, deduplication, or closed applications: read
   [references/archive-lifecycle.md](references/archive-lifecycle.md).
 - For Dify deployment or web input: read
@@ -89,6 +93,10 @@ python3 skills/evidence-first-cv/scripts/validate_master_cv.py --strict
 Never promote an installed tool to a skill merely because a scanner found it.
 Require actual use, scope, and interview depth.
 
+When the user states a career interest, update `career_preferences` separately from
+claims, run `./cv role-audit`, and review whether existing projects, coursework, or
+inventory facts have been left unlinked. Do not interpret `stretch` as “do not apply”.
+
 ## Govern the public portfolio
 
 1. Capture a dated discovery inventory with `./cv github-audit`.
@@ -115,7 +123,10 @@ Require actual use, scope, and interview depth.
 
    This creates `meta/applications/<id>/jd.md` and `application.yaml`. Preserve
    must-haves, seniority, location, language, work model, and salary when published.
-3. Choose exactly one role family. If no family fits, report the gap before drafting.
+3. Choose exactly one role family. Use its readiness, strengths, positioning
+   boundaries, stretch titles, and the user's recorded interest when evaluating fit.
+   A high-interest stretch lane should receive an evidence-gap analysis, not automatic
+   rejection. If no family fits, report the gap before drafting.
 4. Generate a bounded context from the saved JD:
 
 ```bash
@@ -219,6 +230,8 @@ only when the user explicitly says the application was sent.
 - Do not claim that this workflow guarantees interviews or offers.
 - Do not dump every real skill into a CV. Relevant truth is primary; useful adjacent
   truth is capped; unrelated truth stays in memory.
+- Do not erase or suppress a desired career direction because its evidence is still
+  developing. Keep interest, evidence, readiness, and next-proof actions separate.
 
 ## Completion report
 

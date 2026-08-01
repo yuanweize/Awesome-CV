@@ -38,12 +38,18 @@ expand merely because the portfolio catalog grows.
   industry meaning.
 - Remove any bullet that cannot survive five minutes of follow-up questions.
 
-## One role family per profile
+## Career direction and one role family per profile
 
 Define stable families based on responsibilities, not individual company names. Create
 a new family only when the work, proof order, and interview preparation are materially
 different. Too many families reproduce the same identity drift the system is meant to
-prevent.
+prevent. In schema 3.1+, record each family's market readiness, evidence strengths,
+and hard positioning boundaries. Schema 3.2 adds `career_preferences` and
+`stretch_titles`: interest must survive even when evidence is developing, while a
+stretch title remains clearly separated from direct readiness. Run `./cv role-audit`
+after changing direction. Boundaries override old résumé wording and prevent personal
+projects or coursework from being inflated into professional seniority; they must not
+be so broad that they suppress every adjacent application.
 
 ## Tailoring sequence
 

@@ -33,7 +33,7 @@ parameters:
   human_description:
     en_US: Role-family ID from the stored career memory.
     zh_Hans: 职业母库中的岗位族 ID。
-  llm_description: Exactly one role-family ID, such as systems, field, test, or software.
+  llm_description: Exactly one role-family ID, such as devops, ai_data, hardware, systems, field, test, or software.
   form: llm
 - name: max_claims
   type: number

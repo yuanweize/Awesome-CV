@@ -12,7 +12,8 @@ AI receives an explicit factual boundary.
 | `metadata` | Owner, update date, default language, generation policy |
 | `privacy` | Contact-export default and sensitive-field policy |
 | `personal_information` | Private identity and contact data |
-| `role_families` | Stable target lanes and their keywords/titles |
+| `career_preferences` | Owner-stated interests and application priorities; never CV evidence |
+| `role_families` | Stable target lanes, readiness, strengths, boundaries, keywords, and titles |
 | `evidence_registry` | Proof index; never embed private document contents |
 | `claim_registry` | Only facts AI may use for CV drafting |
 | `portfolio_management` | Dated portfolio review and explicit repository exclusions |
@@ -61,6 +62,42 @@ Visibility values:
 
 One claim should be independently selectable. Split a feature claim from a benchmark
 or mutable repository metric because they have different evidence and dates.
+
+## Role-family positioning (schema 3.1+)
+
+Every role family records:
+
+- `readiness`: `core`, `credible`, or `stretch` for targeting discipline;
+- `strengths`: the evidence-backed reasons this lane is viable;
+- `boundaries`: explicit identities, scopes, or seniority the drafting AI must not imply;
+- `target_titles` and `keywords`: deterministic selection and JD-ranking inputs;
+- `stretch_titles` (schema 3.2+): target titles needing stronger evidence, without
+  deleting or forbidding the direction.
+
+Create a new role family only when the responsibility pattern, proof ordering, and
+interview preparation are materially different. A language, installed tool, or one
+adjacent project is not a role family. Generated AI context exports the selected
+family's readiness, stretch titles, owner preference, and boundaries. Preferences
+guide planning; boundaries constrain drafting.
+
+## Career preferences (schema 3.2+)
+
+`career_preferences.role_interests` records desired directions separately from
+evidence:
+
+```yaml
+career_preferences:
+  role_interests:
+  - role_family: systems
+    interest: high
+    application_priority: active
+    notes: "Actively pursue Linux and platform-support roles"
+```
+
+Allowed interests are `high`, `medium`, and `low`; priorities are `active`,
+`selective`, `explore`, and `paused`. Preferences guide job selection and gap-closing,
+but never enter résumé prose and never make a claim eligible. Use `./cv role-audit` to
+compare interests with eligible strong/moderate/limited evidence.
 
 ### Status
 
@@ -139,14 +176,19 @@ retains its own `verified_on` date.
 ## Migration from an older master YAML
 
 1. Keep old structured sections temporarily.
-2. Define two to four stable role families.
-3. Create evidence records for public repositories, official documents, employment
+2. Record owner-stated direction under `career_preferences`; do not encode interest as
+   a claim.
+3. Define the smallest stable set of role families that covers materially different
+   responsibilities, proof ordering, and interview preparation; do not use an
+   arbitrary numeric target.
+4. Create evidence records for public repositories, official documents, employment
    records, and labelled personal work.
-4. Convert only the strongest reusable facts into atomic claims.
-5. Put planned technologies, pending certificates, and misleading hobby titles into
+5. Convert only the strongest reusable facts into atomic claims.
+6. Put planned technologies, pending certificates, and misleading hobby titles into
    `exclusions`.
-6. Run the validator and fix all errors.
-7. From then on, update the registry when evidence changes instead of rewriting every
+7. Run the validator and `./cv role-audit`; fix validation errors and investigate
+   high-interest families with weak evidence.
+8. From then on, update the registry when evidence changes instead of rewriting every
    profile.
 
 Keep claim IDs stable after they appear in `meta/applications.yaml`; the ledger uses

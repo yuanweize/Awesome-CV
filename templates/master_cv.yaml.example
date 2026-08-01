@@ -1,7 +1,7 @@
 # Awesome-CV evidence-first master database (public example)
 # Copy to meta/master_cv.yaml. The destination is gitignored.
 
-schema_version: "3.0"
+schema_version: "3.2"
 
 metadata:
   owner: "Alex Example"
@@ -34,13 +34,32 @@ personal_information:
   citizenship: "Example citizenship"
   work_authorization: "Describe the exact work-authorisation boundary here"
 
+career_preferences:
+  role_interests:
+  - role_family: systems
+    interest: high
+    application_priority: active
+    notes: "Actively pursue Linux, platform-support, and infrastructure roles"
+  - role_family: test
+    interest: medium
+    application_priority: selective
+    notes: "Prefer system-level validation over manual-only QA"
+
 role_families:
   systems:
     label: "Systems and infrastructure"
+    readiness: credible
+    strengths:
+    - "Verified Linux troubleshooting plus a maintained personal lab"
+    boundaries:
+    - "Personal infrastructure is not enterprise production experience"
     target_titles:
     - "Junior Systems Engineer"
     - "Infrastructure Support Engineer"
     - "Technical Operations Engineer"
+    - "Junior Site Reliability Engineer"
+    stretch_titles:
+    - "Junior Site Reliability Engineer"
     keywords:
     - linux
     - networking
@@ -49,9 +68,15 @@ role_families:
     - monitoring
   test:
     label: "System test and validation"
+    readiness: core
+    strengths:
+    - "Professional Linux troubleshooting and repeatable project benchmarks"
+    boundaries:
+    - "Do not invent test certifications, safety standards, or framework ownership"
     target_titles:
     - "System Test Engineer"
     - "Test Automation Engineer"
+    stretch_titles: []
     keywords:
     - python
     - pytest

@@ -10,7 +10,8 @@ repository and say “I need a new CV” without knowing commands or schemas.
 3. Save the JD and create an application manifest.
 4. Build bounded context and map requirements to claims.
 5. Return one compact decision brief:
-   - role family and apply/stretch/defer recommendation;
+   - role family and apply/stretch/defer recommendation, respecting recorded interest
+     without treating it as evidence;
    - two or three strongest claim IDs;
    - important direct, adjacent, and gap findings;
    - zero to two proposed adjacent differentiators, each with a one-line value and

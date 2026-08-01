@@ -5,7 +5,8 @@
 1. Run workspace status and validate master memory.
 2. Store the full JD under `meta/applications/<id>/jd.md`.
 3. Create `meta/applications/<id>/application.yaml`.
-4. Select one role family and export bounded context.
+4. Select one role family and export bounded context. Check recorded interest and
+   `stretch_titles`; stretch means analyse the gap, not automatically reject the JD.
 5. Map JD requirements to claim IDs and gaps in the manifest.
 6. Review the remaining eligible claims for zero to two adjacent differentiators;
    record their concrete transfer value and low-prominence placement.

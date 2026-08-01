@@ -10,6 +10,11 @@ Store stable career facts in `meta/master_cv.yaml`. Use evidence IDs and atomic 
 IDs. Store outcomes in `meta/applications.yaml`, not in the master. This prevents one
 giant prompt and avoids contaminating facts with rejection notes.
 
+Store desired directions in `career_preferences`. Interest affects job discovery and
+whether a stretch application is worth the gap work; it is not CV evidence. Run
+`./cv role-audit` after adding a direction so missing role families or thin evidence
+remain visible instead of being silently filtered out.
+
 When public projects change, run `./cv github-audit` and
 `./cv portfolio-audit --strict`. Catalog coverage is not claim authority: a new
 repository remains in supporting/catalog memory until authorship, scope, evidence,
@@ -21,9 +26,10 @@ limitations, and interview depth have been reviewed.
 ./cv status
 ```
 
-The report checks master validity, ledger/manifests, active profile drift, and
-structural warnings. Repair invalid memory before using it. Never discard unsaved
-profile differences automatically.
+The report checks master validity, displays recorded career directions, and inspects
+the ledger/manifests, active profile drift, and structural warnings. This prevents a
+fresh agent from seeing evidence while missing the owner's intent. Repair invalid
+memory before using it. Never discard unsaved profile differences automatically.
 
 ## 3. Save the full JD and create its manifest
 
@@ -45,6 +51,10 @@ ledger is the historical funnel record.
 Choose the family matching the job's primary responsibility. Do not combine systems,
 field service, software, firmware, AI, and architecture into one identity merely
 because the JD contains several technologies.
+
+`readiness: stretch` and `stretch_titles` do not mean “never apply”. For a recorded
+high-interest direction, compare the actual must-haves with eligible claims and name
+the smallest proof or interview drill that would close the material gap.
 
 ## 5. Export bounded context
 

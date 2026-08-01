@@ -2,7 +2,10 @@
 
 ## Objects
 
-- `role_families`: stable job families, target titles, and selection keywords.
+- `role_families`: stable job families with readiness, evidence strengths,
+  positioning boundaries, target titles, and selection keywords.
+- `career_preferences`: owner-stated interests and application priorities; planning
+  memory only, never claim evidence or résumé prose.
 - `evidence_registry`: proof metadata; fields `id`, `type`, `title`, `locator`,
   `visibility`, and `verified_on`.
 - `claim_registry`: one factual statement per ID.
@@ -18,6 +21,17 @@ adds facts to the master registry.
 Every human-readable job, project, or qualification must either link to valid
 `claim_ids` or declare `cv_eligible: false` with a short reason. Reject duplicate YAML keys and duplicate
 role, tag, evidence, or claim-link values; silent overwrites make the memory unsafe.
+
+Schema 3.1 role families require `readiness` (`core`, `credible`, or `stretch`) plus
+non-empty `strengths` and `boundaries`. The exporter treats boundaries as hard limits;
+they exist to stop an adjacent project, installed tool, or old résumé phrase from
+becoming an unsupported professional identity.
+
+Schema 3.2 adds a `stretch_titles` list to every family and a non-empty
+`career_preferences.role_interests` list. Each preference references a role family and
+stores `interest` (`high`, `medium`, or `low`), `application_priority` (`active`,
+`selective`, `explore`, or `paused`), and a note. Interest may justify analysing a
+stretch JD; it never changes claim eligibility.
 
 ## Claim fields
 

@@ -125,10 +125,11 @@ profile, build and audit the PDF, and record the application.
 
 The Skill entrypoint stays concise so an agent can route a task without loading the
 whole system. The package itself is complete: one routing contract, focused references
-for claims, applications, writing, PDF quality, privacy, archives, technology intake,
-portfolio lifecycle, and Dify, plus bundled scripts for validation, context generation,
-manifests, outcomes, workspace status, GitHub inventory, portfolio audit, privacy, and
-verified archiving. `assets/` carries standalone initialization templates. The
+for claims, applications, role strategy, writing, PDF quality, privacy, archives,
+technology intake, portfolio lifecycle, and Dify, plus bundled scripts for validation,
+context generation, manifests, outcomes, workspace status, GitHub inventory, portfolio
+and role audits, privacy, and verified archiving. `assets/` carries standalone
+initialization templates. The
 repository template and Skill asset are tested for byte-for-byte equality so they
 cannot silently drift.
 
@@ -236,6 +237,8 @@ profiles.
 | `./cv archive <name> [--apply]` | Plan or apply a SHA-256-verified private archive move |
 | `./cv archive-research <source> <name> [--apply]` | Separately archive private research with hashes |
 | `./cv github-audit ...` | Refresh public repository metrics and Actions evidence into a private report |
+| `./cv portfolio-audit ...` | Compare the GitHub snapshot with governed projects and exclusions |
+| `./cv role-audit ...` | Compare desired directions, title readiness, and eligible claim depth |
 | `./cv tech-audit ...` | Refresh a private local technology inventory; safe mode is the default |
 | `./cv delete <name>` | Permanently delete a non-active profile after exact confirmation |
 | `./cv context ...` | Generate evidence-bound AI context |
@@ -245,7 +248,7 @@ profiles.
 | `./cv validate [yaml]` | Validate a master database |
 | `./cv privacy-check` | Inspect tracked files for leaks |
 | `./cv track ...` | Record stages, validate claim/role IDs, and report funnel metrics |
-| `./cv doctor` | Validate memory/checks and detect unsaved active-profile changes |
+| `./cv doctor` | Audit workspace, role intent/evidence, governed portfolio, tests, privacy, and active-profile drift |
 
 Profile names are restricted to safe letters, numbers, dots, underscores, and
 hyphens. Path traversal and profile/section symbolic links are rejected. `./cv use`
@@ -296,6 +299,7 @@ Awesome-CV/
 │   ├── workspace_status.py
 │   ├── github_inventory.py
 │   ├── portfolio_audit.py
+│   ├── role_audit.py
 │   ├── package_dify_plugin.py
 │   ├── archive_profile.py
 │   ├── archive_research.py
@@ -330,6 +334,20 @@ original repositories from forks and inspects GitHub Actions through the `gh` CL
 The portfolio audit reports claimed, catalogued, evidence-only, missing, and explicit
 risk exclusions. Neither command promotes a repository description or mutable metric
 into a CV claim.
+
+Career direction is stored separately from résumé evidence. Record high-interest
+families in `career_preferences`, classify harder titles with `stretch_titles`, then
+inspect the coverage without suppressing the direction:
+
+```bash
+./cv role-audit
+```
+
+AI-agent use can support an evidence-bound AI-assisted engineering claim, but does not
+automatically prove model training or ML research. An ESP32 thesis can directly support
+IoT integration and hardware validation while FPGA/PCB design remains title-specific
+stretch work. See
+[`role-strategy.md`](skills/evidence-first-cv/references/role-strategy.md).
 
 ## Privacy model
 
@@ -378,7 +396,8 @@ packaging, Chatflow setup, and privacy boundaries.
 - Plans and pending certificates are never current skills.
 - Generated framework code is not hand-written product-language experience.
 - Metrics require evidence and an `as of` date when they can change.
-- Do not proactively advertise AI assistance in a CV.
+- Mention AI-assisted engineering only when a relevant eligible claim supports it;
+  tool use alone is not an AI/ML capability.
 - Every strong top-half claim must survive technical follow-up questions.
 
 See [docs/EVIDENCE_FIRST_SOP.md](docs/EVIDENCE_FIRST_SOP.md).

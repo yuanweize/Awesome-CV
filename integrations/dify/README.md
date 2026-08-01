@@ -37,6 +37,10 @@ shipping those capabilities into a hosted CV-writing app would expand permission
 without improving the normal JD-to-CV flow. Upload the strictly validated master to
 Dify after local portfolio review instead.
 
+Role preferences and stretch titles travel inside the validated master and are exposed
+in the bounded context. Run the local `./cv role-audit` before upload when career
+direction changes; Dify uses the result but does not turn preferences into claims.
+
 ## Install and package
 
 Requirements: Python 3.12, `uv`, and the

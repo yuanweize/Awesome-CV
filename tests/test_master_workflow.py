@@ -17,7 +17,7 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "skills" / "evidence-first-cv" / "scripts"))
 
-from generate_ai_context import build_context, load_yaml, markdown_fence  # noqa: E402
+from generate_ai_context import build_context, load_yaml, markdown_fence, tokens  # noqa: E402
 from github_inventory import (  # noqa: E402
     build_inventory,
     normalize_repository,
@@ -25,6 +25,7 @@ from github_inventory import (  # noqa: E402
     summarize_repositories,
 )
 from portfolio_audit import audit_portfolio  # noqa: E402
+from role_audit import audit_roles  # noqa: E402
 from application_ledger import (  # noqa: E402
     command_add,
     command_summary,
@@ -38,7 +39,7 @@ from archive_research import apply_research_archive, research_plan  # noqa: E402
 from application_manifest import new_manifest, sha256, validate_manifest  # noqa: E402
 from privacy_check import content_violations, git_files, path_violations  # noqa: E402
 from validate_master_cv import validate_master_cv  # noqa: E402
-from workspace_status import collect_status  # noqa: E402
+from workspace_status import collect_status, render_text as render_workspace_status  # noqa: E402
 
 
 class MasterWorkflowTests(unittest.TestCase):
@@ -57,6 +58,58 @@ class MasterWorkflowTests(unittest.TestCase):
         result = validate_master_cv(self.template_path)
         self.assertTrue(result["ok"], result["errors"])
         self.assertEqual([], result["warnings"])
+
+    def test_schema_31_requires_role_positioning_boundaries(self) -> None:
+        data = copy.deepcopy(self.template)
+        del data["role_families"]["systems"]["boundaries"]
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("systems.boundaries" in error for error in result["errors"]))
+
+    def test_schema_32_requires_career_preferences(self) -> None:
+        data = copy.deepcopy(self.template)
+        del data["career_preferences"]
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("career_preferences" in error for error in result["errors"]))
+
+    def test_schema_32_rejects_stretch_title_outside_targets(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["role_families"]["systems"]["stretch_titles"] = ["Cloud Wizard"]
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("must also appear in target_titles" in error for error in result["errors"]))
+
+    def test_schema_30_remains_backward_compatible_without_role_positioning(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["schema_version"] = "3.0"
+        for role in data["role_families"].values():
+            role.pop("readiness", None)
+            role.pop("strengths", None)
+            role.pop("boundaries", None)
+        result = self.validate_copy(data)
+        self.assertTrue(result["ok"], result["errors"])
+
+    def test_schema_31_remains_backward_compatible_without_preferences(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["schema_version"] = "3.1"
+        data.pop("career_preferences", None)
+        for role in data["role_families"].values():
+            role.pop("stretch_titles", None)
+        result = self.validate_copy(data)
+        self.assertTrue(result["ok"], result["errors"])
+
+    def test_role_audit_separates_interest_from_evidence(self) -> None:
+        result = audit_roles(self.template)
+        systems = next(item for item in result["roles"] if item["id"] == "systems")
+        self.assertEqual("high", systems["interest"])
+        self.assertEqual("active", systems["application_priority"])
+        self.assertGreater(systems["eligible_claim_count"], 0)
+        self.assertGreater(systems["substantive_claim_count"], 0)
+        self.assertGreaterEqual(
+            systems["eligible_claim_count"], systems["substantive_claim_count"]
+        )
+        self.assertTrue(result["policy"]["interest_is_not_evidence"])
 
     def test_new_graduate_may_have_no_work_experience(self) -> None:
         data = copy.deepcopy(self.template)
@@ -279,6 +332,14 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertIn("explicit three-to-five-row Skills section", context)
         self.assertNotIn("alex@example.org", context)
         self.assertNotIn("+49", context)
+        self.assertIn("- Market readiness: credible", context)
+        self.assertIn("- Candidate interest: high", context)
+        self.assertIn("- Application priority: active", context)
+        self.assertIn("- Stretch titles: Junior Site Reliability Engineer", context)
+        self.assertIn("Personal infrastructure is not enterprise production experience", context)
+
+    def test_context_scoring_ignores_common_english_stopwords(self) -> None:
+        self.assertEqual({"routing", "c"}, tokens("and to the routing with C"))
 
     def test_context_exports_a_capped_outside_role_review_pool(self) -> None:
         context = build_context(
@@ -645,6 +706,35 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertTrue(
                 any("active profile has no visible Skills entries" in item for item in status["warnings"])
             )
+
+    def test_workspace_status_exposes_career_directions_without_private_notes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "templates").mkdir()
+            shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
+            (root / "meta").mkdir()
+            shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
+
+            status = collect_status(root)
+            rendered = render_workspace_status(status)
+
+            self.assertEqual(
+                [
+                    {
+                        "role_family": "systems",
+                        "interest": "high",
+                        "application_priority": "active",
+                    },
+                    {
+                        "role_family": "test",
+                        "interest": "medium",
+                        "application_priority": "selective",
+                    },
+                ],
+                status["master"]["role_interests"],
+            )
+            self.assertIn("systems (high/active)", rendered)
+            self.assertNotIn("Actively pursue Linux", rendered)
 
     def test_workspace_status_classifies_application_and_reference_profiles(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

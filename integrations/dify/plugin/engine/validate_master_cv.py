@@ -19,6 +19,9 @@ ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 ALLOWED_STATUSES = {"verified", "self_reported", "planned", "unverified", "expired"}
 ALLOWED_DEPTHS = {"strong", "moderate", "limited"}
 ALLOWED_VISIBILITY = {"public", "private", "self_reported"}
+ALLOWED_ROLE_READINESS = {"core", "credible", "stretch"}
+ALLOWED_INTEREST_LEVELS = {"high", "medium", "low"}
+ALLOWED_APPLICATION_PRIORITIES = {"active", "selective", "explore", "paused"}
 ALLOWED_SCOPES = {
     "academic",
     "academic_benchmark",
@@ -170,6 +173,15 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
 
     schema_version = str(data.get("schema_version", "legacy"))
     is_v3 = schema_version.startswith("3.")
+    version_match = re.fullmatch(r"(\d+)\.(\d+)", schema_version)
+    governed_roles = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 1)
+    )
+    governed_preferences = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 2)
+    )
     if not is_v3:
         warnings.append(
             "Legacy master database: add schema_version 3.x, role_families, "
@@ -209,6 +221,23 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         _validate_identifier(role_id, "role family ID", errors)
         if not isinstance(role, dict) or not _is_nonempty_string(role.get("label")):
             errors.append(f"role_families.{role_id}.label is required")
+        if governed_roles and isinstance(role, dict):
+            readiness = role.get("readiness")
+            if readiness not in ALLOWED_ROLE_READINESS:
+                errors.append(
+                    f"role_families.{role_id}.readiness must be one of: "
+                    f"{', '.join(sorted(ALLOWED_ROLE_READINESS))}"
+                )
+            for field in ("strengths", "boundaries"):
+                values = role.get(field)
+                if not _list_of_strings(values):
+                    errors.append(
+                        f"role_families.{role_id}.{field} must be a non-empty list of strings"
+                    )
+                else:
+                    _validate_unique_strings(
+                        values, f"role_families.{role_id}.{field}", errors
+                    )
         keywords = role.get("keywords", []) if isinstance(role, dict) else []
         titles = role.get("target_titles", []) if isinstance(role, dict) else []
         if not _list_of_strings(keywords):
@@ -219,6 +248,59 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
             errors.append(f"role_families.{role_id}.target_titles must be a non-empty list of strings")
         else:
             _validate_unique_strings(titles, f"role_families.{role_id}.target_titles", errors)
+        stretch_titles = role.get("stretch_titles", []) if isinstance(role, dict) else []
+        if governed_preferences:
+            if not isinstance(stretch_titles, list) or not all(
+                _is_nonempty_string(title) for title in stretch_titles
+            ):
+                errors.append(
+                    f"role_families.{role_id}.stretch_titles must be a list of strings"
+                )
+            else:
+                _validate_unique_strings(
+                    stretch_titles, f"role_families.{role_id}.stretch_titles", errors
+                )
+                unknown_stretch_titles = sorted(set(stretch_titles) - set(titles))
+                if unknown_stretch_titles:
+                    errors.append(
+                        f"role_families.{role_id}.stretch_titles must also appear in target_titles: "
+                        + ", ".join(unknown_stretch_titles)
+                    )
+
+    career_preferences = data.get("career_preferences")
+    if governed_preferences:
+        if not isinstance(career_preferences, dict):
+            errors.append("career_preferences must be a mapping for schema 3.2+")
+            career_preferences = {}
+        role_interests = career_preferences.get("role_interests")
+        if not isinstance(role_interests, list) or not role_interests:
+            errors.append("career_preferences.role_interests must be a non-empty list")
+            role_interests = []
+        seen_interest_roles: set[str] = set()
+        for index, item in enumerate(role_interests, 1):
+            prefix = f"career_preferences.role_interests[{index}]"
+            if not isinstance(item, dict):
+                errors.append(f"{prefix} must be a mapping")
+                continue
+            role_id = item.get("role_family")
+            if role_id not in role_families:
+                errors.append(f"{prefix}.role_family references unknown role: {role_id}")
+            elif role_id in seen_interest_roles:
+                errors.append(f"{prefix}.role_family is duplicated: {role_id}")
+            else:
+                seen_interest_roles.add(str(role_id))
+            if item.get("interest") not in ALLOWED_INTEREST_LEVELS:
+                errors.append(
+                    f"{prefix}.interest must be one of: "
+                    + ", ".join(sorted(ALLOWED_INTEREST_LEVELS))
+                )
+            if item.get("application_priority") not in ALLOWED_APPLICATION_PRIORITIES:
+                errors.append(
+                    f"{prefix}.application_priority must be one of: "
+                    + ", ".join(sorted(ALLOWED_APPLICATION_PRIORITIES))
+                )
+            if not _is_nonempty_string(item.get("notes")):
+                errors.append(f"{prefix}.notes is required")
 
     evidence_items = data.get("evidence_registry", [])
     if is_v3 and (not isinstance(evidence_items, list) or not evidence_items):

@@ -19,6 +19,38 @@ from validate_master_cv import validate_master_cv
 
 
 TOKEN_RE = re.compile(r"[a-z0-9][a-z0-9+#._-]*", re.IGNORECASE)
+STOPWORDS = {
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "by",
+    "for",
+    "from",
+    "has",
+    "have",
+    "in",
+    "into",
+    "is",
+    "it",
+    "of",
+    "on",
+    "or",
+    "our",
+    "that",
+    "the",
+    "their",
+    "this",
+    "to",
+    "using",
+    "with",
+    "will",
+    "you",
+    "your",
+}
 ELIGIBLE_STATUSES = {"verified", "self_reported"}
 DEPTH_WEIGHT = {"strong": 3, "moderate": 1, "limited": 0}
 ADJACENT_TYPE_WEIGHT = {"experience": 3, "project": 2, "qualification": 1, "education": 0}
@@ -35,7 +67,11 @@ def find_project_root() -> Path:
 
 
 def tokens(text: str) -> set[str]:
-    return {match.group(0).lower() for match in TOKEN_RE.finditer(text)}
+    return {
+        token
+        for match in TOKEN_RE.finditer(text)
+        if (token := match.group(0).lower()) not in STOPWORDS
+    }
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
@@ -225,7 +261,9 @@ def build_context(
         "2. Cite claim IDs in drafting notes so every bullet remains traceable.",
         "3. Do not turn personal infrastructure into enterprise production experience.",
         "4. Do not present planned, pending, expired, or excluded items as skills.",
-        "5. Do not mention AI tools or AI-assisted development unless the employer asks.",
+        "5. Mention AI-assisted engineering, agent orchestration, or AI integration only",
+        "   when an allowed claim supports it and it is relevant to the role. Mere tool",
+        "   use, generated code, or personal interest is not an AI/ML capability claim.",
         "6. Prefer one page and one role family. Include a visible Skills section with",
         "   three to five compact groups backed by selected claim IDs; do not replace",
         "   it with an unstructured keyword dump or omit it merely to save space.",
@@ -237,6 +275,10 @@ def build_context(
         "   functions, or prove autonomy. Omit merely interesting technologies.",
         "10. Adjacent differentiators may use only a compact skills entry or a lower",
         "    project/experience bullet. Never use them in the target title or lead summary.",
+        "11. Treat the selected role family's positioning boundaries as hard constraints,",
+        "    even when the JD or older résumé wording suggests a stronger identity.",
+        "12. Use candidate interest and application priority for the apply/stretch/defer",
+        "    recommendation, never as visible CV evidence or a substitute for a claim.",
         "",
         "## Candidate",
         "",
@@ -256,6 +298,14 @@ def build_context(
 
     if role:
         role_data = role_families[role]
+        role_preference = next(
+            (
+                item
+                for item in data.get("career_preferences", {}).get("role_interests", [])
+                if isinstance(item, dict) and item.get("role_family") == role
+            ),
+            {},
+        )
         lines.extend(
             [
                 "",
@@ -263,7 +313,17 @@ def build_context(
                 "",
                 f"- ID: `{role}`",
                 f"- Label: {role_data.get('label', '')}",
+                f"- Market readiness: {role_data.get('readiness', 'unspecified')}",
                 "- Target titles: " + ", ".join(role_data.get("target_titles", [])),
+                "- Stretch titles: "
+                + (", ".join(role_data.get("stretch_titles", [])) or "none"),
+                f"- Candidate interest: {role_preference.get('interest', 'unspecified')}",
+                f"- Application priority: {role_preference.get('application_priority', 'unspecified')}",
+                f"- Preference note: {role_preference.get('notes', 'none recorded')}",
+                "- Evidence strengths:",
+                *[f"  - {item}" for item in role_data.get("strengths", [])],
+                "- Positioning boundaries:",
+                *[f"  - {item}" for item in role_data.get("boundaries", [])],
             ]
         )
 

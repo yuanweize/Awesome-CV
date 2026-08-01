@@ -71,6 +71,8 @@ class DifyIntegrationTests(unittest.TestCase):
             5,
         )
         self.assertIn("experience.northstar-linux-support", context)
+        self.assertIn("- Market readiness: credible", context)
+        self.assertIn("Personal infrastructure is not enterprise production experience", context)
         self.assertNotIn("alex@example.org", context)
         self.assertNotIn("private:employment-reference", context)
 
