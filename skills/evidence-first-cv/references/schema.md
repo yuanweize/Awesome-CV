@@ -18,9 +18,10 @@ Application state uses a separate schema 1.0 manifest under
 requirement matches, selected claims, human confirmation, and final bullets. It never
 adds facts to the master registry.
 
-Every human-readable job, project, or qualification must either link to valid
-`claim_ids` or declare `cv_eligible: false` with a short reason. Reject duplicate YAML keys and duplicate
-role, tag, evidence, or claim-link values; silent overwrites make the memory unsafe.
+Every human-readable job, project, qualification, thesis, coursework item, or honor
+must either link to valid `claim_ids` or declare `cv_eligible: false` with a short
+reason. Reject duplicate YAML keys and duplicate role, tag, evidence, or claim-link
+values; silent overwrites make the memory unsafe.
 
 Schema 3.1 role families require `readiness` (`core`, `credible`, or `stretch`) plus
 non-empty `strengths` and `boundaries`. The exporter treats boundaries as hard limits;

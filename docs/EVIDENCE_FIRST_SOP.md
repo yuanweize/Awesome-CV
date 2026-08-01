@@ -12,6 +12,10 @@
 
 Old CV wording and AI-generated interview notes are not factual sources.
 
+For a whole-history review, run `./cv legacy-audit` and apply the red/blue protocol in
+the Skill reference: recover independently supported omissions, challenge copied
+inflation, and leave unresolved candidates out of eligible claims.
+
 ## First-time initialization
 
 Run `./cv init` in a fresh clone. It reconstructs all ignored private/runtime paths
@@ -45,6 +49,9 @@ expand merely because the portfolio catalog grows.
 - Use strong titles/adjectives only when evidence and interview depth support their
   industry meaning.
 - Remove any bullet that cannot survive five minutes of follow-up questions.
+- Classify nested thesis, coursework, and honors entries with valid `claim_ids`, or
+  mark them `cv_eligible: false` with a reason so true facts cannot remain silently
+  stranded outside the drafting registry.
 
 ## Career direction and one role family per profile
 

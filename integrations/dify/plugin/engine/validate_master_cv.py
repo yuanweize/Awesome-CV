@@ -481,6 +481,32 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
             if not _is_nonempty_string(exclusion.get("reason")):
                 errors.append(f"{prefix}.reason is required")
 
+    def validate_claim_classification(item: dict[str, Any], prefix: str) -> None:
+        references = item.get("claim_ids")
+        if references is None:
+            if item.get("cv_eligible") is False:
+                reason = (
+                    item.get("eligibility_reason")
+                    or item.get("exclusion_reason")
+                    or item.get("details")
+                )
+                if not _is_nonempty_string(reason):
+                    errors.append(
+                        f"{prefix} is CV-ineligible but has no eligibility_reason"
+                    )
+            else:
+                warnings.append(
+                    f"{prefix} is not classified: add claim_ids or set cv_eligible: false"
+                )
+            return
+        if not _list_of_strings(references):
+            errors.append(f"{prefix}.claim_ids must be a non-empty list of IDs")
+            return
+        _validate_unique_strings(references, f"{prefix}.claim_ids", errors)
+        for claim_id in references:
+            if claim_id not in claim_ids:
+                errors.append(f"{prefix} references unknown claim: {claim_id}")
+
     def validate_history_links(items: Any, label: str) -> None:
         if items is None:
             return
@@ -520,36 +546,49 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                         errors.append(
                             f"{prefix}.evidence_ids must include public evidence for its repository URL"
                         )
-            references = item.get("claim_ids")
-            if references is None:
-                if item.get("cv_eligible") is False:
-                    reason = (
-                        item.get("eligibility_reason")
-                        or item.get("exclusion_reason")
-                        or item.get("details")
-                    )
-                    if not _is_nonempty_string(reason):
-                        errors.append(
-                            f"{prefix} is CV-ineligible but has no eligibility_reason"
-                        )
-                else:
-                    warnings.append(
-                        f"{prefix} is not classified: add claim_ids or set cv_eligible: false"
-                    )
-                continue
-            if not _list_of_strings(references):
-                errors.append(f"{prefix}.claim_ids must be a non-empty list of IDs")
-                continue
-            _validate_unique_strings(references, f"{prefix}.claim_ids", errors)
-            for claim_id in references:
-                if claim_id not in claim_ids:
-                    errors.append(f"{prefix} references unknown claim: {claim_id}")
+            validate_claim_classification(item, prefix)
+
+    def validate_nested_history_links(value: Any, label: str) -> None:
+        if value is None:
+            return
+        if isinstance(value, list):
+            for index, item in enumerate(value, 1):
+                prefix = f"{label}[{index}]"
+                if not isinstance(item, dict):
+                    errors.append(f"{prefix} must be a mapping")
+                    continue
+                validate_claim_classification(item, prefix)
+            return
+        if not isinstance(value, dict):
+            errors.append(f"{label} must be a mapping or list")
+            return
+        if "title" in value or "code" in value:
+            validate_claim_classification(value, label)
+            return
+        for key, child in value.items():
+            validate_nested_history_links(child, f"{label}.{key}")
 
     validate_history_links(data.get("work_experience"), "work_experience")
     validate_history_links(data.get("open_source_and_projects"), "open_source_and_projects")
     validate_history_links(
         data.get("certifications_and_qualifications"),
         "certifications_and_qualifications",
+    )
+    validate_nested_history_links(
+        education.get("bachelor_thesis"),
+        "education.bachelor_thesis",
+    )
+    validate_nested_history_links(
+        education.get("thesis"),
+        "education.thesis",
+    )
+    validate_nested_history_links(
+        education.get("relevant_coursework"),
+        "education.relevant_coursework",
+    )
+    validate_nested_history_links(
+        data.get("honors_and_achievements"),
+        "honors_and_achievements",
     )
 
     evidenced_skills = skills.get("evidenced") if isinstance(skills, dict) else None

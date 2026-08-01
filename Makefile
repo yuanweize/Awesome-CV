@@ -1,4 +1,4 @@
-.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy portfolio-audit role-audit test check dify-check dify-package prepare-tex-cache
+.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy portfolio-audit role-audit legacy-audit test check dify-check dify-package prepare-tex-cache
 
 CC = lualatex
 PYTHON ?= python3
@@ -66,6 +66,9 @@ portfolio-audit:
 
 role-audit:
 	@$(PYTHON) tools/role_audit.py
+
+legacy-audit:
+	@$(PYTHON) tools/legacy_cv_audit.py
 
 test:
 	@$(PYTHON) -m unittest discover -s tests -v
@@ -138,6 +141,7 @@ help:
 	@echo "  make privacy     - Check tracked files for private data and secrets"
 	@echo "  make portfolio-audit - Compare private GitHub inventory with governed portfolio memory"
 	@echo "  make role-audit   - Report career interests, readiness, and claim coverage"
+	@echo "  make legacy-audit - Compare private historical CV wording with governed claims"
 	@echo "  make test        - Run unit and syntax tests"
 	@echo "  make check       - Validate template, privacy, and tests"
 	@echo "  make dify-check  - Sync the locked Dify SDK and load all plugin tools"

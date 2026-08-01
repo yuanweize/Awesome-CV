@@ -7,6 +7,8 @@ read and follow `skills/evidence-first-cv/SKILL.md` before acting.
 Use `meta/master_cv.yaml` as private career memory and `claim_registry` as the only
 source for AI-drafted claims. Use `meta/applications.yaml` for outcomes. Never treat an
 old profile, generated draft, chat transcript, or server inventory as factual authority.
+Use `./cv legacy-audit` for whole-history candidate discovery, then require independent
+evidence or fresh owner confirmation before adding an eligible claim.
 
 Keep `meta/`, `profiles/`, `archive/`, `sections/`, `config.tex`, `letter_config.tex`, `build/`,
 `tmp/`, PDFs, job descriptions, and evidence private. Run the privacy checker before

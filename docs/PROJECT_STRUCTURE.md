@@ -41,7 +41,8 @@ tech-stack collector is an evidence-discovery input, not Skill business logic. S
 
 Only eligible `claim_registry` entries are factual input to CV drafting. Human-readable
 history and technical inventory are navigation aids; the validator warns when a
-project, job, qualification, or evidenced skill is not classified or linked to claims.
+project, job, qualification, thesis, coursework item, honor, or evidenced skill is not
+classified or linked to claims.
 Installed-tool and GitHub inventories must pass human review before they create or
 change evidence records or claims.
 
@@ -76,11 +77,13 @@ evidence -> master claim -> JD manifest -> working snapshot -> submitted profile
 discovery inventory -> portfolio audit -> catalog/exclusion -> human-reviewed claim (or no promotion)
 stated interest -> role family/stretch titles -> role audit -> JD-specific evidence decision
 closed profile/research -> verified private archive
+historical CV/archive -> private legacy audit -> evidence review -> claim/exclusion/no change
 build/tmp/cache -> disposable cleanup
 ```
 
 Run `./cv status` at the start of every AI operation. It separates application,
 reference, unclassified, and archived profile counts and reports unsaved active-profile
 drift. Run `./cv portfolio-audit --strict` after a GitHub inventory refresh and
-`./cv role-audit` after changing career direction. Run `./cv privacy-check` before and
+`./cv role-audit` after changing career direction. Run `./cv legacy-audit` when old CVs
+need red/blue reconciliation with mother memory. Run `./cv privacy-check` before and
 after staging public changes.

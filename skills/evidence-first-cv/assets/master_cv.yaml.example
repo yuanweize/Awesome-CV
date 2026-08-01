@@ -249,6 +249,17 @@ education:
     title: "Reliable Network Monitoring on Small Linux Systems"
     evidence:
     - ev-degree-record
+    claim_ids:
+    - project.signalwatch-features
+    - project.signalwatch-benchmark
+
+honors_and_achievements:
+  early_achievements:
+  - title: "Example secondary-school programming award"
+    date: "2018"
+    cv_eligible: false
+    eligibility_reason: >-
+      Retained in lifetime memory but weaker than current degree, work, and project evidence.
 
 work_experience:
 - company: "Northstar Systems"

@@ -136,7 +136,8 @@ whole system. The package itself is complete: one routing contract, focused refe
 for onboarding, claims, applications, role strategy, writing, PDF quality, privacy,
 archives, technology intake, portfolio lifecycle, and Dify, plus bundled scripts for validation,
 context generation, manifests, outcomes, workspace status, GitHub inventory, portfolio
-and role audits, privacy, verified archiving, and safe workspace initialization.
+and role audits, historical-CV red/blue auditing, privacy, verified archiving, and safe
+workspace initialization.
 `assets/` carries standalone schema/manifest examples; the full LaTeX workspace is
 initialized from the repository's tracked `templates/`. The
 repository template and Skill asset are tested for byte-for-byte equality so they
@@ -249,6 +250,7 @@ profiles.
 | `./cv github-audit ...` | Refresh public repository metrics and Actions evidence into a private report |
 | `./cv portfolio-audit ...` | Compare the GitHub snapshot with governed projects and exclusions |
 | `./cv role-audit ...` | Compare desired directions, title readiness, and eligible claim depth |
+| `./cv legacy-audit ...` | Privately compare historical CV wording with governed atomic claims |
 | `./cv tech-audit ...` | Refresh a private local technology inventory; safe mode is the default |
 | `./cv delete <name>` | Permanently delete a non-active profile after exact confirmation |
 | `./cv context ...` | Generate evidence-bound AI context |
@@ -311,6 +313,7 @@ Awesome-CV/
 │   ├── github_inventory.py
 │   ├── portfolio_audit.py
 │   ├── role_audit.py
+│   ├── legacy_cv_audit.py
 │   ├── package_dify_plugin.py
 │   ├── archive_profile.py
 │   ├── archive_research.py
@@ -359,6 +362,13 @@ automatically prove model training or ML research. An ESP32 thesis can directly 
 IoT integration and hardware validation while FPGA/PCB design remains title-specific
 stretch work. See
 [`role-strategy.md`](skills/evidence-first-cv/references/role-strategy.md).
+
+Historical applications can expose both forgotten facts and repeated AI inflation. Run
+`./cv legacy-audit --extra-pdf meta/old-cv.pdf` to create a private candidate report.
+The audit extracts bullets, skills, entries, and honors, then compares them with eligible
+claims and flags scope/strong-language risks. It never promotes old wording automatically;
+confirmed omissions still require independent evidence or fresh owner confirmation. See
+[`legacy-cv-audit.md`](skills/evidence-first-cv/references/legacy-cv-audit.md).
 
 ## Privacy model
 

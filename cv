@@ -489,6 +489,10 @@ cmd_role_audit() {
     python3 "$SCRIPT_DIR/tools/role_audit.py" "$@"
 }
 
+cmd_legacy_audit() {
+    python3 "$SCRIPT_DIR/tools/legacy_cv_audit.py" "$@"
+}
+
 cmd_doctor() {
     assert_working_files_are_regular
     local dirty=false
@@ -702,6 +706,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}github-audit${RESET} ...      Audit public repositories, metrics, and Actions workflows
   ${CYAN}portfolio-audit${RESET} ...   Compare GitHub inventory with governed career memory
   ${CYAN}role-audit${RESET} ...        Compare interests, readiness, and claim coverage
+  ${CYAN}legacy-audit${RESET} ...      Compare private historical CV wording with atomic claims
   ${CYAN}tech-audit${RESET} ...        Run local technology inventory; safe mode by default
   ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
@@ -728,6 +733,7 @@ ${BOLD}Examples:${RESET}
   ./cv github-audit             # Owner from private master; writes dated private JSON
   ./cv portfolio-audit --strict # Require every original repo to be governed or excluded
   ./cv role-audit                # Inspect desired directions and evidence depth
+  ./cv legacy-audit --extra-pdf meta/old-cv.pdf
   ./cv tech-audit               # Write a private safe local technology inventory
   ./cv context --jd job.md --role systems -o build/job-context.md
   ./cv status                    # Agent preflight before every application
@@ -760,6 +766,7 @@ case "${1:-}" in
     github-audit) shift; cmd_github_audit "$@" ;;
     portfolio-audit) shift; cmd_portfolio_audit "$@" ;;
     role-audit) shift; cmd_role_audit "$@" ;;
+    legacy-audit) shift; cmd_legacy_audit "$@" ;;
     tech-audit) shift; cmd_tech_audit "$@" ;;
     delete)  cmd_delete "${2:-}" ;;
     context) shift; cmd_context "$@" ;;

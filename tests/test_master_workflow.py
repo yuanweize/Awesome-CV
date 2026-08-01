@@ -47,6 +47,14 @@ from privacy_check import content_violations, git_files, path_violations  # noqa
 from validate_master_cv import validate_master_cv  # noqa: E402
 from workspace_status import collect_status, render_text as render_workspace_status  # noqa: E402
 from workspace_init import RUNTIME_DIRECTORIES, initialize_workspace  # noqa: E402
+from legacy_cv_audit import (  # noqa: E402
+    SourceAudit,
+    Statement,
+    audit_legacy_cvs,
+    parse_tex_statements,
+    redact_pii,
+    require_private_output,
+)
 
 
 class MasterWorkflowTests(unittest.TestCase):
@@ -972,6 +980,109 @@ class MasterWorkflowTests(unittest.TestCase):
         result = self.validate_copy(data)
         self.assertFalse(result["ok"])
         self.assertTrue(any("no eligibility_reason" in error for error in result["errors"]))
+
+    def test_validator_governs_nested_honors_and_coursework(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["honors_and_achievements"] = {
+            "academic": [{"title": "Unclassified academic award", "date": "2020"}]
+        }
+        data["education"]["relevant_coursework"] = {
+            "systems": [
+                {
+                    "code": "EXAMPLE1",
+                    "name": "Unverified course",
+                    "cv_eligible": False,
+                }
+            ]
+        }
+
+        result = self.validate_copy(data)
+
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("honors_and_achievements" in item for item in result["warnings"]))
+        self.assertTrue(
+            any("relevant_coursework" in item and "eligibility_reason" in item for item in result["errors"])
+        )
+
+    def test_validator_rejects_unknown_nested_honor_claim(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["honors_and_achievements"] = {
+            "academic": [
+                {
+                    "title": "Linked academic award",
+                    "date": "2020",
+                    "claim_ids": ["education.missing"],
+                }
+            ]
+        }
+
+        result = self.validate_copy(data)
+
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("unknown claim" in item for item in result["errors"]))
+
+    def test_legacy_cv_audit_is_read_only_candidate_discovery(self) -> None:
+        claim = next(item for item in self.template["claim_registry"] if item["cv_eligible"])
+        source = SourceAudit(
+            source_id="old-example",
+            source_kind="archived-application",
+            path="archive/applications/2026/old-example",
+            target_title="Example role",
+            pages=2,
+            statements=[
+                Statement(
+                    "old-example",
+                    "archived-application",
+                    "experience",
+                    claim["statement"],
+                )
+            ],
+        )
+
+        result = audit_legacy_cvs(self.template, [source])
+
+        self.assertFalse(result["policy"]["old_cv_is_factual_authority"])
+        self.assertFalse(result["policy"]["automatic_claim_promotion"])
+        self.assertEqual(1, result["summary"]["covered"])
+
+    def test_legacy_cv_parser_extracts_honors_and_preserves_date_ranges(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            sections = Path(directory) / "sections"
+            sections.mkdir()
+            (sections / "honors.tex").write_text(
+                "\\cvhonor{Winner}{Verified award}{Prague}{2022}\n",
+                encoding="utf-8",
+            )
+            (sections / "experience.tex").write_text(
+                "\\cventry{Engineer}{Example}{Prague}{2019 - Present}{\\begin{cvitems}"
+                "\\item{Contact " + "+420" + " 123 456 789}\\end{cvitems}}\n",
+                encoding="utf-8",
+            )
+
+            statements = parse_tex_statements(
+                "old-example", "archived-application", sections
+            )
+            texts = [item.text for item in statements]
+
+            self.assertTrue(any("Verified award" in item for item in texts))
+            self.assertTrue(any("2019 - Present" in item for item in texts))
+            self.assertTrue(any("[phone redacted]" in item for item in texts))
+            self.assertEqual("2019 - Present", redact_pii("2019 - Present"))
+
+    def test_legacy_cv_audit_output_must_stay_private(self) -> None:
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            tempfile.TemporaryDirectory() as outside,
+        ):
+            root = Path(directory)
+            allowed = root / "meta" / "audits" / "legacy.md"
+            self.assertEqual(allowed.resolve(), require_private_output(root, allowed, "Output"))
+            with self.assertRaisesRegex(ValueError, "meta/audits"):
+                require_private_output(root, root / "docs" / "legacy.md", "Output")
+            (root / "meta").mkdir()
+            (root / "meta" / "audits").symlink_to(Path(outside), target_is_directory=True)
+            with self.assertRaisesRegex(ValueError, "symbolic link"):
+                require_private_output(root, allowed, "Output")
 
     def make_cv_fixture(self, root: Path) -> Path:
         executable = root / "cv"

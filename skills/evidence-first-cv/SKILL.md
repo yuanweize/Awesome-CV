@@ -52,6 +52,9 @@ cache authoritative.
   [references/role-strategy.md](references/role-strategy.md).
 - For profile cleanup, migration, deduplication, or closed applications: read
   [references/archive-lifecycle.md](references/archive-lifecycle.md).
+- For historical CV comparison, forgotten-fact recovery, or red/blue claim auditing:
+  read [references/legacy-cv-audit.md](references/legacy-cv-audit.md) and
+  [references/claim-policy.md](references/claim-policy.md).
 - For Dify deployment or web input: read
   [references/dify-adapter.md](references/dify-adapter.md).
 
@@ -89,7 +92,8 @@ python3 skills/evidence-first-cv/scripts/validate_master_cv.py --strict
    language as excluded or ineligible.
 7. Reconcile duplicates and conflicts by stable ID; do not append near-identical claims.
 8. Classify every human-readable job, project, and qualification with `claim_ids` or
-   `cv_eligible: false`; map usable inventory entries under `technical_skills.evidenced`.
+   `cv_eligible: false`; apply the same rule to nested thesis, coursework, and honors
+   entries; map usable inventory entries under `technical_skills.evidenced`.
 9. Update human-readable legacy sections only for navigation. The registry remains authoritative.
 10. Validate again and summarize the new/changed claim IDs to the user.
 

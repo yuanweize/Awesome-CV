@@ -121,7 +121,8 @@ The legacy-style education, experience, projects, skills, and languages sections
 useful for a human owner and backward compatibility. They are not the AI prompt source.
 The context exporter reads `claim_registry` only.
 
-Every human-readable job, project, or qualification must therefore be classified:
+Every human-readable job, project, qualification, thesis, coursework item, or honor
+must therefore be classified:
 give it valid `claim_ids`, or set `cv_eligible: false` with a short
 `eligibility_reason` (legacy `exclusion_reason` or explanatory `details` are also
 accepted). Put the
@@ -167,7 +168,9 @@ python3 tools/validate_master_cv.py meta/master_cv.yaml --json
 Validation checks duplicate YAML mapping keys, unique IDs and list values, evidence
 references, role references, required scope, allowed status/depth/visibility, non-empty
 evidence and role lists, privacy defaults, eligibility conflicts, personal-scope wording,
-duplicate statements, human-history classification, and evidenced-skill claim links.
+duplicate statements, nested human-history classification, and evidenced-skill claim
+links. Use `./cv legacy-audit` to discover historical wording that may represent a
+forgotten fact; its heuristic report never changes the master automatically.
 
 `metadata.last_full_audit` is an optional private date for recording a deliberate
 whole-memory review. It does not make older evidence current; each evidence record
