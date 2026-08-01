@@ -7,6 +7,9 @@
 3. Create `meta/applications/<id>/application.yaml`.
 4. Select one role family and export bounded context. Check recorded interest and
    `stretch_titles`; stretch means analyse the gap, not automatically reject the JD.
+   Rank concrete responsibility, tool, and domain matches ahead of generic vacancy
+   boilerplate or location words; use verification and interview depth as relevance
+   tie-breakers, not as permission for a strong but unrelated claim to displace a JD match.
 5. Map JD requirements to claim IDs and gaps in the manifest.
 6. Review the remaining eligible claims for zero to two adjacent differentiators;
    record their concrete transfer value and low-prominence placement.

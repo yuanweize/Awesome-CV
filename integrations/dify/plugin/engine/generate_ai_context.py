@@ -23,6 +23,7 @@ STOPWORDS = {
     "a",
     "an",
     "and",
+    "actively",
     "are",
     "as",
     "at",
@@ -46,13 +47,43 @@ STOPWORDS = {
     "this",
     "to",
     "using",
+    "use",
+    "used",
+    "uses",
     "with",
     "will",
     "you",
     "your",
+    # Vacancy boilerplate and location words are common across unrelated claims.
+    # Let concrete responsibility/tool terms drive ranking instead.
+    "application",
+    "client",
+    "clients",
+    "current",
+    "currently",
+    "czech",
+    "environment",
+    "environments",
+    "location",
+    "opportunity",
+    "platform",
+    "platforms",
+    "prague",
+    "professional",
+    "republic",
+    "requirement",
+    "requirements",
+    "responsibilities",
+    "role",
+    "roles",
+    "solution",
+    "solutions",
+    "team",
+    "teams",
+    "technical",
 }
 ELIGIBLE_STATUSES = {"verified", "self_reported"}
-DEPTH_WEIGHT = {"strong": 3, "moderate": 1, "limited": 0}
+DEPTH_WEIGHT = {"strong": 2, "moderate": 1, "limited": 0}
 ADJACENT_TYPE_WEIGHT = {"experience": 3, "project": 2, "qualification": 1, "education": 0}
 
 
@@ -70,7 +101,8 @@ def tokens(text: str) -> set[str]:
     return {
         token
         for match in TOKEN_RE.finditer(text)
-        if (token := match.group(0).lower()) not in STOPWORDS
+        if (token := match.group(0).lower().strip("._-"))
+        and token not in STOPWORDS
     }
 
 
@@ -106,7 +138,7 @@ def claim_score(
 
     score = 0
     if selected_role:
-        score += 4
+        score += 2
         reasons.append(f"role:{selected_role}")
 
     text = " ".join(
@@ -120,7 +152,9 @@ def claim_score(
     jd_overlap = sorted(claim_tokens & jd_tokens)
     role_overlap = sorted(claim_tokens & role_keywords)
     if jd_overlap:
-        score += min(len(jd_overlap), 8) * 3
+        # A concrete JD match must outrank a strong but unrelated claim. Evidence
+        # depth and verification remain tie-breakers rather than relevance proxies.
+        score += min(len(jd_overlap), 8) * 4
         reasons.append("jd:" + ",".join(jd_overlap[:6]))
     if role_overlap:
         score += min(len(role_overlap), 5)
@@ -131,7 +165,7 @@ def claim_score(
     if depth == "strong":
         reasons.append("strong interview depth")
     if claim.get("status") == "verified":
-        score += 2
+        score += 1
         reasons.append("verified")
     return score, reasons
 

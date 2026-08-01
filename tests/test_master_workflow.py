@@ -19,6 +19,7 @@ sys.path.insert(0, str(ROOT / "skills" / "evidence-first-cv" / "scripts"))
 
 from generate_ai_context import (  # noqa: E402
     build_context,
+    claim_score,
     evidenced_skill_groups,
     load_yaml,
     markdown_fence,
@@ -402,6 +403,67 @@ class MasterWorkflowTests(unittest.TestCase):
 
     def test_context_scoring_ignores_common_english_stopwords(self) -> None:
         self.assertEqual({"routing", "c"}, tokens("and to the routing with C"))
+
+    def test_context_scoring_ignores_vacancy_boilerplate_and_trailing_punctuation(self) -> None:
+        self.assertEqual(
+            {"sql", "support", "troubleshooting"},
+            tokens(
+                "Prague client platform environment. Actively used SQL support troubleshooting"
+            ),
+        )
+
+    def test_context_scoring_prefers_concrete_support_evidence(self) -> None:
+        jd_tokens = tokens("application support SQL diagnostics and troubleshooting")
+        role_keywords = {"linux", "support"}
+        generic = {
+            "subject": "Prague client platform",
+            "statement": "Worked in a technical client environment.",
+            "tags": [],
+            "role_families": ["systems"],
+            "status": "verified",
+            "interview_depth": "strong",
+        }
+        relevant = {
+            "subject": "Personal support tooling",
+            "statement": "Used SQL diagnostics and troubleshooting for support work.",
+            "tags": ["sql", "support", "troubleshooting"],
+            "role_families": ["systems"],
+            "status": "self_reported",
+            "interview_depth": "moderate",
+        }
+
+        generic_score, _ = claim_score(
+            generic, jd_tokens, role_keywords, "systems"
+        )
+        relevant_score, _ = claim_score(
+            relevant, jd_tokens, role_keywords, "systems"
+        )
+
+        self.assertGreater(relevant_score, generic_score)
+
+    def test_context_scoring_prefers_jd_match_over_unrelated_strong_claim(self) -> None:
+        jd_tokens = tokens("excellent English for daily support")
+        unrelated = {
+            "subject": "Verified benchmark",
+            "statement": "Measured a repeatable hardware benchmark.",
+            "tags": [],
+            "role_families": ["systems"],
+            "status": "verified",
+            "interview_depth": "strong",
+        }
+        matched = {
+            "subject": "English",
+            "statement": "Uses English at a professional working level.",
+            "tags": ["english"],
+            "role_families": ["systems"],
+            "status": "self_reported",
+            "interview_depth": "moderate",
+        }
+
+        unrelated_score, _ = claim_score(unrelated, jd_tokens, set(), "systems")
+        matched_score, _ = claim_score(matched, jd_tokens, set(), "systems")
+
+        self.assertGreater(matched_score, unrelated_score)
 
     def test_context_exports_a_capped_outside_role_review_pool(self) -> None:
         context = build_context(

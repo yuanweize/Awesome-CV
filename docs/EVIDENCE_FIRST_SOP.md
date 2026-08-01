@@ -55,6 +55,10 @@ expand merely because the portfolio catalog grows.
 
 ## Career direction and one role family per profile
 
+JD context ranking treats concrete responsibility and technology overlap as primary.
+Evidence status and interview depth break ties; they must not push a strongly evidenced
+but unrelated project above a direct language, support, SQL, or domain requirement.
+
 Define stable families based on responsibilities, not individual company names. Create
 a new family only when the work, proof order, and interview preparation are materially
 different. Too many families reproduce the same identity drift the system is meant to
