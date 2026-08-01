@@ -19,6 +19,11 @@ This directory is the ignored, local memory layer for one person. It is created 
   Inventory is not résumé evidence until reviewed.
 - `audits/`: dated private analyses and reconciliation reports.
 
+Within `evidence/`, use stable subject folders such as `education/`, `employment/`,
+`certifications/`, and `legacy-cv/`. A historical CV is discovery material only: it
+may help locate a forgotten fact, but it never overrides `claim_registry` or creates
+an eligible claim without independent evidence or fresh owner confirmation.
+
 Generated contexts and PDFs belong in `../build/`; disposable render output belongs
 in `../tmp/`; editable application snapshots belong in `../profiles/`; closed history
 belongs in `../archive/`. Run `./cv status` before beginning a new application.
