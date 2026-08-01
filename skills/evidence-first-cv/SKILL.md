@@ -139,6 +139,8 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    claim IDs. Preserve scope and ownership verbs. Keep the target identity and top
    proof points role-specific; place approved differentiators only in skills, projects,
    or secondary experience, and keep them to roughly 10-15% of visible content.
+   Include a visible three-to-five-row Skills section derived from evidenced skill
+   groups and map every row to selected claim IDs. Do not treat omission as minimalism.
 9. Map every final bullet to claim IDs in the private manifest; never show IDs in
    visible résumé prose. Run strict validation:
 

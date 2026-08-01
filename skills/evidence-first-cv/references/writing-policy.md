@@ -28,6 +28,9 @@ Narrow the claim when any answer is vague.
 - Keep personal, academic, and contract scope visible.
 - Use metrics only with evidence and an `as of` date when dynamic.
 - One page, one role family, two or three main proof points for most junior roles.
+- Include an explicit Skills section near the top with three to five compact groups.
+  Recruiters and ATS should not need to reconstruct the toolkit from prose. Every
+  group must map to selected claim IDs; keep direct-role groups first.
 - Omit old/weak facts instead of filling space.
 - Avoid slogans, self-ratings, keyword dumps, and defensive disclaimers.
 - Never use Senior/Expert/enterprise-scale/zero-downtime without direct proof.
@@ -44,6 +47,19 @@ Keep adjacent differentiators to roughly 10-15% of visible content and place the
 skills, projects, or secondary experience. They must not alter the target title, lead
 summary, or first proof points. “I also know this technology” is not enough; omit it
 unless its value to the target work can be explained in one sentence.
+
+## Skills section
+
+- Default to a visible `Technical Skills` section after the profile/summary.
+- Use maintained labels from `technical_skills.evidenced`, filtered to selected
+  claims. Do not copy the broad legacy inventory.
+- Keep three to five rows with short role-coherent groups; order direct skills before
+  approved adjacent skills and languages.
+- Map each row to claim IDs as a `final_bullets` entry with `section: skills` in the
+  private application manifest.
+- Do not omit the section merely because technologies also appear in experience or
+  project bullets. Omit it only when the target format explicitly forbids it.
+- Never include a planned, installed-only, tutorial-only, or unselected technology.
 
 ## Requirement mapping
 

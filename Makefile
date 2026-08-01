@@ -1,4 +1,4 @@
-.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy portfolio-audit test check dify-check dify-package
+.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy portfolio-audit test check dify-check dify-package prepare-tex-cache
 
 CC = lualatex
 PYTHON ?= python3
@@ -8,6 +8,13 @@ ROLE ?=
 CONTEXT_OUTPUT ?= $(BUILD_DIR)/ai-context.generated.md
 PYTHONPYCACHEPREFIX ?= /tmp/awesome-cv-pycache
 export PYTHONPYCACHEPREFIX
+
+# Keep LuaTeX's generated font/cache files outside the repository. This also
+# makes local builds work when the system TeX tree is read-only.
+TEX_CACHE_ROOT ?= $(if $(TMPDIR),$(TMPDIR),/tmp)
+TEXMFVAR ?= $(TEX_CACHE_ROOT)/awesome-cv-texmf
+TEXMFCONFIG ?= $(TEX_CACHE_ROOT)/awesome-cv-texconfig
+export TEXMFVAR TEXMFCONFIG
 
 # Add src/ to TeX search path so \documentclass{awesome-cv} finds awesome-cv.cls
 export TEXINPUTS := src/:.:$(TEXINPUTS)
@@ -74,12 +81,15 @@ dify-package:
 	@$(PYTHON) tools/package_dify_plugin.py
 
 
-resume: | $(BUILD_DIR)
+prepare-tex-cache:
+	@mkdir -p "$(TEXMFVAR)" "$(TEXMFCONFIG)"
+
+resume: prepare-tex-cache | $(BUILD_DIR)
 	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_CV" src/main.tex
 	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_CV" src/main.tex
 	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_CV.pdf"
 
-coverletter: | $(BUILD_DIR)
+coverletter: prepare-tex-cache | $(BUILD_DIR)
 	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_Cover_Letter" src/coverletter.tex
 	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_Cover_Letter" src/coverletter.tex
 	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"

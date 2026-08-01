@@ -85,9 +85,11 @@ keeps the human in control without forcing them to edit schemas or long prompts.
 After approval, require:
 
 1. a one-page draft using only approved selected claim IDs;
-2. a claim/metric audit;
-3. likely interview questions for top-half claims;
-4. every final bullet mapped to claim IDs in the private manifest.
+2. a visible three-to-five-row Skills section near the top, with each row mapped to
+   selected claims instead of copied from the broad inventory;
+3. a claim/metric audit;
+4. likely interview questions for top-half claims;
+5. every final bullet and skill row mapped to claim IDs in the private manifest.
 
 Reject any new number, title, employer, scope, technology, or result. Good prose does
 not override the database. Validate the trace strictly:

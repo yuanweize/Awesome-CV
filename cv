@@ -92,6 +92,14 @@ assert_working_files_are_regular() {
     done
 }
 
+assert_visible_skills_file() {
+    local skills_file="$1"
+    [[ -f "$skills_file" && ! -L "$skills_file" ]] \
+        || die "Skills section is missing: $skills_file"
+    grep -Eq '^[[:space:]]*\\cvskill([[:space:]]|$)' "$skills_file" \
+        || die "Skills section has no visible \\cvskill entries: $skills_file"
+}
+
 write_active() {
     local profile="$1"
     [[ ! -L "$ACTIVE_FILE" ]] || die "Active-profile marker must not be a symbolic link."
@@ -319,6 +327,7 @@ cmd_build() {
 
     # No profile specified → build current working version
     if [[ -z "$profile" ]]; then
+        assert_visible_skills_file "$SECTIONS_DIR/skills.tex"
         echo -e "${CYAN}Building current working version...${RESET}"
         make -C "$SCRIPT_DIR" all
         return
@@ -327,6 +336,7 @@ cmd_build() {
     profile_exists "$profile" || die "Profile '$profile' not found. Available: $(available_profiles)"
 
     local profile_dir="$PROFILES_DIR/$profile"
+    assert_visible_skills_file "$profile_dir/sections/skills.tex"
 
     # ── Snapshot current state ──
     local tmp_dir

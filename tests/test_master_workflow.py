@@ -274,6 +274,9 @@ class MasterWorkflowTests(unittest.TestCase):
         )
         self.assertIn("project.signalwatch-features", context)
         self.assertIn("personal.lab-operation", context)
+        self.assertIn("## Evidence-bound skill groups", context)
+        self.assertIn("| Python | `direct` |", context)
+        self.assertIn("explicit three-to-five-row Skills section", context)
         self.assertNotIn("alex@example.org", context)
         self.assertNotIn("+49", context)
 
@@ -639,6 +642,9 @@ class MasterWorkflowTests(unittest.TestCase):
             status = collect_status(root)
             self.assertTrue(status["profiles"]["active_dirty"])
             self.assertIn("config.tex", status["profiles"]["active_differences"])
+            self.assertTrue(
+                any("active profile has no visible Skills entries" in item for item in status["warnings"])
+            )
 
     def test_workspace_status_classifies_application_and_reference_profiles(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -773,10 +779,18 @@ class MasterWorkflowTests(unittest.TestCase):
         (root / "profiles" / "target" / "sections").mkdir(parents=True)
         (root / "config.tex").write_text("current-config\n", encoding="utf-8")
         (root / "sections" / "summary.tex").write_text("current-summary\n", encoding="utf-8")
+        (root / "sections" / "skills.tex").write_text(
+            "\\cvsection{Technical Skills}\n\\cvskill{Systems}{Linux}\n",
+            encoding="utf-8",
+        )
         (root / ".active_profile").write_text("current\n", encoding="utf-8")
         (root / "profiles" / "target" / "config.tex").write_text("target-config\n", encoding="utf-8")
         (root / "profiles" / "target" / "sections" / "summary.tex").write_text(
             "target-summary\n", encoding="utf-8"
+        )
+        (root / "profiles" / "target" / "sections" / "skills.tex").write_text(
+            "\\cvsection{Technical Skills}\n\\cvskill{Systems}{Linux}\n",
+            encoding="utf-8",
         )
         (root / "profiles" / "current" / "config.tex").write_text(
             "current-config\n", encoding="utf-8"
@@ -784,7 +798,29 @@ class MasterWorkflowTests(unittest.TestCase):
         (root / "profiles" / "current" / "sections" / "summary.tex").write_text(
             "current-summary\n", encoding="utf-8"
         )
+        (root / "profiles" / "current" / "sections" / "skills.tex").write_text(
+            "\\cvsection{Technical Skills}\n\\cvskill{Systems}{Linux}\n",
+            encoding="utf-8",
+        )
         return executable
+
+    def test_profile_build_rejects_empty_skills_section(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            executable = self.make_cv_fixture(root)
+            (root / "profiles" / "target" / "sections" / "skills.tex").write_text(
+                "% Skills mentioned elsewhere.\n", encoding="utf-8"
+            )
+
+            result = subprocess.run(
+                [str(executable), "build", "target"],
+                cwd=root,
+                text=True,
+                capture_output=True,
+            )
+
+            self.assertNotEqual(0, result.returncode)
+            self.assertIn("no visible", result.stderr)
 
     def test_profile_name_blocks_path_traversal(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

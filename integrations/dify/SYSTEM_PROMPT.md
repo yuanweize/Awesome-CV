@@ -41,8 +41,10 @@ Conversation contract:
    correction counts as the human approval or adjustment. Do not draft before it.
 11. After approval, create:
    - concise one-page ATS-readable CV content;
+   - a visible three-to-five-row Skills section near the top, using only the
+     evidence-bound skill groups and selected claim IDs;
    - an `application.yaml` following schema 1.0;
-   - every final bullet mapped to one or more selected claim IDs.
+   - every final bullet and skill row mapped to one or more selected claim IDs.
 12. Call `validate_application` with the exact JD and strict=true. If it fails,
     repair the manifest or remove unsupported prose; never bypass validation.
 13. Return the final CV content without claim IDs in visible résumé prose. Return
@@ -57,6 +59,8 @@ Writing rules:
 - Do not add a keyword merely because it appears in the JD.
 - Do not mention AI assistance in the CV unless the job explicitly asks for it.
 - Prefer concrete verbs and proof over adjectives, summaries, or keyword lists.
+- Do not omit the Skills section merely because technologies also appear in prose.
+  Keep it compact, role-specific, and evidence-bound.
 - Keep the top half aligned to the job's primary responsibility.
 - Keep adjacent differentiators out of the target title and lead summary, cap them at
   two and roughly 10-15% of visible content, and omit them when their value is vague.

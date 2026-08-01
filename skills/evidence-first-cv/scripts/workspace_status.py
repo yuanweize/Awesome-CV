@@ -58,6 +58,16 @@ def files_differ(left: Path, right: Path) -> bool:
     return left.is_file() and left.read_bytes() != right.read_bytes()
 
 
+def visible_skill_count(path: Path) -> int:
+    if not path.is_file() or path.is_symlink():
+        return 0
+    try:
+        content = path.read_text(encoding="utf-8")
+    except OSError:
+        return 0
+    return len(re.findall(r"^\s*\\cvskill(?:\s|$)", content, flags=re.MULTILINE))
+
+
 def active_profile_state(root: Path, active: str) -> tuple[bool, list[str]]:
     if not active:
         return False, []
@@ -174,6 +184,12 @@ def collect_status(root: Path) -> dict[str, Any]:
     active_file = root / ".active_profile"
     active = active_file.read_text(encoding="utf-8").strip() if active_file.is_file() and not active_file.is_symlink() else ""
     active_dirty, active_differences = active_profile_state(root, active)
+    active_skill_entries = visible_skill_count(root / "sections" / "skills.tex") if active else 0
+    empty_reference_skills = sorted(
+        profile
+        for profile in existing_reference_profiles
+        if visible_skill_count(profiles_root / profile / "sections" / "skills.tex") == 0
+    )
 
     warnings: list[str] = []
     if not validation.get("ok"):
@@ -187,6 +203,13 @@ def collect_status(root: Path) -> dict[str, Any]:
             warnings.append("profiles exist but no application manifests have been created")
     if active_dirty:
         warnings.append("working files differ from the active profile")
+    if active and active_skill_entries == 0:
+        warnings.append("active profile has no visible Skills entries")
+    if empty_reference_skills:
+        warnings.append(
+            "reference profiles have no visible Skills entries: "
+            + ", ".join(empty_reference_skills)
+        )
     warnings.extend(catalog_warnings)
     if overlapping_profiles:
         warnings.append(
@@ -225,6 +248,8 @@ def collect_status(root: Path) -> dict[str, Any]:
             "active": active,
             "active_dirty": active_dirty,
             "active_differences": active_differences,
+            "active_skill_entries": active_skill_entries,
+            "empty_reference_skills": empty_reference_skills,
             "count": profile_count,
             "bytes": profile_bytes,
             "archived": archive_count,

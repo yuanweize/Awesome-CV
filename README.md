@@ -161,10 +161,16 @@ make context JD=meta/applications/<id>/jd.md ROLE=systems
 ```
 
 The generated context contains the JD, role-bound claims, a small outside-role review
-pool, scopes, evidence references, explicit exclusions, and drafting rules. The agent
+pool, evidence-bound skill groups, scopes, evidence references, explicit exclusions,
+and drafting rules. The agent
 must establish direct fit first, then select zero to two adjacent differentiators only
 when they add concrete transfer value. Contact details are excluded unless
 `--include-contact` is explicitly passed.
+
+Generated CVs include a compact `Technical Skills` section near the top by default.
+Each of its three to five rows must be backed by selected claim IDs. The workflow
+prevents both failure modes: deleting Skills in the name of minimalism and copying the
+entire mother inventory into an unreadable keyword wall.
 
 Before prose is drafted, record the requirement-to-claim mapping, explicit gaps,
 selected claims, and your approval in the manifest. Every final bullet maps back to

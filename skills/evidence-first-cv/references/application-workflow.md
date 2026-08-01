@@ -10,7 +10,8 @@
 6. Review the remaining eligible claims for zero to two adjacent differentiators;
    record their concrete transfer value and low-prominence placement.
 7. Show the decision brief and wait for human confirmation.
-8. Draft résumé and optional letter; map every final bullet to claims.
+8. Draft résumé and optional letter, including a three-to-five-row evidence-bound
+   Skills section; map every final bullet and skill row to claims.
 9. Strictly validate the manifest, build, extract text, render, and inspect.
 10. Record the application and claim IDs in the ledger only after it is sent.
 11. Update stages and notes after every external event.

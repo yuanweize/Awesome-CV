@@ -26,11 +26,14 @@
 - Preserve dates and relationship type.
 - Confirm all top-half claims have strong or justified moderate interview depth.
 - Remove keyword-only skills with no eligible claim.
+- Require a visible Skills section by default. It should contain three to five compact
+  groups, each mapped to selected claims; an empty/comment-only `skills.tex` is a
+  failed profile, not a minimalist design choice.
 
 ## ATS/text check
 
 Extract from the final PDF with `pdftotext -layout`. Confirm the reading order is:
-name/contact, target identity, profile, proof, experience, education/skills. Check that
+name/contact, target identity, profile, skills, proof, experience, education. Check that
 links and symbols do not replace important text and that the PDF has the intended page
 count.
 

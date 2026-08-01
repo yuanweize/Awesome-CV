@@ -55,7 +55,8 @@ prevent.
 5. Show a compact brief, ask at most three material questions, and wait for approval.
 6. Create or clone a private application profile.
 7. Draft one page with two or three leading proof points.
-8. Map every final bullet to claims and strictly validate the application manifest.
+8. Add a visible three-to-five-row Skills section from evidenced groups; map every
+   skill row and final bullet to claims and strictly validate the application manifest.
 9. Audit every fact and metric against claim IDs.
 10. Build, extract text, render, inspect, and run privacy checks.
 11. Record the application only when submitted; then record stages and outcome.
