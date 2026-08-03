@@ -47,8 +47,8 @@ application manifest → human approval → profile/PDF → outcome ledger
 
 Every exported claim carries a stable ID, exact scope, role tags, evidence
 references, verification status, CV eligibility, and interview-depth confidence.
-Schema 3.3 also records AI/direct delivery mode, personally owned actions, and
-authorship boundaries. A repository may prove a useful product without turning every
+Schema 3.4 also records AI/direct delivery mode, personally owned actions, authorship
+boundaries, and durable identity anchors. A repository may prove a useful product without turning every
 language, framework, or source-level term inside it into a candidate skill.
 
 ## Requirements
@@ -115,7 +115,9 @@ I need a new CV. Check the workspace first, then ask me for the JD.
 
 After receiving the JD, the agent saves it privately, selects one role family, maps
 requirements to atomic claims, and returns a short recommendation plus at most three
-material questions. Before that approval gate it also reviews facts outside the JD
+material questions. It independently reviews one to three evidence-bound identity
+anchors, so a defining degree, institution, domain, language bridge, or local-fit fact
+cannot disappear merely because the JD uses different words. Before that approval gate it also reviews facts outside the JD
 intersection and may propose at most two low-prominence adjacent differentiators. For
 example, an automotive automation CV can mention a defensible Linux/CI capability when
 it improves diagnostics or delivery, without turning the profile into a server CV.
@@ -182,8 +184,8 @@ Equivalent Make command:
 make context JD=meta/applications/<id>/jd.md ROLE=systems
 ```
 
-The generated context contains the JD, role-bound claims, a small outside-role review
-pool, evidence-bound skill groups, scopes, evidence references, explicit exclusions,
+The generated context contains the JD, role-bound claims, a separate identity-anchor
+pool, a small outside-role review pool, evidence-bound skill groups, scopes, evidence references, explicit exclusions,
 and drafting rules. The agent
 must establish direct fit first, then select zero to two adjacent differentiators only
 when they add concrete transfer value. Contact details are excluded unless
@@ -205,6 +207,16 @@ claim IDs. Then run strict validation:
 ```
 
 A missing requirement remains a gap. The visible CV never contains internal IDs.
+
+The résumé renderer uses a modern one-column, left-aligned, high-contrast presentation
+layer over the maintainable Awesome-CV structure. Profiles may override section order
+with `sections/order.tex`—for example, moving Education above Experience when a recent
+graduate's university is a primary identity anchor. After building, run the deterministic
+layout gate before manual visual inspection:
+
+```bash
+./cv pdf-audit build/Alex_Example_CV.pdf
+```
 
 完整流程见 [docs/AI_WORKFLOW.md](docs/AI_WORKFLOW.md)，schema 字段见
 [docs/MASTER_CV_SCHEMA.md](docs/MASTER_CV_SCHEMA.md)。
@@ -272,6 +284,7 @@ profiles.
 | `./cv manifest validate ...` | Check requirement/claim/bullet traceability and approval |
 | `./cv validate [yaml]` | Validate a master database |
 | `./cv privacy-check` | Inspect tracked files for leaks |
+| `./cv pdf-audit <pdf>` | Reject extra pages, sparse layout, tiny-type proxies, or missing ATS text |
 | `./cv track ...` | Record stages, validate claim/role IDs, and report funnel metrics |
 | `./cv doctor` | Audit workspace, role intent/evidence, governed portfolio, tests, privacy, and active-profile drift |
 
@@ -294,6 +307,7 @@ application; the system never assumes rejection from elapsed time.
 | `make all` | Validate and build all outputs |
 | `make clean` | Remove generated build artifacts inside the repository only |
 | `make check` | Schema, privacy, unit, Python, and shell checks |
+| `make pdf-audit PDF=path/to/cv.pdf` | Run deterministic résumé PDF layout/readability gates |
 
 The author name is read from `\name{First}{Last}` in private `config.tex` and
 normalized to a shell-safe PDF filename stem.

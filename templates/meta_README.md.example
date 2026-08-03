@@ -27,3 +27,8 @@ an eligible claim without independent evidence or fresh owner confirmation.
 Generated contexts and PDFs belong in `../build/`; disposable render output belongs
 in `../tmp/`; editable application snapshots belong in `../profiles/`; closed history
 belongs in `../archive/`. Run `./cv status` before beginning a new application.
+
+Use `identity_anchors` in `master_cv.yaml` for durable evidence-bound credentials,
+domains, market bridges, local fit, or autonomy that should survive JD tailoring.
+Each schema 1.1 application selects only one to three and records their placement.
+Use `sections/order.tex` to change section priority per private profile.

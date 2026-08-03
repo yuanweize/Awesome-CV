@@ -11,17 +11,30 @@
    boilerplate or location words; use verification and interview depth as relevance
    tie-breakers, not as permission for a strong but unrelated claim to displace a JD match.
 5. Map JD requirements to claim IDs and gaps in the manifest.
-6. Review the remaining eligible claims for zero to two adjacent differentiators;
+6. Independently review `identity_anchors` and select one to three durable signals.
+   Record each reason and placement. For graduate and early-career applications,
+   spell out the institution, faculty, and degree in the top third.
+7. Review the remaining eligible claims for zero to two adjacent differentiators;
    review only claims pre-governed with `adjacent_values`, then record their concrete
    transfer value and low-prominence placement.
-7. Show the decision brief and wait for human confirmation.
-8. Draft résumé and optional letter, including a three-to-five-row evidence-bound
+8. Show the decision brief and wait for human confirmation.
+9. Draft résumé and optional letter, including a three-to-five-row evidence-bound
    Skills section; map every final bullet and skill row to claims.
-9. Strictly validate the manifest, build, extract text, render, and inspect.
-10. Record the application and claim IDs in the ledger only after it is sent.
-11. Update stages and notes after every external event.
-12. Use funnel summary to choose targeting, narrative, training, or negotiation work.
-13. After a terminal outcome, move the snapshot to the verified private archive.
+10. Strictly validate the manifest, build, run the PDF layout audit, extract text,
+    render, and inspect.
+11. Record the application and claim IDs in the ledger only after it is sent.
+12. Update stages and notes after every external event.
+13. Use funnel summary to choose targeting, narrative, training, or negotiation work.
+14. After a terminal outcome, move the snapshot to the verified private archive.
+
+## Identity review: tailoring without erasure
+
+The role family controls emphasis; identity anchors preserve the recognisable person.
+Select one to three from the governed pool and place them deliberately in the headline,
+summary, or another top-third section. The headline should state who the candidate is,
+not copy a vacancy title as though it were current employment. An identity anchor may
+sit outside the role family, but it still needs an eligible claim and must not disguise
+a missing requirement.
 
 ## Complement review: value without identity drift
 

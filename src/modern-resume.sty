@@ -1,0 +1,54 @@
+% Modern, ATS-safe presentation layer for the résumé only.
+% Keep the upstream-derived class as the structural engine and override visual
+% tokens here so future template updates remain reviewable.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{modern-resume}[2026/08/03 v1.0 Modern Awesome-CV presentation]
+
+\definecolor{modernNavy}{HTML}{17324D}
+\definecolor{modernText}{HTML}{0F172A}
+\definecolor{modernMuted}{HTML}{52606D}
+\definecolor{modernRule}{HTML}{CBD5E1}
+\colorlet{awesome}{modernNavy}
+\colorlet{text}{modernText}
+\colorlet{darktext}{modernText}
+\colorlet{graytext}{modernMuted}
+\colorlet{lighttext}{modernMuted}
+\colorlet{sectiondivider}{modernRule}
+\setbool{acvSectionColorHighlight}{false}
+
+% Source Sans 3 is already configured by awesome-cv.cls. Use regular and
+% semibold/bold weights: the previous Light body was difficult to scan.
+\renewcommand*{\headerfont}{\sffamily}
+\renewcommand*{\headerfontlight}{\sffamily}
+\renewcommand*{\bodyfont}{\sffamily}
+\renewcommand*{\bodyfontlight}{\sffamily}
+
+\renewcommand*{\headerfirstnamestyle}[1]{{\fontsize{28pt}{31pt}\headerfont\mdseries\color{modernText}#1}}
+\renewcommand*{\headerlastnamestyle}[1]{{\fontsize{28pt}{31pt}\headerfont\bfseries\color{modernText}#1}}
+\renewcommand*{\headerpositionstyle}[1]{{\fontsize{11pt}{13pt}\bodyfont\bfseries\color{modernNavy}#1}}
+\renewcommand*{\headeraddressstyle}[1]{{\fontsize{9.6pt}{11.5pt}\bodyfont\mdseries\color{modernMuted}#1}}
+\renewcommand*{\headersocialstyle}[1]{{\fontsize{9.6pt}{11.5pt}\bodyfont\mdseries\color{modernText}#1}}
+\renewcommand*{\headerquotestyle}[1]{{\fontsize{9.8pt}{12pt}\bodyfont\itshape\color{modernMuted}#1}}
+\renewcommand*{\footerstyle}[1]{{\fontsize{8pt}{9pt}\bodyfont\color{modernMuted}#1}}
+
+\renewcommand*{\sectionstyleface}[1]{{\fontsize{13pt}{15pt}\bodyfont\bfseries#1}}
+\renewcommand*{\sectionstyle}[1]{\color{modernNavy}\sectionstyleface{#1}}
+\renewcommand*{\paragraphstyle}{\fontsize{10pt}{12.6pt}\bodyfont\upshape\color{modernText}}
+
+\renewcommand*{\entrytitlestyle}[1]{{\fontsize{10.8pt}{12.8pt}\bodyfont\bfseries\color{modernText}#1}}
+\renewcommand*{\entrypositionstyle}[1]{{\fontsize{9.4pt}{11.2pt}\bodyfont\bfseries\color{modernMuted}#1}}
+\renewcommand*{\entrydatestyle}[1]{{\fontsize{9.2pt}{11pt}\bodyfont\mdseries\color{modernMuted}#1}}
+\renewcommand*{\entrylocationstyle}[1]{{\fontsize{9.2pt}{11pt}\bodyfont\mdseries\color{modernMuted}#1}}
+\renewcommand*{\descriptionstyle}[1]{{\fontsize{9.8pt}{12.2pt}\bodyfont\upshape\color{modernText}#1}}
+\renewcommand*{\skilltypestyle}[1]{{\fontsize{9.8pt}{12pt}\bodyfont\bfseries\color{modernNavy}#1}}
+\renewcommand*{\skillsetstyle}[1]{{\fontsize{9.8pt}{12pt}\bodyfont\color{modernText}#1}}
+
+\renewcommand{\acvHeaderAfterNameSkip}{0.7mm}
+\renewcommand{\acvHeaderAfterPositionSkip}{0.7mm}
+\renewcommand{\acvHeaderAfterAddressSkip}{0mm}
+\renewcommand{\acvHeaderAfterSocialSkip}{3.5mm}
+\renewcommand{\acvSectionTopSkip}{3.8mm}
+\renewcommand{\acvSectionContentTopSkip}{3.0mm}
+\renewcommand{\acvHeaderSocialSep}{\BeginAccSupp{ActualText={}}\enskip\textcolor{modernRule}{\textbar}\enskip\EndAccSupp{}}
+
+\hypersetup{colorlinks=true,urlcolor=modernNavy,linkcolor=modernNavy}

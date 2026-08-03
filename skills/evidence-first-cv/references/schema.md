@@ -6,6 +6,9 @@
   positioning boundaries, target titles, and selection keywords.
 - `career_preferences`: owner-stated interests and application priorities; planning
   memory only, never claim evidence or résumé prose.
+- `identity_anchors`: one to five durable, evidence-bound claims whose recognisable
+  credential, domain, market-bridge, local-fit, or autonomy value should survive
+  JD tailoring. They are a protected review pool, not mandatory boilerplate.
 - `evidence_registry`: proof metadata; fields `id`, `type`, `title`, `locator`,
   `visibility`, and `verified_on`.
 - `claim_registry`: one factual statement per ID.
@@ -13,10 +16,12 @@
 - `technical_skills.evidenced`: human-friendly skill groups linked back to claim IDs.
 - human sections: navigation/archive only; not authoritative for AI export.
 
-Application state uses a separate schema 1.0 manifest under
+Application state uses a separate schema 1.1 manifest under
 `meta/applications/<id>/application.yaml`. It binds the saved JD hash, role family,
 requirement matches, selected claims, human confirmation, and final bullets. It never
-adds facts to the master registry.
+adds facts to the master registry. Schema 1.1 records one to three selected
+`identity_anchors`, each with a reason and approved placement. Schema 1.0 remains
+readable for closed history.
 
 Every human-readable job, project, qualification, thesis, coursework item, or honor
 must either link to valid `claim_ids` or declare `cv_eligible: false` with a short
@@ -40,6 +45,12 @@ explicit `boundaries`. Optional `adjacent_values` pre-governs whether an outside
 claim may enter the complement pool. Evidenced skill groups add `cv_usage`, `level`,
 and `boundaries`; `project_only` technologies may describe a project stack but are
 never exported as candidate skills.
+
+Schema 3.4 adds `identity_anchors`. Each anchor references an eligible claim, assigns
+one of `credential`, `domain_identity`, `market_bridge`, `local_fit`, or `autonomy`,
+and gives concise usage guidance. The context exporter presents anchors separately
+from direct JD matches and adjacent differentiators, preventing a local degree or
+defining credential from disappearing merely because the vacancy uses different words.
 
 ## Claim fields
 

@@ -1,7 +1,7 @@
 # Awesome-CV evidence-first master database (public example)
 # Copy to meta/master_cv.yaml. The destination is gitignored.
 
-schema_version: "3.3"
+schema_version: "3.4"
 
 metadata:
   owner: "Alex Example"
@@ -44,6 +44,15 @@ career_preferences:
     interest: medium
     application_priority: selective
     notes: "Prefer system-level validation over manual-only QA"
+
+# Durable, evidence-bound facts that should survive JD tailoring. The drafting
+# agent selects only one to three per application and records their placement.
+identity_anchors:
+- claim_id: education.bsc-computer-engineering
+  value: credential
+  usage: >-
+    Spell out the university and degree in the top third for graduate and
+    early-career applications; tailoring may change emphasis but not erase it.
 
 role_families:
   systems:

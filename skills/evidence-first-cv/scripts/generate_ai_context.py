@@ -302,6 +302,22 @@ def build_context(
         version_match
         and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 3)
     )
+    identity_anchors = []
+    claims_by_id = {
+        item.get("id"): item
+        for item in data.get("claim_registry", [])
+        if isinstance(item, dict) and item.get("id")
+    }
+    for anchor in data.get("identity_anchors", []):
+        if not isinstance(anchor, dict):
+            continue
+        claim = claims_by_id.get(anchor.get("claim_id"))
+        if (
+            claim
+            and claim.get("cv_eligible")
+            and claim.get("status") in ELIGIBLE_STATUSES
+        ):
+            identity_anchors.append((anchor, claim))
     role_keywords = tokens(" ".join(role_families.get(role, {}).get("keywords", []))) if role else set()
 
     ranked: list[tuple[int, list[str], dict[str, Any]]] = []
@@ -351,6 +367,11 @@ def build_context(
         for _, _, claim in [*ranked, *adjacent_ranked]
         for evidence_id in claim.get("evidence", [])
     }
+    used_evidence.update(
+        evidence_id
+        for _, claim in identity_anchors
+        for evidence_id in claim.get("evidence", [])
+    )
 
     personal = data.get("personal_information", {})
     jd_fence = markdown_fence(jd_text)
@@ -397,6 +418,9 @@ def build_context(
         "    a project name alone does not explain why the work matters.",
         "15. The adjacent pool is pre-governed by explicit transfer values. Still select",
         "    zero when none materially helps this JD; lexical overlap is never enough.",
+        "16. Preserve one to three approved identity anchors in the top third. Spell out",
+        "    an institution, degree, domain, language bridge, or local-fit credential when",
+        "    its usage note calls for it. JD tailoring may change emphasis, not erase identity.",
         "",
         "## Candidate",
         "",
@@ -444,6 +468,35 @@ def build_context(
                 *[f"  - {item}" for item in role_data.get("boundaries", [])],
             ]
         )
+
+    lines.extend(
+        [
+            "",
+            "## Identity anchors",
+            "",
+            "> These are durable, evidence-bound facts that protect the candidate's",
+            "> recognisable identity from over-tailoring. Select one to three and record",
+            "> their placement in the application manifest; do not force every anchor.",
+            "",
+            "| Claim ID | Statement | Identity value | Usage guidance | Scope | Evidence |",
+            "|---|---|---|---|---|---|",
+        ]
+    )
+    for anchor, claim in identity_anchors:
+        lines.append(
+            "| `{id}` | {statement} | `{value}` | {usage} | `{scope}` | {evidence} |".format(
+                id=escape_table(claim.get("id", "")),
+                statement=escape_table(claim.get("statement", "")),
+                value=escape_table(anchor.get("value", "")),
+                usage=escape_table(anchor.get("usage", "")),
+                scope=escape_table(claim.get("scope", "")),
+                evidence=", ".join(
+                    f"`{escape_table(item)}`" for item in claim.get("evidence", [])
+                ),
+            )
+        )
+    if not identity_anchors:
+        lines.append("| _none_ | No governed identity anchor is available. | | | | |")
 
     lines.extend(
         [
@@ -590,7 +643,8 @@ def build_context(
             "   transfer value and low-prominence placement; do not use it to hide a gap.",
             "3. At most three questions that can materially change the draft, then stop",
             "   for human confirmation.",
-            "4. After confirmation, a one-page CV using only approved claim IDs, with",
+            "4. After confirmation, a one-page CV using only approved claim IDs. Preserve",
+            "   one to three approved identity anchors in the top third, then include",
             "   an explicit three-to-five-row role-appropriate Skills section near the top. Map each",
             "   visible skill row to selected claim IDs in the private manifest.",
             "5. A claim audit listing every metric and its evidence ID.",

@@ -1,4 +1,4 @@
-schema_version: "1.0"
+schema_version: "1.1"
 application_id: "20260115-example-corp-junior-systems-engineer"
 stage: awaiting-confirmation
 created_at: "2026-01-15"
@@ -38,14 +38,24 @@ requirements:
   claim_ids: []
   note: "Do not add Kubernetes to the CV."
 selected_claims:
+- education.bsc-computer-engineering
 - experience.northstar-linux-support
 - project.signalwatch-features
+identity_anchors:
+- claim_id: education.bsc-computer-engineering
+  reason: "Primary verified credential for an early-career application."
+  placement: summary
 adjacent_differentiators:
 - claim_id: project.signalwatch-features
   value: execution_leverage
   reason: "Shows practical automation beyond the JD without changing the target identity."
   placement: projects
 final_bullets:
+- id: bullet.summary.degree
+  section: summary
+  text: "Technical University of Example B.Sc. Computer Engineering graduate."
+  claim_ids:
+  - education.bsc-computer-engineering
 - id: bullet.experience.linux-support
   section: experience
   text: "Investigated Linux service failures and documented reproduction steps for the operations team."

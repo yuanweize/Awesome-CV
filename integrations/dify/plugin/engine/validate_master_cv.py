@@ -44,6 +44,13 @@ ALLOWED_ADJACENT_VALUES = {
     "cross_functional_bridge",
     "autonomy",
 }
+ALLOWED_IDENTITY_VALUES = {
+    "credential",
+    "domain_identity",
+    "market_bridge",
+    "local_fit",
+    "autonomy",
+}
 ALLOWED_SCOPES = {
     "academic",
     "academic_benchmark",
@@ -207,6 +214,10 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
     governed_delivery = bool(
         version_match
         and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 3)
+    )
+    governed_identity = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 4)
     )
     if not is_v3:
         warnings.append(
@@ -372,6 +383,7 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         claims = []
 
     claim_ids: set[str] = set()
+    claims_by_id: dict[str, dict[str, Any]] = {}
     statements: set[str] = set()
     eligible_count = 0
     for index, claim in enumerate(claims, 1):
@@ -386,6 +398,7 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
             errors.append(f"Duplicate claim ID: {claim_id}")
         elif _is_nonempty_string(claim_id):
             claim_ids.add(claim_id)
+            claims_by_id[claim_id] = claim
 
         for field in ("type", "subject", "statement", "dates", "scope", "status", "interview_depth"):
             if not _is_nonempty_string(claim.get(field)):
@@ -514,6 +527,48 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                 warnings.append(
                     f"{claim_id} has personal scope but the statement does not label it personal/open-source"
                 )
+
+    identity_anchors = data.get("identity_anchors")
+    if governed_identity and (
+        not isinstance(identity_anchors, list) or not identity_anchors
+    ):
+        errors.append("identity_anchors must contain one to five entries for schema 3.4+")
+        identity_anchors = []
+    elif identity_anchors is None:
+        identity_anchors = []
+    elif not isinstance(identity_anchors, list):
+        errors.append("identity_anchors must be a list")
+        identity_anchors = []
+    if len(identity_anchors) > 5:
+        errors.append("identity_anchors may contain at most five entries")
+    seen_anchor_claims: set[str] = set()
+    for index, item in enumerate(identity_anchors, 1):
+        prefix = f"identity_anchors[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{prefix} must be a mapping")
+            continue
+        claim_id = item.get("claim_id")
+        if not _is_nonempty_string(claim_id):
+            errors.append(f"{prefix}.claim_id is required")
+            continue
+        if claim_id in seen_anchor_claims:
+            errors.append(f"duplicate identity anchor: {claim_id}")
+        seen_anchor_claims.add(claim_id)
+        claim = claims_by_id.get(claim_id)
+        if claim is None:
+            errors.append(f"{prefix} references unknown claim: {claim_id}")
+        elif claim.get("cv_eligible") is not True or claim.get("status") not in {
+            "verified",
+            "self_reported",
+        }:
+            errors.append(f"{prefix} references a claim that is not CV-eligible: {claim_id}")
+        if item.get("value") not in ALLOWED_IDENTITY_VALUES:
+            errors.append(
+                f"{prefix}.value must be one of: "
+                + ", ".join(sorted(ALLOWED_IDENTITY_VALUES))
+            )
+        if not _is_nonempty_string(item.get("usage")):
+            errors.append(f"{prefix}.usage is required")
 
     exclusions = data.get("exclusions")
     if is_v3 and not isinstance(exclusions, list):

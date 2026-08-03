@@ -5,7 +5,7 @@ points may delegate to it, but must not fork business logic.
 
 | Category | Canonical location | Purpose |
 |---|---|---|
-| Career workflow | `skills/evidence-first-cv/scripts/` | Initialize private workspaces, validate memory, audit role interests/readiness and historical CV wording, select claims, manage manifests/ledger, govern public GitHub, archive private work, and report status |
+| Career workflow | `skills/evidence-first-cv/scripts/` | Initialize private workspaces, validate memory, audit role interests/readiness and historical CV wording, select claims, manage manifests/ledger, govern public GitHub, audit résumé PDF layout, archive private work, and report status |
 | CLI compatibility | `tools/*.py` wrappers and `./cv` | Preserve short commands and older automation without duplicating logic |
 | Build safety | `tools/author_slug.py`, `tools/safe_clean.py` | Safe PDF names and bounded generated-file cleanup |
 | Dify packaging | `tools/package_dify_plugin.py` | Stage and inspect a portable plugin archive |
@@ -34,3 +34,7 @@ validation, role-strategy audit, portfolio coverage when a private GitHub invent
 exists, repository tests, privacy checks, and active-profile drift detection.
 Reference-only profiles and terminal archived applications are not reported as legacy
 application workspaces merely because no manifest remains active.
+
+`./cv pdf-audit <pdf>` uses Poppler bounding boxes to enforce one-page output,
+extractable text, a minimum first-page content reach, and a conservative readable-type
+proxy. These metrics catch common regressions but never replace rendered-page review.

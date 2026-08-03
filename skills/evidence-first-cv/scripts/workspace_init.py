@@ -40,6 +40,7 @@ SECTION_TEMPLATE_NAMES = (
     "experience.tex",
     "honors.tex",
     "letter_body.tex",
+    "order.tex",
     "skills.tex",
     "summary.tex",
 )

@@ -14,6 +14,8 @@ privacy, and outcome tracking.
 - Keep `meta/master_cv.yaml` as the canonical private memory.
 - Keep career direction in `career_preferences`; interest guides targeting but never
   becomes résumé evidence.
+- Keep durable credential, domain, market-bridge, local-fit, and autonomy signals in
+  `identity_anchors`; they protect recognisable candidate identity from over-tailoring.
 - Store proof locations in `evidence_registry`; never embed raw private evidence.
 - Store one defensible fact per `claim_registry` entry.
 - Generate a small JD-specific context instead of loading the full master into AI.
@@ -154,6 +156,10 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
 5. Read the generated context rather than the full master.
 6. Populate the manifest with the requirement-to-claim matrix, explicit gaps,
    recommendation, selected claims, and only questions that can change the output.
+   Independently review the governed identity anchors and select one to three. Record
+   each reason and placement; for graduate/early-career applications, spell out the
+   important institution, faculty, and degree in the top third rather than leaving an
+   acronym at the bottom.
    Then perform a second-pass complement review: inspect unused role-bound claims and
    the exported outside-role pool for zero to two adjacent differentiators. In schema
    3.3+, that pool contains only claims with pre-governed `adjacent_values`. Accept one
@@ -172,7 +178,9 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    evidenced skill groups and selected language or qualification claims. Use
    `Technical Skills` for technical roles and a natural `Core Skills` or `Skills`
    title for roles such as logistics or operations. Map every row to selected claim
-   IDs. Do not treat omission as minimalism.
+   IDs. Do not treat omission as minimalism. The headline must say who the candidate
+   is, not impersonate the vacancy title; JD tailoring may change emphasis but may not
+   erase the selected identity anchors.
 9. Map every final bullet to claim IDs in the private manifest; never show IDs in
    visible résumé prose. Run strict validation:
 
@@ -194,12 +202,14 @@ career evidence. Never infer candidate facts from agent instructions.
 1. Validate the master and run repository tests.
 2. Build the selected application.
 3. Extract PDF text and confirm reading order.
-4. Render every final page and inspect clipping, overlap, stale company names,
+4. Run `./cv pdf-audit build/<name>_CV.pdf` to reject accidental extra pages, very
+   sparse first pages, tiny-text proxies, or missing extractable text.
+5. Render every final page and inspect clipping, overlap, stale company names,
    broken links, orphaned sections, and accidental extra pages.
-5. Audit every metric and strong verb against its claim/evidence ID.
-6. Generate likely interview questions for every top-half claim. Lower a claim
+6. Audit every metric and strong verb against its claim/evidence ID.
+7. Generate likely interview questions for every top-half claim. Lower a claim
    when the user cannot defend it.
-7. Run the privacy check before staging or pushing:
+8. Run the privacy check before staging or pushing:
 
 ```bash
 python3 skills/evidence-first-cv/scripts/privacy_check.py

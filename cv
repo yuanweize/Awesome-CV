@@ -21,7 +21,7 @@ ARCHIVE_DIR="$SCRIPT_DIR/archive/applications"
 
 # Files that compose a profile
 ROOT_FILES=(config.tex letter_config.tex)
-SECTION_FILES=(summary.tex experience.tex skills.tex letter_body.tex education.tex certificates.tex honors.tex)
+SECTION_FILES=(order.tex summary.tex experience.tex skills.tex letter_body.tex education.tex certificates.tex honors.tex)
 
 # ── Colors ────────────────────────────────────────────────────────────────────
 RED=$'\033[0;31m'
@@ -465,6 +465,10 @@ cmd_privacy_check() {
     python3 "$SCRIPT_DIR/tools/privacy_check.py" "$@"
 }
 
+cmd_pdf_audit() {
+    python3 "$SCRIPT_DIR/tools/resume_pdf_audit.py" "$@"
+}
+
 cmd_track() {
     python3 "$SCRIPT_DIR/tools/application_ledger.py" "$@"
 }
@@ -715,6 +719,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}manifest${RESET} <command>    Validate an application decision/bullet manifest
   ${CYAN}validate${RESET} [yaml]       Validate the private master database
   ${CYAN}privacy-check${RESET}         Check tracked files for private data/secrets
+  ${CYAN}pdf-audit${RESET} <pdf>       Check page use, extractable text, and readable-type proxies
   ${CYAN}track${RESET} <command>       Maintain the private application/outcome memory
   ${CYAN}doctor${RESET}                Audit workspace, roles, portfolio, tests, privacy, and profile drift
 
@@ -740,6 +745,7 @@ ${BOLD}Examples:${RESET}
   ./cv start --company Acme --title "Systems Engineer" --role systems --jd job.md
   ./cv manifest validate meta/applications/<id>/application.yaml --strict
   ./cv privacy-check
+  ./cv pdf-audit build/Alex_Example_CV.pdf
   ./cv track summary
   ./cv doctor
 
@@ -775,6 +781,7 @@ case "${1:-}" in
     manifest) shift; cmd_manifest "$@" ;;
     validate) shift; cmd_validate "$@" ;;
     privacy-check) shift; cmd_privacy_check "$@" ;;
+    pdf-audit) shift; cmd_pdf_audit "$@" ;;
     track) shift; cmd_track "$@" ;;
     doctor) shift; cmd_doctor "$@" ;;
     -h|--help|help) usage ;;

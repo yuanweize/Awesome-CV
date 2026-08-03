@@ -13,6 +13,7 @@ AI receives an explicit factual boundary.
 | `privacy` | Contact-export default and sensitive-field policy |
 | `personal_information` | Private identity and contact data |
 | `career_preferences` | Owner-stated interests and application priorities; never CV evidence |
+| `identity_anchors` | Durable evidence-bound identity signals protected from over-tailoring |
 | `role_families` | Stable target lanes, readiness, strengths, boundaries, keywords, and titles |
 | `evidence_registry` | Proof index; never embed private document contents |
 | `claim_registry` | Only facts AI may use for CV drafting |
@@ -120,6 +121,14 @@ Allowed interests are `high`, `medium`, and `low`; priorities are `active`,
 but never enter résumé prose and never make a claim eligible. Use `./cv role-audit` to
 compare interests with eligible strong/moderate/limited evidence.
 
+## Identity anchors (schema 3.4+)
+
+`identity_anchors` contains one to five eligible claim references with a `value` and
+plain-language `usage` rule. Allowed values are `credential`, `domain_identity`,
+`market_bridge`, `local_fit`, and `autonomy`. The exporter presents this pool separately
+from JD-ranked and adjacent claims. Each application selects only one to three anchors;
+the pool is protection against identity erasure, not repeated boilerplate.
+
 ### Status
 
 | Status | Normally eligible? |
@@ -218,7 +227,7 @@ retains its own `verified_on` date.
 Keep claim IDs stable after they appear in `meta/applications.yaml`; the ledger uses
 them to compare which proof reached recruiter, technical, final, and offer stages.
 
-## Per-application manifest schema 1.0
+## Per-application manifest schema 1.1
 
 The master schema answers “what is true?” The ignored
 `meta/applications/<id>/application.yaml` answers “what did this JD require, what did
@@ -232,7 +241,9 @@ we select, what did the user approve, and which facts support each final bullet?
 
 The manifest stores the JD path and SHA-256, target/role family, apply/stretch/defer
 decision, material questions, direct/adjacent/gap mappings, selected claim IDs, final
-bullet-to-claim mappings, artifact hashes, and QA status. Optional
+bullet-to-claim mappings, artifact hashes, and QA status. Schema 1.1 also requires one
+to three selected `identity_anchors` for approved and later drafts, each with a reason
+and approved placement. Schema 1.0 remains accepted for historical records. Optional
 `adjacent_differentiators` records at most two approved complement claims with one of
 four values (`execution_leverage`, `delivery_risk_reduction`,
 `cross_functional_bridge`, or `autonomy`), a reason, and a placement limited to

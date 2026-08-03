@@ -28,6 +28,10 @@ Narrow the claim when any answer is vague.
 - Keep personal, academic, and contract scope visible.
 - Use metrics only with evidence and an `as of` date when dynamic.
 - One page, one role family, two or three main proof points for most junior roles.
+- Preserve a recognisable candidate identity. For graduate and early-career CVs,
+  select one to three governed identity anchors and place them in the top third.
+  Spell out important institutions, faculties, degrees, domains, and language bridges
+  at first mention; do not assume an acronym carries the signal.
 - Include an explicit Skills section near the top with three to five compact groups.
   Recruiters and ATS should not need to reconstruct the toolkit from prose. Every
   group must map to selected claim IDs; keep direct-role groups first.
@@ -43,6 +47,19 @@ Narrow the claim when any answer is vague.
 - Preserve AI-assisted delivery boundaries internally. Do not volunteer an AI
   disclaimer in ordinary CV prose, but never imply unassisted implementation when the
   recorded owner actions do not include it.
+
+## Identity before tailoring
+
+JD tailoring controls emphasis, ordering, and evidence selection; it must not erase
+the candidate. Before drafting, review `identity_anchors` independently from lexical
+JD ranking. Record each selected anchor, its reason, and its placement in the private
+manifest. An anchor may sit outside the primary role family without being mislabeled
+as an adjacent differentiator, but it still needs an eligible claim and evidence.
+
+Use the headline to say who the person is, not to impersonate the vacancy title. A
+recent graduate can lead with the full degree/institution plus the role-relevant bridge.
+The summary should answer, in two or three sentences: who is this person, why this
+role, and what evidence makes the transition credible.
 
 ## Adjacent differentiators
 

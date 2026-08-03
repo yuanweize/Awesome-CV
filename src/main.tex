@@ -15,28 +15,22 @@
 % CONFIGURATIONS
 %-------------------------------------------------------------------------------
 \documentclass[11pt, a4paper]{awesome-cv}
+\usepackage{modern-resume}
 
 % Configure page margins with geometry
-\geometry{left=1.4cm, top=1.5cm, right=1.4cm, bottom=1.8cm, footskip=.5cm}
+\geometry{left=1.55cm, top=1.25cm, right=1.55cm, bottom=1.35cm, footskip=.5cm}
 
 % Color for highlights
 % Options: awesome-emerald, awesome-skyblue, awesome-red, awesome-pink, awesome-orange
 %          awesome-nephritis, awesome-concrete, awesome-darknight
-\colorlet{awesome}{awesome-red}
+\colorlet{awesome}{modernNavy}
 % Or define your own: \definecolor{awesome}{HTML}{3E6D9C}
 
 % Set false if you don't want to highlight section with awesome color
-\setbool{acvSectionColorHighlight}{true}
+\setbool{acvSectionColorHighlight}{false}
 
 % Social information separator
 \renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
-
-% Enlarge header elements for better first-page presence
-\renewcommand*{\headerpositionstyle}[1]{{\fontsize{10pt}{1em}\bodyfont\scshape\color{awesome} #1}}
-\renewcommand*{\headeraddressstyle}[1]{{\fontsize{10pt}{1em}\headerfont\itshape\color{lighttext} #1}}
-\renewcommand*{\headersocialstyle}[1]{{\fontsize{10pt}{1em}\headerfont\color{text} #1}}
-\renewcommand*{\headerquotestyle}[1]{{\fontsize{10pt}{1em}\bodyfont\itshape\color{darktext} #1}}
-
 
 %-------------------------------------------------------------------------------
 % PERSONAL INFORMATION
@@ -66,14 +60,14 @@
 
 % Print the header with above personal information
 % Alignment options: C (center), L (left), R (right)
-\makecvheader[C]
+\makecvheader[L]
 
 % Print the footer
 \makeatletter
 \makecvfooter
   {}
-  {\@firstname~\@lastname~~~·~~~Résumé}
-  {\thepage}
+  {}
+  {}
 \makeatother
 
 
@@ -81,12 +75,16 @@
 % CV/RESUME CONTENT
 % Each section is imported separately
 %-------------------------------------------------------------------------------
-\input{\contentpath/summary.tex}
-\input{\contentpath/skills.tex}
-\input{\contentpath/experience.tex}
-\input{\contentpath/education.tex}
-\input{\contentpath/certificates.tex}
-\input{\contentpath/honors.tex}
+\IfFileExists{\contentpath/order.tex}{
+  \input{\contentpath/order.tex}
+}{
+  \input{\contentpath/summary.tex}
+  \input{\contentpath/skills.tex}
+  \input{\contentpath/experience.tex}
+  \input{\contentpath/education.tex}
+  \input{\contentpath/certificates.tex}
+  \input{\contentpath/honors.tex}
+}
 
 
 %-------------------------------------------------------------------------------

@@ -7,7 +7,7 @@ responsibility and one lifetime; generated CV prose must never become career tru
 
 | Path | Responsibility |
 |---|---|
-| `src/` | Shared Awesome-CV LaTeX class and document entry points |
+| `src/` | Shared Awesome-CV LaTeX class, modern presentation layer, and document entry points |
 | `templates/` | Fictional public examples for first-time initialization |
 | `skills/evidence-first-cv/` | Canonical AI workflow, policy, assets, and deterministic scripts |
 | `tools/` | Compatibility wrappers, packaging, cleanup, and privacy utilities |
@@ -52,7 +52,7 @@ change evidence records or claims.
 
 | Path | Responsibility |
 |---|---|
-| `config.tex`, `letter_config.tex`, `sections/` | Current editable working snapshot |
+| `config.tex`, `letter_config.tex`, `sections/` | Current editable working snapshot; `sections/order.tex` controls profile-specific ordering |
 | `profiles/<company-role>/` | Submitted or still-editable application snapshot |
 | reference profile listed in `meta/profile_catalog.yaml` | Optional layout/general-CV reference only |
 | `build/`, `tmp/` | Regenerable PDFs, contexts, and rendering output |

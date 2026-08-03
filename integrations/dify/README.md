@@ -97,9 +97,9 @@ The normal conversation is:
 1. check career-memory status;
 2. request the JD when it is missing;
 3. select one role family and build bounded context;
-4. map requirements, then review the complement for zero to two useful adjacent
+4. map requirements, select one to three governed identity anchors, then review the complement for zero to two useful adjacent
    differentiators without allowing them to dominate the target identity;
-5. create the hash-bound manifest skeleton, then show a compact decision brief
+5. create the hash-bound schema 1.1 manifest skeleton, then show a compact decision brief
    and at most three material questions;
 6. stop until the user confirms or adjusts;
 7. draft CV content and an `application.yaml` manifest;

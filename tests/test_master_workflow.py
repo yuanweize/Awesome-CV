@@ -33,6 +33,7 @@ from github_inventory import (  # noqa: E402
 )
 from portfolio_audit import audit_portfolio  # noqa: E402
 from role_audit import audit_roles  # noqa: E402
+from resume_pdf_audit import parse_bbox_xml  # noqa: E402
 from application_ledger import (  # noqa: E402
     command_add,
     command_summary,
@@ -115,6 +116,19 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertTrue(any("unknown values: magic" in error for error in result["errors"]))
 
+    def test_schema_34_requires_eligible_identity_anchor(self) -> None:
+        data = copy.deepcopy(self.template)
+        data.pop("identity_anchors")
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("identity_anchors" in error for error in result["errors"]))
+
+        data = copy.deepcopy(self.template)
+        data["identity_anchors"][0]["claim_id"] = "missing.claim"
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("unknown claim" in error for error in result["errors"]))
+
     def test_schema_30_remains_backward_compatible_without_role_positioning(self) -> None:
         data = copy.deepcopy(self.template)
         data["schema_version"] = "3.0"
@@ -191,7 +205,7 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertTrue((root / "meta" / "profile_catalog.yaml").is_file())
             self.assertTrue((root / "meta" / "README.md").is_file())
             self.assertIn("Only eligible entries", (root / "meta" / "README.md").read_text())
-            self.assertEqual(13, len(first["created_files"]))
+            self.assertEqual(14, len(first["created_files"]))
 
             marker = "owner-private-content\n"
             master = root / "meta" / "master_cv.yaml"
@@ -200,7 +214,7 @@ class MasterWorkflowTests(unittest.TestCase):
 
             self.assertEqual(marker, master.read_text(encoding="utf-8"))
             self.assertEqual([], second["created_files"])
-            self.assertEqual(13, len(second["preserved_files"]))
+            self.assertEqual(14, len(second["preserved_files"]))
 
     def test_workspace_init_rejects_private_symlink_destination(self) -> None:
         with (
@@ -435,6 +449,24 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertIn("- Application priority: active", context)
         self.assertIn("- Stretch titles: Junior Site Reliability Engineer", context)
         self.assertIn("Personal infrastructure is not enterprise production experience", context)
+        self.assertIn("## Identity anchors", context)
+        self.assertIn("education.bsc-computer-engineering", context)
+        self.assertIn("JD tailoring may change emphasis, not erase identity", context)
+
+    def test_pdf_bbox_parser_reports_readability_and_page_use_metrics(self) -> None:
+        metrics = parse_bbox_xml(
+            """<?xml version="1.0" encoding="UTF-8"?>
+            <html><body><doc><page width="595.0" height="842.0">
+              <flow><block><line>
+                <word xMin="40" yMin="40" xMax="80" yMax="53">Alex</word>
+                <word xMin="40" yMin="620" xMax="90" yMax="633">Evidence</word>
+              </line></block></flow>
+            </page></doc></body></html>"""
+        )
+        self.assertEqual(1, metrics["pages"])
+        self.assertEqual(2, metrics["words"])
+        self.assertEqual(13.0, metrics["median_word_height"])
+        self.assertGreater(metrics["page_metrics"][0]["bottom_coverage"], 0.75)
 
     def test_context_scoring_ignores_common_english_stopwords(self) -> None:
         self.assertEqual({"routing", "c"}, tokens("and to the routing with C"))
@@ -793,7 +825,15 @@ class MasterWorkflowTests(unittest.TestCase):
             )
             data["stage"] = "drafted"
             data["decision"].update({"recommendation": "apply", "user_confirmed": True})
-            data["selected_claims"] = [claim_id]
+            degree_id = "education.bsc-computer-engineering"
+            data["selected_claims"] = [degree_id, claim_id]
+            data["identity_anchors"] = [
+                {
+                    "claim_id": degree_id,
+                    "reason": "Primary early-career credential.",
+                    "placement": "summary",
+                }
+            ]
             data["requirements"] = [
                 {
                     "id": "req.linux",
@@ -804,6 +844,12 @@ class MasterWorkflowTests(unittest.TestCase):
                 }
             ]
             data["final_bullets"] = [
+                {
+                    "id": "bullet.summary.degree",
+                    "section": "summary",
+                    "text": "Computer Engineering graduate.",
+                    "claim_ids": [degree_id],
+                },
                 {
                     "id": "bullet.project",
                     "section": "projects",
@@ -831,7 +877,15 @@ class MasterWorkflowTests(unittest.TestCase):
                 sha256(jd),
                 "example",
             )
-            data["selected_claims"] = [claim_id]
+            degree_id = "education.bsc-computer-engineering"
+            data["selected_claims"] = [degree_id, claim_id]
+            data["identity_anchors"] = [
+                {
+                    "claim_id": degree_id,
+                    "reason": "Primary early-career credential.",
+                    "placement": "summary",
+                }
+            ]
             data["requirements"] = [
                 {
                     "id": "req.kubernetes",
@@ -869,7 +923,15 @@ class MasterWorkflowTests(unittest.TestCase):
             )
             data["stage"] = "sent"
             data["decision"].update({"recommendation": "apply", "user_confirmed": True})
-            data["selected_claims"] = [claim_id]
+            degree_id = "education.bsc-computer-engineering"
+            data["selected_claims"] = [degree_id, claim_id]
+            data["identity_anchors"] = [
+                {
+                    "claim_id": degree_id,
+                    "reason": "Primary early-career credential.",
+                    "placement": "summary",
+                }
+            ]
             data["requirements"] = [
                 {
                     "id": "req.linux",
@@ -880,6 +942,12 @@ class MasterWorkflowTests(unittest.TestCase):
                 }
             ]
             data["final_bullets"] = [
+                {
+                    "id": "bullet.summary.degree",
+                    "section": "summary",
+                    "text": "Computer Engineering graduate.",
+                    "claim_ids": [degree_id],
+                },
                 {
                     "id": "bullet.sent",
                     "section": "projects",

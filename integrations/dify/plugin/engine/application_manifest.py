@@ -16,7 +16,8 @@ from typing import Any
 import yaml
 
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
+SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1"}
 MANIFEST_STAGES = (
     "analysis",
     "awaiting-confirmation",
@@ -36,6 +37,7 @@ ADJACENT_VALUES = {
     "autonomy",
 }
 ADJACENT_SECTIONS = {"projects", "experience", "skills"}
+IDENTITY_SECTIONS = {"headline", "summary", "education", "experience", "projects", "skills"}
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 
 
@@ -122,6 +124,7 @@ def new_manifest(
         "questions": [],
         "requirements": [],
         "selected_claims": [],
+        "identity_anchors": [],
         "adjacent_differentiators": [],
         "final_bullets": [],
         "post_submission_corrections": [],
@@ -148,8 +151,12 @@ def validate_manifest(
     strict: bool = False,
 ) -> list[str]:
     errors: list[str] = []
-    if str(data.get("schema_version", "")) != SCHEMA_VERSION:
-        errors.append(f"schema_version must be {SCHEMA_VERSION!r}")
+    schema_version = str(data.get("schema_version", ""))
+    if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
+        errors.append(
+            "schema_version must be one of: "
+            + ", ".join(sorted(SUPPORTED_SCHEMA_VERSIONS))
+        )
 
     application_id = data.get("application_id")
     if not isinstance(application_id, str) or not ID_PATTERN.fullmatch(application_id):
@@ -192,6 +199,34 @@ def validate_manifest(
             errors.append(f"job description file not found: {jd_path}")
         elif not isinstance(expected_hash, str) or sha256(candidate) != expected_hash:
             errors.append("job_description.sha256 does not match the saved JD")
+
+    identity = data.get("identity_anchors", [])
+    if not isinstance(identity, list):
+        errors.append("identity_anchors must be a list")
+        identity = []
+    if len(identity) > 3:
+        errors.append("identity_anchors may contain at most three claims")
+    identity_ids: set[str] = set()
+    identity_placements: dict[str, str] = {}
+    for index, item in enumerate(identity, 1):
+        prefix = f"identity_anchors[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{prefix} must be a mapping")
+            continue
+        claim_id = item.get("claim_id")
+        if not isinstance(claim_id, str) or not ID_PATTERN.fullmatch(claim_id):
+            errors.append(f"{prefix}.claim_id is invalid")
+            continue
+        if claim_id in identity_ids:
+            errors.append(f"duplicate identity anchor: {claim_id}")
+        identity_ids.add(claim_id)
+        placement = item.get("placement")
+        if placement not in IDENTITY_SECTIONS:
+            errors.append(f"{prefix}.placement is invalid")
+        else:
+            identity_placements[claim_id] = placement
+        if not isinstance(item.get("reason"), str) or not item.get("reason", "").strip():
+            errors.append(f"{prefix}.reason is required")
 
     adjacent = data.get("adjacent_differentiators", [])
     if not isinstance(adjacent, list):
@@ -274,6 +309,7 @@ def validate_manifest(
             role
             and role not in claim.get("role_families", [])
             and claim_id not in adjacent_ids
+            and claim_id not in identity_ids
             and not historical_exception
         ):
             errors.append(f"selected claim {claim_id} is outside role family {role}")
@@ -282,6 +318,19 @@ def validate_manifest(
             errors.append(
                 f"adjacent differentiator is not present in selected_claims: {claim_id}"
             )
+    for claim_id in sorted(identity_ids):
+        if claim_id not in selected_set:
+            errors.append(f"identity anchor is not present in selected_claims: {claim_id}")
+        claim = claims.get(claim_id)
+        if claim is None:
+            errors.append(f"identity anchor references unknown claim: {claim_id}")
+        elif claim.get("cv_eligible") is not True or claim.get("status") not in {
+            "verified",
+            "self_reported",
+        }:
+            errors.append(f"identity anchor is not CV-eligible: {claim_id}")
+        if claim_id in adjacent_ids:
+            errors.append(f"claim cannot be both identity anchor and adjacent differentiator: {claim_id}")
     for claim_id in sorted(corrected_ids - selected_set):
         errors.append(
             f"post-submission correction is not present in selected_claims: {claim_id}"
@@ -372,6 +421,22 @@ def validate_manifest(
             errors.append(f"stage {stage} requires decision.user_confirmed=true")
         if stage in {"drafted", "validated", "sent", "closed"} and not bullets:
             errors.append(f"stage {stage} requires final_bullets")
+        if (
+            schema_version == "1.1"
+            and stage in {"approved", "drafted", "validated", "sent", "closed"}
+            and not identity
+        ):
+            errors.append(f"stage {stage} requires one to three identity_anchors")
+        for claim_id, placement in identity_placements.items():
+            if stage in {"drafted", "validated", "sent", "closed"} and not any(
+                isinstance(bullet, dict)
+                and bullet.get("section") == placement
+                and claim_id in bullet.get("claim_ids", [])
+                for bullet in bullets
+            ):
+                errors.append(
+                    f"identity anchor {claim_id} has no final bullet in approved placement {placement}"
+                )
 
     return errors
 

@@ -14,6 +14,7 @@ repository and say “I need a new CV” without knowing commands or schemas.
      without treating it as evidence;
    - two or three strongest claim IDs;
    - important direct, adjacent, and gap findings;
+   - one to three proposed identity anchors and their intended top-third placement;
    - zero to two proposed adjacent differentiators, each with a one-line value and
      intended low-prominence placement; omit this line when none passes the gates;
    - zero to three questions that can materially change selection or wording.

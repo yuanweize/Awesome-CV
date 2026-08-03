@@ -82,23 +82,30 @@ skill levels/boundaries, and curated `adjacent_values`. This prevents repository
 languages from leaking into Skills and prevents lexical accidents in the complement
 pool.
 
+Schema 3.4 adds governed `identity_anchors`. These are evidence-bound credential,
+domain, market-bridge, local-fit, or autonomy claims reviewed independently from JD
+ranking. They prevent over-tailoring from erasing the candidate while preserving the
+one-role-family constraint.
+
 ## Tailoring sequence
 
 1. Preserve the full JD privately.
 2. Map must-haves to eligible claim IDs.
 3. Decide apply, stretch, or defer.
-4. Review the pre-governed unused complement for zero to two adjacent differentiators;
+4. Select one to three identity anchors and record their top-third placement. Spell
+   out an important university, faculty, and degree for graduate applications.
+5. Review the pre-governed unused complement for zero to two adjacent differentiators;
    require a concrete transfer value and low-prominence placement, or select none.
-5. Show a compact brief, ask at most three material questions, and wait for approval.
-6. Create or clone a private application profile.
-7. Draft one page with two or three leading proof points.
-8. Add a visible three-to-five-row role-appropriate Skills section from evidenced
+6. Show a compact brief, ask at most three material questions, and wait for approval.
+7. Create or clone a private application profile.
+8. Draft one page with two or three leading proof points.
+9. Add a visible three-to-five-row role-appropriate Skills section from evidenced
    groups and selected language or qualification claims; map every skill row and final
    bullet to claims and strictly validate the application manifest.
-9. Audit every fact and metric against claim IDs.
-10. Build, extract text, render, inspect, and run privacy checks.
-11. Record the application only when submitted; then record stages and outcome.
-12. After a terminal outcome, archive the snapshot with a verified archive manifest.
+10. Audit every fact and metric against claim IDs.
+11. Build, run `./cv pdf-audit`, extract text, render, inspect, and run privacy checks.
+12. Record the application only when submitted; then record stages and outcome.
+13. After a terminal outcome, archive the snapshot with a verified archive manifest.
 
 The complement review prevents two opposite failures: mirroring the JD so narrowly
 that useful range disappears, and listing every true skill until the candidate's role

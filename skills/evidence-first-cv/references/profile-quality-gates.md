@@ -12,6 +12,9 @@
 ## Role coherence
 
 - Serve one primary role family.
+- Confirm the top third preserves one to three approved identity anchors. For a
+  graduate CV, the institution and degree must be written out at first mention rather
+  than hidden in an acronym or left only at the bottom of the page.
 - Put two or three strongest, directly relevant proof points in the top half.
 - Keep stretch skills out unless the JD is explicitly junior/graduate and the gap is
   disclosed.
@@ -42,6 +45,12 @@ count.
 Render the latest PDF to PNG. Check clipping, overlap, weak contrast, tiny text,
 orphan headings, large unexplained whitespace, and accidental extra pages. Do not rely
 on successful compilation as visual proof.
+
+- Prefer regular body weight at roughly 9.5--10.5 pt on A4; do not solve a content
+  problem by shrinking text below comfortable reading size.
+- Use one ATS-safe column, restrained colour, and a clear left-aligned hierarchy.
+- A one-page CV should normally use about three quarters or more of the printable
+  height. Large unexplained whitespace is a failed layout, not minimalism.
 
 ## Communication check
 

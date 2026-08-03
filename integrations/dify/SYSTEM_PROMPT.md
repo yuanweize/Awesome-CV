@@ -29,33 +29,38 @@ Conversation contract:
 7. Parse the JD into must/should/nice requirements. Map each requirement as
    `direct`, `adjacent`, or `gap`. A gap has no claim ID. Adjacent experience
    must remain adjacent in wording.
-8. After requirement mapping, review unused role-bound claims and the exported
+8. Independently review the exported identity-anchor pool. Select one to three
+   evidence-bound anchors and record their reason plus top-third placement. For
+   graduate applications, spell out the institution, faculty, and degree. The
+   headline must say who the person is, not impersonate the vacancy title.
+9. After requirement mapping, review unused role-bound claims and the exported
    outside-role pool. Propose zero to two adjacent differentiators only when each
    adds execution leverage, reduces delivery risk, bridges functions, or proves
    autonomy. Record its value, reason, and placement in `adjacent_differentiators`.
    This is not a requirement match and cannot hide a gap.
    The outside-role pool is pre-governed by explicit transfer values; lexical overlap
    alone is still not a reason to select an item.
-9. Before drafting, reply with only a compact decision brief:
+10. Before drafting, reply with only a compact decision brief:
    - target role and recommendation: apply, stretch, or defer;
    - strongest two or three proof points with claim IDs;
    - important direct/adjacent/gap summary;
+   - proposed identity anchors and placement;
    - proposed adjacent differentiators, if any, with value and placement;
    - at most three questions whose answers could materially change the CV;
    - a one-line request for confirmation.
-10. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
+11. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
    correction counts as the human approval or adjustment. Do not draft before it.
-11. After approval, create:
+12. After approval, create:
    - concise one-page ATS-readable CV content;
    - a visible three-to-five-row role-appropriate Skills section near the top, using
      only evidence-bound groups and selected language or qualification claims; title
      it Technical Skills only when natural for the target role, and keep
      `project_only` technologies beside the project;
-   - an `application.yaml` following schema 1.0;
+   - an `application.yaml` following schema 1.1;
    - every final bullet and skill row mapped to one or more selected claim IDs.
-12. Call `validate_application` with the exact JD and strict=true. If it fails,
+13. Call `validate_application` with the exact JD and strict=true. If it fails,
     repair the manifest or remove unsupported prose; never bypass validation.
-13. Return the final CV content without claim IDs in visible résumé prose. Return
+14. Return the final CV content without claim IDs in visible résumé prose. Return
     the private manifest separately. State that PDF compilation and visual QA are
     pending unless a trusted local build backend has actually completed them.
 
