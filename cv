@@ -13,6 +13,8 @@ set -euo pipefail
 #───────────────────────────────────────────────────────────────────────────────
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Keep Python bytecode outside the project even when users invoke ./cv directly.
+export PYTHONPYCACHEPREFIX="${PYTHONPYCACHEPREFIX:-/tmp/awesome-cv-pycache}"
 PROFILES_DIR="$SCRIPT_DIR/profiles"
 ACTIVE_FILE="$SCRIPT_DIR/.active_profile"
 SECTIONS_DIR="$SCRIPT_DIR/sections"
@@ -469,6 +471,10 @@ cmd_pdf_audit() {
     python3 "$SCRIPT_DIR/tools/resume_pdf_audit.py" "$@"
 }
 
+cmd_bundle_audit() {
+    python3 "$SCRIPT_DIR/tools/application_bundle_audit.py" "$@"
+}
+
 cmd_track() {
     python3 "$SCRIPT_DIR/tools/application_ledger.py" "$@"
 }
@@ -700,7 +706,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}list${RESET}                  List all profiles (active marked with ▸)
   ${CYAN}use${RESET} <profile>         Load a profile; refuses to overwrite unsaved changes
   ${CYAN}save${RESET} [profile]        Save current working files to a profile
-  ${CYAN}build${RESET} [profile]       Build PDFs (current if omitted, or specific profile)
+  ${CYAN}build${RESET} [profile]       Build the CV + cover-letter application bundle
   ${CYAN}new${RESET} <profile>         Create a clean profile from public templates
   ${CYAN}clone${RESET} <src> <new>     Clone a profile without stale PDFs
   ${CYAN}diff${RESET} <a> [b]          Compare two profiles (b = current working if omitted)
@@ -720,6 +726,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}validate${RESET} [yaml]       Validate the private master database
   ${CYAN}privacy-check${RESET}         Check tracked files for private data/secrets
   ${CYAN}pdf-audit${RESET} <pdf>       Check page use, extractable text, and readable-type proxies
+  ${CYAN}bundle-audit${RESET} <manifest> Audit every declared CV/cover-letter PDF and hash
   ${CYAN}track${RESET} <command>       Maintain the private application/outcome memory
   ${CYAN}doctor${RESET}                Audit workspace, roles, portfolio, tests, privacy, and profile drift
 
@@ -746,6 +753,7 @@ ${BOLD}Examples:${RESET}
   ./cv manifest validate meta/applications/<id>/application.yaml --strict
   ./cv privacy-check
   ./cv pdf-audit build/Alex_Example_CV.pdf
+  ./cv bundle-audit meta/applications/<id>/application.yaml
   ./cv track summary
   ./cv doctor
 
@@ -782,6 +790,7 @@ case "${1:-}" in
     validate) shift; cmd_validate "$@" ;;
     privacy-check) shift; cmd_privacy_check "$@" ;;
     pdf-audit) shift; cmd_pdf_audit "$@" ;;
+    bundle-audit) shift; cmd_bundle_audit "$@" ;;
     track) shift; cmd_track "$@" ;;
     doctor) shift; cmd_doctor "$@" ;;
     -h|--help|help) usage ;;

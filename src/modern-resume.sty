@@ -1,4 +1,4 @@
-% Modern, ATS-safe presentation layer for the résumé only.
+% Modern, ATS-safe presentation layer shared by the résumé and cover letter.
 % Keep the upstream-derived class as the structural engine and override visual
 % tokens here so future template updates remain reviewable.
 \NeedsTeXFormat{LaTeX2e}
@@ -42,6 +42,17 @@
 \renewcommand*{\descriptionstyle}[1]{{\fontsize{9.8pt}{12.2pt}\bodyfont\upshape\color{modernText}#1}}
 \renewcommand*{\skilltypestyle}[1]{{\fontsize{9.8pt}{12pt}\bodyfont\bfseries\color{modernNavy}#1}}
 \renewcommand*{\skillsetstyle}[1]{{\fontsize{9.8pt}{12pt}\bodyfont\color{modernText}#1}}
+
+% Cover-letter typography uses the same visual identity as the résumé. Keep
+% the body regular weight and high contrast; the upstream Light/grey defaults
+% are difficult to scan and visually disconnect the two application files.
+\renewcommand*{\recipienttitlestyle}[1]{{\fontsize{10.4pt}{12.4pt}\bodyfont\bfseries\color{modernText}#1}}
+\renewcommand*{\recipientaddressstyle}[1]{{\fontsize{9.5pt}{11.8pt}\bodyfont\mdseries\color{modernMuted}#1}}
+\renewcommand*{\lettertitlestyle}[1]{{\fontsize{13pt}{15.5pt}\bodyfont\bfseries\color{modernNavy}#1}}
+\renewcommand*{\letterdatestyle}[1]{{\fontsize{9.4pt}{11.5pt}\bodyfont\mdseries\color{modernMuted}#1}}
+\renewcommand*{\lettertextstyle}{\fontsize{10.2pt}{14.2pt}\bodyfont\upshape\color{modernText}}
+\renewcommand*{\letternamestyle}[1]{{\fontsize{10.2pt}{12.2pt}\bodyfont\bfseries\color{modernText}#1}}
+\renewcommand*{\letterenclosurestyle}[1]{{\fontsize{9.2pt}{11pt}\bodyfont\mdseries\color{modernMuted}#1}}
 
 \renewcommand{\acvHeaderAfterNameSkip}{0.7mm}
 \renewcommand{\acvHeaderAfterPositionSkip}{0.7mm}

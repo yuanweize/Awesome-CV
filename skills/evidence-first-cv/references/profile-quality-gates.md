@@ -32,6 +32,8 @@
 - Require a visible Skills section by default. It should contain three to five compact
   groups, each mapped to selected claims; an empty/comment-only `skills.tex` is a
   failed profile, not a minimalist design choice.
+- Confirm every exported direct skill group was reviewed and every included
+  `capability_review` claim appears in its approved CV or cover-letter placement.
 
 ## ATS/text check
 
@@ -51,6 +53,9 @@ on successful compilation as visual proof.
 - Use one ATS-safe column, restrained colour, and a clear left-aligned hierarchy.
 - A one-page CV should normally use about three quarters or more of the printable
   height. Large unexplained whitespace is a failed layout, not minimalism.
+- Render the cover letter separately. Require the same header identity, typography,
+  colour, contrast, and one-page discipline as the CV; reject the old generic template.
+- Run the bundle auditor so artifact hashes and page counts cannot drift after rebuilding.
 
 ## Communication check
 
@@ -62,6 +67,6 @@ on successful compilation as visual proof.
 
 ## Pre-send check
 
-Run master validation, build, ATS extraction, visual rendering, link/date review, and
-privacy check. Tailor a cover letter only when useful; never send the generic base
-unchanged.
+Run master validation, build, ATS extraction, visual rendering, link/date review,
+bundle audit, and privacy check. Build every declared deliverable and never send the
+generic cover-letter base unchanged.

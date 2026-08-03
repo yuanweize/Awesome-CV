@@ -16,8 +16,8 @@ from typing import Any
 import yaml
 
 
-SCHEMA_VERSION = "1.1"
-SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1"}
+SCHEMA_VERSION = "1.2"
+SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1", "1.2"}
 MANIFEST_STAGES = (
     "analysis",
     "awaiting-confirmation",
@@ -38,6 +38,9 @@ ADJACENT_VALUES = {
 }
 ADJACENT_SECTIONS = {"projects", "experience", "skills"}
 IDENTITY_SECTIONS = {"headline", "summary", "education", "experience", "projects", "skills"}
+DELIVERABLES = {"cv", "cover_letter"}
+CAPABILITY_DECISIONS = {"include", "omit"}
+CAPABILITY_PLACEMENTS = ADJACENT_SECTIONS | {"cover_letter", "none"}
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 
 
@@ -88,6 +91,22 @@ def master_index(path: Path) -> tuple[dict[str, dict[str, Any]], set[str]]:
     return claims, roles
 
 
+def reviewable_skill_claim_ids(path: Path) -> set[str]:
+    """Return claim IDs that back groups allowed in the visible Skills section."""
+    data = load_yaml(path, "master CV")
+    technical_skills = data.get("technical_skills", {})
+    if not isinstance(technical_skills, dict):
+        return set()
+    claim_ids: set[str] = set()
+    for group in technical_skills.get("evidenced", []):
+        if not isinstance(group, dict) or group.get("cv_usage") != "skill":
+            continue
+        claim_ids.update(
+            item for item in group.get("claim_ids", []) if isinstance(item, str)
+        )
+    return claim_ids
+
+
 def new_manifest(
     application_id: str,
     company: str,
@@ -96,7 +115,9 @@ def new_manifest(
     jd_path: str,
     jd_hash: str,
     profile: str,
+    deliverables: list[str] | None = None,
 ) -> dict[str, Any]:
+    declared_deliverables = list(deliverables or ["cv", "cover_letter"])
     return {
         "schema_version": SCHEMA_VERSION,
         "application_id": application_id,
@@ -123,17 +144,28 @@ def new_manifest(
         },
         "questions": [],
         "requirements": [],
+        "deliverables": declared_deliverables,
         "selected_claims": [],
         "identity_anchors": [],
         "adjacent_differentiators": [],
+        "capability_review": {
+            "completed": False,
+            "entries": [],
+        },
         "final_bullets": [],
+        "cover_letter_paragraphs": [],
         "post_submission_corrections": [],
         "artifacts": {
             "profile": profile,
             "cv_pdf": "",
             "cover_letter_pdf": "",
             "cv_sha256": "",
+            "cover_letter_sha256": "",
             "page_count": 0,
+            "cover_letter_page_count": 0,
+            "application_pdf": "",
+            "application_sha256": "",
+            "application_page_count": 0,
         },
         "quality": {
             "claim_audit": "pending",
@@ -181,6 +213,25 @@ def validate_manifest(
     role = target.get("role_family")
     if role and role not in roles:
         errors.append(f"unknown role family: {role}")
+
+    deliverables = data.get("deliverables", [])
+    if schema_version == "1.2":
+        if not isinstance(deliverables, list) or not deliverables or not all(
+            isinstance(item, str) for item in deliverables
+        ):
+            errors.append("deliverables must be a non-empty list for schema 1.2")
+            deliverables = []
+        elif len(set(deliverables)) != len(deliverables):
+            errors.append("deliverables contains duplicates")
+        unknown_deliverables = sorted(set(deliverables) - DELIVERABLES)
+        if unknown_deliverables:
+            errors.append(
+                "deliverables contains unknown values: " + ", ".join(unknown_deliverables)
+            )
+        if "cv" not in deliverables:
+            errors.append("deliverables must include cv")
+    elif not isinstance(deliverables, list):
+        deliverables = []
 
     job = data.get("job_description")
     if not isinstance(job, dict):
@@ -336,6 +387,53 @@ def validate_manifest(
             f"post-submission correction is not present in selected_claims: {claim_id}"
         )
 
+    capability_review = data.get("capability_review", {})
+    capability_entries: list[dict[str, Any]] = []
+    seen_capabilities: set[str] = set()
+    if schema_version == "1.2":
+        if not isinstance(capability_review, dict):
+            errors.append("capability_review must be a mapping for schema 1.2")
+            capability_review = {}
+        if not isinstance(capability_review.get("completed"), bool):
+            errors.append("capability_review.completed must be true or false")
+        raw_entries = capability_review.get("entries", [])
+        if not isinstance(raw_entries, list):
+            errors.append("capability_review.entries must be a list")
+            raw_entries = []
+        for index, item in enumerate(raw_entries, 1):
+            prefix = f"capability_review.entries[{index}]"
+            if not isinstance(item, dict):
+                errors.append(f"{prefix} must be a mapping")
+                continue
+            claim_id = item.get("claim_id")
+            if not isinstance(claim_id, str) or not ID_PATTERN.fullmatch(claim_id):
+                errors.append(f"{prefix}.claim_id is invalid")
+                continue
+            if claim_id in seen_capabilities:
+                errors.append(f"duplicate capability review claim: {claim_id}")
+            seen_capabilities.add(claim_id)
+            if claim_id not in claims:
+                errors.append(f"{prefix} references unknown claim: {claim_id}")
+            decision_value = item.get("decision")
+            if decision_value not in CAPABILITY_DECISIONS:
+                errors.append(f"{prefix}.decision must be include or omit")
+            placement = item.get("placement")
+            if placement not in CAPABILITY_PLACEMENTS:
+                errors.append(f"{prefix}.placement is invalid")
+            if not isinstance(item.get("reason"), str) or not item.get("reason", "").strip():
+                errors.append(f"{prefix}.reason is required")
+            if decision_value == "include":
+                if claim_id not in selected_set:
+                    errors.append(f"included capability is not in selected_claims: {claim_id}")
+                if placement == "none":
+                    errors.append(f"included capability needs a visible placement: {claim_id}")
+            elif decision_value == "omit":
+                if claim_id in selected_set:
+                    errors.append(f"omitted capability is still in selected_claims: {claim_id}")
+                if placement != "none":
+                    errors.append(f"omitted capability placement must be none: {claim_id}")
+            capability_entries.append(item)
+
     requirements = data.get("requirements")
     if not isinstance(requirements, list):
         errors.append("requirements must be a list")
@@ -405,6 +503,33 @@ def validate_manifest(
                     f"approved placement is {placement}"
                 )
 
+    letter_paragraphs = data.get("cover_letter_paragraphs", [])
+    if not isinstance(letter_paragraphs, list):
+        errors.append("cover_letter_paragraphs must be a list")
+        letter_paragraphs = []
+    seen_paragraphs: set[str] = set()
+    for index, paragraph in enumerate(letter_paragraphs, 1):
+        prefix = f"cover_letter_paragraphs[{index}]"
+        if not isinstance(paragraph, dict):
+            errors.append(f"{prefix} must be a mapping")
+            continue
+        paragraph_id = paragraph.get("id")
+        if not isinstance(paragraph_id, str) or not ID_PATTERN.fullmatch(paragraph_id):
+            errors.append(f"{prefix}.id is invalid")
+        elif paragraph_id in seen_paragraphs:
+            errors.append(f"duplicate cover-letter paragraph ID: {paragraph_id}")
+        else:
+            seen_paragraphs.add(paragraph_id)
+        if not isinstance(paragraph.get("text"), str) or not paragraph.get("text", "").strip():
+            errors.append(f"{prefix}.text is required")
+        mapped = paragraph.get("claim_ids", [])
+        if not isinstance(mapped, list) or not mapped:
+            errors.append(f"{prefix}.claim_ids must contain at least one claim")
+            mapped = []
+        for claim_id in mapped:
+            if claim_id not in selected_set:
+                errors.append(f"{prefix} uses claim not present in selected_claims: {claim_id}")
+
     decision = data.get("decision")
     if not isinstance(decision, dict):
         errors.append("decision must be a mapping")
@@ -421,8 +546,41 @@ def validate_manifest(
             errors.append(f"stage {stage} requires decision.user_confirmed=true")
         if stage in {"drafted", "validated", "sent", "closed"} and not bullets:
             errors.append(f"stage {stage} requires final_bullets")
+        if schema_version == "1.2" and stage in {
+            "approved",
+            "drafted",
+            "validated",
+            "sent",
+            "closed",
+        } and not capability_review.get("completed"):
+            errors.append(f"stage {stage} requires a completed capability_review")
+        if schema_version == "1.2" and stage in {
+            "approved",
+            "drafted",
+            "validated",
+            "sent",
+            "closed",
+        }:
+            missing_capability_decisions = sorted(
+                (selected_set & reviewable_skill_claim_ids(master_path))
+                - seen_capabilities
+            )
+            for claim_id in missing_capability_decisions:
+                errors.append(
+                    "selected skill-backed claim is missing from capability_review: "
+                    + claim_id
+                )
         if (
-            schema_version == "1.1"
+            schema_version == "1.2"
+            and "cover_letter" in deliverables
+            and stage in {"drafted", "validated", "sent", "closed"}
+            and not (2 <= len(letter_paragraphs) <= 6)
+        ):
+            errors.append(
+                f"stage {stage} requires two to six evidence-bound cover_letter_paragraphs"
+            )
+        if (
+            schema_version in {"1.1", "1.2"}
             and stage in {"approved", "drafted", "validated", "sent", "closed"}
             and not identity
         ):
@@ -437,6 +595,79 @@ def validate_manifest(
                 errors.append(
                     f"identity anchor {claim_id} has no final bullet in approved placement {placement}"
                 )
+        if schema_version == "1.2" and stage in {"drafted", "validated", "sent", "closed"}:
+            for item in capability_entries:
+                if item.get("decision") != "include":
+                    continue
+                claim_id = item.get("claim_id")
+                placement = item.get("placement")
+                if placement == "cover_letter":
+                    present = any(
+                        isinstance(paragraph, dict)
+                        and claim_id in paragraph.get("claim_ids", [])
+                        for paragraph in letter_paragraphs
+                    )
+                else:
+                    present = any(
+                        isinstance(bullet, dict)
+                        and bullet.get("section") == placement
+                        and claim_id in bullet.get("claim_ids", [])
+                        for bullet in bullets
+                    )
+                if not present:
+                    errors.append(
+                        f"included capability {claim_id} has no content in approved placement {placement}"
+                    )
+
+        if schema_version == "1.2" and stage in {"validated", "sent", "closed"}:
+            artifacts = data.get("artifacts")
+            if not isinstance(artifacts, dict):
+                errors.append("artifacts must be a mapping")
+                artifacts = {}
+
+            def validate_artifact(kind: str, path_field: str, hash_field: str, pages_field: str) -> None:
+                raw_path = artifacts.get(path_field)
+                expected = artifacts.get(hash_field)
+                pages = artifacts.get(pages_field)
+                if not isinstance(raw_path, str) or not raw_path.strip():
+                    errors.append(f"artifacts.{path_field} is required for {kind}")
+                    return
+                candidate = (
+                    (project_root / raw_path).resolve()
+                    if not Path(raw_path).is_absolute()
+                    else Path(raw_path).resolve()
+                )
+                allowed_roots = [
+                    (project_root / "profiles").resolve(),
+                    (project_root / "build").resolve(),
+                ]
+                if not any(candidate.is_relative_to(root) for root in allowed_roots):
+                    errors.append(f"artifacts.{path_field} must stay under profiles/ or build/")
+                elif not candidate.is_file():
+                    errors.append(f"artifact file not found: {raw_path}")
+                elif not isinstance(expected, str) or sha256(candidate) != expected:
+                    errors.append(f"artifacts.{hash_field} does not match {raw_path}")
+                if not isinstance(pages, int) or pages < 1:
+                    errors.append(f"artifacts.{pages_field} must be a positive integer")
+
+            if "cv" in deliverables:
+                validate_artifact("cv", "cv_pdf", "cv_sha256", "page_count")
+            if "cover_letter" in deliverables:
+                validate_artifact(
+                    "cover_letter",
+                    "cover_letter_pdf",
+                    "cover_letter_sha256",
+                    "cover_letter_page_count",
+                )
+            if isinstance(artifacts.get("application_pdf"), str) and artifacts.get(
+                "application_pdf", ""
+            ).strip():
+                validate_artifact(
+                    "application",
+                    "application_pdf",
+                    "application_sha256",
+                    "application_page_count",
+                )
 
     return errors
 
@@ -450,6 +681,7 @@ def save_yaml(path: Path, data: dict[str, Any]) -> None:
 
 
 def command_init(args: argparse.Namespace, root: Path) -> int:
+    master = load_yaml(args.master, "master CV")
     _, roles = master_index(args.master)
     if args.role not in roles:
         raise ValueError(f"unknown role family {args.role!r}; available: {', '.join(sorted(roles))}")
@@ -469,6 +701,12 @@ def command_init(args: argparse.Namespace, root: Path) -> int:
     profile = args.profile or application_id
     if not ID_PATTERN.fullmatch(profile):
         raise ValueError("profile name is unsafe")
+    application_defaults = master.get("application_defaults", {})
+    deliverables = (
+        application_defaults.get("deliverables", ["cv", "cover_letter"])
+        if isinstance(application_defaults, dict)
+        else ["cv", "cover_letter"]
+    )
     manifest = new_manifest(
         application_id,
         args.company,
@@ -477,6 +715,7 @@ def command_init(args: argparse.Namespace, root: Path) -> int:
         relative_jd,
         sha256(jd_target),
         profile,
+        deliverables,
     )
     manifest_path = application_dir / "application.yaml"
     save_yaml(manifest_path, manifest)

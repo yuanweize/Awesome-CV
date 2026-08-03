@@ -17,9 +17,12 @@ repository and say “I need a new CV” without knowing commands or schemas.
    - one to three proposed identity anchors and their intended top-third placement;
    - zero to two proposed adjacent differentiators, each with a one-line value and
      intended low-prominence placement; omit this line when none passes the gates;
+   - proposed deliverables and any useful direct/bonus capability that would otherwise
+     be easy to overlook;
    - zero to three questions that can materially change selection or wording.
 6. Stop for confirmation. “Yes”, “是”, “可以”, or a small correction is enough.
-7. Apply corrections, record confirmation, draft, build, and audit.
+7. Apply corrections, record confirmation, draft the complete declared bundle, build,
+   and audit both CV and cover letter.
 8. Report artifact paths and checks. Do not mark the application sent until the
    user says it was actually submitted.
 

@@ -1,4 +1,4 @@
-.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy pdf-audit portfolio-audit role-audit legacy-audit test check dify-check dify-package prepare-tex-cache
+.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy pdf-audit bundle-audit portfolio-audit role-audit legacy-audit test check dify-check dify-package prepare-tex-cache
 
 CC = lualatex
 PYTHON ?= python3
@@ -6,16 +6,18 @@ BUILD_DIR = build
 JD ?=
 ROLE ?=
 PDF ?= $(BUILD_DIR)/$(AUTHOR)_CV.pdf
+MANIFEST ?=
 CONTEXT_OUTPUT ?= $(BUILD_DIR)/ai-context.generated.md
 PYTHONPYCACHEPREFIX ?= /tmp/awesome-cv-pycache
 export PYTHONPYCACHEPREFIX
 
 # Keep LuaTeX's generated font/cache files outside the repository. This also
 # makes local builds work when the system TeX tree is read-only.
-TEX_CACHE_ROOT ?= $(if $(TMPDIR),$(TMPDIR),/tmp)
+TEX_CACHE_ROOT ?= /tmp
 TEXMFVAR ?= $(TEX_CACHE_ROOT)/awesome-cv-texmf
 TEXMFCONFIG ?= $(TEX_CACHE_ROOT)/awesome-cv-texconfig
-export TEXMFVAR TEXMFCONFIG
+TEXMFCACHE ?= $(TEXMFVAR)
+export TEXMFVAR TEXMFCONFIG TEXMFCACHE
 
 # Add src/ to TeX search path so \documentclass{awesome-cv} finds awesome-cv.cls
 export TEXINPUTS := src/:.:$(TEXINPUTS)
@@ -65,6 +67,10 @@ privacy:
 pdf-audit:
 	@$(PYTHON) tools/resume_pdf_audit.py "$(PDF)"
 
+bundle-audit:
+	@test -n "$(MANIFEST)" || (echo "Usage: make bundle-audit MANIFEST=meta/applications/<id>/application.yaml" >&2; exit 2)
+	@$(PYTHON) tools/application_bundle_audit.py "$(MANIFEST)"
+
 portfolio-audit:
 	@$(PYTHON) tools/portfolio_audit.py --strict
 
@@ -92,7 +98,7 @@ dify-package:
 
 
 prepare-tex-cache:
-	@mkdir -p "$(TEXMFVAR)" "$(TEXMFCONFIG)"
+	@mkdir -p "$(TEXMFVAR)/luatex-cache/generic/names" "$(TEXMFCONFIG)"
 
 resume: prepare-tex-cache | $(BUILD_DIR)
 	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_CV" src/main.tex
@@ -144,6 +150,7 @@ help:
 	@echo "  make context-smoke - Exercise the public JD-to-context workflow"
 	@echo "  make privacy     - Check tracked files for private data and secrets"
 	@echo "  make pdf-audit PDF=path/to/cv.pdf - Check page use, text extraction, and type-size proxies"
+	@echo "  make bundle-audit MANIFEST=meta/applications/<id>/application.yaml - Audit CV + cover letter as one bundle"
 	@echo "  make portfolio-audit - Compare private GitHub inventory with governed portfolio memory"
 	@echo "  make role-audit   - Report career interests, readiness, and claim coverage"
 	@echo "  make legacy-audit - Compare private historical CV wording with governed claims"
@@ -154,6 +161,6 @@ help:
 	@echo "  make resume      - Build $(BUILD_DIR)/$(AUTHOR)_CV.pdf"
 	@echo "  make coverletter - Build $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
 	@echo "  make merged      - Merge Cover Letter + CV into $(BUILD_DIR)/$(AUTHOR)_Application.pdf"
-	@echo "  make all         - Build all (resume + coverletter + merged)"
+	@echo "  make all         - Build the complete application bundle (CV + cover letter + merged PDF)"
 	@echo "  make clean       - Remove all build artifacts"
 	@echo "  make help        - Show this help message"

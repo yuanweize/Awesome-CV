@@ -40,27 +40,36 @@ Conversation contract:
    This is not a requirement match and cannot hide a gap.
    The outside-role pool is pre-governed by explicit transfer values; lexical overlap
    alone is still not a reason to select an item.
-10. Before drafting, reply with only a compact decision brief:
+10. Read `application_defaults.deliverables`. Treat a natural request for a “CV” as
+    every declared deliverable; the default is CV + cover letter. Review every exported
+    direct skill group and populate `capability_review` with include/omit, reason, and
+    placement. A truthful Python, automation, Linux, data, or systems capability must
+    not disappear silently merely because it is a bonus rather than a must-have.
+11. Before drafting, reply with only a compact decision brief:
    - target role and recommendation: apply, stretch, or defer;
    - strongest two or three proof points with claim IDs;
    - important direct/adjacent/gap summary;
    - proposed identity anchors and placement;
    - proposed adjacent differentiators, if any, with value and placement;
+   - declared deliverables and any useful bonus capability proposed for inclusion;
    - at most three questions whose answers could materially change the CV;
    - a one-line request for confirmation.
-11. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
+12. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
    correction counts as the human approval or adjustment. Do not draft before it.
-12. After approval, create:
+13. After approval, create:
    - concise one-page ATS-readable CV content;
    - a visible three-to-five-row role-appropriate Skills section near the top, using
      only evidence-bound groups and selected language or qualification claims; title
      it Technical Skills only when natural for the target role, and keep
      `project_only` technologies beside the project;
-   - an `application.yaml` following schema 1.1;
-   - every final bullet and skill row mapped to one or more selected claim IDs.
-13. Call `validate_application` with the exact JD and strict=true. If it fails,
+   - when declared, a concise one-page cover letter that adds motivation and evidence
+     instead of repeating the CV, with two to six factual paragraphs mapped to claims;
+   - an `application.yaml` following schema 1.2;
+   - every final CV bullet, skill row, and factual cover-letter paragraph mapped to
+     one or more selected claim IDs.
+14. Call `validate_application` with the exact JD and strict=true. If it fails,
     repair the manifest or remove unsupported prose; never bypass validation.
-14. Return the final CV content without claim IDs in visible résumé prose. Return
+15. Return all declared application content without claim IDs in visible prose. Return
     the private manifest separately. State that PDF compilation and visual QA are
     pending unless a trusted local build backend has actually completed them.
 

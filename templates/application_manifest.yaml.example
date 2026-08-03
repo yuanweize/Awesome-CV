@@ -1,4 +1,4 @@
-schema_version: "1.1"
+schema_version: "1.2"
 application_id: "20260115-example-corp-junior-systems-engineer"
 stage: awaiting-confirmation
 created_at: "2026-01-15"
@@ -37,10 +37,13 @@ requirements:
   match: gap
   claim_ids: []
   note: "Do not add Kubernetes to the CV."
+deliverables: [cv, cover_letter]
 selected_claims:
 - education.bsc-computer-engineering
 - experience.northstar-linux-support
 - project.signalwatch-features
+- project.signalwatch-benchmark
+- personal.lab-operation
 identity_anchors:
 - claim_id: education.bsc-computer-engineering
   reason: "Primary verified credential for an early-career application."
@@ -50,6 +53,21 @@ adjacent_differentiators:
   value: execution_leverage
   reason: "Shows practical automation beyond the JD without changing the target identity."
   placement: projects
+capability_review:
+  completed: true
+  entries:
+  - claim_id: experience.northstar-linux-support
+    decision: include
+    reason: "Direct Linux troubleshooting and operational documentation evidence."
+    placement: experience
+  - claim_id: project.signalwatch-features
+    decision: include
+    reason: "Python automation provides useful execution leverage for this systems role."
+    placement: projects
+  - claim_id: personal.lab-operation
+    decision: include
+    reason: "Personal systems operation is relevant when its non-enterprise boundary stays explicit."
+    placement: experience
 final_bullets:
 - id: bullet.summary.degree
   section: summary
@@ -66,13 +84,47 @@ final_bullets:
   text: "Built a personal Python service for scheduled network probes and historical results."
   claim_ids:
   - project.signalwatch-features
+- id: bullet.project.benchmark
+  section: projects
+  text: "Ran a repeatable 10,000-result benchmark and documented its test boundary."
+  claim_ids:
+  - project.signalwatch-benchmark
+- id: bullet.experience.personal-lab
+  section: experience
+  text: "Maintain a small personal Linux environment with bounded monitoring and service tooling."
+  claim_ids:
+  - personal.lab-operation
+cover_letter_paragraphs:
+- id: letter.opening
+  text: "I am applying as a recent Computer Engineering graduate with verified Linux support experience."
+  claim_ids:
+  - education.bsc-computer-engineering
+  - experience.northstar-linux-support
+- id: letter.project
+  text: "My personal SignalWatch project adds practical Python automation and documented validation work."
+  claim_ids:
+  - project.signalwatch-features
+  - project.signalwatch-benchmark
+- id: letter.personal-lab
+  text: "A small personal Linux environment adds bounded service-operation and monitoring practice."
+  claim_ids:
+  - personal.lab-operation
+- id: letter.close
+  text: "I would bring evidence-led troubleshooting and clear escalation notes to a mentored junior role."
+  claim_ids:
+  - experience.northstar-linux-support
 post_submission_corrections: []
 artifacts:
   profile: "20260115-example-corp-junior-systems-engineer"
   cv_pdf: ""
   cover_letter_pdf: ""
   cv_sha256: ""
+  cover_letter_sha256: ""
   page_count: 0
+  cover_letter_page_count: 0
+  application_pdf: ""
+  application_sha256: ""
+  application_page_count: 0
 quality:
   claim_audit: pending
   ats_text_check: pending

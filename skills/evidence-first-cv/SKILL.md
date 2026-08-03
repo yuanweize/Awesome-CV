@@ -14,6 +14,8 @@ privacy, and outcome tracking.
 - Keep `meta/master_cv.yaml` as the canonical private memory.
 - Keep career direction in `career_preferences`; interest guides targeting but never
   becomes résumé evidence.
+- Keep the owner's default application deliverables in `application_defaults`; for
+  this workspace, a natural-language CV request means the full CV + cover-letter bundle.
 - Keep durable credential, domain, market-bridge, local-fit, and autonomy signals in
   `identity_anchors`; they protect recognisable candidate identity from over-tailoring.
 - Store proof locations in `evidence_registry`; never embed raw private evidence.
@@ -166,10 +168,14 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    only when it adds execution leverage, reduces delivery risk, bridges functions, or
    proves autonomy. Record its value, reason, and low-prominence placement in
    `adjacent_differentiators`; never use it to disguise a JD gap.
+   Review every exported direct skill group as a separate capability-coverage pass.
+   Record useful included or deliberately omitted capabilities in `capability_review`;
+   do not let a concrete bonus such as Python disappear behind a generic ERP/project label.
 7. Show the user a compact decision brief and at most three material questions.
    Stop before drafting until the user confirms or corrects it.
-8. After confirmation, record it in the manifest and draft only from selected
-   claim IDs. Preserve scope, delivery mode, owned actions, and ownership verbs.
+8. After confirmation, record it in the manifest and draft every deliverable declared
+   by `application_defaults`/the manifest only from selected claim IDs. Preserve scope,
+   delivery mode, owned actions, and ownership verbs.
    Explain what a project does before relying on its proper name, and keep
    `project_only` technologies out of the visible Skills section. Keep the target identity and top
    proof points role-specific; place approved differentiators only in skills, projects,
@@ -192,7 +198,9 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    profile unless the user explicitly needs one.
 11. Use `./cv clone <trusted-base> <application>` only when an existing layout is
    useful. It is a compatibility/build backend, not the intelligence layer.
-12. Tailor the cover letter only when requested or expected; never send the generic template.
+12. When `cover_letter` is a declared deliverable, treat it as required rather than
+   optional polish. Map its factual paragraphs to selected claim IDs, use it to explain
+   motivation, transfer, and boundaries that do not fit the CV, and never send the generic template.
 
 If the repository has `AGENTS.md`, treat it as routing metadata rather than
 career evidence. Never infer candidate facts from agent instructions.
@@ -204,12 +212,14 @@ career evidence. Never infer candidate facts from agent instructions.
 3. Extract PDF text and confirm reading order.
 4. Run `./cv pdf-audit build/<name>_CV.pdf` to reject accidental extra pages, very
    sparse first pages, tiny-text proxies, or missing extractable text.
-5. Render every final page and inspect clipping, overlap, stale company names,
+5. Run `./cv bundle-audit meta/applications/<id>/application.yaml` to verify the CV,
+   cover letter, optional merged PDF, declared page counts, and SHA-256 hashes together.
+6. Render every final page and inspect clipping, overlap, stale company names,
    broken links, orphaned sections, and accidental extra pages.
-6. Audit every metric and strong verb against its claim/evidence ID.
-7. Generate likely interview questions for every top-half claim. Lower a claim
+7. Audit every metric and strong verb against its claim/evidence ID.
+8. Generate likely interview questions for every top-half claim. Lower a claim
    when the user cannot defend it.
-8. Run the privacy check before staging or pushing:
+9. Run the privacy check before staging or pushing:
 
 ```bash
 python3 skills/evidence-first-cv/scripts/privacy_check.py
@@ -272,6 +282,6 @@ future eligibility.
 ## Completion report
 
 Return the selected role family, direct/adjacent/gap summary, claim IDs used,
-files created or changed, validation/build/privacy results, and the next measurable
+CV/cover-letter files created or changed, bundle validation/build/privacy results, and the next measurable
 action. Keep private evidence locators and contact details out of the response
 unless the user explicitly needs them.

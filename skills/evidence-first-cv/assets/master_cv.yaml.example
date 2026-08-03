@@ -1,7 +1,7 @@
 # Awesome-CV evidence-first master database (public example)
 # Copy to meta/master_cv.yaml. The destination is gitignored.
 
-schema_version: "3.4"
+schema_version: "3.5"
 
 metadata:
   owner: "Alex Example"
@@ -44,6 +44,12 @@ career_preferences:
     interest: medium
     application_priority: selective
     notes: "Prefer system-level validation over manual-only QA"
+
+# Controls what a natural-language request such as "make my CV" means for this
+# owner. Remove cover_letter only when you deliberately want résumé-only output.
+application_defaults:
+  deliverables: [cv, cover_letter]
+  complement_review: true
 
 # Durable, evidence-bound facts that should survive JD tailoring. The drafting
 # agent selects only one to three per application and records their placement.

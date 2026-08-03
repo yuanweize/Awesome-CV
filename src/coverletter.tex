@@ -11,14 +11,15 @@
 % CONFIGURATIONS
 %-------------------------------------------------------------------------------
 \documentclass[11pt, a4paper]{awesome-cv}
+\usepackage{modern-resume}
 
-\geometry{left=1.4cm, top=.8cm, right=1.4cm, bottom=1.8cm, footskip=.5cm}
+\geometry{left=1.65cm, top=1.25cm, right=1.65cm, bottom=1.45cm, footskip=.5cm}
 
 % Color for highlights
-\colorlet{awesome}{awesome-red}
+\colorlet{awesome}{modernNavy}
 
 % Section color highlighting
-\setbool{acvSectionColorHighlight}{true}
+\setbool{acvSectionColorHighlight}{false}
 
 % Social information separator
 \renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
@@ -41,13 +42,13 @@
 \begin{document}
 
 % Print the header (same style as Resume)
-\makecvheader[R]
+\makecvheader[L]
 
 % Print the footer
 \makeatletter
 \makecvfooter
   {}
-  {\@firstname~\@lastname~~~·~~~Cover Letter}
+  {}
   {}
 \makeatother
 

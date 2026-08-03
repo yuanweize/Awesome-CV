@@ -22,6 +22,7 @@ ALLOWED_VISIBILITY = {"public", "private", "self_reported"}
 ALLOWED_ROLE_READINESS = {"core", "credible", "stretch"}
 ALLOWED_INTEREST_LEVELS = {"high", "medium", "low"}
 ALLOWED_APPLICATION_PRIORITIES = {"active", "selective", "explore", "paused"}
+ALLOWED_APPLICATION_DELIVERABLES = {"cv", "cover_letter"}
 ALLOWED_DELIVERY_MODES = {"direct", "ai_assisted", "mixed", "not_applicable"}
 ALLOWED_OWNER_ACTIONS = {
     "requirements",
@@ -219,6 +220,10 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         version_match
         and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 4)
     )
+    governed_application_defaults = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 5)
+    )
     if not is_v3:
         warnings.append(
             "Legacy master database: add schema_version 3.x, role_families, "
@@ -338,6 +343,34 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                 )
             if not _is_nonempty_string(item.get("notes")):
                 errors.append(f"{prefix}.notes is required")
+
+    application_defaults = data.get("application_defaults")
+    if governed_application_defaults:
+        if not isinstance(application_defaults, dict):
+            errors.append("application_defaults must be a mapping for schema 3.5+")
+            application_defaults = {}
+        deliverables = application_defaults.get("deliverables")
+        if not _list_of_strings(deliverables):
+            errors.append(
+                "application_defaults.deliverables must be a non-empty list of strings"
+            )
+            deliverables = []
+        else:
+            _validate_unique_strings(
+                deliverables, "application_defaults.deliverables", errors
+            )
+            unknown_deliverables = sorted(
+                set(deliverables) - ALLOWED_APPLICATION_DELIVERABLES
+            )
+            if unknown_deliverables:
+                errors.append(
+                    "application_defaults.deliverables has unknown values: "
+                    + ", ".join(unknown_deliverables)
+                )
+            if "cv" not in deliverables:
+                errors.append("application_defaults.deliverables must include cv")
+        if not isinstance(application_defaults.get("complement_review"), bool):
+            errors.append("application_defaults.complement_review must be true or false")
 
     evidence_items = data.get("evidence_registry", [])
     if is_v3 and (not isinstance(evidence_items, list) or not evidence_items):

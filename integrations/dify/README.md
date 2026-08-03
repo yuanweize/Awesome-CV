@@ -22,12 +22,12 @@ The plugin provides five tools:
 | `career_memory_status` | Check whether memory exists; return safe counts and career-direction priorities |
 | `save_career_memory` | Validate and persist schema 3.x career YAML |
 | `build_job_context` | Select role-bound claims plus a capped outside-role differentiator review pool |
-| `start_application` | Create a schema 1.0 manifest skeleton bound to the exact JD hash |
-| `validate_application` | Enforce requirement/claim/gap/bullet traceability after confirmation |
+| `start_application` | Create a schema 1.2 CV + cover-letter manifest skeleton bound to the exact JD hash |
+| `validate_application` | Enforce requirement/claim/gap/capability/CV/cover-letter traceability after confirmation |
 
 The Dify Agent or Chatflow LLM performs requirement interpretation and prose
 drafting. The plugin constrains its input and validates its output. It does not
-run LuaLaTeX, so a Dify-only deployment produces reviewed CV content and a
+run LuaLaTeX, so a Dify-only deployment produces reviewed CV and cover-letter content and a
 portable application manifest, while this repository remains the recommended
 backend for final LaTeX/PDF build and visual QA.
 
@@ -99,12 +99,15 @@ The normal conversation is:
 3. select one role family and build bounded context;
 4. map requirements, select one to three governed identity anchors, then review the complement for zero to two useful adjacent
    differentiators without allowing them to dominate the target identity;
-5. create the hash-bound schema 1.1 manifest skeleton, then show a compact decision brief
+5. read the owner's declared deliverables, review each exported direct skill group,
+   and record include/omit, reason, and proposed placement;
+6. create the hash-bound schema 1.2 manifest skeleton, then show a compact decision brief
    and at most three material questions;
-6. stop until the user confirms or adjusts;
-7. draft CV content and an `application.yaml` manifest;
-8. call strict manifest validation;
-9. return the reviewed content and tell the user that local PDF build/visual QA
+7. stop until the user confirms or adjusts;
+8. draft every declared deliverable, normally one-page CV content plus a concise,
+   complementary cover letter, and complete `application.yaml`;
+9. call strict manifest validation;
+10. return the reviewed content and tell the user that local PDF build/bundle audit/visual QA
    is still pending unless a separate trusted build service is connected.
 
 ## Privacy boundary

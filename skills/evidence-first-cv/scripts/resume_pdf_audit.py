@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit a résumé PDF for page count, text presence, readable type, and page use."""
+"""Audit an application PDF for page count, text, readable type, and page use."""
 
 from __future__ import annotations
 
@@ -75,7 +75,7 @@ def audit_pdf(
     elif metrics["pages"] > max_pages:
         errors.append(f"page count {metrics['pages']} exceeds maximum {max_pages}")
     if metrics["words"] < 40:
-        errors.append("too little extractable text for an ATS-readable résumé")
+        errors.append("too little extractable text for an ATS-readable application document")
     if metrics["page_metrics"]:
         first_coverage = metrics["page_metrics"][0]["bottom_coverage"]
         if first_coverage < min_bottom_coverage:

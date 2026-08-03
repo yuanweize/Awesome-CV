@@ -12,7 +12,7 @@ This directory is the ignored, local memory layer for one person. It is created 
 
 ## Subdirectories
 
-- `applications/<id>/`: one exact JD and its decision/claim manifest.
+- `applications/<id>/`: one exact JD and its CV + cover-letter decision/claim/artifact manifest.
 - `evidence/`: durable private proof such as degree records, contracts,
   certificates, thesis source, and historical source material.
 - `inventory/`: dated discovery snapshots from GitHub or technical environments.
@@ -30,5 +30,10 @@ belongs in `../archive/`. Run `./cv status` before beginning a new application.
 
 Use `identity_anchors` in `master_cv.yaml` for durable evidence-bound credentials,
 domains, market bridges, local fit, or autonomy that should survive JD tailoring.
-Each schema 1.1 application selects only one to three and records their placement.
+Each schema 1.2 application selects only one to three and records their placement.
 Use `sections/order.tex` to change section priority per private profile.
+
+`application_defaults` controls what a natural “new CV” request means. The public
+default is `[cv, cover_letter]`; remove `cover_letter` only when résumé-only output is
+an intentional owner decision. Schema 1.2 also records a capability include/omit
+review so useful evidence-bound bonus skills cannot disappear silently.

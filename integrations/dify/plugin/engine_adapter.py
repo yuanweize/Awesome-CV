@@ -111,6 +111,12 @@ def new_application_text(
     generated_id = application_id.strip() or f"dify-{slug(company)}-{slug(title)}"
     if not ID_PATTERN.fullmatch(generated_id):
         raise ValueError("Application ID must use lowercase letters, numbers, dots, underscores, or hyphens")
+    application_defaults = master.get("application_defaults", {})
+    deliverables = (
+        application_defaults.get("deliverables", ["cv", "cover_letter"])
+        if isinstance(application_defaults, dict)
+        else ["cv", "cover_letter"]
+    )
     with tempfile.TemporaryDirectory() as directory:
         jd_path = Path(directory) / "jd.md"
         jd_path.write_text(jd, encoding="utf-8")
@@ -122,6 +128,7 @@ def new_application_text(
             f"meta/applications/{generated_id}/jd.md",
             sha256(jd_path),
             generated_id,
+            deliverables,
         )
     return yaml.safe_dump(manifest, sort_keys=False, allow_unicode=True)
 

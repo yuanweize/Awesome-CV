@@ -52,7 +52,8 @@ This stores the exact JD under `meta/applications/<id>/jd.md` and creates
 language, location, contract type, salary when published, and application date.
 
 The manifest is the private compiler trace: decision, human confirmation,
-requirements, selected claims, identity anchors, final bullets, artifacts, and QA state. The separate
+requirements, selected claims, identity anchors, declared deliverables, capability
+review, final CV bullets, cover-letter paragraphs, artifacts, and QA state. The separate
 ledger is the historical funnel record.
 
 ## 4. Select one role family
@@ -100,14 +101,16 @@ The agent then shows only:
 3. material direct/adjacent/gap findings;
 4. proposed identity anchors and placement;
 5. proposed adjacent differentiators, if any, with value and placement;
-6. zero to three questions whose answers can change the output.
+6. declared deliverables and any useful direct capability that might otherwise be missed;
+7. zero to three questions whose answers can change the output.
 
 The agent must wait. A simple “yes” or a small correction is the approval gate. This
 keeps the human in control without forcing them to edit schemas or long prompts.
 
 ## 7. Draft under the output contract
 
-After approval, require:
+After approval, require the complete bundle declared by
+`application_defaults.deliverables` (normally CV + cover letter):
 
 1. a one-page draft using only approved selected claim IDs;
 2. a headline that states who the candidate is rather than impersonating the vacancy
@@ -118,7 +121,12 @@ After approval, require:
    may appear there, while `project_only` stack stays with the project;
 4. a claim/metric audit;
 5. likely interview questions for top-half claims;
-6. every final bullet and skill row mapped to claim IDs in the private manifest.
+6. a capability review recording include/omit, reason, and placement for every
+   exported direct skill group; a truthful Python, automation, Linux, or data capability
+   must not disappear simply because it is a bonus rather than a must-have;
+7. every final CV bullet and skill row mapped to claim IDs in the private manifest;
+8. when `cover_letter` is declared, two to six concise factual paragraphs that
+   complement the CV and map back to selected claim IDs.
 
 Reject any new number, title, employer, scope, technology, or result. Good prose does
 not override the database. Validate the trace strictly:
@@ -142,22 +150,26 @@ A role family is a claim-selection boundary; a profile is an application/build
 snapshot. Permanent “systems CV” and “field CV” baselines are optional, not the
 architecture. Clone only a trusted layout, never an old profile as factual authority.
 
-Copy reviewed prose into `sections/`, tailor `config.tex` and `letter_config.tex`,
-then save. Remove meta commentary, IDs, scoring notes, and AI instructions.
+Copy reviewed CV prose and cover-letter prose into `sections/`, tailor `config.tex`
+and `letter_config.tex`, then save. Remove meta commentary, IDs, scoring notes, and AI
+instructions.
 
 ## 9. Validate the artifact
 
 ```bash
 ./cv build company-role
-./cv pdf-audit profiles/company-role/Name_CV.pdf
-pdfinfo profiles/company-role/*_CV.pdf
-pdftotext -layout profiles/company-role/*_CV.pdf -
-pdftoppm -png profiles/company-role/*_CV.pdf tmp/company-role/page
+./cv bundle-audit meta/applications/<id>/application.yaml
+pdfinfo profiles/company-role/*.pdf
+pdftotext -layout profiles/company-role/Name_CV.pdf -
+pdftotext -layout profiles/company-role/Name_Cover_Letter.pdf -
+pdftoppm -png profiles/company-role/Name_Application.pdf tmp/company-role/page
 ```
 
-Check claim traceability, reading order, page count, links, clipping, overlap, font
-size, current dates, stale company names, and interview defensibility. Compilation
-alone is not acceptance.
+Check CV and cover-letter claim traceability, reading order, page count, links,
+clipping, overlap, font size, current dates, stale company names, visual consistency,
+and interview defensibility. The bundle audit checks declared files, SHA-256 values,
+page counts, ATS text and layout metrics; rendered-page review remains mandatory.
+Compilation alone is not acceptance.
 
 ## 10. Record submission and outcome
 
@@ -201,6 +213,6 @@ a disposable derived index; YAML stays authoritative.
 The same contract can run through the repository Skill or the Dify Tool Plugin. Dify
 does not directly execute `SKILL.md`; see [../integrations/dify/README.md](../integrations/dify/README.md).
 
-中文总结：母库只维护一次；每个 JD 建一个私有 manifest；AI 先做需求映射，给你简短
-结论并等确认，再写简历；真正投递后才写入 ledger。这样由人驾驶 AI，而不是由漂亮
+中文总结：母库只维护一次；每个 JD 建一个私有 manifest；AI 先做需求映射与能力补集
+审查，给你简短结论并等确认，再完成 CV + CL 申请包；真正投递后才写入 ledger。这样由人驾驶 AI，而不是由漂亮
 文案反过来驾驶事实。

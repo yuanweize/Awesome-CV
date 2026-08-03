@@ -35,7 +35,7 @@ tech-stack collector is an evidence-discovery input, not Skill business logic. S
 | `meta/master_cv.yaml` | Career preferences, role strategy, facts, evidence IDs, atomic claims, governed portfolio, and exclusions |
 | `meta/README.md` | Local map of the ignored runtime layer; guidance only, never career evidence |
 | `meta/applications.yaml` | Application events and funnel outcomes |
-| `meta/applications/<id>/` | One saved JD and its decision/claim manifest |
+| `meta/applications/<id>/` | One saved JD and its CV + cover-letter decision/claim/artifact manifest |
 | `meta/profile_catalog.yaml` | Explicit classification of reusable reference profiles |
 | `meta/evidence/` | Durable private proof such as degree or contract records |
 | `meta/inventory/` | Dated derived discovery caches such as GitHub API snapshots; never factual authority |
@@ -53,7 +53,7 @@ change evidence records or claims.
 | Path | Responsibility |
 |---|---|
 | `config.tex`, `letter_config.tex`, `sections/` | Current editable working snapshot; `sections/order.tex` controls profile-specific ordering |
-| `profiles/<company-role>/` | Submitted or still-editable application snapshot |
+| `profiles/<company-role>/` | Submitted or still-editable CV + cover-letter application snapshot |
 | reference profile listed in `meta/profile_catalog.yaml` | Optional layout/general-CV reference only |
 | `build/`, `tmp/` | Regenerable PDFs, contexts, and rendering output |
 
@@ -74,7 +74,8 @@ evidence, and historical source are never mass-deleted during routine cleanup.
 ## Lifecycle
 
 ```text
-evidence -> master claim -> JD manifest -> working snapshot -> submitted profile
+evidence -> master claim -> JD manifest -> working CV + CL -> audited application bundle
+                                                              -> submitted profile
                                                        -> outcome ledger
 discovery inventory -> portfolio audit -> catalog/exclusion -> human-reviewed claim (or no promotion)
 stated interest -> role family/stretch titles -> role audit -> JD-specific evidence decision

@@ -87,6 +87,29 @@ unless its value to the target work can be explained in one sentence.
   project bullets. Omit it only when the target format explicitly forbids it.
 - Never include a planned, installed-only, tutorial-only, or unselected technology.
 
+## Capability coverage
+
+After requirement mapping, review every exported direct skill group before drafting.
+A concrete role-useful capability such as Python, Linux, automation, or data handling
+must either appear in a compact, accurate placement or have an omission reason in the
+private `capability_review`. Do not hide a tool inside a generic ERP/project phrase.
+
+Use one compact digital/technical-leverage line when it materially helps a nontechnical
+operations role and evidence supports it. Preserve personal or academic scope and keep
+the line subordinate to direct role proof. The complement budget still applies; this is
+not permission to dump an infrastructure inventory.
+
+## Cover letter
+
+- Follow declared deliverables; when `cover_letter` is selected, it is part of the
+  application package, not an optional afterthought.
+- Complement the CV: explain motivation, credible transfer, boundaries, or one useful
+  bonus capability instead of repeating every bullet.
+- Keep two to six concise factual paragraphs and map each to selected claim IDs.
+- Use the same identity anchor and visual system as the CV, while preserving the exact
+  employer, recipient, title, and date.
+- Never send generic template prose or imply that adjacent evidence closes a stated gap.
+
 ## Requirement mapping
 
 - `direct`: claim proves the exact requirement.

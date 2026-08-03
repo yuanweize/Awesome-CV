@@ -6,8 +6,8 @@ identity:
     zh_Hans: 创建申请清单
 description:
   human:
-    en_US: Create a schema 1.0 application skeleton bound to the exact JD hash.
-    zh_Hans: 创建与当前 JD 哈希绑定的 schema 1.0 申请清单骨架。
+    en_US: Create a schema 1.2 CV and cover-letter application skeleton bound to the exact JD hash.
+    zh_Hans: 创建与当前 JD 哈希绑定的 schema 1.2 CV 与求职信申请清单骨架。
   llm: >-
     Call after choosing one role family and before presenting the decision brief.
     Preserve the returned IDs, JD hash, and path while filling requirements and claims.

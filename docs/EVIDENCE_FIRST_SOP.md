@@ -5,7 +5,8 @@
 1. Evidence registry: where proof exists.
 2. Atomic claim registry: exactly what may be stated.
 3. Role/JD context: which eligible claims matter now.
-4. Application manifest: requirement, decision, confirmation, claim, and bullet trace.
+4. Application manifest: requirement, decision, confirmation, capability review,
+   CV/cover-letter claim trace, and artifact integrity.
 5. Profile: human-edited application artifact.
 6. Application ledger: what happened after actual submission.
 7. Private archive: closed snapshots and research, never factual authority.
@@ -87,6 +88,10 @@ domain, market-bridge, local-fit, or autonomy claims reviewed independently from
 ranking. They prevent over-tailoring from erasing the candidate while preserving the
 one-role-family constraint.
 
+Schema 3.5 adds `application_defaults`. The default public workflow declares both
+`cv` and `cover_letter`, so a conversational request for a CV produces a complete
+application package unless the owner deliberately selects résumé-only output.
+
 ## Tailoring sequence
 
 1. Preserve the full JD privately.
@@ -96,16 +101,21 @@ one-role-family constraint.
    out an important university, faculty, and degree for graduate applications.
 5. Review the pre-governed unused complement for zero to two adjacent differentiators;
    require a concrete transfer value and low-prominence placement, or select none.
-6. Show a compact brief, ask at most three material questions, and wait for approval.
-7. Create or clone a private application profile.
-8. Draft one page with two or three leading proof points.
-9. Add a visible three-to-five-row role-appropriate Skills section from evidenced
+6. Review every exported direct skill group, recording include/omit, reason, and
+   placement. Preserve useful, truthful bonus capabilities without crowding the role identity.
+7. Show a compact brief, ask at most three material questions, and wait for approval.
+8. Create or clone a private application profile.
+9. Draft the one-page CV with two or three leading proof points.
+10. Add a visible three-to-five-row role-appropriate Skills section from evidenced
    groups and selected language or qualification claims; map every skill row and final
    bullet to claims and strictly validate the application manifest.
-10. Audit every fact and metric against claim IDs.
-11. Build, run `./cv pdf-audit`, extract text, render, inspect, and run privacy checks.
-12. Record the application only when submitted; then record stages and outcome.
-13. After a terminal outcome, archive the snapshot with a verified archive manifest.
+11. When declared, draft a one-page cover letter that complements rather than repeats
+    the CV; map each factual paragraph to claims.
+12. Audit every fact and metric against claim IDs.
+13. Build CV, cover letter, and merged PDF; run `./cv bundle-audit`, extract text,
+    render, inspect both pages, and run privacy checks.
+14. Record the application only when submitted; then record stages and outcome.
+15. After a terminal outcome, archive the snapshot with a verified archive manifest.
 
 The complement review prevents two opposite failures: mirroring the JD so narrowly
 that useful range disappears, and listing every true skill until the candidate's role

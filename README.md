@@ -2,7 +2,7 @@
 
 # Awesome-CV Evidence-First
 
-**Privacy-first LaTeX CVs with an atomic, evidence-bound master database**
+**Privacy-first CV + cover-letter bundles from an atomic, evidence-bound career memory**
 
 **隐私优先的 LaTeX 简历系统：用可追溯原子事实约束 AI，按 JD 安全生成定制上下文**
 
@@ -42,13 +42,13 @@ job description + role family
       ↓
 generated private AI context
       ↓
-application manifest → human approval → profile/PDF → outcome ledger
+application manifest → human approval → CV + cover letter + bundle audit → outcome ledger
 ```
 
 Every exported claim carries a stable ID, exact scope, role tags, evidence
 references, verification status, CV eligibility, and interview-depth confidence.
-Schema 3.4 also records AI/direct delivery mode, personally owned actions, authorship
-boundaries, and durable identity anchors. A repository may prove a useful product without turning every
+Schema 3.5 also records AI/direct delivery mode, personally owned actions, authorship
+boundaries, durable identity anchors, and owner-level application deliverables. A repository may prove a useful product without turning every
 language, framework, or source-level term inside it into a candidate skill.
 
 ## Requirements
@@ -110,7 +110,7 @@ The intended interface is conversational. Open the repository in a compatible ID
 agent and say:
 
 ```text
-I need a new CV. Check the workspace first, then ask me for the JD.
+I need a new CV application. Check the workspace first, then ask me for the JD.
 ```
 
 After receiving the JD, the agent saves it privately, selects one role family, maps
@@ -121,7 +121,10 @@ cannot disappear merely because the JD uses different words. Before that approva
 intersection and may propose at most two low-prominence adjacent differentiators. For
 example, an automotive automation CV can mention a defensible Linux/CI capability when
 it improves diagnostics or delivery, without turning the profile into a server CV.
-A simple “yes” or small correction unlocks drafting. You should not have to drive
+A simple “yes” or small correction unlocks the declared application bundle. In the
+public schema, “CV” defaults to a tailored one-page résumé, a tailored one-page cover
+letter, and a merged PDF; an owner can explicitly choose résumé-only output in
+`application_defaults`. You should not have to drive
 individual scripts or repeatedly explain your history.
 
 Project prose is outcome-first: explain what the system does and why it matters before
@@ -156,7 +159,7 @@ initialized from the repository's tracked `templates/`. The
 repository template and Skill asset are tested for byte-for-byte equality so they
 cannot silently drift.
 
-## JD → decision manifest → tailored CV
+## JD → decision manifest → tailored application bundle
 
 Check the workspace, then create the ignored per-application workspace:
 
@@ -194,12 +197,17 @@ when they add concrete transfer value. Contact details are excluded unless
 Generated CVs include a compact role-appropriate `Skills` section near the top by
 default. For technical roles it may be titled `Technical Skills`; for logistics or
 operations it should use natural groups such as languages, records, coordination,
-and systems. Each of its three to five rows must be backed by selected claim IDs. The workflow
+and systems. Each of its three to five rows must be backed by selected claim IDs. Before
+drafting, the agent must review every exported direct skill group and record whether it
+was included, where it was placed, or why it was omitted. This keeps honest bonus
+capabilities such as Python automation or personal Linux/Docker operation from being
+silently lost merely because they are not the primary job title. The workflow
 prevents both failure modes: deleting Skills in the name of minimalism and copying the
 entire mother inventory into an unreadable keyword wall.
 
 Before prose is drafted, record the requirement-to-claim mapping, explicit gaps,
-selected claims, and your approval in the manifest. Every final bullet maps back to
+selected claims, declared deliverables, capability-review decisions, and your approval
+in the manifest. Every final CV bullet and factual cover-letter paragraph maps back to
 claim IDs. Then run strict validation:
 
 ```bash
@@ -208,14 +216,15 @@ claim IDs. Then run strict validation:
 
 A missing requirement remains a gap. The visible CV never contains internal IDs.
 
-The résumé renderer uses a modern one-column, left-aligned, high-contrast presentation
-layer over the maintainable Awesome-CV structure. Profiles may override section order
+The CV and cover letter share a modern one-column, left-aligned, high-contrast
+presentation layer over the maintainable Awesome-CV structure. Profiles may override section order
 with `sections/order.tex`—for example, moving Education above Experience when a recent
 graduate's university is a primary identity anchor. After building, run the deterministic
 layout gate before manual visual inspection:
 
 ```bash
 ./cv pdf-audit build/Alex_Example_CV.pdf
+./cv bundle-audit meta/applications/<id>/application.yaml
 ```
 
 完整流程见 [docs/AI_WORKFLOW.md](docs/AI_WORKFLOW.md)，schema 字段见
@@ -227,7 +236,6 @@ Profiles are private, editable application artifacts, not career memory and not
 mandatory role-family baselines. You do **not** need to maintain a permanent “systems
 CV” and “field CV”. Create a clean company-role profile for a live application; clone
 an older profile only when its layout and ordering are genuinely reusable. Move closed
-applications to the ignored archive after recording the outcome. Structural LaTeX
 files stay shared.
 
 Optional general snapshots must be declared in `meta/profile_catalog.yaml`. They are
@@ -268,7 +276,7 @@ profiles.
 | `./cv clone <source> <new>` | Clone trusted source files, excluding PDFs |
 | `./cv use <name>` | Load a profile; refuse to overwrite unsaved working changes |
 | `./cv save [name]` | Save working files to the active profile |
-| `./cv build [name]` | Build current/specified profile and restore state safely |
+| `./cv build [name]` | Build the CV, cover letter, and merged bundle for a profile |
 | `./cv diff <a> [b]` | Compare profiles or working files |
 | `./cv archive <name> [--apply]` | Plan or apply a SHA-256-verified private archive move |
 | `./cv archive-research <source> <name> [--apply]` | Separately archive private research with hashes |
@@ -282,6 +290,7 @@ profiles.
 | `./cv status [--json]` | Preflight master, ledger, manifests, profiles, and unsaved state |
 | `./cv start ...` | Save one JD and initialize its private decision manifest |
 | `./cv manifest validate ...` | Check requirement/claim/bullet traceability and approval |
+| `./cv bundle-audit <manifest>` | Verify every declared PDF, hash, page count, text, and layout gate |
 | `./cv validate [yaml]` | Validate a master database |
 | `./cv privacy-check` | Inspect tracked files for leaks |
 | `./cv pdf-audit <pdf>` | Reject extra pages, sparse layout, tiny-type proxies, or missing ATS text |
@@ -304,10 +313,11 @@ application; the system never assumes rejection from elapsed time.
 | `make resume` | `build/<Name>_CV.pdf` |
 | `make coverletter` | `build/<Name>_Cover_Letter.pdf` |
 | `make merged` | Cover letter + résumé application PDF |
-| `make all` | Validate and build all outputs |
+| `make all` | Validate and build the complete CV + cover-letter application bundle |
 | `make clean` | Remove generated build artifacts inside the repository only |
 | `make check` | Schema, privacy, unit, Python, and shell checks |
 | `make pdf-audit PDF=path/to/cv.pdf` | Run deterministic résumé PDF layout/readability gates |
+| `make bundle-audit MANIFEST=path/to/application.yaml` | Audit all declared application PDFs |
 
 The author name is read from `\name{First}{Last}` in private `config.tex` and
 normalized to a shell-safe PDF filename stem.
@@ -336,6 +346,7 @@ Awesome-CV/
 │   ├── privacy_check.py
 │   ├── application_ledger.py
 │   ├── application_manifest.py
+│   ├── application_bundle_audit.py
 │   ├── workspace_init.py
 │   ├── workspace_status.py
 │   ├── github_inventory.py
@@ -432,7 +443,7 @@ and strict application-manifest validation while preserving the same determinist
 engine. The included Agent prompt implements the “brief → a few questions → yes →
 draft” approval loop.
 
-Dify-only mode produces reviewed CV content and a portable manifest. Final LuaLaTeX
+Dify-only mode produces reviewed CV and cover-letter content plus a portable manifest. Final LuaLaTeX
 PDF compilation, ATS extraction, and rendered-page inspection remain local unless you
 connect a separate trusted build service. Contact fields are redacted before Dify
 persistent storage by default; self-hosted Dify is recommended for real career data.

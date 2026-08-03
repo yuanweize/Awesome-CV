@@ -374,6 +374,10 @@ def build_context(
     )
 
     personal = data.get("personal_information", {})
+    application_defaults = data.get("application_defaults", {})
+    default_deliverables = application_defaults.get("deliverables", ["cv"])
+    if not isinstance(default_deliverables, list):
+        default_deliverables = ["cv"]
     jd_fence = markdown_fence(jd_text)
     lines = [
         "# Evidence-bound CV drafting context",
@@ -383,7 +387,7 @@ def build_context(
         "",
         "## Drafting task",
         "",
-        "Create a concise, ATS-readable CV tailored to the job description below.",
+        "Create a concise, ATS-readable application bundle tailored to the job description below.",
         "Use only the allowed claims in this document. Preserve scope words such as",
         "`personal`, `academic`, `contractor`, `supported`, and `assisted`.",
         "",
@@ -421,12 +425,19 @@ def build_context(
         "16. Preserve one to three approved identity anchors in the top third. Spell out",
         "    an institution, degree, domain, language bridge, or local-fit credential when",
         "    its usage note calls for it. JD tailoring may change emphasis, not erase identity.",
+        "17. Review every exported direct skill group before drafting. Include each",
+        "    role-useful group or record why it was omitted in capability_review. Do not",
+        "    hide a concrete tool such as Python behind a vague project or ERP label.",
+        "18. Follow the owner's declared deliverables. When cover_letter is selected,",
+        "    tailor and evidence-map it as part of the same application bundle; a polished",
+        "    CV does not make a stale or generic letter acceptable.",
         "",
         "## Candidate",
         "",
         f"- Name: {personal.get('full_name', '')}",
         f"- Location: {personal.get('location', '')}",
         f"- Work authorisation: {personal.get('work_authorization', '')}",
+        f"- Default deliverables: {', '.join(default_deliverables)}",
     ]
     if include_contact:
         lines.extend(
@@ -599,7 +610,8 @@ def build_context(
             "",
             "> Use these maintained labels to build the visible Skills section. Include",
             "> primarily direct groups. An adjacent-review group is usable only when its",
-            "> claim is approved as an adjacent differentiator in the manifest.",
+            "> claim is approved as an adjacent differentiator in the manifest. Review",
+            "> every direct group; record include/omit decisions in capability_review.",
             "",
             "| Skill group | Lane | Level | Boundary | Supporting exported claim IDs |",
             "|---|---|---|---|---|",
@@ -643,12 +655,16 @@ def build_context(
             "   transfer value and low-prominence placement; do not use it to hide a gap.",
             "3. At most three questions that can materially change the draft, then stop",
             "   for human confirmation.",
-            "4. After confirmation, a one-page CV using only approved claim IDs. Preserve",
+            "4. After confirmation, create every declared deliverable using only approved",
+            "   claim IDs. Keep the CV to one page, preserve",
             "   one to three approved identity anchors in the top third, then include",
             "   an explicit three-to-five-row role-appropriate Skills section near the top. Map each",
             "   visible skill row to selected claim IDs in the private manifest.",
-            "5. A claim audit listing every metric and its evidence ID.",
-            "6. Three likely interview questions for each claim used in the top half.",
+            "5. If cover_letter is selected, write two to six concise evidence-bound",
+            "   paragraphs that complement rather than repeat the CV, and record their",
+            "   claim IDs in cover_letter_paragraphs.",
+            "6. A claim audit listing every metric and its evidence ID.",
+            "7. Three likely interview questions for each claim used in the top half.",
             "",
         ]
     )

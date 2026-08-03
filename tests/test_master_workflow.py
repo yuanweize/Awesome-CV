@@ -34,6 +34,7 @@ from github_inventory import (  # noqa: E402
 from portfolio_audit import audit_portfolio  # noqa: E402
 from role_audit import audit_roles  # noqa: E402
 from resume_pdf_audit import parse_bbox_xml  # noqa: E402
+from application_bundle_audit import audit_bundle, file_sha256  # noqa: E402
 from application_ledger import (  # noqa: E402
     command_add,
     command_summary,
@@ -468,6 +469,70 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertEqual(13.0, metrics["median_word_height"])
         self.assertGreater(metrics["page_metrics"][0]["bottom_coverage"], 0.75)
 
+    def test_schema_35_requires_a_cv_application_default(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["application_defaults"]["deliverables"] = ["cover_letter"]
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("deliverables must include cv" in error for error in result["errors"])
+        )
+
+    def test_new_manifest_preserves_owner_declared_deliverables(self) -> None:
+        data = new_manifest(
+            "example",
+            "Example Corp",
+            "Systems Engineer",
+            "systems",
+            "meta/applications/example/jd.md",
+            "0" * 64,
+            "example",
+            ["cv"],
+        )
+        self.assertEqual(["cv"], data["deliverables"])
+
+    def test_bundle_audit_checks_cv_and_cover_letter_hashes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            profile = root / "profiles" / "example"
+            profile.mkdir(parents=True)
+            cv = profile / "Example_CV.pdf"
+            letter = profile / "Example_Cover_Letter.pdf"
+            cv.write_bytes(b"cv-pdf-fixture")
+            letter.write_bytes(b"letter-pdf-fixture")
+            manifest = root / "manifest.yaml"
+            manifest.write_text(
+                yaml.safe_dump(
+                    {
+                        "deliverables": ["cv", "cover_letter"],
+                        "artifacts": {
+                            "cv_pdf": "profiles/example/Example_CV.pdf",
+                            "cv_sha256": file_sha256(cv),
+                            "page_count": 1,
+                            "cover_letter_pdf": "profiles/example/Example_Cover_Letter.pdf",
+                            "cover_letter_sha256": file_sha256(letter),
+                            "cover_letter_page_count": 1,
+                            "application_pdf": "",
+                        },
+                    },
+                    sort_keys=False,
+                ),
+                encoding="utf-8",
+            )
+            pdf_result = {
+                "ok": True,
+                "pages": 1,
+                "words": 100,
+                "median_word_height": 13.0,
+                "page_metrics": [{"bottom_coverage": 0.8}],
+                "errors": [],
+                "warnings": [],
+            }
+            with mock.patch("application_bundle_audit.audit_pdf", return_value=pdf_result):
+                result = audit_bundle(manifest, root)
+            self.assertTrue(result["ok"])
+            self.assertEqual(["cv", "cover_letter"], list(result["documents"]))
+
     def test_context_scoring_ignores_common_english_stopwords(self) -> None:
         self.assertEqual({"routing", "c"}, tokens("and to the routing with C"))
 
@@ -834,6 +899,17 @@ class MasterWorkflowTests(unittest.TestCase):
                     "placement": "summary",
                 }
             ]
+            data["capability_review"] = {
+                "completed": True,
+                "entries": [
+                    {
+                        "claim_id": claim_id,
+                        "decision": "include",
+                        "reason": "Python automation is useful execution leverage.",
+                        "placement": "projects",
+                    }
+                ],
+            }
             data["requirements"] = [
                 {
                     "id": "req.linux",
@@ -857,8 +933,39 @@ class MasterWorkflowTests(unittest.TestCase):
                     "claim_ids": [claim_id],
                 }
             ]
+            data["cover_letter_paragraphs"] = [
+                {
+                    "id": "letter.opening",
+                    "text": "Computer Engineering graduate applying with Linux evidence.",
+                    "claim_ids": [degree_id, claim_id],
+                },
+                {
+                    "id": "letter.project",
+                    "text": "SignalWatch demonstrates bounded personal automation work.",
+                    "claim_ids": [claim_id],
+                },
+            ]
             errors = validate_manifest(data, self.template_path, root, strict=True)
             self.assertEqual([], errors)
+
+            data["capability_review"]["entries"] = []
+            errors = validate_manifest(data, self.template_path, root, strict=True)
+            self.assertTrue(
+                any("missing from capability_review" in error for error in errors)
+            )
+            data["capability_review"]["entries"] = [
+                {
+                    "claim_id": claim_id,
+                    "decision": "include",
+                    "reason": "Python automation is useful execution leverage.",
+                    "placement": "projects",
+                }
+            ]
+            data["identity_anchors"] = []
+            errors = validate_manifest(data, self.template_path, root, strict=True)
+            self.assertTrue(
+                any("requires one to three identity_anchors" in error for error in errors)
+            )
 
     def test_application_manifest_rejects_gap_with_claim(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -921,6 +1028,7 @@ class MasterWorkflowTests(unittest.TestCase):
                 sha256(jd),
                 "example",
             )
+            data["schema_version"] = "1.1"
             data["stage"] = "sent"
             data["decision"].update({"recommendation": "apply", "user_confirmed": True})
             degree_id = "education.bsc-computer-engineering"

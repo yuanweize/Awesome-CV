@@ -176,6 +176,7 @@ class DifyIntegrationTests(unittest.TestCase):
             manifest["job_description"]["sha256"],
         )
         self.assertEqual("meta/applications/example-systems/jd.md", manifest["job_description"]["path"])
+        self.assertEqual(["cv", "cover_letter"], manifest["deliverables"])
 
 
 if __name__ == "__main__":

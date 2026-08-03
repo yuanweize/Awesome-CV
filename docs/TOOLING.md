@@ -5,7 +5,7 @@ points may delegate to it, but must not fork business logic.
 
 | Category | Canonical location | Purpose |
 |---|---|---|
-| Career workflow | `skills/evidence-first-cv/scripts/` | Initialize private workspaces, validate memory, audit role interests/readiness and historical CV wording, select claims, manage manifests/ledger, govern public GitHub, audit résumé PDF layout, archive private work, and report status |
+| Career workflow | `skills/evidence-first-cv/scripts/` | Initialize private workspaces, validate memory, audit role interests/readiness and historical CV wording, select claims, manage manifests/ledger, govern public GitHub, audit individual PDFs and complete CV + cover-letter bundles, archive private work, and report status |
 | CLI compatibility | `tools/*.py` wrappers and `./cv` | Preserve short commands and older automation without duplicating logic |
 | Build safety | `tools/author_slug.py`, `tools/safe_clean.py` | Safe PDF names and bounded generated-file cleanup |
 | Dify packaging | `tools/package_dify_plugin.py` | Stage and inspect a portable plugin archive |
@@ -38,3 +38,8 @@ application workspaces merely because no manifest remains active.
 `./cv pdf-audit <pdf>` uses Poppler bounding boxes to enforce one-page output,
 extractable text, a minimum first-page content reach, and a conservative readable-type
 proxy. These metrics catch common regressions but never replace rendered-page review.
+
+`./cv bundle-audit <manifest>` is the application-level gate. It reads schema 1.2
+deliverables, constrains artifact paths to ignored `profiles/` or `build/`, verifies
+SHA-256 and declared page counts, then applies document-appropriate PDF thresholds to
+the CV, cover letter, and optional merged application PDF.

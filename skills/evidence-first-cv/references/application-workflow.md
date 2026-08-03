@@ -17,15 +17,18 @@
 7. Review the remaining eligible claims for zero to two adjacent differentiators;
    review only claims pre-governed with `adjacent_values`, then record their concrete
    transfer value and low-prominence placement.
-8. Show the decision brief and wait for human confirmation.
-9. Draft résumé and optional letter, including a three-to-five-row evidence-bound
-   Skills section; map every final bullet and skill row to claims.
-10. Strictly validate the manifest, build, run the PDF layout audit, extract text,
-    render, and inspect.
-11. Record the application and claim IDs in the ledger only after it is sent.
-12. Update stages and notes after every external event.
-13. Use funnel summary to choose targeting, narrative, training, or negotiation work.
-14. After a terminal outcome, move the snapshot to the verified private archive.
+8. Review every exported direct skill group. Record include/omit decisions for useful
+   transferable or bonus capabilities in `capability_review`; do not let a specific
+   capability disappear behind a generic project label.
+9. Show the decision brief and wait for human confirmation.
+10. Draft every declared deliverable. Include a three-to-five-row evidence-bound CV
+    Skills section and map cover-letter factual paragraphs to claims.
+11. Strictly validate the manifest, build, run the per-document PDF layout audit and
+    bundle audit, extract text, render, and inspect both documents.
+12. Record the application and claim IDs in the ledger only after it is sent.
+13. Update stages and notes after every external event.
+14. Use funnel summary to choose targeting, narrative, training, or negotiation work.
+15. After a terminal outcome, move the snapshot to the verified private archive.
 
 ## Identity review: tailoring without erasure
 
@@ -69,6 +72,8 @@ meta/applications.yaml              # ledger
 
 The per-application manifest is the traceability record. The ledger is the funnel
 record. A draft can have a manifest without appearing as `applied` in the ledger.
+Schema 1.2 also records declared deliverables, capability-review decisions,
+evidence-bound cover-letter paragraphs, and artifact hashes for the complete bundle.
 
 After submission, never rewrite the manifest to pretend a bad claim was not sent.
 Move it to `sent`, retain the PDF/text, and record owner corrections under
