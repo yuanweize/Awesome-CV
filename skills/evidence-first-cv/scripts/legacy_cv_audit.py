@@ -283,19 +283,29 @@ def collect_sources(
     profiles_dir: Path,
     archive_dir: Path,
     extra_pdfs: list[Path] | None = None,
+    baselines_dir: Path | None = None,
 ) -> list[SourceAudit]:
     profiles_dir = require_workspace_path(root, profiles_dir, "Profiles directory")
     archive_dir = require_workspace_path(root, archive_dir, "Archive directory")
+    baselines_dir = require_workspace_path(
+        root, baselines_dir or root / "baselines", "Baselines directory"
+    )
     sources: list[SourceAudit] = []
     candidates: list[tuple[Path, str]] = []
-    candidates.extend((path, "reference-profile") for path in _safe_children(profiles_dir, "*"))
+    candidates.extend((path, "active-profile") for path in _safe_children(profiles_dir, "*"))
+    candidates.extend((path, "baseline") for path in _safe_children(baselines_dir, "*"))
     candidates.extend((path, "archived-application") for path in _safe_children(archive_dir, "*/*"))
     for path, source_kind in candidates:
         sections_dir = path / "sections"
         if not sections_dir.is_dir() or sections_dir.is_symlink():
             continue
         relative = path.relative_to(root.resolve())
-        source_id = path.name if source_kind == "archived-application" else f"profile:{path.name}"
+        if source_kind == "archived-application":
+            source_id = path.name
+        elif source_kind == "baseline":
+            source_id = f"baseline:{path.name}"
+        else:
+            source_id = f"profile:{path.name}"
         cv_candidates = sorted(path.glob("*_CV.pdf"))
         cv_path = cv_candidates[0] if cv_candidates else Path()
         sources.append(
@@ -459,7 +469,8 @@ def audit_legacy_cvs(master: dict[str, Any], sources: list[SourceAudit]) -> dict
         "summary": {
             "sources": len(sources),
             "archived_applications": sum(source.source_kind == "archived-application" for source in sources),
-            "reference_profiles": sum(source.source_kind == "reference-profile" for source in sources),
+            "active_profiles": sum(source.source_kind == "active-profile" for source in sources),
+            "baselines": sum(source.source_kind == "baseline" for source in sources),
             "legacy_pdfs": sum(source.source_kind == "legacy-pdf" for source in sources),
             "statements": sum(len(source.statements) for source in sources),
             "unique_statements": len(rows),
@@ -491,8 +502,9 @@ def render_markdown(result: dict[str, Any]) -> str:
         "",
         "## Coverage summary",
         "",
-        f"- Sources: {summary['sources']} ({summary['archived_applications']} archived applications, "
-        f"{summary['reference_profiles']} references, {summary['legacy_pdfs']} legacy PDFs)",
+        f"- Sources: {summary['sources']} ({summary['active_profiles']} active profiles, "
+        f"{summary['baselines']} baselines, {summary['archived_applications']} archived applications, "
+        f"{summary['legacy_pdfs']} legacy PDFs)",
         f"- Extracted statements: {summary['statements']} total / {summary['unique_statements']} unique",
         f"- Heuristic mapping: {summary['covered']} covered, {summary['partial']} partial, "
         f"{summary['unmapped']} unmapped",
@@ -607,6 +619,7 @@ def main() -> int:
     )
     parser.add_argument("--master", type=Path, default=root / "meta" / "master_cv.yaml")
     parser.add_argument("--profiles-dir", type=Path, default=root / "profiles")
+    parser.add_argument("--baselines-dir", type=Path, default=root / "baselines")
     parser.add_argument("--archive-dir", type=Path, default=root / "archive" / "applications")
     parser.add_argument("--extra-pdf", type=Path, action="append", default=[])
     parser.add_argument(
@@ -637,7 +650,13 @@ def main() -> int:
         return 2
     master = yaml.safe_load(master_path.read_text(encoding="utf-8"))
     try:
-        sources = collect_sources(root, args.profiles_dir, args.archive_dir, args.extra_pdf)
+        sources = collect_sources(
+            root,
+            args.profiles_dir,
+            args.archive_dir,
+            args.extra_pdf,
+            args.baselines_dir,
+        )
     except (OSError, ValueError) as exc:
         print(f"Legacy CV audit failed: {exc}", file=sys.stderr)
         return 2

@@ -1,6 +1,0 @@
-# Optional private classification for non-application profile snapshots.
-# Copy to meta/profile_catalog.yaml. Application profiles are inferred from the
-# ledger and per-JD manifests; list only intentional reusable references here.
-
-schema_version: "1.0"
-profiles: []

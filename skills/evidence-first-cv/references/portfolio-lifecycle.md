@@ -46,6 +46,6 @@ Forks are not included in automatic coverage because most do not prove authorshi
 A materially maintained fork may still be catalogued manually, with attribution and
 scope made explicit.
 
-Reference CVs are not portfolio storage. Refresh a reference profile only when a
-new verified claim changes its role ordering or when layout/PDF regression coverage
-needs a new representative example.
+Baselines are not portfolio storage. Refresh a baseline only when a new verified claim
+changes its role ordering or when layout/PDF regression coverage needs a new
+representative example.

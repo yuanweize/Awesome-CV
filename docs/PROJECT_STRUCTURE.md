@@ -36,7 +36,7 @@ tech-stack collector is an evidence-discovery input, not Skill business logic. S
 | `meta/README.md` | Local map of the ignored runtime layer; guidance only, never career evidence |
 | `meta/applications.yaml` | Application events and funnel outcomes |
 | `meta/applications/<id>/` | One saved JD and its CV + cover-letter decision/claim/artifact manifest |
-| `meta/profile_catalog.yaml` | Explicit classification of reusable reference profiles |
+| `meta/baseline_catalog.yaml` | Optional role-family metadata for reusable layout baselines |
 | `meta/evidence/` | Durable private proof such as degree or contract records |
 | `meta/inventory/` | Dated derived discovery caches such as GitHub API snapshots; never factual authority |
 | `meta/audits/` | Private dated review output and reconciliation notes |
@@ -53,13 +53,14 @@ change evidence records or claims.
 | Path | Responsibility |
 |---|---|
 | `config.tex`, `letter_config.tex`, `sections/` | Current editable working snapshot; `sections/order.tex` controls profile-specific ordering |
+| `baselines/<role-layout>/` | Optional long-lived, clone-only layout and ordering reference |
 | `profiles/<company-role>/` | Submitted or still-editable CV + cover-letter application snapshot |
-| reference profile listed in `meta/profile_catalog.yaml` | Optional layout/general-CV reference only |
 | `build/`, `tmp/` | Regenerable PDFs, contexts, and rendering output |
 
-A reference profile is not a mother CV, fact database, or mandatory baseline. It may
-save layout work when no JD-specific application exists. New JD work should start from
-the master claims and manifest; clone a profile only for layout and ordering.
+A baseline is not a mother CV, fact database, or mandatory general résumé. It may save
+layout work when a proven role-family presentation exists. New JD work still starts
+from the master claims and manifest; `./cv clone <baseline> <company-role>` reuses only
+source layout and ordering, never factual authority.
 
 ## 4. Private archive layer (ignored by Git)
 
@@ -85,7 +86,7 @@ build/tmp/cache -> disposable cleanup
 ```
 
 Run `./cv status` at the start of every AI operation. It separates application,
-reference, unclassified, and archived profile counts and reports unsaved active-profile
+baseline, unclassified, and archived counts and reports unsaved active-profile
 drift. Run `./cv portfolio-audit --strict` after a GitHub inventory refresh and
 `./cv role-audit` after changing career direction. Run `./cv legacy-audit` when old CVs
 need red/blue reconciliation with mother memory. Run `./cv privacy-check` before and

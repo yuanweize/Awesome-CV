@@ -5,6 +5,7 @@ Use one directory for one responsibility:
 | Path | Responsibility |
 |---|---|
 | `meta/master_cv.yaml` | Canonical facts, claim IDs, evidence locators, and eligibility |
+| `baselines/` | Optional long-lived, clone-only layout and ordering references |
 | `profiles/` | Active or still-editable application source snapshots |
 | `archive/applications/YYYY/` | Closed application snapshots and generated PDFs |
 | `archive/research/` | Interview papers, recruiter research, and chat exports |
@@ -14,6 +15,11 @@ Use one directory for one responsibility:
 Profiles remain useful for editing and comparison, but never use them as factual
 authority. Closed profiles belong in the ignored archive after the application
 ledger records their final stage.
+
+Baselines have a different lifetime and therefore live outside `profiles/`. They may
+preserve a proven one-page layout or role-family ordering, but must never supply facts.
+Clone one into a new company-role profile, then rebuild its content from the JD
+manifest and eligible mother claims.
 
 Before moving a profile, run the archiver without `--apply`. Review the destination,
 file count, and byte count. Apply only with explicit user approval:

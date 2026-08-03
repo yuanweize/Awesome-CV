@@ -17,6 +17,7 @@ RUNTIME_DIRECTORIES = (
     "meta/evidence",
     "meta/inventory",
     "meta/audits",
+    "baselines",
     "profiles",
     "archive/applications",
     "archive/research",
@@ -29,7 +30,7 @@ TEMPLATE_FILES = (
     ("templates/meta_README.md.example", "meta/README.md"),
     ("templates/master_cv.yaml.example", "meta/master_cv.yaml"),
     ("templates/applications.yaml.example", "meta/applications.yaml"),
-    ("templates/profile_catalog.yaml.example", "meta/profile_catalog.yaml"),
+    ("templates/baseline_catalog.yaml.example", "meta/baseline_catalog.yaml"),
     ("templates/config.tex.example", "config.tex"),
     ("templates/letter_config.tex.example", "letter_config.tex"),
 )

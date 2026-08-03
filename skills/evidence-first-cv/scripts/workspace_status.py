@@ -164,47 +164,55 @@ def collect_status(root: Path) -> dict[str, Any]:
         and target.get("profile")
     }
 
-    catalog = safe_yaml(root / "meta" / "profile_catalog.yaml")
-    catalog_items = catalog.get("profiles", [])
-    reference_profiles: set[str] = set()
+    baselines_root = root / "baselines"
+    baseline_count, baseline_bytes = directory_inventory(baselines_root)
+    baseline_names = (
+        {
+            item.name
+            for item in baselines_root.iterdir()
+            if item.is_dir() and not item.is_symlink()
+        }
+        if baselines_root.is_dir()
+        else set()
+    )
+
+    catalog = safe_yaml(root / "meta" / "baseline_catalog.yaml")
+    catalog_items = catalog.get("baselines", [])
+    catalogued_baselines: set[str] = set()
     catalog_seen: set[str] = set()
     catalog_warnings: list[str] = []
     if catalog_items and not isinstance(catalog_items, list):
-        catalog_warnings.append("profile catalog entries must be a list")
+        catalog_warnings.append("baseline catalog entries must be a list")
         catalog_items = []
     for index, item in enumerate(catalog_items, 1):
         if not isinstance(item, dict):
-            catalog_warnings.append(f"profile catalog entry {index} is not a mapping")
+            catalog_warnings.append(f"baseline catalog entry {index} is not a mapping")
             continue
-        profile_id = item.get("profile")
-        kind = item.get("kind")
+        baseline_id = item.get("baseline")
         if (
-            not isinstance(profile_id, str)
-            or not PROFILE_NAME_PATTERN.fullmatch(profile_id)
-            or ".." in profile_id
+            not isinstance(baseline_id, str)
+            or not PROFILE_NAME_PATTERN.fullmatch(baseline_id)
+            or ".." in baseline_id
         ):
-            catalog_warnings.append(f"profile catalog entry {index} has an unsafe profile ID")
+            catalog_warnings.append(f"baseline catalog entry {index} has an unsafe baseline ID")
             continue
-        if profile_id in catalog_seen:
-            catalog_warnings.append(f"duplicate profile catalog entry: {profile_id}")
+        if baseline_id in catalog_seen:
+            catalog_warnings.append(f"duplicate baseline catalog entry: {baseline_id}")
             continue
-        catalog_seen.add(profile_id)
-        if kind != "reference":
-            catalog_warnings.append(f"profile catalog entry {profile_id} must use kind 'reference'")
-            continue
+        catalog_seen.add(baseline_id)
         role_family = item.get("role_family")
         if role_family not in master.get("role_families", {}):
             catalog_warnings.append(
-                f"profile catalog entry {profile_id} has unknown role family {role_family!r}"
+                f"baseline catalog entry {baseline_id} has unknown role family {role_family!r}"
             )
             continue
-        reference_profiles.add(profile_id)
+        catalogued_baselines.add(baseline_id)
 
     linked_application_profiles = (ledger_profiles | manifest_profiles) & profile_names
-    existing_reference_profiles = reference_profiles & profile_names
-    overlapping_profiles = linked_application_profiles & existing_reference_profiles
-    unclassified_profiles = profile_names - linked_application_profiles - existing_reference_profiles
-    missing_catalog_profiles = reference_profiles - profile_names
+    unclassified_profiles = profile_names - linked_application_profiles
+    existing_baselines = catalogued_baselines & baseline_names
+    unclassified_baselines = baseline_names - catalogued_baselines
+    missing_catalog_baselines = catalogued_baselines - baseline_names
     archive_count = len(list((root / "archive" / "applications").glob("*/*"))) if (root / "archive" / "applications").is_dir() else 0
     research_archive_count = len(list((root / "archive" / "research").glob("*/*"))) if (root / "archive" / "research").is_dir() else 0
 
@@ -212,10 +220,10 @@ def collect_status(root: Path) -> dict[str, Any]:
     active = active_file.read_text(encoding="utf-8").strip() if active_file.is_file() and not active_file.is_symlink() else ""
     active_dirty, active_differences = active_profile_state(root, active)
     active_skill_entries = visible_skill_count(root / "sections" / "skills.tex") if active else 0
-    empty_reference_skills = sorted(
-        profile
-        for profile in existing_reference_profiles
-        if visible_skill_count(profiles_root / profile / "sections" / "skills.tex") == 0
+    empty_baseline_skills = sorted(
+        baseline
+        for baseline in existing_baselines
+        if visible_skill_count(baselines_root / baseline / "sections" / "skills.tex") == 0
     )
 
     warnings: list[str] = []
@@ -235,32 +243,36 @@ def collect_status(root: Path) -> dict[str, Any]:
         warnings.append("working files differ from the active profile")
     if active and active_skill_entries == 0:
         warnings.append("active profile has no visible Skills entries")
-    if empty_reference_skills:
+    if empty_baseline_skills:
         warnings.append(
-            "reference profiles have no visible Skills entries: "
-            + ", ".join(empty_reference_skills)
+            "baselines have no visible Skills entries: "
+            + ", ".join(empty_baseline_skills)
         )
     warnings.extend(catalog_warnings)
-    if overlapping_profiles:
-        warnings.append(
-            "profiles classified as both application and reference: "
-            + ", ".join(sorted(overlapping_profiles))
-        )
     if unclassified_profiles:
         warnings.append(
             "unclassified profile directories: " + ", ".join(sorted(unclassified_profiles))
         )
-    if missing_catalog_profiles:
+    if unclassified_baselines:
         warnings.append(
-            "profile catalog references missing directories: "
-            + ", ".join(sorted(missing_catalog_profiles))
+            "uncatalogued baseline directories: " + ", ".join(sorted(unclassified_baselines))
+        )
+    if missing_catalog_baselines:
+        warnings.append(
+            "baseline catalog references missing directories: "
+            + ", ".join(sorted(missing_catalog_baselines))
+        )
+    if (root / "meta" / "profile_catalog.yaml").is_file():
+        warnings.append(
+            "legacy meta/profile_catalog.yaml remains; migrate reusable references to "
+            "baselines/ and meta/baseline_catalog.yaml"
         )
     abandoned = root / "skills" / "drive-evidence-first-cv"
     if abandoned.is_dir() and not (abandoned / "SKILL.md").is_file():
         warnings.append("empty skills/drive-evidence-first-cv skeleton exists")
 
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "master": {
             "valid": bool(validation.get("ok")),
             "example_data": example_data,
@@ -281,16 +293,22 @@ def collect_status(root: Path) -> dict[str, Any]:
             "active_dirty": active_dirty,
             "active_differences": active_differences,
             "active_skill_entries": active_skill_entries,
-            "empty_reference_skills": empty_reference_skills,
             "count": profile_count,
             "bytes": profile_bytes,
             "archived": archive_count,
             "archived_research": research_archive_count,
             "applications": len(linked_application_profiles),
-            "references": len(existing_reference_profiles),
             "unclassified": len(unclassified_profiles),
-            "reference_names": sorted(existing_reference_profiles),
             "unclassified_names": sorted(unclassified_profiles),
+        },
+        "baselines": {
+            "count": baseline_count,
+            "bytes": baseline_bytes,
+            "catalogued": len(existing_baselines),
+            "uncatalogued": len(unclassified_baselines),
+            "names": sorted(existing_baselines),
+            "uncatalogued_names": sorted(unclassified_baselines),
+            "empty_skill_entries": empty_baseline_skills,
         },
         "warnings": warnings,
     }
@@ -300,6 +318,7 @@ def render_text(status: dict[str, Any]) -> str:
     master = status["master"]
     applications = status["applications"]
     profiles = status["profiles"]
+    baselines = status["baselines"]
     lines = [
         "Evidence-First CV workspace",
         f"Master: {'OK' if master['valid'] else 'INVALID'}; {master['eligible_claims']}/{master['claims']} eligible claims; "
@@ -317,14 +336,16 @@ def render_text(status: dict[str, Any]) -> str:
         [
             f"Applications: {applications['records']} ledger records; {applications['manifests']} manifests; stages={applications['stages']}",
             f"Profiles: {profiles['count']} total ({profiles['applications']} application, "
-            f"{profiles['references']} reference, {profiles['unclassified']} unclassified); "
+            f"{profiles['unclassified']} unclassified); "
             f"{profiles['archived']} application archives, {profiles['archived_research']} research archives; "
             f"current={profiles['active'] or 'none'}; "
             f"dirty={'yes' if profiles['active_dirty'] else 'no'}",
+            f"Baselines: {baselines['count']} total ({baselines['catalogued']} catalogued, "
+            f"{baselines['uncatalogued']} uncatalogued)",
         ]
     )
-    if profiles["reference_names"]:
-        lines.append("Reference profiles: " + ", ".join(profiles["reference_names"]))
+    if baselines["names"]:
+        lines.append("Baseline snapshots: " + ", ".join(baselines["names"]))
     if profiles["active_differences"]:
         lines.append("Active differences: " + ", ".join(profiles["active_differences"]))
     if status["warnings"]:

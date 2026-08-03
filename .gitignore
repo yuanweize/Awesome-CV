@@ -55,6 +55,9 @@ __pycache__/
 
 # Per-company profiles (managed by ./cv)
 /profiles/
+
+# Optional long-lived layout/role baselines; private and never factual authority
+/baselines/
 /.active_profile
 
 # Closed applications and private research archives. Archive manifests may

@@ -150,12 +150,13 @@ Adjacent differentiators are capped at two and roughly 10-15% of visible content
 
 ```bash
 ./cv new company-role
-# optional: ./cv clone trusted-layout company-role
+# optional: ./cv clone trusted-baseline company-role
 ```
 
 A role family is a claim-selection boundary; a profile is an application/build
-snapshot. Permanent “systems CV” and “field CV” baselines are optional, not the
-architecture. Clone only a trusted layout, never an old profile as factual authority.
+snapshot. Optional long-lived layout references live under `baselines/`, outside the
+application lifecycle. Clone only a trusted layout, never a baseline or old profile as
+factual authority.
 
 Copy reviewed CV prose and cover-letter prose into `sections/`, tailor `config.tex`
 and `letter_config.tex`, then save. Remove meta commentary, IDs, scoring notes, and AI

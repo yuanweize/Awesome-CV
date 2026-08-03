@@ -49,7 +49,7 @@ After accepting a confirmed omission:
 3. link role families and evidenced skill groups;
 4. classify the corresponding human-readable history item;
 5. validate the master and rerun the historical audit;
-6. review whether the new claim materially changes a reference profile or target-role
+6. review whether the new claim materially changes a baseline or target-role
    recommendation.
 
 Never lower matching thresholds or broaden a claim merely to make the audit statistics

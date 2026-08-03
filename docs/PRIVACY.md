@@ -14,7 +14,7 @@ Private:
 
 - `meta/`: master database, application ledger, JDs, evidence notes, interviews;
 - `config.tex`, `letter_config.tex`, and `sections/`;
-- `profiles/`, `archive/`, `build/`, `tmp/`, PDFs and render images;
+- `baselines/`, `profiles/`, `archive/`, `build/`, `tmp/`, PDFs and render images;
 - collector reports and real target files;
 - credentials, keys, tokens, internal addresses, and evidence documents.
 

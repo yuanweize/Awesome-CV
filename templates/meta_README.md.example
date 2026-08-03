@@ -8,7 +8,7 @@ This directory is the ignored, local memory layer for one person. It is created 
 - `master_cv.yaml`: lifelong career memory. Only eligible entries in
   `claim_registry` may supply factual résumé prose.
 - `applications.yaml`: application stages and outcomes.
-- `profile_catalog.yaml`: optional reference-profile classification.
+- `baseline_catalog.yaml`: optional role-family metadata for reusable layout baselines.
 
 ## Subdirectories
 
@@ -25,7 +25,8 @@ may help locate a forgotten fact, but it never overrides `claim_registry` or cre
 an eligible claim without independent evidence or fresh owner confirmation.
 
 Generated contexts and PDFs belong in `../build/`; disposable render output belongs
-in `../tmp/`; editable application snapshots belong in `../profiles/`; closed history
+in `../tmp/`; reusable clone-only layout references belong in `../baselines/`;
+editable application snapshots belong in `../profiles/`; closed history
 belongs in `../archive/`. Run `./cv status` before beginning a new application.
 
 Use `identity_anchors` in `master_cv.yaml` for durable evidence-bound credentials,

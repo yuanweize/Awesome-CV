@@ -81,7 +81,7 @@ idempotent and never overwrites an existing private file:
 | `templates/meta_README.md.example` | `meta/README.md` |
 | `templates/master_cv.yaml.example` | `meta/master_cv.yaml` |
 | `templates/applications.yaml.example` | `meta/applications.yaml` |
-| `templates/profile_catalog.yaml.example` | `meta/profile_catalog.yaml` |
+| `templates/baseline_catalog.yaml.example` | `meta/baseline_catalog.yaml` |
 | `templates/config.tex.example` | `config.tex` |
 | `templates/letter_config.tex.example` | `letter_config.tex` |
 | `templates/sections/*.tex` | `sections/*.tex` |
@@ -89,8 +89,8 @@ idempotent and never overwrites an existing private file:
 Open `meta/README.md` for the private directory map. Edit private files only; never
 put real data into `templates/`.
 
-初始化后只编辑私有文件。`meta/`、`sections/`、`profiles/`、真实联系方式、PDF 和
-构建产物默认不会进入 Git。空的 `profiles/`、`archive/`、`build/` 和 `tmp/` 会由
+初始化后只编辑私有文件。`meta/`、`sections/`、`baselines/`、`profiles/`、真实联系方式、PDF 和
+构建产物默认不会进入 Git。空的 `baselines/`、`profiles/`、`archive/`、`build/` 和 `tmp/` 会由
 初始化器创建，但不会用 `.gitkeep` 提交；这样 Git 永远看不到以后放进去的真实材料。
 
 Public examples deliberately use a fictional person and reserved example domains.
@@ -239,23 +239,19 @@ layout gate before manual visual inspection:
 
 ## Profile workflow
 
-Profiles are private, editable application artifacts, not career memory and not
-mandatory role-family baselines. You do **not** need to maintain a permanent “systems
-CV” and “field CV”. Create a clean company-role profile for a live application; clone
-an older profile only when its layout and ordering are genuinely reusable. Move closed
-files stay shared.
-
-Optional general snapshots must be declared in `meta/profile_catalog.yaml`. They are
-reference artifacts only: never factual authority and never the default source for a
-new JD. `./cv status` distinguishes application, reference, unclassified, and archived
-profiles.
+Profiles are private, editable application artifacts, not career memory. Optional
+long-lived role/layout references live separately under `baselines/`; you do **not**
+need to maintain one for every role family. A baseline is clone-only presentation
+memory, never factual authority and never the default source for a new JD. Optional
+role-family metadata belongs in `meta/baseline_catalog.yaml`. `./cv status` reports
+applications, baselines, unclassified directories, and archives separately.
 
 ```bash
 # Create a clean profile for a live application
 ./cv new acme-systems
 
 # Optional: reuse only a trusted source layout, without stale PDFs
-./cv clone previous-good acme-systems
+./cv clone systems acme-systems
 
 # Edit config.tex, letter_config.tex, and sections/*.tex
 ./cv save
@@ -343,7 +339,7 @@ Awesome-CV/
 │   ├── master_cv.yaml.example      # Schema 3.x example
 │   ├── meta_README.md.example      # Runtime directory map copied by init
 │   ├── application_manifest.yaml.example # Per-JD traceability schema
-│   ├── profile_catalog.yaml.example # Optional reference-profile classification
+│   ├── baseline_catalog.yaml.example # Optional reusable-baseline metadata
 │   ├── config.tex.example
 │   ├── letter_config.tex.example
 │   └── sections/
@@ -372,6 +368,7 @@ Awesome-CV/
 ├── tests/
 ├── meta/                           # Private: master, ledger, JDs, durable evidence
 ├── sections/                       # Private: current CV content
+├── baselines/                      # Private: optional clone-only layout references
 ├── profiles/                       # Private: active/editable application variants
 ├── archive/                        # Private: closed applications and research
 ├── build/                          # Private: PDFs and generated contexts

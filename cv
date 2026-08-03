@@ -16,6 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Keep Python bytecode outside the project even when users invoke ./cv directly.
 export PYTHONPYCACHEPREFIX="${PYTHONPYCACHEPREFIX:-/tmp/awesome-cv-pycache}"
 PROFILES_DIR="$SCRIPT_DIR/profiles"
+BASELINES_DIR="$SCRIPT_DIR/baselines"
 ACTIVE_FILE="$SCRIPT_DIR/.active_profile"
 SECTIONS_DIR="$SCRIPT_DIR/sections"
 BUILD_DIR="$SCRIPT_DIR/build"
@@ -62,6 +63,12 @@ ensure_profiles_root() {
     [[ ! -L "$PROFILES_DIR" ]] || die "profiles/ must not be a symbolic link."
     mkdir -p "$PROFILES_DIR"
     [[ -d "$PROFILES_DIR" ]] || die "profiles/ is not a directory."
+}
+
+ensure_baselines_root() {
+    [[ ! -L "$BASELINES_DIR" ]] || die "baselines/ must not be a symbolic link."
+    mkdir -p "$BASELINES_DIR"
+    [[ -d "$BASELINES_DIR" ]] || die "baselines/ is not a directory."
 }
 
 assert_safe_profile_dir() {
@@ -213,46 +220,91 @@ available_profiles() {
     done
 }
 
+available_baselines() {
+    ensure_baselines_root
+    local path name
+    for path in "$BASELINES_DIR"/*; do
+        [[ -d "$path" && ! -L "$path" ]] || continue
+        name=$(basename "$path")
+        [[ "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] && [[ "$name" != *..* ]] || continue
+        printf '%s ' "$name"
+    done
+}
+
+resolve_clone_source() {
+    local source="$1"
+    validate_profile_name "$source"
+    ensure_profiles_root
+    ensure_baselines_root
+    local profile_path="$PROFILES_DIR/$source"
+    local baseline_path="$BASELINES_DIR/$source"
+    [[ ! -L "$profile_path" ]] || die "Profile '$source' must not be a symbolic link."
+    [[ ! -L "$baseline_path" ]] || die "Baseline '$source' must not be a symbolic link."
+    if [[ -d "$profile_path" && -d "$baseline_path" ]]; then
+        die "Ambiguous source '$source' exists in both profiles/ and baselines/."
+    fi
+    if [[ -d "$profile_path" ]]; then
+        printf '%s\n' "$profile_path"
+        return 0
+    fi
+    if [[ -d "$baseline_path" ]]; then
+        [[ ! -L "$baseline_path/sections" ]] || die "Baseline '$source' has an unsafe sections symlink."
+        printf '%s\n' "$baseline_path"
+        return 0
+    fi
+    return 1
+}
+
 # ── Commands ──────────────────────────────────────────────────────────────────
 
 cmd_list() {
     ensure_profiles_root
+    ensure_baselines_root
     local current
     current=$(get_current)
 
-    if [[ ! -d "$PROFILES_DIR" ]] || [[ -z "$(ls -A "$PROFILES_DIR" 2>/dev/null)" ]]; then
-        echo "No profiles found. Create one with: ./cv save <name>"
-        return
+    if [[ -z "$(ls -A "$PROFILES_DIR" 2>/dev/null)" ]]; then
+        printf "\n${BOLD}  Application profiles${RESET}\n\n  ${DIM}none — create one with ./cv new <company-role>${RESET}\n"
+    else
+        printf "\n${BOLD}  Application profiles${RESET}\n\n"
+
+        for dir in "$PROFILES_DIR"/*/; do
+            [[ -d "$dir" && ! -L "${dir%/}" ]] || continue
+            local name
+            name=$(basename "$dir")
+
+            # Active marker
+            local marker="  "
+            [[ "$name" == "$current" ]] && marker="${GREEN}▸ ${RESET}"
+
+            # PDF indicator
+            local pdf_status="${DIM}no PDFs${RESET}"
+            if find "$dir" -maxdepth 1 -name '*_CV.pdf' -print -quit | grep -q . \
+                && find "$dir" -maxdepth 1 -name '*_Cover_Letter.pdf' -print -quit | grep -q .; then
+                pdf_status="${GREEN}CV + CL${RESET}"
+            elif find "$dir" -maxdepth 1 -name '*_CV.pdf' -print -quit | grep -q .; then
+                pdf_status="${YELLOW}CV only${RESET}"
+            fi
+
+            # Count customized section files
+            local sec_count=0
+            for f in "${SECTION_FILES[@]}"; do
+                [[ -f "$dir/sections/$f" ]] && ((sec_count += 1))
+            done
+
+            printf "  %b%-16s  %b  ${DIM}(%d sections)${RESET}\n" "$marker" "$name" "$pdf_status" "$sec_count"
+        done
     fi
 
-    printf "\n${BOLD}  Profiles${RESET}\n\n"
-
-    for dir in "$PROFILES_DIR"/*/; do
-        [[ -d "$dir" && ! -L "${dir%/}" ]] || continue
-        local name
-        name=$(basename "$dir")
-
-        # Active marker
-        local marker="  "
-        [[ "$name" == "$current" ]] && marker="${GREEN}▸ ${RESET}"
-
-        # PDF indicator
-        local pdf_status="${DIM}no PDFs${RESET}"
-        if find "$dir" -maxdepth 1 -name '*_CV.pdf' -print -quit | grep -q . \
-            && find "$dir" -maxdepth 1 -name '*_Cover_Letter.pdf' -print -quit | grep -q .; then
-            pdf_status="${GREEN}CV + CL${RESET}"
-        elif find "$dir" -maxdepth 1 -name '*_CV.pdf' -print -quit | grep -q .; then
-            pdf_status="${YELLOW}CV only${RESET}"
-        fi
-
-        # Count customized section files
-        local sec_count=0
-        for f in "${SECTION_FILES[@]}"; do
-            [[ -f "$dir/sections/$f" ]] && ((sec_count += 1))
+    printf "\n${BOLD}  Reusable baselines${RESET}\n\n"
+    if [[ -z "$(ls -A "$BASELINES_DIR" 2>/dev/null)" ]]; then
+        printf "  ${DIM}none — optional; new CVs do not require one${RESET}\n"
+    else
+        for dir in "$BASELINES_DIR"/*/; do
+            [[ -d "$dir" && ! -L "${dir%/}" ]] || continue
+            printf "    %-24s ${DIM}clone-only layout/ordering reference${RESET}\n" "$(basename "$dir")"
         done
-
-        printf "  %b%-16s  %b  ${DIM}(%d sections)${RESET}\n" "$marker" "$name" "$pdf_status" "$sec_count"
-    done
+    fi
     echo
 }
 
@@ -431,13 +483,14 @@ cmd_new() {
 cmd_clone() {
     local source="${1:?Usage: ./cv clone <source> <new-profile>}"
     local target="${2:?Usage: ./cv clone <source> <new-profile>}"
-    profile_exists "$source" || die "Profile '$source' not found."
-    assert_profile_files_are_regular "$PROFILES_DIR/$source"
+    local source_dir
+    source_dir=$(resolve_clone_source "$source") \
+        || die "Clone source '$source' not found. Profiles: $(available_profiles) Baselines: $(available_baselines)"
+    assert_profile_files_are_regular "$source_dir"
     validate_profile_name "$target"
     ensure_switch_is_safe ""
     ! profile_exists "$target" || die "Profile '$target' already exists."
 
-    local source_dir="$PROFILES_DIR/$source"
     local target_dir="$PROFILES_DIR/$target"
     mkdir -p "$target_dir/sections"
     local file
@@ -448,7 +501,7 @@ cmd_clone() {
         [[ -f "$source_dir/sections/$file" ]] && cp "$source_dir/sections/$file" "$target_dir/sections/$file"
     done
     cmd_use "$target" --force > /dev/null
-    echo -e "${GREEN}✓${RESET} Cloned ${BOLD}$source${RESET} → ${BOLD}$target${RESET} (source files only)"
+    echo -e "${GREEN}✓${RESET} Cloned ${BOLD}$source${RESET} → ${BOLD}$target${RESET} (source files only; facts still require the JD manifest)"
 }
 
 cmd_context() {
@@ -703,12 +756,12 @@ ${BOLD}Usage:${RESET} ./cv <command> [args]
 
 ${BOLD}Commands:${RESET}
   ${CYAN}init${RESET}                  Create the ignored private workspace from public templates
-  ${CYAN}list${RESET}                  List all profiles (active marked with ▸)
+  ${CYAN}list${RESET}                  List application profiles and reusable baselines
   ${CYAN}use${RESET} <profile>         Load a profile; refuses to overwrite unsaved changes
   ${CYAN}save${RESET} [profile]        Save current working files to a profile
   ${CYAN}build${RESET} [profile]       Build the CV + cover-letter application bundle
   ${CYAN}new${RESET} <profile>         Create a clean profile from public templates
-  ${CYAN}clone${RESET} <src> <new>     Clone a profile without stale PDFs
+  ${CYAN}clone${RESET} <src> <new>     Clone a profile/baseline without stale PDFs
   ${CYAN}diff${RESET} <a> [b]          Compare two profiles (b = current working if omitted)
   ${CYAN}current${RESET}               Show the active profile name
   ${CYAN}archive${RESET} <profile>     Dry-run a verified archive move; add --apply to move
@@ -737,7 +790,7 @@ ${BOLD}Examples:${RESET}
   ./cv save                     # Save changes to current profile
   ./cv build acme-systems       # Build another profile without switching
   ./cv new acme-systems         # Create a clean profile from public templates
-  ./cv clone prior-good acme    # Optionally reuse a trusted layout
+  ./cv clone systems acme       # Optionally reuse a trusted baseline layout
   ./cv diff acme beta           # Compare two application snapshots
   ./cv archive old-role         # Plan only; no files move
   ./cv archive old-role --apply # Move after review and write SHA-256 manifest
@@ -760,6 +813,7 @@ ${BOLD}Examples:${RESET}
 ${BOLD}What's in a profile:${RESET}
   config.tex, letter_config.tex, sections/*.tex, and compiled PDFs.
   Structural files (src/main.tex, src/coverletter.tex, src/awesome-cv.cls) are shared.
+  baselines/ contains optional clone-only layout references; it is never career truth.
 
 EOF
 }

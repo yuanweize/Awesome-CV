@@ -6,8 +6,9 @@ makes cleanup unsafe.
 
 ```text
 meta/master_cv.yaml                 canonical facts and claim IDs
-meta/profile_catalog.yaml           optional reference-profile classification
+meta/baseline_catalog.yaml          optional baseline role-family metadata
 meta/evidence/                      durable private proof
+baselines/<role-layout>/            long-lived clone-only layout references
 profiles/<company-role>/            active/editable application snapshots
 archive/applications/YYYY/...       closed application snapshots
 archive/research/...                interview research and correspondence
@@ -18,9 +19,11 @@ build/ and tmp/                     disposable generated output
 old or live CVs. It must not be used as the AI source of truth; only eligible entries
 in `claim_registry` may drive new factual prose.
 
-An intentional general/layout snapshot may remain in `profiles/` as a `reference`
-entry in `meta/profile_catalog.yaml`. Reference profiles are not application records,
-are never factual authority, and should be kept only when they save real layout work.
+An intentional general/layout snapshot belongs in `baselines/`, with optional metadata
+in `meta/baseline_catalog.yaml`. Baselines are not application records, are never
+factual authority, and should be kept only when they save real layout or ordering work.
+Normal commands treat them as clone-only inputs so an application save cannot silently
+rewrite a long-lived reference.
 
 `archive/` is private and ignored by Git. Plan a move first:
 

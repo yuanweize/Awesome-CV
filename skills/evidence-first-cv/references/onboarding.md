@@ -15,11 +15,11 @@ Run once from the repository root:
 
 `make init` is an alias for the same deterministic initializer. It creates:
 
-- `meta/master_cv.yaml`, `meta/applications.yaml`, and `meta/profile_catalog.yaml`;
+- `meta/master_cv.yaml`, `meta/applications.yaml`, and `meta/baseline_catalog.yaml`;
 - `meta/README.md`, a local map of the ignored runtime layer;
 - `meta/applications/`, `meta/evidence/`, `meta/inventory/`, and `meta/audits/`;
 - the current private LaTeX files under `config.tex`, `letter_config.tex`, and `sections/`;
-- empty `profiles/`, `archive/applications/`, `archive/research/`, `build/`, and `tmp/` paths.
+- empty `baselines/`, `profiles/`, `archive/applications/`, `archive/research/`, `build/`, and `tmp/` paths.
 
 The command is idempotent and never overwrites an existing private file. It rejects
 symbolic-link destinations so a template cannot escape the workspace.

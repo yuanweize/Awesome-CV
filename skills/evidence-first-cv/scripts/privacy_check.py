@@ -16,6 +16,7 @@ PRIVATE_PATHS = (
     "letter_config.tex",
     "sections/",
     "profiles/",
+    "baselines/",
     "archive/",
     "meta/",
     "build/",

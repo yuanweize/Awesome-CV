@@ -41,8 +41,9 @@ delivered, which actions the owner personally controls, and which repository
 technologies are project-only context. Do not suppress the real product; do not turn
 its generated source stack into personal language or framework proficiency.
 
-Reference profiles remain compact role-order and PDF-regression examples. They do not
-expand merely because the portfolio catalog grows.
+Optional baselines remain compact role-order and PDF-regression examples under
+`baselines/`. They do not expand merely because the portfolio catalog grows and never
+serve as factual authority.
 
 ## Claim rules
 

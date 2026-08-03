@@ -216,10 +216,12 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
 ./cv manifest validate meta/applications/<id>/application.yaml --strict
 ```
 
-10. Prefer one page and two or three proof points. Do not create a static baseline
-   profile unless the user explicitly needs one.
-11. Use `./cv clone <trusted-base> <application>` only when an existing layout is
-   useful. It is a compatibility/build backend, not the intelligence layer.
+10. Prefer one page and two or three proof points. Do not create a static role baseline
+   unless it will save repeated layout or ordering work. Store an intentional baseline
+   under ignored `baselines/`, never among application profiles and never as fact memory.
+11. Use `./cv clone <trusted-base> <application>` only when an existing profile or
+   clone-only baseline layout is useful. It is a compatibility/build backend, not the
+   intelligence layer.
 12. When `cover_letter` is a declared deliverable, treat it as required rather than
    optional polish. Map its factual paragraphs to selected claim IDs, use it to explain
    motivation, transfer, and boundaries that do not fit the CV, and never send the generic template.
@@ -292,7 +294,7 @@ future eligibility.
 - Do not list pending, planned, expired, or tutorial-only items as current skills.
 - Do not proactively advertise AI assistance in the résumé.
 - Do not expose contact data to AI unless required; exporter excludes it by default.
-- Do not commit `meta/`, `sections/`, `profiles/`, PDFs, reports, JDs, or real config.
+- Do not commit `meta/`, `sections/`, `baselines/`, `profiles/`, PDFs, reports, JDs, or real config.
 - Do not commit `archive/` or archive manifests; filenames can contain private data.
 - Do not push until tracked/staged privacy checks and the diff are clean.
 - Do not claim that this workflow guarantees interviews or offers.

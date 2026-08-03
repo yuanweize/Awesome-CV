@@ -203,7 +203,7 @@ class MasterWorkflowTests(unittest.TestCase):
                 self.assertTrue((root / relative).is_dir(), relative)
             self.assertTrue((root / "meta" / "master_cv.yaml").is_file())
             self.assertTrue((root / "meta" / "applications.yaml").is_file())
-            self.assertTrue((root / "meta" / "profile_catalog.yaml").is_file())
+            self.assertTrue((root / "meta" / "baseline_catalog.yaml").is_file())
             self.assertTrue((root / "meta" / "README.md").is_file())
             self.assertIn("Only eligible entries", (root / "meta" / "README.md").read_text())
             self.assertEqual(14, len(first["created_files"]))
@@ -699,9 +699,15 @@ class MasterWorkflowTests(unittest.TestCase):
 
     def test_private_paths_are_rejected(self) -> None:
         issues = path_violations(
-            ["README.md", "meta/master_cv.yaml", "profiles/acme/cv.tex", "archive/applications/acme/cv.tex"]
+            [
+                "README.md",
+                "meta/master_cv.yaml",
+                "baselines/systems/cv.tex",
+                "profiles/acme/cv.tex",
+                "archive/applications/acme/cv.tex",
+            ]
         )
-        self.assertEqual(3, len(issues))
+        self.assertEqual(4, len(issues))
 
     def test_secret_filename_variants_are_rejected(self) -> None:
         issues = path_violations(
@@ -1183,7 +1189,7 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertIn("systems (high/active)", rendered)
             self.assertNotIn("Actively pursue Linux", rendered)
 
-    def test_workspace_status_classifies_application_and_reference_profiles(self) -> None:
+    def test_workspace_status_separates_application_profiles_and_baselines(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "templates").mkdir()
@@ -1191,7 +1197,7 @@ class MasterWorkflowTests(unittest.TestCase):
             (root / "meta").mkdir()
             shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
             (root / "profiles" / "company-role").mkdir(parents=True)
-            (root / "profiles" / "reference-systems").mkdir(parents=True)
+            (root / "baselines" / "systems").mkdir(parents=True)
             (root / "meta" / "applications.yaml").write_text(
                 yaml.safe_dump(
                     {
@@ -1201,14 +1207,13 @@ class MasterWorkflowTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            (root / "meta" / "profile_catalog.yaml").write_text(
+            (root / "meta" / "baseline_catalog.yaml").write_text(
                 yaml.safe_dump(
                     {
                         "schema_version": "1.0",
-                        "profiles": [
+                        "baselines": [
                             {
-                                "profile": "reference-systems",
-                                "kind": "reference",
+                                "baseline": "systems",
                                 "role_family": "systems",
                             }
                         ],
@@ -1220,17 +1225,18 @@ class MasterWorkflowTests(unittest.TestCase):
             status = collect_status(root)
 
             self.assertEqual(1, status["profiles"]["applications"])
-            self.assertEqual(1, status["profiles"]["references"])
+            self.assertEqual(1, status["baselines"]["catalogued"])
             self.assertEqual(0, status["profiles"]["unclassified"])
+            self.assertEqual(0, status["baselines"]["uncatalogued"])
 
-    def test_workspace_status_does_not_treat_reference_profiles_as_legacy_applications(self) -> None:
+    def test_workspace_status_does_not_treat_baselines_as_legacy_applications(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "templates").mkdir()
             shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
             (root / "meta").mkdir()
             shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
-            (root / "profiles" / "reference-systems").mkdir(parents=True)
+            (root / "baselines" / "systems").mkdir(parents=True)
             (root / "meta" / "applications.yaml").write_text(
                 yaml.safe_dump(
                     {
@@ -1240,14 +1246,13 @@ class MasterWorkflowTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            (root / "meta" / "profile_catalog.yaml").write_text(
+            (root / "meta" / "baseline_catalog.yaml").write_text(
                 yaml.safe_dump(
                     {
                         "schema_version": "1.0",
-                        "profiles": [
+                        "baselines": [
                             {
-                                "profile": "reference-systems",
-                                "kind": "reference",
+                                "baseline": "systems",
                                 "role_family": "systems",
                             }
                         ],
@@ -1260,21 +1265,20 @@ class MasterWorkflowTests(unittest.TestCase):
 
             self.assertFalse(any("without manifests" in item for item in status["warnings"]))
 
-    def test_workspace_status_rejects_unsafe_reference_catalog_entry(self) -> None:
+    def test_workspace_status_rejects_unsafe_baseline_catalog_entry(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "templates").mkdir()
             shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
             (root / "meta").mkdir()
             shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
-            (root / "meta" / "profile_catalog.yaml").write_text(
+            (root / "meta" / "baseline_catalog.yaml").write_text(
                 yaml.safe_dump(
                     {
                         "schema_version": "1.0",
-                        "profiles": [
+                        "baselines": [
                             {
-                                "profile": "../outside",
-                                "kind": "reference",
+                                "baseline": "../outside",
                                 "role_family": "systems",
                             }
                         ],
@@ -1285,7 +1289,7 @@ class MasterWorkflowTests(unittest.TestCase):
 
             status = collect_status(root)
 
-            self.assertTrue(any("unsafe profile ID" in warning for warning in status["warnings"]))
+            self.assertTrue(any("unsafe baseline ID" in warning for warning in status["warnings"]))
 
     def test_validator_warns_for_unclassified_human_project(self) -> None:
         data = copy.deepcopy(self.template)
@@ -1512,6 +1516,37 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertNotEqual(0, result.returncode)
             self.assertIn("Invalid profile name", result.stderr)
             self.assertFalse((root.parent / "escape").exists())
+
+    def test_profile_clone_accepts_clone_only_baseline_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            executable = self.make_cv_fixture(root)
+            baseline = root / "baselines" / "systems"
+            (baseline / "sections").mkdir(parents=True)
+            (baseline / "config.tex").write_text("baseline-config\n", encoding="utf-8")
+            (baseline / "sections" / "summary.tex").write_text(
+                "baseline-summary\n", encoding="utf-8"
+            )
+            (baseline / "sections" / "skills.tex").write_text(
+                "\\cvsection{Technical Skills}\n\\cvskill{Systems}{Linux}\n",
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [str(executable), "clone", "systems", "acme-systems"],
+                cwd=root,
+                text=True,
+                capture_output=True,
+            )
+
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertEqual(
+                "baseline-summary\n",
+                (root / "profiles" / "acme-systems" / "sections" / "summary.tex").read_text(
+                    encoding="utf-8"
+                ),
+            )
+            self.assertTrue(baseline.is_dir(), "cloning must not mutate the baseline")
 
     def test_profile_use_removes_stale_files(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
