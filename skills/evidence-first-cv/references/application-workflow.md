@@ -10,7 +10,11 @@
    Rank concrete responsibility, tool, and domain matches ahead of generic vacancy
    boilerplate or location words; use verification and interview depth as relevance
    tie-breakers, not as permission for a strong but unrelated claim to displace a JD match.
-5. Map JD requirements to claim IDs and gaps in the manifest.
+5. Map JD requirements to claim IDs and gaps in the manifest. For compound platform
+   or resiliency requirements, preserve direct personal backup, self-hosting,
+   monitoring, or failover evidence, then record formal restore testing, HA ownership,
+   enterprise scale, or RTO/RPO as the remaining boundary. Do not turn “not enterprise”
+   into “never performed”.
 6. Independently review `identity_anchors` and select one to three durable signals.
    Record each reason and placement. For graduate and early-career applications,
    spell out the institution, faculty, and degree in the top third.

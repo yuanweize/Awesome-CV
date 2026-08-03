@@ -69,6 +69,24 @@ and electronics integration, while keeping industrial commissioning as an adjace
 differentiator. Do not force that identity into generic field service merely because
 some evidence is transferable.
 
+## Personal reliability practice versus enterprise DR
+
+Do not collapse bounded personal operations into “no evidence” merely because the
+candidate has not owned an enterprise platform. Separate the layers:
+
+- running redundant backups is direct backup practice, but not proof of a successful restore;
+- an automated health check and endpoint switch is direct failover automation, but not
+  a formal HA design, DR exercise, or measured RTO/RPO;
+- a self-hosted Git service, registry, VPN, bastion, or monitoring stack can prove
+  installation and ongoing operation when ownership is confirmed, but not enterprise
+  scale, compliance, or SLA responsibility;
+- willingness to join an on-call rotation is a work preference, not prior on-call evidence;
+- active Terraform study is a development plan until a reviewable IaC deployment exists.
+
+Map the proved layer as direct or adjacent evidence and name only the remaining
+enterprise boundary as the gap. Do not label the entire recovery or platform
+requirement a gap when a meaningful subset has actually been performed.
+
 ## Recommendation rule
 
 For a high-interest family, do not recommend `defer` solely because it is marked

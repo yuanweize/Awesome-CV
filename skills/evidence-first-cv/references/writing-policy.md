@@ -117,3 +117,8 @@ not permission to dump an infrastructure inventory.
 - `gap`: no eligible claim; keep it explicit.
 
 Do not merge several adjacent claims to manufacture a direct match.
+
+For compound requirements, one row may be `adjacent` while its note identifies both
+the performed subset and the unproved subset. For example, personal multi-copy backup
+and automated endpoint switching are real operations evidence; they do not prove a
+formal restore exercise, enterprise HA ownership, or measured recovery objectives.
