@@ -1,7 +1,8 @@
 # Privacy reference
 
 - Keep all real memory/evidence/JDs under ignored `meta/`.
-- Keep current TeX content under ignored `sections/` and variants under `profiles/`.
+- Keep current TeX content under ignored `workspace/current/` and variants under
+  `workspace/profiles/`.
 - Keep PDFs, rendered images, generated contexts, and collector reports ignored.
 - Export evidence IDs and statements, never raw private documents.
 - Exclude contact by default; use `--include-contact` only when required.

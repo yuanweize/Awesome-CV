@@ -5,7 +5,7 @@ points may delegate to it, but must not fork business logic.
 
 | Category | Canonical location | Purpose |
 |---|---|---|
-| Career workflow | `skills/evidence-first-cv/scripts/` | Initialize private workspaces, validate memory, audit stable structure and human focus view, audit role interests/readiness and historical CV wording, select claims, manage manifests/ledger, govern public GitHub, audit individual PDFs and complete CV + cover-letter bundles, archive private work, and report status |
+| Career workflow | `skills/evidence-first-cv/scripts/` | Initialize private workspaces, validate memory, audit stable structure and visibility, audit role interests/readiness and historical CV wording, select claims, manage manifests/ledger, govern public GitHub, audit individual PDFs and complete CV + cover-letter bundles, archive private work, and report status |
 | CLI compatibility | `tools/*.py` wrappers and `./cv` | Preserve short commands and older automation without duplicating logic |
 | Build safety | `tools/author_slug.py`, `tools/safe_clean.py` | Safe PDF names and bounded generated-file cleanup |
 | Dify packaging | `tools/package_dify_plugin.py` | Stage and inspect a portable plugin archive |
@@ -25,9 +25,11 @@ inventories belong under ignored `meta/inventory/` or collector `reports/`, neve
 beside public templates or documentation.
 
 `legacy_cv_audit.py` is intentionally local-only: it reads ignored historical CV
-sources and writes redacted candidate reports under `meta/audits/` or `tmp/`. It is
-not vendored into the Dify runtime because application archives and PDFs should not be
-uploaded to a model service merely to perform local memory maintenance.
+sources and atomically writes owner-only redacted reports under `meta/audits/` or
+`workspace/tmp/`. Schema 1.1 separates heuristic blue claim mapping from red risk
+governance; only explicit exclusions, boundaries, and planned/ineligible records govern
+a red finding. It is not vendored into the Dify runtime because application archives
+and PDFs should not be uploaded to a model service merely to perform local memory maintenance.
 
 Run `./cv doctor` for the full local health path: workspace structure contract and
 status, strict master validation, role-strategy audit, portfolio coverage when a private
@@ -35,16 +37,15 @@ GitHub inventory exists, repository tests, privacy checks, and active-profile dr
 Reference-only profiles and terminal archived applications are not reported as legacy
 application workspaces merely because no manifest remains active.
 
-`./cv structure` audits the stable path contract separately. It deliberately does not
-move files: it verifies that public layers and initializer templates exist, private
-runtime paths remain ignored, and the tracked VS Code focus view hides operational
-noise while keeping mother memory and current CV source visible.
+`./cv structure` audits the stable path contract separately. It verifies that public
+layers and initializer templates exist, private runtime paths remain ignored, and the
+tracked VS Code settings keep canonical memory and the organized runtime tree visible.
 
 `./cv pdf-audit <pdf>` uses Poppler bounding boxes to enforce one-page output,
 extractable text, a minimum first-page content reach, and a conservative readable-type
 proxy. These metrics catch common regressions but never replace rendered-page review.
 
 `./cv bundle-audit <manifest>` is the application-level gate. It reads schema 1.2
-deliverables, constrains artifact paths to ignored `profiles/` or `build/`, verifies
+deliverables, constrains artifact paths to ignored `workspace/profiles/` or `workspace/build/`, verifies
 SHA-256 and declared page counts, then applies document-appropriate PDF thresholds to
 the CV, cover letter, and optional merged application PDF.

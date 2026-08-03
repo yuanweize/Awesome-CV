@@ -3,25 +3,19 @@
 This repository has four deliberately separate layers. A file should have one
 responsibility and one lifetime; generated CV prose must never become career truth.
 
-## Human view versus storage contract
+## Physical storage contract
 
-The physical directories stay separated because public source, canonical memory,
-editable applications, generated output, and immutable history have different privacy
-and lifecycle rules. Collapsing them under one cosmetic parent would shorten the root
-tree but make every CLI, integration, CI job, archive manifest, and external script a
-migration surface.
+The root separates public product code, canonical memory, editable application work,
+and immutable history. The editable application/build layer is physically grouped
+under `workspace/`; it is not simulated with editor exclusions. `meta/`, `workspace/`,
+and `archive/` remain separate because they have different authority and lifecycles.
 
-The tracked `.vscode/settings.json` therefore supplies a compact default Explorer
-instead. It keeps `meta/`, `sections/`, `src/`, `templates/`, `skills/`, and the `cv`
-entry point visible. It hides `.venv/`, archives, baselines, builds, old profiles,
-temporary output, caches, the active-profile marker, and derived `meta/audits/` /
-`meta/inventory/` views without deleting or relocating them. Use **Explorer: Show
-Excluded Files** for occasional
-manual access; agents and tools continue to see the complete filesystem.
+The tracked `.vscode/settings.json` keeps the complete tree visible. It contains no
+repository `files.exclude`, `search.exclude`, or watcher exclusions.
 
 Run `./cv structure --strict` after any structural change. The contract checks required
 public paths, every initializer template, private `.gitignore` protections, and the
-focus-view invariants. It is part of `make check`, so a renamed directory cannot leave
+runtime-visibility invariants. It is part of `make check`, so a renamed directory cannot leave
 documented or executable paths silently stale. In a Git checkout it also checks local
 exclude precedence, preventing an old unanchored `sections/` rule from silently hiding
 new files under public `templates/sections/`.
@@ -38,7 +32,7 @@ new files under public `templates/sections/`.
 | `docs/` | Public operating and schema documentation |
 | `tests/` | Unit, safety, privacy, and integration tests |
 | `.github/workflows/` | Public CI, example-PDF release, and upstream sync |
-| `.vscode/settings.json` | Shared human focus view; presentation only, never a data boundary |
+| `.vscode/settings.json` | Shared editor settings; the runtime tree remains visible |
 
 Run `./cv init` after cloning. The Skill-owned initializer reconstructs the ignored
 runtime layer from `templates/`, creates every required private/build directory, and
@@ -76,10 +70,10 @@ change evidence records or claims.
 
 | Path | Responsibility |
 |---|---|
-| `config.tex`, `letter_config.tex`, `sections/` | Current editable working snapshot; `sections/order.tex` controls profile-specific ordering |
-| `baselines/<role-layout>/` | Optional long-lived, clone-only layout and ordering reference |
-| `profiles/<company-role>/` | Submitted or still-editable CV + cover-letter application snapshot |
-| `build/`, `tmp/` | Regenerable PDFs, contexts, and rendering output |
+| `workspace/current/` | Current `config.tex`, `letter_config.tex`, `sections/`, and active-profile marker |
+| `workspace/baselines/<role-layout>/` | Optional long-lived, clone-only layout and ordering reference |
+| `workspace/profiles/<company-role>/` | Submitted or still-editable CV + cover-letter application snapshot |
+| `workspace/build/`, `workspace/tmp/` | Regenerable PDFs, contexts, and rendering output |
 
 A baseline is not a mother CV, fact database, or mandatory general résumé. It may save
 layout work when a proven role-family presentation exists. New JD work still starts
@@ -106,7 +100,7 @@ discovery inventory -> portfolio audit -> catalog/exclusion -> human-reviewed cl
 stated interest -> role family/stretch titles -> role audit -> JD-specific evidence decision
 closed profile/research -> verified private archive
 historical CV/archive -> private legacy audit -> evidence review -> claim/exclusion/no change
-build/tmp/cache -> disposable cleanup
+workspace/build + workspace/tmp + cache -> disposable cleanup
 ```
 
 Run `./cv status` at the start of every AI operation. It separates application,

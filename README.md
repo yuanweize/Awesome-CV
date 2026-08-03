@@ -82,23 +82,20 @@ idempotent and never overwrites an existing private file:
 | `templates/master_cv.yaml.example` | `meta/master_cv.yaml` |
 | `templates/applications.yaml.example` | `meta/applications.yaml` |
 | `templates/baseline_catalog.yaml.example` | `meta/baseline_catalog.yaml` |
-| `templates/config.tex.example` | `config.tex` |
-| `templates/letter_config.tex.example` | `letter_config.tex` |
-| `templates/sections/*.tex` | `sections/*.tex` |
+| `templates/config.tex.example` | `workspace/current/config.tex` |
+| `templates/letter_config.tex.example` | `workspace/current/letter_config.tex` |
+| `templates/sections/*.tex` | `workspace/current/sections/*.tex` |
 
 Open `meta/README.md` for the private directory map. Edit private files only; never
 put real data into `templates/`.
 
-The tracked VS Code settings provide a compact human view: mother memory (`meta/`),
-current CV source (`sections/`), the `cv` entry point, and public product code remain
-visible, while archives, profiles, baselines, generated output, inventories, and
-caches are hidden from the Explorer by default. Nothing is deleted, and the stable
-paths used by the CLI, Skill, Dify adapter, CI, and existing automation do not change.
-Use **Explorer: Show Excluded Files** when you need an operational path, and run
-`./cv structure` to explain and verify the layout.
+The private application/build layer is physically grouped under `workspace/` while
+canonical memory remains in `meta/` and closed history remains in `archive/`. The
+tracked VS Code settings keep the complete tree visible; no repository path is hidden
+from Explorer. Run `./cv structure` to explain and verify the layout.
 
-初始化后只编辑私有文件。`meta/`、`sections/`、`baselines/`、`profiles/`、真实联系方式、PDF 和
-构建产物默认不会进入 Git。空的 `baselines/`、`profiles/`、`archive/`、`build/` 和 `tmp/` 会由
+初始化后只编辑私有文件。`meta/`、`workspace/`、`archive/`、真实联系方式、PDF 和
+构建产物默认不会进入 Git。空的 `workspace/baselines/`、`workspace/profiles/`、`archive/`、`workspace/build/` 和 `workspace/tmp/` 会由
 初始化器创建，但不会用 `.gitkeep` 提交；这样 Git 永远看不到以后放进去的真实材料。
 
 Public examples deliberately use a fictional person and reserved example domains.
@@ -168,7 +165,7 @@ for onboarding, claims, applications, role strategy, writing, PDF quality, priva
 archives, technology intake, portfolio lifecycle, and Dify, plus bundled scripts for validation,
 context generation, manifests, outcomes, workspace status, GitHub inventory, portfolio
 and role audits, historical-CV red/blue auditing, privacy, verified archiving, and safe
-workspace initialization plus a tested structure/focus-view contract.
+workspace initialization plus a tested physical-structure and visibility contract.
 `assets/` carries standalone schema/manifest examples; the full LaTeX workspace is
 initialized from the repository's tracked `templates/`. The
 repository template and Skill asset are tested for byte-for-byte equality so they
@@ -193,7 +190,7 @@ small, separately labelled adjacent review pool:
 ./cv context \
   --jd meta/applications/<id>/jd.md \
   --role systems \
-  --output build/acme-systems.generated.md
+  --output workspace/build/acme-systems.generated.md
 ```
 
 Equivalent Make command:
@@ -233,12 +230,12 @@ A missing requirement remains a gap. The visible CV never contains internal IDs.
 
 The CV and cover letter share a modern one-column, left-aligned, high-contrast
 presentation layer over the maintainable Awesome-CV structure. Profiles may override section order
-with `sections/order.tex`—for example, moving Education above Experience when a recent
+with `workspace/current/sections/order.tex`—for example, moving Education above Experience when a recent
 graduate's university is a primary identity anchor. After building, run the deterministic
 layout gate before manual visual inspection:
 
 ```bash
-./cv pdf-audit build/Alex_Example_CV.pdf
+./cv pdf-audit workspace/build/Alex_Example_CV.pdf
 ./cv bundle-audit meta/applications/<id>/application.yaml
 ```
 
@@ -248,7 +245,7 @@ layout gate before manual visual inspection:
 ## Profile workflow
 
 Profiles are private, editable application artifacts, not career memory. Optional
-long-lived role/layout references live separately under `baselines/`; you do **not**
+long-lived role/layout references live separately under `workspace/baselines/`; you do **not**
 need to maintain one for every role family. A baseline is clone-only presentation
 memory, never factual authority and never the default source for a new JD. Optional
 role-family metadata belongs in `meta/baseline_catalog.yaml`. `./cv status` reports
@@ -261,7 +258,7 @@ applications, baselines, unclassified directories, and archives separately.
 # Optional: reuse only a trusted source layout, without stale PDFs
 ./cv clone systems acme-systems
 
-# Edit config.tex, letter_config.tex, and sections/*.tex
+# Edit config.tex, letter_config.tex, and sections/*.tex under workspace/current/
 ./cv save
 ./cv build
 
@@ -294,12 +291,12 @@ applications, baselines, unclassified directories, and archives separately.
 | `./cv github-audit ...` | Refresh public repository metrics and Actions evidence into a private report |
 | `./cv portfolio-audit ...` | Compare the GitHub snapshot with governed projects and exclusions |
 | `./cv role-audit ...` | Compare desired directions, title readiness, and eligible claim depth |
-| `./cv legacy-audit ...` | Privately compare historical CV wording with governed atomic claims |
+| `./cv legacy-audit ...` | Run separate red-risk and blue-recovery passes over historical wording |
 | `./cv tech-audit ...` | Refresh a private local technology inventory; safe mode is the default |
 | `./cv delete <name>` | Permanently delete a non-active profile after exact confirmation |
 | `./cv context ...` | Generate evidence-bound AI context |
 | `./cv status [--json]` | Preflight master, ledger, manifests, profiles, and unsaved state |
-| `./cv structure [--json]` | Verify public paths, init templates, privacy ignores, and the compact IDE view |
+| `./cv structure [--json]` | Verify public paths, init templates, privacy ignores, and full runtime visibility |
 | `./cv start ...` | Save one JD and initialize its private decision manifest |
 | `./cv manifest validate ...` | Check requirement/claim/bullet traceability and approval |
 | `./cv bundle-audit <manifest>` | Verify every declared PDF, hash, page count, text, and layout gate |
@@ -312,7 +309,7 @@ applications, baselines, unclassified directories, and archives separately.
 Profile names are restricted to safe letters, numbers, dots, underscores, and
 hyphens. Path traversal and profile/section symbolic links are rejected. `./cv use`
 stops when working files differ from the active snapshot; save first. `--force` exists
-for deliberate replacement, including the CLI's isolated build/restore flow.
+for deliberate replacement, including the CLI's isolated build-and-restore flow.
 
 See [docs/ARCHIVE_LIFECYCLE.md](docs/ARCHIVE_LIFECYCLE.md) before bulk profile cleanup.
 Use the terminal ledger stage `no-response` only when you deliberately close a silent
@@ -322,8 +319,8 @@ application; the system never assumes rejection from elapsed time.
 
 | Command | Result |
 |---|---|
-| `make resume` | `build/<Name>_CV.pdf` |
-| `make coverletter` | `build/<Name>_Cover_Letter.pdf` |
+| `make resume` | `workspace/build/<Name>_CV.pdf` |
+| `make coverletter` | `workspace/build/<Name>_Cover_Letter.pdf` |
 | `make merged` | Cover letter + résumé application PDF |
 | `make all` | Validate and build the complete CV + cover-letter application bundle |
 | `make clean` | Remove generated build artifacts inside the repository only |
@@ -331,7 +328,8 @@ application; the system never assumes rejection from elapsed time.
 | `make pdf-audit PDF=path/to/cv.pdf` | Run deterministic résumé PDF layout/readability gates |
 | `make bundle-audit MANIFEST=path/to/application.yaml` | Audit all declared application PDFs |
 
-The author name is read from `\name{First}{Last}` in private `config.tex` and
+The author name is read from `\name{First}{Last}` in private
+`workspace/current/config.tex` and
 normalized to a shell-safe PDF filename stem.
 
 Use `\cvgithubrepo{owner/repository}` for GitHub project metadata and
@@ -344,7 +342,7 @@ Header/contact links intentionally retain the stronger navigation colour.
 ```text
 Awesome-CV/
 ├── .github/                       # CI, example build, and upstream sync
-├── .vscode/settings.json          # Tracked compact human workspace view
+├── .vscode/settings.json          # Tracked editor settings; no hidden paths
 ├── cv                              # Profile and workflow CLI
 ├── Makefile
 ├── src/
@@ -383,20 +381,21 @@ Awesome-CV/
 ├── docs/
 ├── tests/
 ├── meta/                           # Private: master, ledger, JDs, durable evidence
-├── sections/                       # Private: current CV content
-├── baselines/                      # Private: optional clone-only layout references
-├── profiles/                       # Private: active/editable application variants
-├── archive/                        # Private: closed applications and research
-├── build/                          # Private: PDFs and generated contexts
-└── tmp/                            # Private: disposable rendering/QA output
+├── workspace/                      # Private: editable application/build layer
+│   ├── current/                   # Current config, letter config, sections, active marker
+│   ├── baselines/                 # Optional clone-only layout references
+│   ├── profiles/                  # Active/editable application variants
+│   ├── build/                     # PDFs and generated contexts
+│   └── tmp/                       # Disposable rendering/QA output
+└── archive/                        # Private: closed applications and research
 ```
 
 See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for ownership, lifecycle,
 canonical-vs-compatibility boundaries, and cleanup rules.
 
-This tree is the stable storage contract, not the default Explorer presentation.
+This tree is the stable storage contract and is fully visible in Explorer.
 `./cv structure --strict` guards every hard-coded boundary: required public layers,
-initializer sources, private `.gitignore` rules, and the focused VS Code view. Adding
+initializer sources, private `.gitignore` rules, and runtime visibility. Adding
 or moving a path therefore requires updating one explicit contract and passing CI,
 rather than discovering a stale caller after publication. Local Git exclude rules are
 also checked so they cannot accidentally shadow public initializer templates.
@@ -433,9 +432,11 @@ stretch work. See
 
 Historical applications can expose both forgotten facts and repeated AI inflation. Run
 `./cv legacy-audit --extra-pdf meta/old-cv.pdf` to create a private candidate report.
-The audit extracts bullets, skills, entries, and honors, then compares them with eligible
-claims and flags scope/strong-language risks. It never promotes old wording automatically;
-confirmed omissions still require independent evidence or fresh owner confirmation. See
+The schema 1.1 report keeps blue similarity mapping separate from red scope and
+strong-language review. Red findings count as governed only when an explicit master
+boundary, exclusion, or ineligible/planned record addresses the same risk; a listed
+technology or weakly similar claim is insufficient. It never promotes old wording
+automatically; confirmed omissions still require independent evidence or fresh owner confirmation. See
 [`legacy-cv-audit.md`](skills/evidence-first-cv/references/legacy-cv-audit.md).
 
 ## Privacy model

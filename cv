@@ -6,7 +6,7 @@ set -euo pipefail
 # Manage per-company CV / Cover Letter profiles.
 #
 # Each profile stores the files that change between job applications:
-#   config.tex, letter_config.tex, sections/*.tex, and compiled PDFs.
+#   workspace/profiles/<name>/{config.tex,letter_config.tex,sections/*.tex,PDFs}.
 #
 # Shared structural files (src/main.tex, src/coverletter.tex, src/awesome-cv.cls)
 # are NOT profiled — they are common infrastructure tracked by git.
@@ -15,11 +15,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Keep Python bytecode outside the project even when users invoke ./cv directly.
 export PYTHONPYCACHEPREFIX="${PYTHONPYCACHEPREFIX:-/tmp/awesome-cv-pycache}"
-PROFILES_DIR="$SCRIPT_DIR/profiles"
-BASELINES_DIR="$SCRIPT_DIR/baselines"
-ACTIVE_FILE="$SCRIPT_DIR/.active_profile"
-SECTIONS_DIR="$SCRIPT_DIR/sections"
-BUILD_DIR="$SCRIPT_DIR/build"
+WORKSPACE_DIR="$SCRIPT_DIR/workspace"
+CURRENT_DIR="$WORKSPACE_DIR/current"
+PROFILES_DIR="$WORKSPACE_DIR/profiles"
+BASELINES_DIR="$WORKSPACE_DIR/baselines"
+ACTIVE_FILE="$CURRENT_DIR/.active_profile"
+SECTIONS_DIR="$CURRENT_DIR/sections"
+BUILD_DIR="$WORKSPACE_DIR/build"
 ARCHIVE_DIR="$SCRIPT_DIR/archive/applications"
 
 # Files that compose a profile
@@ -60,15 +62,15 @@ validate_profile_name() {
 }
 
 ensure_profiles_root() {
-    [[ ! -L "$PROFILES_DIR" ]] || die "profiles/ must not be a symbolic link."
+    [[ ! -L "$PROFILES_DIR" ]] || die "workspace/profiles/ must not be a symbolic link."
     mkdir -p "$PROFILES_DIR"
-    [[ -d "$PROFILES_DIR" ]] || die "profiles/ is not a directory."
+    [[ -d "$PROFILES_DIR" ]] || die "workspace/profiles/ is not a directory."
 }
 
 ensure_baselines_root() {
-    [[ ! -L "$BASELINES_DIR" ]] || die "baselines/ must not be a symbolic link."
+    [[ ! -L "$BASELINES_DIR" ]] || die "workspace/baselines/ must not be a symbolic link."
     mkdir -p "$BASELINES_DIR"
-    [[ -d "$BASELINES_DIR" ]] || die "baselines/ is not a directory."
+    [[ -d "$BASELINES_DIR" ]] || die "workspace/baselines/ is not a directory."
 }
 
 assert_safe_profile_dir() {
@@ -91,10 +93,10 @@ assert_profile_files_are_regular() {
 }
 
 assert_working_files_are_regular() {
-    [[ ! -L "$SECTIONS_DIR" ]] || die "sections/ must not be a symbolic link."
+    [[ ! -L "$SECTIONS_DIR" ]] || die "workspace/current/sections/ must not be a symbolic link."
     local file
     for file in "${ROOT_FILES[@]}"; do
-        [[ ! -L "$SCRIPT_DIR/$file" ]] || die "Working file must not be a symbolic link: $file"
+        [[ ! -L "$CURRENT_DIR/$file" ]] || die "Working file must not be a symbolic link: $file"
     done
     for file in "${SECTION_FILES[@]}"; do
         [[ ! -L "$SECTIONS_DIR/$file" ]] || die "Working file must not be a symbolic link: sections/$file"
@@ -133,7 +135,7 @@ working_tree_differs_from_profile() {
     local profile_dir="$PROFILES_DIR/$profile"
     local file
     for file in "${ROOT_FILES[@]}"; do
-        files_differ "$SCRIPT_DIR/$file" "$profile_dir/$file" && return 0
+        files_differ "$CURRENT_DIR/$file" "$profile_dir/$file" && return 0
     done
     for file in "${SECTION_FILES[@]}"; do
         files_differ "$SECTIONS_DIR/$file" "$profile_dir/sections/$file" && return 0
@@ -149,7 +151,7 @@ ensure_switch_is_safe() {
     if [[ -z "$current" ]]; then
         local file
         for file in "${ROOT_FILES[@]}"; do
-            [[ -e "$SCRIPT_DIR/$file" || -L "$SCRIPT_DIR/$file" ]] \
+            [[ -e "$CURRENT_DIR/$file" || -L "$CURRENT_DIR/$file" ]] \
                 && die "Working files are not attached to a profile. Save them or use --force."
         done
         for file in "${SECTION_FILES[@]}"; do
@@ -177,7 +179,7 @@ sync_file() {
 
 sync_profile_pdfs() {
     local profile_dir="$1"
-    [[ ! -L "$BUILD_DIR" ]] || die "build/ must not be a symbolic link when saving PDFs."
+    [[ ! -L "$BUILD_DIR" ]] || die "workspace/build/ must not be a symbolic link when saving PDFs."
     local existing pdf destination
     local -a pdf_sources=()
     for pdf in "$BUILD_DIR"/*.pdf; do
@@ -241,7 +243,7 @@ resolve_clone_source() {
     [[ ! -L "$profile_path" ]] || die "Profile '$source' must not be a symbolic link."
     [[ ! -L "$baseline_path" ]] || die "Baseline '$source' must not be a symbolic link."
     if [[ -d "$profile_path" && -d "$baseline_path" ]]; then
-        die "Ambiguous source '$source' exists in both profiles/ and baselines/."
+        die "Ambiguous source '$source' exists in both workspace/profiles/ and workspace/baselines/."
     fi
     if [[ -d "$profile_path" ]]; then
         printf '%s\n' "$profile_path"
@@ -316,13 +318,13 @@ cmd_use() {
     ensure_switch_is_safe "$force"
 
     local profile_dir="$PROFILES_DIR/$profile"
-    [[ ! -L "$SECTIONS_DIR" ]] || die "sections/ must not be a symbolic link."
+    [[ ! -L "$SECTIONS_DIR" ]] || die "workspace/current/sections/ must not be a symbolic link."
 
     # Replace the working snapshot exactly. Leaving a missing file in place can
     # silently carry a previous employer or claim into the selected profile.
     for f in "${ROOT_FILES[@]}"; do
-        rm -f "$SCRIPT_DIR/$f"
-        [[ -f "$profile_dir/$f" ]] && cp "$profile_dir/$f" "$SCRIPT_DIR/$f"
+        rm -f "$CURRENT_DIR/$f"
+        [[ -f "$profile_dir/$f" ]] && cp "$profile_dir/$f" "$CURRENT_DIR/$f"
     done
 
     # Copy section files
@@ -350,7 +352,7 @@ cmd_save() {
     fi
 
     local profile_dir="$PROFILES_DIR/$profile"
-    [[ ! -L "$SECTIONS_DIR" ]] || die "sections/ must not be a symbolic link."
+    [[ ! -L "$SECTIONS_DIR" ]] || die "workspace/current/sections/ must not be a symbolic link."
     if [[ -e "$profile_dir" || -L "$profile_dir" ]]; then
         assert_safe_profile_dir "$profile"
     else
@@ -362,7 +364,7 @@ cmd_save() {
     # Synchronize source exactly so a removed working file cannot leave stale
     # employer or claim data in the profile.
     for f in "${ROOT_FILES[@]}"; do
-        sync_file "$SCRIPT_DIR/$f" "$profile_dir/$f"
+        sync_file "$CURRENT_DIR/$f" "$profile_dir/$f"
     done
 
     for f in "${SECTION_FILES[@]}"; do
@@ -396,7 +398,7 @@ cmd_build() {
     local tmp_dir
     tmp_dir=$(mktemp -d)
     for f in "${ROOT_FILES[@]}"; do
-        [[ -f "$SCRIPT_DIR/$f" ]] && cp "$SCRIPT_DIR/$f" "$tmp_dir/$f"
+        [[ -f "$CURRENT_DIR/$f" ]] && cp "$CURRENT_DIR/$f" "$tmp_dir/$f"
     done
     mkdir -p "$tmp_dir/sections"
     for f in "${SECTION_FILES[@]}"; do
@@ -411,8 +413,8 @@ cmd_build() {
         [[ -d "$tmp_dir" ]] || return 0
         local file
         for file in "${ROOT_FILES[@]}"; do
-            rm -f "$SCRIPT_DIR/$file"
-            [[ -f "$tmp_dir/$file" ]] && cp "$tmp_dir/$file" "$SCRIPT_DIR/$file"
+            rm -f "$CURRENT_DIR/$file"
+            [[ -f "$tmp_dir/$file" ]] && cp "$tmp_dir/$file" "$CURRENT_DIR/$file"
         done
         for file in "${SECTION_FILES[@]}"; do
             rm -f "$SECTIONS_DIR/$file"
@@ -449,7 +451,7 @@ cmd_build() {
         return "$build_status"
     fi
 
-    echo -e "${GREEN}✓${RESET} Built profile: ${BOLD}$profile${RESET} → profiles/$profile/"
+    echo -e "${GREEN}✓${RESET} Built profile: ${BOLD}$profile${RESET} → workspace/profiles/$profile/"
 }
 
 cmd_new() {
@@ -477,7 +479,7 @@ cmd_new() {
 
     cmd_use "$profile" --force > /dev/null
     echo -e "${GREEN}✓${RESET} Created new clean profile: ${BOLD}$profile${RESET}"
-    echo -e "  ${DIM}Tip: edit files in root or profiles/$profile/, then run './cv build $profile'${RESET}"
+    echo -e "  ${DIM}Tip: edit workspace/current/ or workspace/profiles/$profile/, then run './cv build $profile'${RESET}"
 }
 
 cmd_clone() {
@@ -604,7 +606,7 @@ cmd_diff() {
         echo -e "${BOLD}Comparing profile ${CYAN}$a${RESET} with current working files:\n"
         local has_diff=false
         for f in "${ROOT_FILES[@]}"; do
-            if files_differ "$dir_a/$f" "$SCRIPT_DIR/$f"; then
+            if files_differ "$dir_a/$f" "$CURRENT_DIR/$f"; then
                 echo -e "  ${YELLOW}≠${RESET} $f"
                 has_diff=true
             else
@@ -621,7 +623,7 @@ cmd_diff() {
         done
         echo
         if $has_diff; then
-            echo -e "  ${DIM}Use 'diff profiles/$a/<file> <file>' for details${RESET}"
+            echo -e "  ${DIM}Use 'diff workspace/profiles/$a/<file> workspace/current/<file>' for details${RESET}"
         else
             echo -e "  ${GREEN}Working files match profile '$a'${RESET}"
         fi
@@ -779,7 +781,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
   ${CYAN}status${RESET} [--json]       Report memory, application, profile, and warning state
-  ${CYAN}structure${RESET} [--json]    Audit stable paths, privacy ignores, templates, and focus view
+  ${CYAN}structure${RESET} [--json]    Audit stable paths, privacy ignores, templates, and visibility
   ${CYAN}start${RESET} [options]       Create a private JD + application-manifest workspace
   ${CYAN}manifest${RESET} <command>    Validate an application decision/bullet manifest
   ${CYAN}validate${RESET} [yaml]       Validate the private master database
@@ -800,27 +802,27 @@ ${BOLD}Examples:${RESET}
   ./cv diff acme beta           # Compare two application snapshots
   ./cv archive old-role         # Plan only; no files move
   ./cv archive old-role --apply # Move after review and write SHA-256 manifest
-  ./cv archive-research profiles/old/interview_prep old-interview --apply
+  ./cv archive-research workspace/profiles/old/interview_prep old-interview --apply
   ./cv github-audit             # Owner from private master; writes dated private JSON
   ./cv portfolio-audit --strict # Require every original repo to be governed or excluded
   ./cv role-audit                # Inspect desired directions and evidence depth
   ./cv legacy-audit --extra-pdf meta/old-cv.pdf
   ./cv tech-audit               # Write a private safe local technology inventory
-  ./cv context --jd job.md --role systems -o build/job-context.md
+  ./cv context --jd job.md --role systems -o workspace/build/job-context.md
   ./cv status                    # Agent preflight before every application
-  ./cv structure                 # Explain and verify the compact human workspace view
+  ./cv structure                 # Explain and verify the visible runtime structure
   ./cv start --company Acme --title "Systems Engineer" --role systems --jd job.md
   ./cv manifest validate meta/applications/<id>/application.yaml --strict
   ./cv privacy-check
-  ./cv pdf-audit build/Alex_Example_CV.pdf
+  ./cv pdf-audit workspace/build/Alex_Example_CV.pdf
   ./cv bundle-audit meta/applications/<id>/application.yaml
   ./cv track summary
   ./cv doctor
 
 ${BOLD}What's in a profile:${RESET}
-  config.tex, letter_config.tex, sections/*.tex, and compiled PDFs.
+  workspace/current/ holds config.tex, letter_config.tex, and sections/*.tex.
   Structural files (src/main.tex, src/coverletter.tex, src/awesome-cv.cls) are shared.
-  baselines/ contains optional clone-only layout references; it is never career truth.
+  workspace/baselines/ contains optional clone-only layout references; it is never career truth.
 
 EOF
 }

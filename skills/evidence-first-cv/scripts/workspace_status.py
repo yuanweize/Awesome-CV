@@ -71,15 +71,17 @@ def visible_skill_count(path: Path) -> int:
 def active_profile_state(root: Path, active: str) -> tuple[bool, list[str]]:
     if not active:
         return False, []
-    profile = root / "profiles" / active
+    workspace = root / "workspace"
+    current = workspace / "current"
+    profile = workspace / "profiles" / active
     if not profile.is_dir() or profile.is_symlink():
         return True, ["active profile is missing or unsafe"]
     differences: list[str] = []
     for name in PROFILE_FILES:
-        if files_differ(root / name, profile / name):
+        if files_differ(current / name, profile / name):
             differences.append(name)
     for name in SECTION_FILES:
-        if files_differ(root / "sections" / name, profile / "sections" / name):
+        if files_differ(current / "sections" / name, profile / "sections" / name):
             differences.append(f"sections/{name}")
     return bool(differences), differences
 
@@ -138,7 +140,7 @@ def collect_status(root: Path) -> dict[str, Any]:
     manifests = sorted(manifest_root.glob("*/application.yaml")) if manifest_root.is_dir() else []
     manifest_stages = Counter(safe_yaml(path).get("stage", "unknown") for path in manifests)
 
-    profiles_root = root / "profiles"
+    profiles_root = root / "workspace" / "profiles"
     profile_count, profile_bytes = directory_inventory(profiles_root)
     profile_names = (
         {
@@ -164,7 +166,7 @@ def collect_status(root: Path) -> dict[str, Any]:
         and target.get("profile")
     }
 
-    baselines_root = root / "baselines"
+    baselines_root = root / "workspace" / "baselines"
     baseline_count, baseline_bytes = directory_inventory(baselines_root)
     baseline_names = (
         {
@@ -216,10 +218,14 @@ def collect_status(root: Path) -> dict[str, Any]:
     archive_count = len(list((root / "archive" / "applications").glob("*/*"))) if (root / "archive" / "applications").is_dir() else 0
     research_archive_count = len(list((root / "archive" / "research").glob("*/*"))) if (root / "archive" / "research").is_dir() else 0
 
-    active_file = root / ".active_profile"
+    active_file = root / "workspace" / "current" / ".active_profile"
     active = active_file.read_text(encoding="utf-8").strip() if active_file.is_file() and not active_file.is_symlink() else ""
     active_dirty, active_differences = active_profile_state(root, active)
-    active_skill_entries = visible_skill_count(root / "sections" / "skills.tex") if active else 0
+    active_skill_entries = (
+        visible_skill_count(root / "workspace" / "current" / "sections" / "skills.tex")
+        if active
+        else 0
+    )
     empty_baseline_skills = sorted(
         baseline
         for baseline in existing_baselines
@@ -265,7 +271,7 @@ def collect_status(root: Path) -> dict[str, Any]:
     if (root / "meta" / "profile_catalog.yaml").is_file():
         warnings.append(
             "legacy meta/profile_catalog.yaml remains; migrate reusable references to "
-            "baselines/ and meta/baseline_catalog.yaml"
+            "workspace/baselines/ and meta/baseline_catalog.yaml"
         )
     abandoned = root / "skills" / "drive-evidence-first-cv"
     if abandoned.is_dir() and not (abandoned / "SKILL.md").is_file():

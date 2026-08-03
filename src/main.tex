@@ -6,8 +6,8 @@
 % Template license: CC BY-SA 4.0
 %
 % Privacy-First Architecture:
-% - config.tex: Your personal info (gitignored)
-% - sections/: Your real content (gitignored)
+% - workspace/current/config.tex: Your personal info (gitignored)
+% - workspace/current/sections/: Your real content (gitignored)
 % - templates/sections/: Generic placeholders (tracked)
 %
 
@@ -34,9 +34,9 @@
 
 %-------------------------------------------------------------------------------
 % PERSONAL INFORMATION
-% Load from config.tex (gitignored - contains real PII)
+% Load from workspace/current/config.tex (gitignored - contains real PII)
 %-------------------------------------------------------------------------------
-\input{config.tex}
+\input{workspace/current/config.tex}
 
 
 %-------------------------------------------------------------------------------
@@ -44,12 +44,12 @@
 % Change this to switch between template and real content
 %-------------------------------------------------------------------------------
 % For CI/demo: use templates/sections
-% For personal use: use sections (gitignored)
-\newcommand{\contentpath}{sections}
+% For personal use: use workspace/current/sections (gitignored)
+\newcommand{\contentpath}{workspace/current/sections}
 
-% Fallback: check if sections/ exists, otherwise use templates/sections/
-\IfFileExists{sections/summary.tex}{
-  \renewcommand{\contentpath}{sections}
+% Fallback: check if current sections exist, otherwise use templates/sections/
+\IfFileExists{workspace/current/sections/summary.tex}{
+  \renewcommand{\contentpath}{workspace/current/sections}
 }{
   \renewcommand{\contentpath}{templates/sections}
 }

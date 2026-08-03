@@ -25,7 +25,9 @@ def author_slug(text: str) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("config", nargs="?", type=Path, default=Path("config.tex"))
+    parser.add_argument(
+        "config", nargs="?", type=Path, default=Path("workspace/current/config.tex")
+    )
     args = parser.parse_args()
     try:
         text = args.config.read_text(encoding="utf-8")

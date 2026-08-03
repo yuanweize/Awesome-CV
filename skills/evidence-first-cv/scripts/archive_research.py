@@ -45,9 +45,11 @@ def research_plan(root: Path, source_arg: Path, name: str, year: str) -> dict[st
 
     root = Path(os.path.abspath(root))
     source = Path(os.path.abspath(source_arg if source_arg.is_absolute() else root / source_arg))
-    allowed_roots = (root / "profiles", root / "meta" / "chat")
+    allowed_roots = (root / "workspace" / "profiles", root / "meta" / "chat")
     if not any(source.is_relative_to(base) and source != base for base in allowed_roots):
-        raise ValueError("research source must be inside profiles/ or meta/chat/")
+        raise ValueError(
+            "research source must be inside workspace/profiles/ or meta/chat/"
+        )
     reject_symlink_components(source, "research source", root)
     if source.is_symlink() or not source.is_dir():
         raise ValueError(f"research source is missing or unsafe: {source}")

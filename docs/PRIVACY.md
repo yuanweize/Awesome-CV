@@ -8,14 +8,14 @@ Privacy depends on both `.gitignore` and disciplined review.
 Public:
 
 - `src/`, `templates/`, `skills/`, `tools/`, `docs/`, tests, workflows, and the
-  non-secret `.vscode/settings.json` focus view;
+  non-secret `.vscode/settings.json` editor settings;
 - fictitious/example data using `example.org` and RFC 5737 IP ranges.
 
 Private:
 
 - `meta/`: master database, application ledger, JDs, evidence notes, interviews;
-- `config.tex`, `letter_config.tex`, and `sections/`;
-- `baselines/`, `profiles/`, `archive/`, `build/`, `tmp/`, PDFs and render images;
+- `workspace/`: current TeX source, baselines, profiles, builds, and temporary output;
+- `archive/`, PDFs, and render images;
 - collector reports and real target files;
 - credentials, keys, tokens, internal addresses, and evidence documents.
 

@@ -12,15 +12,9 @@ from pathlib import Path
 
 
 PRIVATE_PATHS = (
-    "config.tex",
-    "letter_config.tex",
-    "sections/",
-    "profiles/",
-    "baselines/",
+    "workspace/",
     "archive/",
     "meta/",
-    "build/",
-    "tmp/",
 )
 PRIVATE_SUFFIXES = {".pdf", ".aux", ".log", ".out", ".synctex.gz", ".key", ".p12", ".pfx", ".pem"}
 SECRET_FILENAMES = {".env", "targets.yaml", "targets.json", "credentials.json", "secrets.yaml", "secrets.yml"}
@@ -63,9 +57,7 @@ def git_files(root: Path, staged: bool) -> list[str]:
 def path_violations(paths: list[str]) -> list[str]:
     issues: list[str] = []
     for path in paths:
-        if path in ("config.tex", "letter_config.tex") or any(
-            path.startswith(prefix) for prefix in PRIVATE_PATHS if prefix.endswith("/")
-        ):
+        if any(path.startswith(prefix) for prefix in PRIVATE_PATHS):
             issues.append(f"private path is tracked: {path}")
         name = Path(path).name.lower()
         env_secret = name == ".env" or (name.startswith(".env.") and name != ".env.example")

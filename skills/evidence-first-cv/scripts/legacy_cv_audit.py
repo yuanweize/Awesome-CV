@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
+import tempfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import date
@@ -29,6 +31,9 @@ STOPWORDS = {
     "this", "that", "their", "its", "my", "our", "is", "was", "were", "be",
 }
 
+COVERED_SCORE = 0.48
+PARTIAL_SCORE = 0.22
+
 REVIEW_PATTERNS: dict[str, str] = {
     r"\boem[- ]level\b": "OEM/dealership authority requires professional evidence",
     r"\becu (?:coding|calibration|parameteri[sz]ation)\b": "ECU work needs exact tool, action, and personal/professional scope",
@@ -49,6 +54,13 @@ REVIEW_PATTERNS: dict[str, str] = {
     r"\bindependently commissioned\b|\bfull system electrical construction\b": "Ownership verb may exceed contractor records; verify exact responsibility",
     r"\bfirst author\b|\bnational (?:academic )?journal\b": "Publication venue, authorship, and relevance need durable bibliographic proof",
     r"\blocal(?:ly)? train(?:ed|ing)?\b.*\b(?:llama|model)\b": "Local model training must distinguish inference, fine-tuning, and training",
+}
+
+GOVERNANCE_PATTERNS = {
+    r"\b\d+\+ years? (?:of )?(?:production|professional|commercial)\b": (
+        r"\b(?:years? of (?:production|professional|commercial)|"
+        r"professional experience.{0,60}chronology)\b"
+    ),
 }
 
 PII_PATTERNS = (
@@ -212,8 +224,12 @@ def pdf_pages(path: Path) -> int | None:
     return int(match.group(1)) if match else None
 
 
-def extract_pdf_statements(path: Path, source_id: str) -> list[Statement]:
+def extract_pdf_statements(
+    path: Path, source_id: str, *, required: bool = False
+) -> list[Statement]:
     if path.is_symlink() or not path.is_file():
+        if required:
+            raise ValueError(f"explicit legacy PDF not found or unsafe: {path}")
         return []
     try:
         result = subprocess.run(
@@ -223,7 +239,13 @@ def extract_pdf_statements(path: Path, source_id: str) -> list[Statement]:
             text=True,
             timeout=30,
         )
-    except (FileNotFoundError, subprocess.SubprocessError):
+    except FileNotFoundError as exc:
+        if required:
+            raise ValueError("pdftotext is required to inspect an explicit legacy PDF") from exc
+        return []
+    except subprocess.SubprocessError as exc:
+        if required:
+            raise ValueError(f"text could not be extracted from explicit legacy PDF: {path}") from exc
         return []
     paragraphs = re.split(r"\n\s*\n|\f", redact_pii(result.stdout))
     statements: list[Statement] = []
@@ -232,6 +254,8 @@ def extract_pdf_statements(path: Path, source_id: str) -> list[Statement]:
         text = " ".join(text.split())
         if len(text) >= 35:
             statements.append(Statement(source_id, "legacy-pdf", "pdf-text", text))
+    if required and not statements:
+        raise ValueError(f"no usable text could be extracted from explicit legacy PDF: {path}")
     return statements
 
 
@@ -269,12 +293,14 @@ def require_workspace_path(root: Path, path: Path, label: str) -> Path:
 
 def require_private_output(root: Path, path: Path, label: str) -> Path:
     resolved = require_workspace_path(root, path, label)
-    allowed_roots = (root / "meta" / "audits", root / "tmp")
+    allowed_roots = (root / "meta" / "audits", root / "workspace" / "tmp")
     if not any(
         resolved == allowed.resolve() or allowed.resolve() in resolved.parents
         for allowed in allowed_roots
     ):
-        raise ValueError(f"{label} must be written under meta/audits/ or tmp/: {path}")
+        raise ValueError(
+            f"{label} must be written under meta/audits/ or workspace/tmp/: {path}"
+        )
     return resolved
 
 
@@ -288,7 +314,9 @@ def collect_sources(
     profiles_dir = require_workspace_path(root, profiles_dir, "Profiles directory")
     archive_dir = require_workspace_path(root, archive_dir, "Archive directory")
     baselines_dir = require_workspace_path(
-        root, baselines_dir or root / "baselines", "Baselines directory"
+        root,
+        baselines_dir or root / "workspace" / "baselines",
+        "Baselines directory",
     )
     sources: list[SourceAudit] = []
     candidates: list[tuple[Path, str]] = []
@@ -301,7 +329,7 @@ def collect_sources(
             continue
         relative = path.relative_to(root.resolve())
         if source_kind == "archived-application":
-            source_id = path.name
+            source_id = path.relative_to(archive_dir).as_posix()
         elif source_kind == "baseline":
             source_id = f"baseline:{path.name}"
         else:
@@ -329,7 +357,7 @@ def collect_sources(
                 path=str(relative),
                 target_title="",
                 pages=pdf_pages(resolved),
-                statements=extract_pdf_statements(resolved, source_id),
+                statements=extract_pdf_statements(resolved, source_id, required=True),
             )
         )
     return sources
@@ -367,6 +395,54 @@ def build_claim_index(master: dict[str, Any]) -> list[tuple[str, str, set[str]]]
     return index
 
 
+def _text_values(value: Any) -> Iterable[str]:
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, list):
+        for item in value:
+            yield from _text_values(item)
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from _text_values(item)
+
+
+def _ineligible_governance_values(value: Any) -> Iterable[str]:
+    if isinstance(value, dict):
+        status = value.get("status")
+        if value.get("cv_eligible") is False or status in {
+            "planned",
+            "unverified",
+            "expired",
+        }:
+            yield from _text_values(value)
+            return
+        for item in value.values():
+            yield from _ineligible_governance_values(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from _ineligible_governance_values(item)
+
+
+def build_governance_text(master: dict[str, Any]) -> str:
+    """Collect explicit exclusions and boundaries that already govern red findings."""
+    governed: list[str] = []
+    governed.extend(_text_values(master.get("exclusions", [])))
+    governed.extend(_text_values(master.get("planned_or_exploratory_technologies", {})))
+    for family in master.get("role_families", {}).values():
+        if isinstance(family, dict):
+            governed.extend(_text_values(family.get("boundaries", [])))
+    for claim in master.get("claim_registry", []):
+        if isinstance(claim, dict):
+            governed.extend(_text_values(claim.get("boundaries", [])))
+    technical = master.get("technical_skills", {})
+    if isinstance(technical, dict):
+        for skill in technical.get("evidenced", []):
+            if isinstance(skill, dict):
+                governed.extend(_text_values(skill.get("boundaries", [])))
+    governed.extend(_ineligible_governance_values(master))
+    return "\n".join(governed)
+
+
 def best_claim_match(value: str, claim_index: list[tuple[str, str, set[str]]]) -> dict[str, Any]:
     candidate_tokens = tokens(value)
     best = {"claim_id": "", "statement": "", "score": 0.0}
@@ -385,21 +461,40 @@ def best_claim_match(value: str, claim_index: list[tuple[str, str, set[str]]]) -
     return best
 
 
-def review_triggers(value: str, matched_claim_statement: str = "") -> list[dict[str, str]]:
-    findings: list[dict[str, str]] = []
+def review_triggers(
+    value: str,
+    matched_claim_statement: str = "",
+    governance_text: str = "",
+) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
     for pattern, reason in REVIEW_PATTERNS.items():
         match = re.search(pattern, value, re.I)
         if not match:
             continue
         term = match.group(0)
-        if matched_claim_statement and re.search(pattern, matched_claim_statement, re.I):
+        if (
+            matched_claim_statement
+            and normalize_statement(value) == normalize_statement(matched_claim_statement)
+            and re.search(pattern, matched_claim_statement, re.I)
+        ):
             continue
-        findings.append({"term": term, "reason": reason})
+        governance_pattern = GOVERNANCE_PATTERNS.get(pattern, pattern)
+        findings.append(
+            {
+                "term": term,
+                "reason": reason,
+                "governed": bool(
+                    governance_text
+                    and re.search(governance_pattern, governance_text, re.I)
+                ),
+            }
+        )
     return findings
 
 
 def audit_legacy_cvs(master: dict[str, Any], sources: list[SourceAudit]) -> dict[str, Any]:
     claim_index = build_claim_index(master)
+    governance_text = build_governance_text(master)
     unique: dict[str, dict[str, Any]] = {}
     for source in sources:
         for statement in source.statements:
@@ -422,9 +517,20 @@ def audit_legacy_cvs(master: dict[str, Any], sources: list[SourceAudit]) -> dict
     rows: list[dict[str, Any]] = []
     for record in unique.values():
         match = best_claim_match(record["text"], claim_index)
-        triggers = review_triggers(record["text"], match["statement"])
         score = match["score"]
-        classification = "covered" if score >= 0.48 else "partial" if score >= 0.22 else "unmapped"
+        classification = (
+            "covered"
+            if score >= COVERED_SCORE
+            else "partial"
+            if score >= PARTIAL_SCORE
+            else "unmapped"
+        )
+        trusted_claim_statement = match["statement"] if classification == "covered" else ""
+        triggers = review_triggers(
+            record["text"], trusted_claim_statement, governance_text
+        )
+        mapped_claim_id = match["claim_id"] if classification != "unmapped" else ""
+        mapped_score = score if classification != "unmapped" else None
         rows.append(
             {
                 "text": record["text"],
@@ -433,8 +539,10 @@ def audit_legacy_cvs(master: dict[str, Any], sources: list[SourceAudit]) -> dict
                 "source_kinds": sorted(record["source_kinds"]),
                 "occurrences": len(record["sources"]),
                 "classification": classification,
-                "best_claim_id": match["claim_id"],
-                "match_score": score,
+                "best_claim_id": mapped_claim_id,
+                "match_score": mapped_score,
+                "nearest_claim_id": match["claim_id"],
+                "nearest_match_score": score,
                 "review_triggers": triggers,
             }
         )
@@ -457,14 +565,22 @@ def audit_legacy_cvs(master: dict[str, Any], sources: list[SourceAudit]) -> dict
                 "partial": sum(row["classification"] == "partial" for row in relevant),
                 "unmapped": sum(row["classification"] == "unmapped" for row in relevant),
                 "review_trigger_statements": sum(bool(row["review_triggers"]) for row in relevant),
+                "ungoverned_review_trigger_statements": sum(
+                    any(not trigger["governed"] for trigger in row["review_triggers"])
+                    for row in relevant
+                ),
             }
         )
 
     return {
+        "schema_version": "1.1",
         "policy": {
             "old_cv_is_factual_authority": False,
             "automatic_claim_promotion": False,
             "classification_is_heuristic": True,
+            "covered_score_minimum": COVERED_SCORE,
+            "partial_score_minimum": PARTIAL_SCORE,
+            "red_finding_governed_only_by_explicit_master_boundary": True,
         },
         "summary": {
             "sources": len(sources),
@@ -478,6 +594,15 @@ def audit_legacy_cvs(master: dict[str, Any], sources: list[SourceAudit]) -> dict
             "partial": sum(row["classification"] == "partial" for row in rows),
             "unmapped": sum(row["classification"] == "unmapped" for row in rows),
             "review_trigger_statements": sum(bool(row["review_triggers"]) for row in rows),
+            "governed_review_trigger_statements": sum(
+                bool(row["review_triggers"])
+                and all(trigger["governed"] for trigger in row["review_triggers"])
+                for row in rows
+            ),
+            "ungoverned_review_trigger_statements": sum(
+                any(not trigger["governed"] for trigger in row["review_triggers"])
+                for row in rows
+            ),
         },
         "sources": source_rows,
         "statements": rows,
@@ -490,6 +615,14 @@ def _short(value: str, limit: int = 220) -> str:
 
 def _cell(value: Any) -> str:
     return " ".join(str(value).split()).replace("|", "\\|")
+
+
+def _mapping_cell(row: dict[str, Any]) -> str:
+    claim_id = row.get("best_claim_id") or ""
+    score = row.get("match_score")
+    if not claim_id or not isinstance(score, (int, float)):
+        return "none"
+    return f"`{_cell(claim_id)}` ({score:.2f})"
 
 
 def render_markdown(result: dict[str, Any]) -> str:
@@ -508,12 +641,16 @@ def render_markdown(result: dict[str, Any]) -> str:
         f"- Extracted statements: {summary['statements']} total / {summary['unique_statements']} unique",
         f"- Heuristic mapping: {summary['covered']} covered, {summary['partial']} partial, "
         f"{summary['unmapped']} unmapped",
-        f"- Statements requiring strong-language/technology review: {summary['review_trigger_statements']}",
+        f"- Statements requiring strong-language/technology review: {summary['review_trigger_statements']} "
+        f"({summary['governed_review_trigger_statements']} governed by master boundaries/exclusions; "
+        f"{summary['ungoverned_review_trigger_statements']} still ungoverned)",
+        f"- Governed red findings: {summary['governed_review_trigger_statements']}",
+        f"- Ungoverned red findings: {summary['ungoverned_review_trigger_statements']}",
         "",
         "## Source inventory",
         "",
-        "| Source | Kind | Pages | Statements | Covered / partial / unmapped | Review triggers | Target |",
-        "|---|---|---:|---:|---:|---:|---|",
+        "| Source | Kind | Pages | Statements | Covered / partial / unmapped | Red findings | Ungoverned | Target |",
+        "|---|---|---:|---:|---:|---:|---:|---|",
     ]
     for source in result["sources"]:
         pages = source["pages"] if source["pages"] is not None else "n/a"
@@ -521,42 +658,46 @@ def render_markdown(result: dict[str, Any]) -> str:
         lines.append(
             f"| `{_cell(source['source_id'])}` | {_cell(source['source_kind'])} | {pages} | "
             f"{source['unique_statements']} | {mapped} | {source['review_trigger_statements']} | "
+            f"{source['ungoverned_review_trigger_statements']} | "
             f"{_cell(_short(source['target_title'], 100))} |"
         )
 
     triggered = [row for row in result["statements"] if row["review_triggers"]]
     triggered.sort(key=lambda row: (-row["occurrences"], row["text"].lower()))
-    trigger_counts: Counter[str] = Counter()
-    for row in triggered:
-        for finding in row["review_triggers"]:
-            trigger_counts[finding["reason"]] += row["occurrences"]
     lines.extend(
         [
             "",
             "## Risk-category frequency",
             "",
-            "| Historical-source occurrences | Review category |",
-            "|---:|---|",
+        "| Historical-source occurrences | Review category | Governance |",
+        "|---:|---|---|",
         ]
     )
-    for reason, count in trigger_counts.most_common():
-        lines.append(f"| {count} | {_cell(reason)} |")
+    governance_counts: Counter[tuple[str, bool]] = Counter()
+    for row in triggered:
+        for finding in row["review_triggers"]:
+            governance_counts[(finding["reason"], finding["governed"])] += row["occurrences"]
+    for (reason, governed), count in governance_counts.most_common():
+        lines.append(
+            f"| {count} | {_cell(reason)} | {'governed' if governed else 'needs governance'} |"
+        )
     lines.extend(
         [
             "",
-            "## Strong-language and unsupported-scope review",
+            "## Red challenge: strong language and unsupported scope",
             "",
-            "| Occurrences | Trigger | Best claim | Sources | Legacy wording |",
-            "|---:|---|---|---|---|",
+        "| Occurrences | Status | Trigger | Credible mapping | Sources | Legacy wording |",
+        "|---:|---|---|---|---|---|",
         ]
     )
     for row in triggered[:120]:
         trigger = "; ".join(
             f"{item['term']}: {item['reason']}" for item in row["review_triggers"]
         )
+        governed = all(item["governed"] for item in row["review_triggers"])
         lines.append(
-            f"| {row['occurrences']} | {_cell(_short(trigger, 180))} | "
-            f"`{_cell(row['best_claim_id'] or 'none')}` ({row['match_score']:.2f}) | "
+            f"| {row['occurrences']} | {'governed' if governed else 'needs governance'} | "
+            f"{_cell(_short(trigger, 180))} | {_mapping_cell(row)} | "
             f"{_cell(', '.join(row['sources'][:8]))} | {_cell(_short(row['text']))} |"
         )
 
@@ -576,7 +717,7 @@ def render_markdown(result: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "## Candidate memory omissions or weak mappings",
+            "## Blue recovery: candidate memory omissions or weak mappings",
             "",
             "> Each row still needs evidence/user confirmation. Repetition proves only that old CVs",
             "> copied the wording, not that the statement is true. Markdown prioritises repeated",
@@ -589,7 +730,7 @@ def render_markdown(result: dict[str, Any]) -> str:
     for row in priority_omissions[:120]:
         lines.append(
             f"| {row['classification']} | {row['occurrences']} | "
-            f"`{_cell(row['best_claim_id'] or 'none')}` ({row['match_score']:.2f}) | "
+            f"{_mapping_cell(row)} | "
             f"{_cell(', '.join(row['sections']))} | {_cell(', '.join(row['sources'][:8]))} | "
             f"{_cell(_short(row['text']))} |"
         )
@@ -612,14 +753,39 @@ def render_markdown(result: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def write_private_text(path: Path, content: str) -> None:
+    """Atomically replace one private audit output with owner-only permissions."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, temporary_name = tempfile.mkstemp(
+        dir=path.parent,
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+    )
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            os.fchmod(handle.fileno(), 0o600)
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    except BaseException:
+        temporary.unlink(missing_ok=True)
+        raise
+
+
 def main() -> int:
     root = find_project_root()
     parser = argparse.ArgumentParser(
         description="Compare private historical CV wording with eligible atomic master claims."
     )
     parser.add_argument("--master", type=Path, default=root / "meta" / "master_cv.yaml")
-    parser.add_argument("--profiles-dir", type=Path, default=root / "profiles")
-    parser.add_argument("--baselines-dir", type=Path, default=root / "baselines")
+    parser.add_argument(
+        "--profiles-dir", type=Path, default=root / "workspace" / "profiles"
+    )
+    parser.add_argument(
+        "--baselines-dir", type=Path, default=root / "workspace" / "baselines"
+    )
     parser.add_argument("--archive-dir", type=Path, default=root / "archive" / "applications")
     parser.add_argument("--extra-pdf", type=Path, action="append", default=[])
     parser.add_argument(
@@ -638,6 +804,8 @@ def main() -> int:
             if args.json_output
             else None
         )
+        if json_output and json_output == output_path:
+            raise ValueError("Markdown and JSON outputs must use different paths")
     except ValueError as exc:
         print(f"Legacy CV audit failed: {exc}", file=sys.stderr)
         return 2
@@ -664,11 +832,9 @@ def main() -> int:
         print("Legacy CV audit failed: no historical sources found", file=sys.stderr)
         return 2
     result = audit_legacy_cvs(master, sources)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(render_markdown(result), encoding="utf-8")
+    write_private_text(output_path, render_markdown(result))
     if json_output:
-        json_output.parent.mkdir(parents=True, exist_ok=True)
-        json_output.write_text(json.dumps(result, indent=2), encoding="utf-8")
+        write_private_text(json_output, json.dumps(result, indent=2))
     print(f"Wrote private legacy CV audit: {output_path.relative_to(root.resolve())}")
     summary = result["summary"]
     print(

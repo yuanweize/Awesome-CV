@@ -15,7 +15,6 @@
 
 ## Build outputs
 *.pdf
-/build/
 
 ### Editor ###
 ## VS Code workspace settings:
@@ -34,32 +33,19 @@ __pycache__/
 *.py[cod]
 
 # Local QA and generated AI context
-/tmp/
 *.generated.md
 *.difypkg
 
 #-------------------------------------------------------------------------------
 # PRIVACY - NEVER COMMIT SENSITIVE PRIVATE DATA
 #-------------------------------------------------------------------------------
-# Personal configuration (contains real PII)
-/config.tex
-
-# Per-application letter configuration
-/letter_config.tex
-
-# Real content directory (contains your actual CV content)
-/sections/
+# Current CV, editable profiles, layout baselines, and generated output.
+# This single private runtime root is reconstructed by ./cv init.
+/workspace/
 
 # Private master database, evidence, interview notes, and personal research.
 # Public guidance belongs in docs/, never in meta/.
 /meta/
-
-# Per-company profiles (managed by ./cv)
-/profiles/
-
-# Optional long-lived layout/role baselines; private and never factual authority
-/baselines/
-/.active_profile
 
 # Closed applications and private research archives. Archive manifests may
 # contain private filenames even when they do not contain file contents.

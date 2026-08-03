@@ -97,9 +97,14 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
             continue
         path = Path(raw_path)
         path = path.resolve() if path.is_absolute() else (root / path).resolve()
-        allowed_roots = [(root / "profiles").resolve(), (root / "build").resolve()]
+        allowed_roots = [
+            (root / "workspace" / "profiles").resolve(),
+            (root / "workspace" / "build").resolve(),
+        ]
         if not any(path.is_relative_to(candidate) for candidate in allowed_roots):
-            errors.append(f"{kind} artifact must stay under profiles/ or build/")
+            errors.append(
+                f"{kind} artifact must stay under workspace/profiles/ or workspace/build/"
+            )
             continue
         if not path.is_file():
             errors.append(f"{kind} artifact not found: {raw_path}")

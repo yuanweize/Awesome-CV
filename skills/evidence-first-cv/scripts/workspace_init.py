@@ -17,13 +17,15 @@ RUNTIME_DIRECTORIES = (
     "meta/evidence",
     "meta/inventory",
     "meta/audits",
-    "baselines",
-    "profiles",
+    "workspace",
+    "workspace/current",
+    "workspace/current/sections",
+    "workspace/baselines",
+    "workspace/profiles",
+    "workspace/build",
+    "workspace/tmp",
     "archive/applications",
     "archive/research",
-    "sections",
-    "build",
-    "tmp",
 )
 
 TEMPLATE_FILES = (
@@ -31,8 +33,8 @@ TEMPLATE_FILES = (
     ("templates/master_cv.yaml.example", "meta/master_cv.yaml"),
     ("templates/applications.yaml.example", "meta/applications.yaml"),
     ("templates/baseline_catalog.yaml.example", "meta/baseline_catalog.yaml"),
-    ("templates/config.tex.example", "config.tex"),
-    ("templates/letter_config.tex.example", "letter_config.tex"),
+    ("templates/config.tex.example", "workspace/current/config.tex"),
+    ("templates/letter_config.tex.example", "workspace/current/letter_config.tex"),
 )
 
 SECTION_TEMPLATE_NAMES = (
@@ -112,7 +114,7 @@ def initialize_workspace(
 
     mappings = list(TEMPLATE_FILES)
     mappings.extend(
-        (f"templates/sections/{name}", f"sections/{name}")
+        (f"templates/sections/{name}", f"workspace/current/sections/{name}")
         for name in SECTION_TEMPLATE_NAMES
     )
     for source_relative, _ in mappings:

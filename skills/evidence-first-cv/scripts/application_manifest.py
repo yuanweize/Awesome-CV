@@ -638,11 +638,14 @@ def validate_manifest(
                     else Path(raw_path).resolve()
                 )
                 allowed_roots = [
-                    (project_root / "profiles").resolve(),
-                    (project_root / "build").resolve(),
+                    (project_root / "workspace" / "profiles").resolve(),
+                    (project_root / "workspace" / "build").resolve(),
                 ]
                 if not any(candidate.is_relative_to(root) for root in allowed_roots):
-                    errors.append(f"artifacts.{path_field} must stay under profiles/ or build/")
+                    errors.append(
+                        f"artifacts.{path_field} must stay under workspace/profiles/ "
+                        "or workspace/build/"
+                    )
                 elif not candidate.is_file():
                     errors.append(f"artifact file not found: {raw_path}")
                 elif not isinstance(expected, str) or sha256(candidate) != expected:

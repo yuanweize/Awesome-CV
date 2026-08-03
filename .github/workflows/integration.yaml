@@ -48,10 +48,10 @@ jobs:
 
     - name: Setup for CI (use template data)
       run: |
-        cp templates/config.tex.example config.tex
-        cp templates/letter_config.tex.example letter_config.tex
-        mkdir -p sections
-        cp templates/sections/*.tex sections/
+        mkdir -p workspace/current/sections
+        cp templates/config.tex.example workspace/current/config.tex
+        cp templates/letter_config.tex.example workspace/current/letter_config.tex
+        cp templates/sections/*.tex workspace/current/sections/
         echo "Using template data for CI build"
 
     - name: Compile Resume

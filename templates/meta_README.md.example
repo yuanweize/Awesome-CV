@@ -3,10 +3,8 @@
 This directory is the ignored, local memory layer for one person. It is created by
 `./cv init` and must never be committed or used as a public template source.
 
-The default VS Code view keeps this directory visible but hides its derived `audits/`
-and `inventory/` subdirectories. Use **Explorer: Show Excluded Files** to inspect them.
-This is presentation only; no paths or data are moved. Run `./cv structure` to verify
-the repository and focus-view contract.
+The VS Code workspace keeps this directory and the complete runtime tree visible.
+Run `./cv structure` to verify the repository layout and privacy contract.
 
 ## Canonical files
 
@@ -29,15 +27,16 @@ Within `evidence/`, use stable subject folders such as `education/`, `employment
 may help locate a forgotten fact, but it never overrides `claim_registry` or creates
 an eligible claim without independent evidence or fresh owner confirmation.
 
-Generated contexts and PDFs belong in `../build/`; disposable render output belongs
-in `../tmp/`; reusable clone-only layout references belong in `../baselines/`;
-editable application snapshots belong in `../profiles/`; closed history
+Current TeX source belongs in `../workspace/current/`. Generated contexts and PDFs
+belong in `../workspace/build/`; disposable render output belongs in
+`../workspace/tmp/`; reusable clone-only layout references belong in `../workspace/baselines/`;
+editable application snapshots belong in `../workspace/profiles/`; closed history
 belongs in `../archive/`. Run `./cv status` before beginning a new application.
 
 Use `identity_anchors` in `master_cv.yaml` for durable evidence-bound credentials,
 domains, market bridges, local fit, or autonomy that should survive JD tailoring.
 Each schema 1.2 application selects only one to three and records their placement.
-Use `sections/order.tex` to change section priority per private profile.
+Use `workspace/current/sections/order.tex` to change section priority per private profile.
 
 `application_defaults` controls what a natural “new CV” request means. The public
 default is `[cv, cover_letter]`; remove `cover_letter` only when résumé-only output is

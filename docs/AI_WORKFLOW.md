@@ -8,8 +8,8 @@ For a fresh clone, begin with `./cv init`. It creates the ignored private memory
 application, evidence, profile, archive, section, build, and temporary paths from
 fictional public templates without overwriting existing work.
 
-The tracked VS Code settings hide operational/history directories from the default
-Explorer without changing their paths. Run `./cv structure --strict` after any layout,
+The private application/build layer is physically organized under `workspace/`, and
+the tracked VS Code settings keep the complete repository tree visible. Run `./cv structure --strict` after any layout,
 template, ignore, CLI, or integration change; the same contract is part of `make check`.
 
 ## 1. Maintain memory once
@@ -40,8 +40,8 @@ until direct proficiency is separately confirmed.
 ./cv status
 ```
 
-The first command checks the stable repository/storage contract and compact human
-view. The status report checks master validity, displays recorded career directions, and inspects
+The first command checks the stable repository/storage contract and full runtime
+visibility. The status report checks master validity, displays recorded career directions, and inspects
 the ledger/manifests, active profile drift, and structural warnings. This prevents a
 fresh agent from seeing evidence while missing the owner's intent. Repair invalid
 memory before using it. Never discard unsaved profile differences automatically.
@@ -76,7 +76,7 @@ the smallest proof or interview drill that would close the material gap.
 
 ```bash
 ./cv context --jd meta/applications/<id>/jd.md --role systems \
-  --output build/company-role.generated.md
+  --output workspace/build/company-role.generated.md
 ```
 
 By default, email and phone are excluded. The exporter ranks eligible claims by role,
@@ -160,12 +160,13 @@ Adjacent differentiators are capped at two and roughly 10-15% of visible content
 ```
 
 A role family is a claim-selection boundary; a profile is an application/build
-snapshot. Optional long-lived layout references live under `baselines/`, outside the
+snapshot. Optional long-lived layout references live under `workspace/baselines/`, outside the
 application lifecycle. Clone only a trusted layout, never a baseline or old profile as
 factual authority.
 
-Copy reviewed CV prose and cover-letter prose into `sections/`, tailor `config.tex`
-and `letter_config.tex`, then save. Remove meta commentary, IDs, scoring notes, and AI
+Copy reviewed CV prose and cover-letter prose into `workspace/current/sections/`,
+tailor `workspace/current/config.tex` and `workspace/current/letter_config.tex`, then
+save. Remove meta commentary, IDs, scoring notes, and AI
 instructions.
 
 ## 9. Validate the artifact
@@ -173,10 +174,10 @@ instructions.
 ```bash
 ./cv build company-role
 ./cv bundle-audit meta/applications/<id>/application.yaml
-pdfinfo profiles/company-role/*.pdf
-pdftotext -layout profiles/company-role/Name_CV.pdf -
-pdftotext -layout profiles/company-role/Name_Cover_Letter.pdf -
-pdftoppm -png profiles/company-role/Name_Application.pdf tmp/company-role/page
+pdfinfo workspace/profiles/company-role/*.pdf
+pdftotext -layout workspace/profiles/company-role/Name_CV.pdf -
+pdftotext -layout workspace/profiles/company-role/Name_Cover_Letter.pdf -
+pdftoppm -png workspace/profiles/company-role/Name_Application.pdf workspace/tmp/company-role/page
 ```
 
 Check CV and cover-letter claim traceability, reading order, page count, links,

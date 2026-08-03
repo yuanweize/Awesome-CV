@@ -2,7 +2,9 @@
 
 CC = lualatex
 PYTHON ?= python3
-BUILD_DIR = build
+WORKSPACE_DIR = workspace
+CURRENT_DIR = $(WORKSPACE_DIR)/current
+BUILD_DIR = $(WORKSPACE_DIR)/build
 JD ?=
 ROLE ?=
 PDF ?= $(BUILD_DIR)/$(AUTHOR)_CV.pdf
@@ -23,7 +25,7 @@ export TEXMFVAR TEXMFCONFIG TEXMFCACHE
 export TEXINPUTS := src/:.:$(TEXINPUTS)
 
 # Extract and whitelist the author slug before it reaches a shell command.
-AUTHOR := $(shell $(PYTHON) tools/author_slug.py config.tex 2>/dev/null)
+AUTHOR := $(shell $(PYTHON) tools/author_slug.py $(CURRENT_DIR)/config.tex 2>/dev/null)
 
 #-------------------------------------------------------------------------------
 # Main targets
@@ -149,7 +151,7 @@ help:
 	@echo "  make init        - Idempotent first-time setup of the ignored private workspace"
 	@echo "  make validate    - Validate the private evidence-first master database"
 	@echo "  make status      - Report memory, manifests, applications, and profile drift"
-	@echo "  make structure-check - Verify stable paths, privacy ignores, templates, and focus view"
+	@echo "  make structure-check - Verify stable paths, privacy ignores, templates, and visibility"
 	@echo "  make context JD=job.md ROLE=systems - Export evidence-bound AI context"
 	@echo "  make context-smoke - Exercise the public JD-to-context workflow"
 	@echo "  make privacy     - Check tracked files for private data and secrets"

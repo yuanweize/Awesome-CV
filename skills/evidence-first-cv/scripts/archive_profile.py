@@ -74,15 +74,21 @@ def inventory_profile(source: Path) -> tuple[list[dict[str, Any]], int]:
     return entries, total_bytes
 
 
+def project_base_for_profiles(profiles_dir: Path) -> Path:
+    """Return the repository root for both legacy and workspace/profiles layouts."""
+    parent = profiles_dir.parent
+    return parent.parent if parent.name == "workspace" else parent
+
+
 def archive_plan(profiles_dir: Path, archive_dir: Path, name: str, year: str) -> dict[str, Any]:
     validate_profile_name(name)
     if not re.fullmatch(r"[0-9]{4}", year):
         raise ValueError("archive year must use four digits")
     profiles_dir = Path(os.path.abspath(profiles_dir))
     archive_dir = Path(os.path.abspath(archive_dir))
-    workspace_base = profiles_dir.parent
-    reject_symlink_components(profiles_dir, "profiles directory", workspace_base)
-    archive_start = workspace_base if archive_dir.is_relative_to(workspace_base) else None
+    project_base = project_base_for_profiles(profiles_dir)
+    reject_symlink_components(profiles_dir, "profiles directory", project_base)
+    archive_start = project_base if archive_dir.is_relative_to(project_base) else None
     reject_symlink_components(archive_dir, "archive directory", archive_start)
     if profiles_dir.is_symlink():
         raise ValueError(f"profiles directory must not be a symbolic link: {profiles_dir}")
@@ -100,7 +106,7 @@ def archive_plan(profiles_dir: Path, archive_dir: Path, name: str, year: str) ->
         "schema_version": "1.0",
         "profile": name,
         "archived_at": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
-        "source": f"profiles/{name}",
+        "source": source.relative_to(project_base).as_posix(),
         "destination": f"archive/applications/{year}/{name}",
         "file_count": len(files),
         "total_bytes": total_bytes,
@@ -117,9 +123,9 @@ def public_manifest(plan: dict[str, Any]) -> dict[str, Any]:
 def apply_archive(plan: dict[str, Any]) -> Path:
     source = Path(plan["_source_path"])
     destination = Path(plan["_destination_path"])
-    workspace_base = source.parent.parent
-    reject_symlink_components(source, "profile source", workspace_base)
-    destination_start = workspace_base if destination.is_relative_to(workspace_base) else None
+    project_base = project_base_for_profiles(source.parent)
+    reject_symlink_components(source, "profile source", project_base)
+    destination_start = project_base if destination.is_relative_to(project_base) else None
     reject_symlink_components(destination.parent, "archive destination", destination_start)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.parent.is_symlink():
@@ -167,9 +173,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("profile")
     parser.add_argument("--year", default=str(dt.date.today().year))
-    parser.add_argument("--profiles-dir", type=Path, default=root / "profiles")
+    parser.add_argument(
+        "--profiles-dir", type=Path, default=root / "workspace" / "profiles"
+    )
     parser.add_argument("--archive-dir", type=Path, default=root / "archive" / "applications")
-    parser.add_argument("--active-file", type=Path, default=root / ".active_profile")
+    parser.add_argument(
+        "--active-file",
+        type=Path,
+        default=root / "workspace" / "current" / ".active_profile",
+    )
     parser.add_argument("--apply", action="store_true", help="Move after inventory; default is dry-run")
     parser.add_argument("--json", action="store_true", dest="as_json")
     args = parser.parse_args()

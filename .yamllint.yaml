@@ -4,10 +4,7 @@ yaml-files:
 
 ignore: |
   meta/**
-  profiles/**
-  sections/**
-  build/**
-  tmp/**
+  workspace/**
   tools/tech-stack-collector/targets.yaml
 
 rules:

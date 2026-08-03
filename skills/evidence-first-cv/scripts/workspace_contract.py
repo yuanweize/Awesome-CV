@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit the stable repository layout and the compact human workspace view."""
+"""Audit the stable repository layout, privacy boundary, and visible workspace."""
 
 from __future__ import annotations
 
@@ -29,39 +29,29 @@ PUBLIC_PATHS = (
 
 PRIVATE_IGNORE_RULES = (
     "/archive/",
-    "/baselines/",
-    "/build/",
     "/meta/",
-    "/profiles/",
-    "/sections/",
-    "/tmp/",
-    "/config.tex",
-    "/letter_config.tex",
-    "/.active_profile",
+    "/workspace/",
 )
 
-# Keep the mother memory and current CV source visible. Hide only generated,
-# historical, or rarely inspected operational state from the default explorer.
-FOCUS_EXCLUDES = (
-    "**/.DS_Store",
-    "**/__pycache__",
-    ".active_profile",
-    ".venv",
-    ".vscode",
+# The runtime tree is organized physically, so the shared editor configuration
+# must not hide it as a substitute for structure.
+VISIBLE_PATHS = (
     "archive",
-    "baselines",
-    "build",
-    "profiles",
-    "tmp",
-    "meta/audits",
-    "meta/inventory",
+    "meta",
+    "workspace",
+    "workspace/current",
+    "workspace/profiles",
+    "workspace/baselines",
+    "workspace/build",
+    "workspace/tmp",
 )
 
 HUMAN_SURFACE = (
     "README.md",
     "meta/master_cv.yaml",
     "meta/applications",
-    "sections",
+    "workspace/current/sections",
+    "workspace/profiles",
     "cv",
 )
 
@@ -93,7 +83,7 @@ def git_ignored_paths(root: Path, paths: list[str]) -> list[str]:
 
 
 def audit_workspace(root: Path) -> dict[str, Any]:
-    """Return deterministic structure, privacy, and focus-view diagnostics."""
+    """Return deterministic structure, privacy, and visibility diagnostics."""
     root = root.resolve()
     errors: list[str] = []
     warnings: list[str] = []
@@ -129,34 +119,40 @@ def audit_workspace(root: Path) -> dict[str, Any]:
             if rule not in ignore_rules:
                 errors.append(f"private path is not protected by .gitignore: {rule}")
         if "!.vscode/settings.json" not in ignore_rules:
-            errors.append("the shared VS Code focus view is not explicitly tracked")
+            errors.append("the shared VS Code settings file is not explicitly tracked")
 
     settings_path = root / ".vscode" / "settings.json"
     excludes: dict[str, Any] = {}
     if not settings_path.is_file():
-        errors.append("shared VS Code focus view is missing: .vscode/settings.json")
+        errors.append("shared VS Code settings are missing: .vscode/settings.json")
     else:
         try:
             settings = json.loads(settings_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             errors.append(f"invalid .vscode/settings.json: {exc}")
         else:
-            candidate = settings.get("files.exclude", {})
-            if not isinstance(candidate, dict):
-                errors.append("files.exclude must be a JSON object")
-            else:
-                excludes = candidate
-                for pattern in FOCUS_EXCLUDES:
-                    if excludes.get(pattern) is not True:
-                        errors.append(f"focus view does not hide operational path: {pattern}")
-                for visible in ("meta", "sections", "src", "templates", "skills"):
-                    if excludes.get(visible) is True:
-                        errors.append(f"focus view must keep the working/product path visible: {visible}")
+            for setting_name in (
+                "files.exclude",
+                "search.exclude",
+                "files.watcherExclude",
+            ):
+                candidate = settings.get(setting_name, {})
+                if not isinstance(candidate, dict):
+                    errors.append(f"{setting_name} must be a JSON object")
+                    continue
+                if candidate:
+                    errors.append(
+                        f"{setting_name} must be empty; organize repository paths instead of hiding them"
+                    )
+                if setting_name == "files.exclude":
+                    excludes = candidate
 
     # This is informational rather than an error: ignored runtime paths are
     # created on first use, so a pristine public clone need not contain them.
     missing_human_runtime = [
-        path for path in ("meta/master_cv.yaml", "sections") if not (root / path).exists()
+        path
+        for path in ("meta/master_cv.yaml", "workspace/current/sections")
+        if not (root / path).exists()
     ]
     if missing_human_runtime:
         warnings.append(
@@ -170,7 +166,7 @@ def audit_workspace(root: Path) -> dict[str, Any]:
         "ok": not errors,
         "human_surface": list(HUMAN_SURFACE),
         "public_product": list(PUBLIC_PATHS),
-        "hidden_operational": list(FOCUS_EXCLUDES),
+        "visible_runtime": list(VISIBLE_PATHS),
         "errors": errors,
         "warnings": warnings,
     }
@@ -179,11 +175,11 @@ def audit_workspace(root: Path) -> dict[str, Any]:
 def render_text(report: dict[str, Any]) -> str:
     status = "PASS" if report["ok"] else "FAIL"
     lines = [f"Workspace structure: {status}", ""]
-    lines.append("Human focus surface:")
+    lines.append("Primary work surface:")
     lines.extend(f"  - {path}" for path in report["human_surface"])
     lines.append("")
-    lines.append("Operational paths hidden by default in VS Code:")
-    lines.extend(f"  - {path}" for path in report["hidden_operational"])
+    lines.append("Runtime paths visible in VS Code:")
+    lines.extend(f"  - {path}" for path in report["visible_runtime"])
     if report["warnings"]:
         lines.append("")
         lines.append("Warnings:")
@@ -197,7 +193,7 @@ def render_text(report: dict[str, Any]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Audit Awesome-CV paths, privacy ignores, templates, and the compact VS Code view."
+        description="Audit Awesome-CV paths, privacy ignores, templates, and runtime visibility."
     )
     parser.add_argument("--root", type=Path, help="Repository root; auto-detected by default")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON")

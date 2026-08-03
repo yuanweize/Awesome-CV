@@ -10,11 +10,11 @@ old profile, generated draft, chat transcript, or server inventory as factual au
 Use `./cv legacy-audit` for whole-history candidate discovery, then require independent
 evidence or fresh owner confirmation before adding an eligible claim.
 
-Keep `meta/`, `profiles/`, `archive/`, `sections/`, `config.tex`, `letter_config.tex`, `build/`,
-`tmp/`, PDFs, job descriptions, and evidence private. Run the privacy checker before
+Keep `meta/`, `workspace/`, `archive/`, PDFs, job descriptions, and evidence private.
+Run the privacy checker before
 staging and after staging.
 
-Treat `profiles/` as editable application snapshots and `archive/` as closed history.
+Treat `workspace/profiles/` as editable application snapshots and `archive/` as closed history.
 Never use either as factual authority, and never move/delete historical files without an
 explicitly reviewed archive plan.
 

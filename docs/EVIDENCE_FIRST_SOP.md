@@ -15,7 +15,9 @@ Old CV wording and AI-generated interview notes are not factual sources.
 
 For a whole-history review, run `./cv legacy-audit` and apply the red/blue protocol in
 the Skill reference: recover independently supported omissions, challenge copied
-inflation, and leave unresolved candidates out of eligible claims.
+inflation, and leave unresolved candidates out of eligible claims. Treat blue mapping
+as heuristic triage and close every red finding with an explicit master boundary or
+exclusion; technology presence alone is not governance.
 
 ## First-time initialization
 
@@ -23,8 +25,8 @@ Run `./cv init` in a fresh clone. It reconstructs all ignored private/runtime pa
 from fictional public templates, rejects symbolic-link destinations, and preserves
 every existing file. Replace the fictional master data before drafting, then run
 `./cv structure --strict`, `./cv validate --strict`, and `./cv status`. The structure
-check preserves stable callers while the tracked VS Code focus view hides operational
-noise from people. Do not commit placeholder files inside
+check preserves stable callers while the organized `workspace/` tree keeps operational
+paths explicit and visible. Do not commit placeholder files inside
 private directories; the initializer is the reproducible directory contract.
 
 ## Portfolio intake
@@ -44,7 +46,7 @@ technologies are project-only context. Do not suppress the real product; do not 
 its generated source stack into personal language or framework proficiency.
 
 Optional baselines remain compact role-order and PDF-regression examples under
-`baselines/`. They do not expand merely because the portfolio catalog grows and never
+`workspace/baselines/`. They do not expand merely because the portfolio catalog grows and never
 serve as factual authority.
 
 ## Claim rules

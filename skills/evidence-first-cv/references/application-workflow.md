@@ -71,8 +71,8 @@ a long infrastructure inventory would dilute the identity and must stay in memor
 ```text
 meta/applications/<id>/jd.md
 meta/applications/<id>/application.yaml # decision + requirement/claim/bullet trace
-build/<slug>.generated.md
-profiles/<slug>/                    # optional compiled snapshot
+workspace/build/<slug>.generated.md
+workspace/profiles/<slug>/                    # optional compiled snapshot
 archive/applications/YYYY/<slug>/   # closed snapshot after explicit archive approval
 meta/applications.yaml              # ledger
 ```

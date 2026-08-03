@@ -81,8 +81,8 @@ python3 skills/evidence-first-cv/scripts/validate_master_cv.py --strict
 4. In a repository, run `./cv status` and report material warnings such as an
    invalid master, empty ledger, missing manifests, or unsaved active-profile changes.
 5. For onboarding or any directory/template/path change, run `./cv structure --strict`.
-   Treat the physical layout as a stable storage contract and the tracked VS Code
-   exclusions as a human presentation layer; never relocate a path without updating
+   Treat the physical layout as a stable storage contract and keep the tracked VS Code
+   settings free of repository path exclusions; never relocate a path without updating
    its initializer, ignores, CLI/integration callers, tests, and documentation together.
 6. Stop factual drafting when validation fails. Repair IDs, evidence references,
    scopes, statuses, or eligibility first.
@@ -176,7 +176,7 @@ again after answers to application questions and after interview feedback.
 python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
   --jd meta/applications/<id>/jd.md \
   --role systems \
-  --output build/company-role.generated.md
+  --output workspace/build/company-role.generated.md
 ```
 
 5. Read the generated context rather than the full master.
@@ -222,7 +222,7 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
 
 10. Prefer one page and two or three proof points. Do not create a static role baseline
    unless it will save repeated layout or ordering work. Store an intentional baseline
-   under ignored `baselines/`, never among application profiles and never as fact memory.
+   under ignored `workspace/baselines/`, never among application profiles and never as fact memory.
 11. Use `./cv clone <trusted-base> <application>` only when an existing profile or
    clone-only baseline layout is useful. It is a compatibility/build backend, not the
    intelligence layer.
@@ -238,7 +238,7 @@ career evidence. Never infer candidate facts from agent instructions.
 1. Validate the master and run repository tests.
 2. Build the selected application.
 3. Extract PDF text and confirm reading order.
-4. Run `./cv pdf-audit build/<name>_CV.pdf` to reject accidental extra pages, very
+4. Run `./cv pdf-audit workspace/build/<name>_CV.pdf` to reject accidental extra pages, very
    sparse first pages, tiny-text proxies, or missing extractable text.
 5. Run `./cv bundle-audit meta/applications/<id>/application.yaml` to verify the CV,
    cover letter, optional merged PDF, declared page counts, and SHA-256 hashes together.
@@ -300,7 +300,7 @@ future eligibility.
 - Do not list pending, planned, expired, or tutorial-only items as current skills.
 - Do not proactively advertise AI assistance in the résumé.
 - Do not expose contact data to AI unless required; exporter excludes it by default.
-- Do not commit `meta/`, `sections/`, `baselines/`, `profiles/`, PDFs, reports, JDs, or real config.
+- Do not commit `meta/`, `workspace/`, PDFs, reports, JDs, or real config.
 - Do not commit `archive/` or archive manifests; filenames can contain private data.
 - Do not push until tracked/staged privacy checks and the diff are clean.
 - Do not claim that this workflow guarantees interviews or offers.

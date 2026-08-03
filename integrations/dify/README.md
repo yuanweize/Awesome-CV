@@ -107,7 +107,7 @@ The normal conversation is:
 8. draft every declared deliverable, normally one-page CV content plus a concise,
    complementary cover letter, and complete `application.yaml`;
 9. call strict manifest validation;
-10. return the reviewed content and tell the user that local PDF build/bundle audit/visual QA
+10. return the reviewed content and tell the user that local PDF build, bundle audit, and visual QA
    is still pending unless a separate trusted build service is connected.
 
 ## Privacy boundary

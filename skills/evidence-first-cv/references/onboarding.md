@@ -18,20 +18,18 @@ Run once from the repository root:
 - `meta/master_cv.yaml`, `meta/applications.yaml`, and `meta/baseline_catalog.yaml`;
 - `meta/README.md`, a local map of the ignored runtime layer;
 - `meta/applications/`, `meta/evidence/`, `meta/inventory/`, and `meta/audits/`;
-- the current private LaTeX files under `config.tex`, `letter_config.tex`, and `sections/`;
-- empty `baselines/`, `profiles/`, `archive/applications/`, `archive/research/`, `build/`, and `tmp/` paths.
+- the current private LaTeX files under `workspace/current/`;
+- empty `workspace/baselines/`, `workspace/profiles/`, `archive/applications/`, `archive/research/`, `workspace/build/`, and `workspace/tmp/` paths.
 
 The command is idempotent and never overwrites an existing private file. It rejects
 symbolic-link destinations so a template cannot escape the workspace.
 
-## Compact IDE view without path migration
+## Organized and visible runtime tree
 
-The repository tracks `.vscode/settings.json` as a presentation layer. It keeps the
-mother memory and current CV source visible while hiding archives, old profiles,
-baselines, generated output, caches, and derived inventory/audit directories from the
-default Explorer. Hidden does not mean deleted or unavailable: the Skill, CLI, Dify
-adapter, and build tools continue to use their stable paths, and a user can enable
-**Explorer: Show Excluded Files** at any time.
+The private application/build layer is physically grouped under `workspace/`: current
+source, editable profiles, reusable baselines, generated output, and temporary files.
+The repository's `.vscode/settings.json` does not hide these paths; the complete
+structure remains visible in Explorer.
 
 Before changing a directory or a caller, run:
 
@@ -40,8 +38,8 @@ Before changing a directory or a caller, run:
 ```
 
 Update the structure contract, initializer, ignores, callers, tests, and documentation
-as one change. Prefer the focus view over a cosmetic path migration when ownership and
-lifecycle have not changed.
+as one change. Keep canonical memory in `meta/` and immutable history in `archive/`;
+do not mix either into the editable `workspace/` lifecycle.
 
 Do not add `.gitkeep` files to the ignored runtime tree. New clones reconstruct the
 tree from the initializer, while Git remains unable to stage real CVs, JDs, evidence,

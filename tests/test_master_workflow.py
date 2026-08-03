@@ -50,14 +50,19 @@ from privacy_check import content_violations, git_files, path_violations  # noqa
 from validate_master_cv import validate_master_cv  # noqa: E402
 from workspace_status import collect_status, render_text as render_workspace_status  # noqa: E402
 from workspace_init import RUNTIME_DIRECTORIES, initialize_workspace  # noqa: E402
-from workspace_contract import FOCUS_EXCLUDES, audit_workspace, git_ignored_paths  # noqa: E402
+from workspace_contract import VISIBLE_PATHS, audit_workspace, git_ignored_paths  # noqa: E402
 from legacy_cv_audit import (  # noqa: E402
     SourceAudit,
     Statement,
     audit_legacy_cvs,
+    build_governance_text,
+    collect_sources,
+    extract_pdf_statements,
     parse_tex_statements,
     redact_pii,
+    render_markdown,
     require_private_output,
+    write_private_text,
 )
 
 
@@ -197,12 +202,12 @@ class MasterWorkflowTests(unittest.TestCase):
         report = audit_workspace(ROOT)
         self.assertTrue(report["ok"], report["errors"])
 
-    def test_focus_view_hides_noise_but_keeps_mother_and_current_cv_visible(self) -> None:
+    def test_editor_keeps_the_organized_runtime_tree_visible(self) -> None:
         settings = yaml.safe_load((ROOT / ".vscode" / "settings.json").read_text())
-        excludes = settings["files.exclude"]
-        for pattern in FOCUS_EXCLUDES:
-            self.assertIs(True, excludes.get(pattern), pattern)
-        for visible in ("meta", "sections", "src", "templates", "skills"):
+        for setting_name in ("files.exclude", "search.exclude", "files.watcherExclude"):
+            self.assertEqual({}, settings.get(setting_name, {}), setting_name)
+        excludes = settings.get("files.exclude", {})
+        for visible in VISIBLE_PATHS:
             self.assertIsNot(True, excludes.get(visible), visible)
 
     def test_structure_contract_detects_local_ignore_shadowing_public_templates(self) -> None:
@@ -523,7 +528,7 @@ class MasterWorkflowTests(unittest.TestCase):
     def test_bundle_audit_checks_cv_and_cover_letter_hashes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            profile = root / "profiles" / "example"
+            profile = root / "workspace" / "profiles" / "example"
             profile.mkdir(parents=True)
             cv = profile / "Example_CV.pdf"
             letter = profile / "Example_Cover_Letter.pdf"
@@ -535,10 +540,10 @@ class MasterWorkflowTests(unittest.TestCase):
                     {
                         "deliverables": ["cv", "cover_letter"],
                         "artifacts": {
-                            "cv_pdf": "profiles/example/Example_CV.pdf",
+                            "cv_pdf": "workspace/profiles/example/Example_CV.pdf",
                             "cv_sha256": file_sha256(cv),
                             "page_count": 1,
-                            "cover_letter_pdf": "profiles/example/Example_Cover_Letter.pdf",
+                            "cover_letter_pdf": "workspace/profiles/example/Example_Cover_Letter.pdf",
                             "cover_letter_sha256": file_sha256(letter),
                             "cover_letter_page_count": 1,
                             "application_pdf": "",
@@ -731,8 +736,8 @@ class MasterWorkflowTests(unittest.TestCase):
             [
                 "README.md",
                 "meta/master_cv.yaml",
-                "baselines/systems/cv.tex",
-                "profiles/acme/cv.tex",
+                "workspace/baselines/systems/cv.tex",
+                "workspace/profiles/acme/cv.tex",
                 "archive/applications/acme/cv.tex",
             ]
         )
@@ -1177,11 +1182,13 @@ class MasterWorkflowTests(unittest.TestCase):
             shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
             (root / "meta").mkdir()
             shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
-            (root / "profiles" / "example" / "sections").mkdir(parents=True)
-            (root / "sections").mkdir()
-            (root / ".active_profile").write_text("example\n", encoding="utf-8")
-            (root / "config.tex").write_text("working\n", encoding="utf-8")
-            (root / "profiles" / "example" / "config.tex").write_text("saved\n", encoding="utf-8")
+            current = root / "workspace" / "current"
+            profiles = root / "workspace" / "profiles"
+            (profiles / "example" / "sections").mkdir(parents=True)
+            (current / "sections").mkdir(parents=True)
+            (current / ".active_profile").write_text("example\n", encoding="utf-8")
+            (current / "config.tex").write_text("working\n", encoding="utf-8")
+            (profiles / "example" / "config.tex").write_text("saved\n", encoding="utf-8")
             status = collect_status(root)
             self.assertTrue(status["profiles"]["active_dirty"])
             self.assertIn("config.tex", status["profiles"]["active_differences"])
@@ -1225,8 +1232,8 @@ class MasterWorkflowTests(unittest.TestCase):
             shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
             (root / "meta").mkdir()
             shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
-            (root / "profiles" / "company-role").mkdir(parents=True)
-            (root / "baselines" / "systems").mkdir(parents=True)
+            (root / "workspace" / "profiles" / "company-role").mkdir(parents=True)
+            (root / "workspace" / "baselines" / "systems").mkdir(parents=True)
             (root / "meta" / "applications.yaml").write_text(
                 yaml.safe_dump(
                     {
@@ -1265,7 +1272,7 @@ class MasterWorkflowTests(unittest.TestCase):
             shutil.copy2(self.template_path, root / "templates" / "master_cv.yaml.example")
             (root / "meta").mkdir()
             shutil.copy2(self.template_path, root / "meta" / "master_cv.yaml")
-            (root / "baselines" / "systems").mkdir(parents=True)
+            (root / "workspace" / "baselines" / "systems").mkdir(parents=True)
             (root / "meta" / "applications.yaml").write_text(
                 yaml.safe_dump(
                     {
@@ -1441,6 +1448,152 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertFalse(result["policy"]["automatic_claim_promotion"])
         self.assertEqual(1, result["summary"]["covered"])
 
+    def test_legacy_cv_audit_does_not_present_weak_similarity_as_a_mapping(self) -> None:
+        source = SourceAudit(
+            source_id="old-example",
+            source_kind="archived-application",
+            path="archive/applications/2026/old-example",
+            target_title="Example role",
+            pages=1,
+            statements=[
+                Statement(
+                    "old-example",
+                    "archived-application",
+                    "honors",
+                    "National robotics prize unrelated to current claim evidence",
+                )
+            ],
+        )
+
+        result = audit_legacy_cvs(self.template, [source])
+        row = result["statements"][0]
+
+        self.assertEqual("unmapped", row["classification"])
+        self.assertEqual("", row["best_claim_id"])
+        self.assertIsNone(row["match_score"])
+        self.assertNotIn("(0.", render_markdown(result))
+
+    def test_legacy_cv_audit_weak_match_cannot_suppress_red_review(self) -> None:
+        source = SourceAudit(
+            source_id="old-example",
+            source_kind="archived-application",
+            path="archive/applications/2026/old-example",
+            target_title="Cloud role",
+            pages=1,
+            statements=[
+                Statement(
+                    "old-example",
+                    "archived-application",
+                    "skills",
+                    "Enterprise AWS architecture with unrelated unsupported ownership",
+                )
+            ],
+        )
+        data = copy.deepcopy(self.template)
+        data["claim_registry"][0]["statement"] += " AWS"
+
+        result = audit_legacy_cvs(data, [source])
+        row = result["statements"][0]
+
+        self.assertNotEqual("covered", row["classification"])
+        self.assertTrue(row["review_triggers"])
+
+    def test_legacy_cv_covered_mapping_cannot_suppress_added_risk_wording(self) -> None:
+        claim = next(item for item in self.template["claim_registry"] if item["cv_eligible"])
+        source = SourceAudit(
+            source_id="old-example",
+            source_kind="archived-application",
+            path="archive/applications/2026/old-example",
+            target_title="Example role",
+            pages=1,
+            statements=[
+                Statement(
+                    "old-example",
+                    "archived-application",
+                    "experience",
+                    f"{claim['statement']} Enterprise-grade delivery.",
+                )
+            ],
+        )
+
+        result = audit_legacy_cvs(self.template, [source])
+        row = result["statements"][0]
+
+        self.assertEqual("covered", row["classification"])
+        self.assertTrue(row["review_triggers"])
+
+    def test_legacy_cv_audit_marks_master_governed_red_findings(self) -> None:
+        source = SourceAudit(
+            source_id="old-example",
+            source_kind="archived-application",
+            path="archive/applications/2026/old-example",
+            target_title="Cloud role",
+            pages=1,
+            statements=[
+                Statement(
+                    "old-example",
+                    "archived-application",
+                    "skills",
+                    "Managed 60+ Docker containers in production",
+                )
+            ],
+        )
+        data = copy.deepcopy(self.template)
+        data["exclusions"] = [
+            {
+                "item": "Historical infrastructure scale",
+                "reason": "Do not claim 60+ containers or production ownership.",
+            }
+        ]
+
+        result = audit_legacy_cvs(data, [source])
+        trigger = result["statements"][0]["review_triggers"][0]
+
+        self.assertTrue(trigger["governed"])
+        self.assertEqual(0, result["summary"]["ungoverned_review_trigger_statements"])
+        self.assertIn("Governed red findings", render_markdown(result))
+
+    def test_legacy_cv_governance_text_includes_boundaries_and_exclusions(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["exclusions"] = [{"item": "Cloud scale", "reason": "No AWS ownership"}]
+        data["role_families"]["systems"]["boundaries"] = ["No production SLA claim"]
+
+        governance = build_governance_text(data)
+
+        self.assertIn("No AWS ownership", governance)
+        self.assertIn("No production SLA claim", governance)
+
+    def test_legacy_cv_skill_presence_alone_does_not_govern_risk(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["technical_skills"]["evidenced"].append(
+            {
+                "name": "AWS",
+                "cv_usage": "skill",
+                "level": "Working project experience",
+                "boundaries": ["Personal experiments only"],
+                "claim_ids": ["project.signalwatch-features"],
+            }
+        )
+        source = SourceAudit(
+            source_id="old-example",
+            source_kind="archived-application",
+            path="archive/applications/2026/old-example",
+            target_title="Cloud role",
+            pages=1,
+            statements=[
+                Statement(
+                    "old-example",
+                    "archived-application",
+                    "skills",
+                    "Owned AWS production infrastructure",
+                )
+            ],
+        )
+
+        result = audit_legacy_cvs(data, [source])
+
+        self.assertFalse(result["statements"][0]["review_triggers"][0]["governed"])
+
     def test_legacy_cv_parser_extracts_honors_and_preserves_date_ranges(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             sections = Path(directory) / "sections"
@@ -1465,6 +1618,42 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertTrue(any("[phone redacted]" in item for item in texts))
             self.assertEqual("2019 - Present", redact_pii("2019 - Present"))
 
+    def test_legacy_cv_explicit_pdf_must_exist_and_extract_text(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "missing.pdf"
+            with self.assertRaisesRegex(ValueError, "not found"):
+                extract_pdf_statements(missing, "pdf:missing", required=True)
+
+            unreadable = Path(directory) / "unreadable.pdf"
+            unreadable.write_bytes(b"not a pdf")
+            with self.assertRaisesRegex(ValueError, "could not be extracted"):
+                extract_pdf_statements(unreadable, "pdf:unreadable", required=True)
+
+    def test_legacy_cv_archive_source_ids_include_year(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            profiles = root / "workspace" / "profiles"
+            baselines = root / "workspace" / "baselines"
+            archive = root / "archive" / "applications"
+            profiles.mkdir(parents=True)
+            baselines.mkdir(parents=True)
+            for year in ("2025", "2026"):
+                sections = archive / year / "same-name" / "sections"
+                sections.mkdir(parents=True)
+                (sections / "summary.tex").write_text(
+                    "\\begin{cvparagraph}Historical statement for "
+                    + year
+                    + ".\\end{cvparagraph}\n",
+                    encoding="utf-8",
+                )
+
+            sources = collect_sources(root, profiles, archive, baselines_dir=baselines)
+
+            self.assertEqual(
+                ["2025/same-name", "2026/same-name"],
+                [source.source_id for source in sources],
+            )
+
     def test_legacy_cv_audit_output_must_stay_private(self) -> None:
         with (
             tempfile.TemporaryDirectory() as directory,
@@ -1480,35 +1669,69 @@ class MasterWorkflowTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "symbolic link"):
                 require_private_output(root, allowed, "Output")
 
+    def test_legacy_cv_audit_outputs_must_use_distinct_paths(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "skills/evidence-first-cv/scripts/legacy_cv_audit.py"),
+                "--output",
+                "workspace/tmp/same-output",
+                "--json-output",
+                "workspace/tmp/same-output",
+            ],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+        )
+
+        self.assertEqual(2, result.returncode)
+        self.assertIn("must use different paths", result.stderr)
+
+    def test_legacy_cv_audit_output_is_owner_only_and_atomically_replaced(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "legacy.md"
+            output.write_text("old", encoding="utf-8")
+            output.chmod(0o644)
+
+            write_private_text(output, "new")
+
+            self.assertEqual("new", output.read_text(encoding="utf-8"))
+            self.assertEqual(0o600, output.stat().st_mode & 0o777)
+            self.assertEqual([], list(output.parent.glob(f".{output.name}.*.tmp")))
+
     def make_cv_fixture(self, root: Path) -> Path:
         executable = root / "cv"
         shutil.copy2(ROOT / "cv", executable)
         executable.chmod(0o755)
-        (root / "sections").mkdir()
-        (root / "profiles" / "current" / "sections").mkdir(parents=True)
-        (root / "profiles" / "target" / "sections").mkdir(parents=True)
-        (root / "config.tex").write_text("current-config\n", encoding="utf-8")
-        (root / "sections" / "summary.tex").write_text("current-summary\n", encoding="utf-8")
-        (root / "sections" / "skills.tex").write_text(
-            "\\cvsection{Technical Skills}\n\\cvskill{Systems}{Linux}\n",
-            encoding="utf-8",
-        )
-        (root / ".active_profile").write_text("current\n", encoding="utf-8")
-        (root / "profiles" / "target" / "config.tex").write_text("target-config\n", encoding="utf-8")
-        (root / "profiles" / "target" / "sections" / "summary.tex").write_text(
-            "target-summary\n", encoding="utf-8"
-        )
-        (root / "profiles" / "target" / "sections" / "skills.tex").write_text(
-            "\\cvsection{Technical Skills}\n\\cvskill{Systems}{Linux}\n",
-            encoding="utf-8",
-        )
-        (root / "profiles" / "current" / "config.tex").write_text(
-            "current-config\n", encoding="utf-8"
-        )
-        (root / "profiles" / "current" / "sections" / "summary.tex").write_text(
+        current = root / "workspace" / "current"
+        profiles = root / "workspace" / "profiles"
+        (current / "sections").mkdir(parents=True)
+        (profiles / "current" / "sections").mkdir(parents=True)
+        (profiles / "target" / "sections").mkdir(parents=True)
+        (current / "config.tex").write_text("current-config\n", encoding="utf-8")
+        (current / "sections" / "summary.tex").write_text(
             "current-summary\n", encoding="utf-8"
         )
-        (root / "profiles" / "current" / "sections" / "skills.tex").write_text(
+        (current / "sections" / "skills.tex").write_text(
+            "\\cvsection{Technical Skills}\n\\cvskill{Systems}{Linux}\n",
+            encoding="utf-8",
+        )
+        (current / ".active_profile").write_text("current\n", encoding="utf-8")
+        (profiles / "target" / "config.tex").write_text("target-config\n", encoding="utf-8")
+        (profiles / "target" / "sections" / "summary.tex").write_text(
+            "target-summary\n", encoding="utf-8"
+        )
+        (profiles / "target" / "sections" / "skills.tex").write_text(
+            "\\cvsection{Technical Skills}\n\\cvskill{Systems}{Linux}\n",
+            encoding="utf-8",
+        )
+        (profiles / "current" / "config.tex").write_text(
+            "current-config\n", encoding="utf-8"
+        )
+        (profiles / "current" / "sections" / "summary.tex").write_text(
+            "current-summary\n", encoding="utf-8"
+        )
+        (profiles / "current" / "sections" / "skills.tex").write_text(
             "\\cvsection{Technical Skills}\n\\cvskill{Systems}{Linux}\n",
             encoding="utf-8",
         )
@@ -1518,7 +1741,7 @@ class MasterWorkflowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             executable = self.make_cv_fixture(root)
-            (root / "profiles" / "target" / "sections" / "skills.tex").write_text(
+            (root / "workspace" / "profiles" / "target" / "sections" / "skills.tex").write_text(
                 "% Skills mentioned elsewhere.\n", encoding="utf-8"
             )
 
@@ -1550,7 +1773,7 @@ class MasterWorkflowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             executable = self.make_cv_fixture(root)
-            baseline = root / "baselines" / "systems"
+            baseline = root / "workspace" / "baselines" / "systems"
             (baseline / "sections").mkdir(parents=True)
             (baseline / "config.tex").write_text("baseline-config\n", encoding="utf-8")
             (baseline / "sections" / "summary.tex").write_text(
@@ -1571,7 +1794,7 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertEqual(
                 "baseline-summary\n",
-                (root / "profiles" / "acme-systems" / "sections" / "summary.tex").read_text(
+                (root / "workspace" / "profiles" / "acme-systems" / "sections" / "summary.tex").read_text(
                     encoding="utf-8"
                 ),
             )
@@ -1581,7 +1804,7 @@ class MasterWorkflowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             executable = self.make_cv_fixture(root)
-            stale = root / "letter_config.tex"
+            stale = root / "workspace" / "current" / "letter_config.tex"
             stale.write_text("previous-company\n", encoding="utf-8")
             result = subprocess.run(
                 [str(executable), "use", "target", "--force"],
@@ -1591,7 +1814,10 @@ class MasterWorkflowTests(unittest.TestCase):
             )
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertFalse(stale.exists())
-            self.assertEqual("target-config\n", (root / "config.tex").read_text(encoding="utf-8"))
+            self.assertEqual(
+                "target-config\n",
+                (root / "workspace" / "current" / "config.tex").read_text(encoding="utf-8"),
+            )
 
     def test_profile_diff_treats_files_missing_on_both_sides_as_equal(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -1613,14 +1839,15 @@ class MasterWorkflowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             executable = self.make_cv_fixture(root)
-            (root / "config.tex").write_text("unsaved\n", encoding="utf-8")
+            current_config = root / "workspace" / "current" / "config.tex"
+            current_config.write_text("unsaved\n", encoding="utf-8")
 
             refused = subprocess.run(
                 [str(executable), "use", "target"], cwd=root, text=True, capture_output=True
             )
             self.assertNotEqual(0, refused.returncode)
             self.assertIn("Run './cv save' first", refused.stderr)
-            self.assertEqual("unsaved\n", (root / "config.tex").read_text(encoding="utf-8"))
+            self.assertEqual("unsaved\n", current_config.read_text(encoding="utf-8"))
 
             forced = subprocess.run(
                 [str(executable), "use", "target", "--force"],
@@ -1629,13 +1856,13 @@ class MasterWorkflowTests(unittest.TestCase):
                 capture_output=True,
             )
             self.assertEqual(0, forced.returncode, forced.stderr)
-            self.assertEqual("target-config\n", (root / "config.tex").read_text(encoding="utf-8"))
+            self.assertEqual("target-config\n", current_config.read_text(encoding="utf-8"))
 
     def test_profile_save_removes_stale_missing_source(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             executable = self.make_cv_fixture(root)
-            stale = root / "profiles" / "current" / "letter_config.tex"
+            stale = root / "workspace" / "profiles" / "current" / "letter_config.tex"
             stale.write_text("old-company\n", encoding="utf-8")
 
             result = subprocess.run(
@@ -1648,8 +1875,12 @@ class MasterWorkflowTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:
             root = Path(directory)
             executable = self.make_cv_fixture(root)
-            (root / ".active_profile").write_text("evil\n", encoding="utf-8")
-            (root / "profiles" / "evil").symlink_to(Path(outside), target_is_directory=True)
+            (root / "workspace" / "current" / ".active_profile").write_text(
+                "evil\n", encoding="utf-8"
+            )
+            (root / "workspace" / "profiles" / "evil").symlink_to(
+                Path(outside), target_is_directory=True
+            )
 
             result = subprocess.run(
                 [str(executable), "save"], cwd=root, text=True, capture_output=True
@@ -1661,7 +1892,7 @@ class MasterWorkflowTests(unittest.TestCase):
     def test_archive_is_dry_run_then_hash_verified(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            profiles = root / "profiles"
+            profiles = root / "workspace" / "profiles"
             archive = root / "archive" / "applications"
             source = profiles / "closed-role"
             (source / "sections").mkdir(parents=True)
@@ -1680,7 +1911,7 @@ class MasterWorkflowTests(unittest.TestCase):
     def test_archive_rejects_symbolic_links(self) -> None:
         with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:
             root = Path(directory)
-            profiles = root / "profiles"
+            profiles = root / "workspace" / "profiles"
             source = profiles / "closed-role"
             source.mkdir(parents=True)
             protected = Path(outside) / "private.txt"
@@ -1693,7 +1924,7 @@ class MasterWorkflowTests(unittest.TestCase):
     def test_archive_rejects_symlinked_archive_parent(self) -> None:
         with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:
             root = Path(directory)
-            profiles = root / "profiles"
+            profiles = root / "workspace" / "profiles"
             (profiles / "closed-role").mkdir(parents=True)
             (root / "archive").symlink_to(Path(outside), target_is_directory=True)
 
@@ -1703,7 +1934,7 @@ class MasterWorkflowTests(unittest.TestCase):
     def test_research_archive_is_separate_and_hash_verified(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            source = root / "profiles" / "closed-role" / "interview_prep"
+            source = root / "workspace" / "profiles" / "closed-role" / "interview_prep"
             source.mkdir(parents=True)
             (source / "notes.md").write_text("private research\n", encoding="utf-8")
 
@@ -1720,7 +1951,9 @@ class MasterWorkflowTests(unittest.TestCase):
             root = Path(directory)
             source = root / "public-docs"
             source.mkdir()
-            with self.assertRaisesRegex(ValueError, "inside profiles/ or meta/chat"):
+            with self.assertRaisesRegex(
+                ValueError, "inside workspace/profiles/ or meta/chat"
+            ):
                 research_plan(root, source, "unsafe", "2026")
 
     def test_failed_profile_build_restores_workspace(self) -> None:
@@ -1742,12 +1975,24 @@ class MasterWorkflowTests(unittest.TestCase):
                 capture_output=True,
             )
             self.assertNotEqual(0, result.returncode)
-            self.assertEqual("current-config\n", (root / "config.tex").read_text(encoding="utf-8"))
+            self.assertEqual(
+                "current-config\n",
+                (root / "workspace" / "current" / "config.tex").read_text(
+                    encoding="utf-8"
+                ),
+            )
             self.assertEqual(
                 "current-summary\n",
-                (root / "sections" / "summary.tex").read_text(encoding="utf-8"),
+                (root / "workspace" / "current" / "sections" / "summary.tex").read_text(
+                    encoding="utf-8"
+                ),
             )
-            self.assertEqual("current\n", (root / ".active_profile").read_text(encoding="utf-8"))
+            self.assertEqual(
+                "current\n",
+                (root / "workspace" / "current" / ".active_profile").read_text(
+                    encoding="utf-8"
+                ),
+            )
 
 
 if __name__ == "__main__":

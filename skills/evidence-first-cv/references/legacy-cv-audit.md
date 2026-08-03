@@ -17,11 +17,25 @@ Run the read-only inventory against ignored profiles and closed application arch
 ./cv legacy-audit --extra-pdf meta/old-cv.pdf
 ```
 
-Markdown and optional JSON output must stay under ignored `meta/audits/` or `tmp/`.
+Markdown and optional JSON output must use different paths under ignored
+`meta/audits/` or `workspace/tmp/`. They are atomically replaced with owner-only
+permissions. An explicitly requested `--extra-pdf` is mandatory: a missing, unsafe,
+unreadable, or textless PDF fails the audit instead of disappearing from the inventory.
+
+Report schema 1.1 keeps the two decisions independent:
+
+- **Blue mapping:** token similarity to an eligible verified/self-reported claim is
+  `covered` at 0.48 or above, `partial` from 0.22, and otherwise `unmapped`. Unmapped
+  rows expose no best claim in Markdown; JSON retains the nearest match only for
+  diagnostics. These thresholds indicate triage confidence, not factual proof.
+- **Red governance:** every risky term is evaluated even when a sentence maps to a
+  claim. It is `governed` only when an explicit master exclusion, role/claim/skill
+  boundary, or planned/ineligible record covers that same risk. Merely listing a
+  technology or having a weakly similar claim does not govern inflated ownership.
+
 The tool extracts summaries, bullets, skills, entries, and honors; redacts direct
-contact data; maps wording heuristically to eligible claims; and flags strong-language
-or scope risks. A high unmapped count is a triage signal, not proof that the mother
-memory is incomplete.
+contact data; maps wording heuristically; and flags strong-language or scope risks. A
+high unmapped count is a triage signal, not proof that the mother memory is incomplete.
 
 Classify every material candidate as one of:
 

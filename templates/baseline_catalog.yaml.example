@@ -1,5 +1,5 @@
 # Optional private metadata for long-lived layout and role-family baselines.
-# Copy to meta/baseline_catalog.yaml. Baselines live under baselines/, are
+# Copy to meta/baseline_catalog.yaml. Baselines live under workspace/baselines/, are
 # read-only inputs for layout reuse, and are never factual authority.
 
 schema_version: "1.0"
