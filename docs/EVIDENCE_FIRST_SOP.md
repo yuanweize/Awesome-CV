@@ -104,18 +104,21 @@ application package unless the owner deliberately selects résumé-only output.
 6. Review every exported direct skill group, recording include/omit, reason, and
    placement. Preserve useful, truthful bonus capabilities without crowding the role identity.
 7. Show a compact brief, ask at most three material questions, and wait for approval.
-8. Create or clone a private application profile.
-9. Draft the one-page CV with two or three leading proof points.
-10. Add a visible three-to-five-row role-appropriate Skills section from evidenced
+8. Run the continuous memory loop over the reply: persist durable new claims,
+   preferences, and boundaries; keep JD-only motivation in the manifest; validate and
+   regenerate context if claim selection changed.
+9. Create or clone a private application profile.
+10. Draft the one-page CV with two or three leading proof points.
+11. Add a visible three-to-five-row role-appropriate Skills section from evidenced
    groups and selected language or qualification claims; map every skill row and final
    bullet to claims and strictly validate the application manifest.
-11. When declared, draft a one-page cover letter that complements rather than repeats
+12. When declared, draft a one-page cover letter that complements rather than repeats
     the CV; map each factual paragraph to claims.
-12. Audit every fact and metric against claim IDs.
-13. Build CV, cover letter, and merged PDF; run `./cv bundle-audit`, extract text,
+13. Audit every fact and metric against claim IDs.
+14. Build CV, cover letter, and merged PDF; run `./cv bundle-audit`, extract text,
     render, inspect both pages, and run privacy checks.
-14. Record the application only when submitted; then record stages and outcome.
-15. After a terminal outcome, archive the snapshot with a verified archive manifest.
+15. Record the application only when submitted; then record stages and outcome.
+16. After a terminal outcome, archive the snapshot with a verified archive manifest.
 
 The complement review prevents two opposite failures: mirroring the JD so narrowly
 that useful range disappears, and listing every true skill until the candidate's role

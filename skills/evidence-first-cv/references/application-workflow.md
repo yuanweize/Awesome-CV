@@ -25,14 +25,17 @@
    transferable or bonus capabilities in `capability_review`; do not let a specific
    capability disappear behind a generic project label.
 9. Show the decision brief and wait for human confirmation.
-10. Draft every declared deliverable. Include a three-to-five-row evidence-bound CV
+10. Classify the user's confirmation and answers through the continuous memory loop:
+    persist durable claims, preferences, and boundaries in the master; keep JD-specific
+    motivation in the manifest; then revalidate and regenerate context when selection changes.
+11. Draft every declared deliverable. Include a three-to-five-row evidence-bound CV
     Skills section and map cover-letter factual paragraphs to claims.
-11. Strictly validate the manifest, build, run the per-document PDF layout audit and
+12. Strictly validate the manifest, build, run the per-document PDF layout audit and
     bundle audit, extract text, render, and inspect both documents.
-12. Record the application and claim IDs in the ledger only after it is sent.
-13. Update stages and notes after every external event.
-14. Use funnel summary to choose targeting, narrative, training, or negotiation work.
-15. After a terminal outcome, move the snapshot to the verified private archive.
+13. Record the application and claim IDs in the ledger only after it is sent.
+14. Update stages and notes after every external event.
+15. Use funnel summary to choose targeting, narrative, training, or negotiation work.
+16. After a terminal outcome, move the snapshot to the verified private archive.
 
 ## Identity review: tailoring without erasure
 

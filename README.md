@@ -127,6 +127,13 @@ letter, and a merged PDF; an owner can explicitly choose résumé-only output in
 `application_defaults`. You should not have to drive
 individual scripts or repeatedly explain your history.
 
+Every substantive answer or correction also runs through a continuous memory loop.
+The agent decides whether it is a durable claim, career preference, capability
+boundary/learning-only item, or application-only context; it updates the private
+master when appropriate and validates again. A passing mention such as “I have only
+heard of Jenkins” therefore becomes a protective boundary, not an invented skill,
+while a newly described completed exercise can become a scoped self-reported claim.
+
 Project prose is outcome-first: explain what the system does and why it matters before
 depending on an unknown repository name. Evidenced skill groups distinguish direct
 candidate skills from `project_only` stack, so an AI-assisted Go repository can remain

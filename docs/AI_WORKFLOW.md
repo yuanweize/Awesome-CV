@@ -107,6 +107,13 @@ The agent then shows only:
 The agent must wait. A simple “yes” or a small correction is the approval gate. This
 keeps the human in control without forcing them to edit schemas or long prompts.
 
+Before drafting after that reply, run the continuous memory loop over every new detail:
+classify it as a durable factual claim, preference/willingness, capability boundary or
+learning-only item, or application-specific context. Persist the first three with
+honest scope and self-reported evidence where needed, reconcile duplicates, validate,
+and regenerate bounded context if selection changed. Name-level awareness and interest
+must never become skills; useful completed work must not remain trapped in one manifest.
+
 ## 7. Draft under the output contract
 
 After approval, require the complete bundle declared by

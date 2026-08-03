@@ -116,6 +116,26 @@ When the user states a career interest, update `career_preferences` separately f
 claims, run `./cv role-audit`, and review whether existing projects, coursework, or
 inventory facts have been left unlinked. Do not interpret `stretch` as “do not apply”.
 
+## Maintain a continuous memory loop
+
+Treat every substantive user correction, answer, or anecdote during a career task as
+possible memory intake even when the user does not explicitly say “add this to my
+master”. Before drafting the next artifact, classify each new detail as exactly one of:
+
+- an evidence-bound factual claim;
+- a career preference or willingness;
+- a capability boundary, exclusion, or learning-only item;
+- application-specific context that should stay only in the manifest or cover letter.
+
+Persist the first three in the appropriate private master fields when they are durable.
+Create a self-reported evidence record for fresh owner confirmation when no independent
+artifact exists, preserve uncertainty and exact scope, and never turn interest or
+name-level awareness into a skill. Do not store insults, frustration, or incidental
+conversation unless it changes a durable preference or boundary. Reconcile against
+existing claims instead of creating duplicates, validate the master after every batch,
+and briefly tell the user which claim, preference, or boundary changed. This loop runs
+again after answers to application questions and after interview feedback.
+
 ## Govern the public portfolio
 
 1. Capture a dated discovery inventory with `./cv github-audit`.
@@ -176,6 +196,8 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
 8. After confirmation, record it in the manifest and draft every deliverable declared
    by `application_defaults`/the manifest only from selected claim IDs. Preserve scope,
    delivery mode, owned actions, and ownership verbs.
+   First run the continuous memory loop over the user's confirmation and answers so a
+   new fact, preference, or boundary is not trapped in one application manifest.
    Explain what a project does before relying on its proper name, and keep
    `project_only` technologies out of the visible Skills section. Keep the target identity and top
    proof points role-specific; place approved differentiators only in skills, projects,
