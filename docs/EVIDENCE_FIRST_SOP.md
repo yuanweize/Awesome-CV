@@ -22,7 +22,9 @@ inflation, and leave unresolved candidates out of eligible claims.
 Run `./cv init` in a fresh clone. It reconstructs all ignored private/runtime paths
 from fictional public templates, rejects symbolic-link destinations, and preserves
 every existing file. Replace the fictional master data before drafting, then run
-`./cv validate --strict` and `./cv status`. Do not commit placeholder files inside
+`./cv structure --strict`, `./cv validate --strict`, and `./cv status`. The structure
+check preserves stable callers while the tracked VS Code focus view hides operational
+noise from people. Do not commit placeholder files inside
 private directories; the initializer is the reproducible directory contract.
 
 ## Portfolio intake

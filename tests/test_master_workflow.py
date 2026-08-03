@@ -50,6 +50,7 @@ from privacy_check import content_violations, git_files, path_violations  # noqa
 from validate_master_cv import validate_master_cv  # noqa: E402
 from workspace_status import collect_status, render_text as render_workspace_status  # noqa: E402
 from workspace_init import RUNTIME_DIRECTORIES, initialize_workspace  # noqa: E402
+from workspace_contract import FOCUS_EXCLUDES, audit_workspace, git_ignored_paths  # noqa: E402
 from legacy_cv_audit import (  # noqa: E402
     SourceAudit,
     Statement,
@@ -191,6 +192,34 @@ class MasterWorkflowTests(unittest.TestCase):
             if not (wrappers / path.name).is_file()
         )
         self.assertEqual([], missing)
+
+    def test_repository_structure_contract_passes(self) -> None:
+        report = audit_workspace(ROOT)
+        self.assertTrue(report["ok"], report["errors"])
+
+    def test_focus_view_hides_noise_but_keeps_mother_and_current_cv_visible(self) -> None:
+        settings = yaml.safe_load((ROOT / ".vscode" / "settings.json").read_text())
+        excludes = settings["files.exclude"]
+        for pattern in FOCUS_EXCLUDES:
+            self.assertIs(True, excludes.get(pattern), pattern)
+        for visible in ("meta", "sections", "src", "templates", "skills"):
+            self.assertIsNot(True, excludes.get(visible), visible)
+
+    def test_structure_contract_detects_local_ignore_shadowing_public_templates(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            template = root / "templates" / "sections" / "experience.tex"
+            template.parent.mkdir(parents=True)
+            template.write_text("public template\n", encoding="utf-8")
+            (root / ".git" / "info" / "exclude").write_text(
+                "sections/\n", encoding="utf-8"
+            )
+
+            self.assertEqual(
+                ["templates/sections/experience.tex"],
+                git_ignored_paths(root, ["templates/sections/experience.tex"]),
+            )
 
     def test_workspace_init_creates_complete_private_layer_and_is_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -1563,6 +1592,22 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertFalse(stale.exists())
             self.assertEqual("target-config\n", (root / "config.tex").read_text(encoding="utf-8"))
+
+    def test_profile_diff_treats_files_missing_on_both_sides_as_equal(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            executable = self.make_cv_fixture(root)
+
+            result = subprocess.run(
+                [str(executable), "diff", "current"],
+                cwd=root,
+                text=True,
+                capture_output=True,
+            )
+
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertIn("Working files match profile 'current'", result.stdout)
+            self.assertNotIn("≠ sections/order.tex", result.stdout)
 
     def test_profile_use_refuses_to_overwrite_unsaved_changes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

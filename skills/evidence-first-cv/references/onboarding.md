@@ -24,6 +24,25 @@ Run once from the repository root:
 The command is idempotent and never overwrites an existing private file. It rejects
 symbolic-link destinations so a template cannot escape the workspace.
 
+## Compact IDE view without path migration
+
+The repository tracks `.vscode/settings.json` as a presentation layer. It keeps the
+mother memory and current CV source visible while hiding archives, old profiles,
+baselines, generated output, caches, and derived inventory/audit directories from the
+default Explorer. Hidden does not mean deleted or unavailable: the Skill, CLI, Dify
+adapter, and build tools continue to use their stable paths, and a user can enable
+**Explorer: Show Excluded Files** at any time.
+
+Before changing a directory or a caller, run:
+
+```bash
+./cv structure --strict
+```
+
+Update the structure contract, initializer, ignores, callers, tests, and documentation
+as one change. Prefer the focus view over a cosmetic path migration when ownership and
+lifecycle have not changed.
+
 Do not add `.gitkeep` files to the ignored runtime tree. New clones reconstruct the
 tree from the initializer, while Git remains unable to stage real CVs, JDs, evidence,
 profiles, PDFs, or archives by accident.

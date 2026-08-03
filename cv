@@ -536,6 +536,10 @@ cmd_status() {
     python3 "$SCRIPT_DIR/tools/workspace_status.py" "$@"
 }
 
+cmd_structure() {
+    python3 "$SCRIPT_DIR/tools/workspace_contract.py" --root "$SCRIPT_DIR" "$@"
+}
+
 cmd_start() {
     python3 "$SCRIPT_DIR/tools/application_manifest.py" init "$@"
 }
@@ -565,6 +569,7 @@ cmd_doctor() {
         profile_exists "$current" || die "Active profile '$current' is missing."
         working_tree_differs_from_profile "$current" && dirty=true
     fi
+    cmd_structure --strict
     cmd_status
     cmd_validate --strict
     cmd_role_audit --strict
@@ -599,7 +604,7 @@ cmd_diff() {
         echo -e "${BOLD}Comparing profile ${CYAN}$a${RESET} with current working files:\n"
         local has_diff=false
         for f in "${ROOT_FILES[@]}"; do
-            if ! diff -q "$dir_a/$f" "$SCRIPT_DIR/$f" &>/dev/null; then
+            if files_differ "$dir_a/$f" "$SCRIPT_DIR/$f"; then
                 echo -e "  ${YELLOW}≠${RESET} $f"
                 has_diff=true
             else
@@ -607,7 +612,7 @@ cmd_diff() {
             fi
         done
         for f in "${SECTION_FILES[@]}"; do
-            if ! diff -q "$dir_a/sections/$f" "$SECTIONS_DIR/$f" &>/dev/null; then
+            if files_differ "$dir_a/sections/$f" "$SECTIONS_DIR/$f"; then
                 echo -e "  ${YELLOW}≠${RESET} sections/$f"
                 has_diff=true
             else
@@ -774,6 +779,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
   ${CYAN}status${RESET} [--json]       Report memory, application, profile, and warning state
+  ${CYAN}structure${RESET} [--json]    Audit stable paths, privacy ignores, templates, and focus view
   ${CYAN}start${RESET} [options]       Create a private JD + application-manifest workspace
   ${CYAN}manifest${RESET} <command>    Validate an application decision/bullet manifest
   ${CYAN}validate${RESET} [yaml]       Validate the private master database
@@ -802,6 +808,7 @@ ${BOLD}Examples:${RESET}
   ./cv tech-audit               # Write a private safe local technology inventory
   ./cv context --jd job.md --role systems -o build/job-context.md
   ./cv status                    # Agent preflight before every application
+  ./cv structure                 # Explain and verify the compact human workspace view
   ./cv start --company Acme --title "Systems Engineer" --role systems --jd job.md
   ./cv manifest validate meta/applications/<id>/application.yaml --strict
   ./cv privacy-check
@@ -839,6 +846,7 @@ case "${1:-}" in
     delete)  cmd_delete "${2:-}" ;;
     context) shift; cmd_context "$@" ;;
     status) shift; cmd_status "$@" ;;
+    structure) shift; cmd_structure "$@" ;;
     start) shift; cmd_start "$@" ;;
     manifest) shift; cmd_manifest "$@" ;;
     validate) shift; cmd_validate "$@" ;;

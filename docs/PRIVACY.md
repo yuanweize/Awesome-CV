@@ -7,7 +7,8 @@ Privacy depends on both `.gitignore` and disciplined review.
 
 Public:
 
-- `src/`, `templates/`, `skills/`, `tools/`, `docs/`, tests, workflows;
+- `src/`, `templates/`, `skills/`, `tools/`, `docs/`, tests, workflows, and the
+  non-secret `.vscode/settings.json` focus view;
 - fictitious/example data using `example.org` and RFC 5737 IP ranges.
 
 Private:

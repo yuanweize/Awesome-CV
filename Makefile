@@ -1,4 +1,4 @@
-.PHONY: all resume coverletter merged init clean help validate validate-template status context context-smoke privacy pdf-audit bundle-audit portfolio-audit role-audit legacy-audit test check dify-check dify-package prepare-tex-cache
+.PHONY: all resume coverletter merged init clean help validate validate-template status structure-check context context-smoke privacy pdf-audit bundle-audit portfolio-audit role-audit legacy-audit test check dify-check dify-package prepare-tex-cache
 
 CC = lualatex
 PYTHON ?= python3
@@ -39,6 +39,9 @@ validate-template:
 
 status:
 	@./cv status
+
+structure-check:
+	@./cv structure --strict
 
 context:
 	@test -n "$(JD)" || (echo "Usage: make context JD=path/to/job.md [ROLE=systems]" >&2; exit 2)
@@ -87,7 +90,7 @@ test:
 	@$(PYTHON) -m py_compile integrations/dify/plugin/main.py integrations/dify/plugin/engine_adapter.py
 	@bash -n cv tools/tech-stack-collector/run.sh
 
-check: validate-template privacy test context-smoke
+check: validate-template structure-check privacy test context-smoke
 
 dify-check:
 	@cd integrations/dify/plugin && uv sync --frozen
@@ -146,6 +149,7 @@ help:
 	@echo "  make init        - Idempotent first-time setup of the ignored private workspace"
 	@echo "  make validate    - Validate the private evidence-first master database"
 	@echo "  make status      - Report memory, manifests, applications, and profile drift"
+	@echo "  make structure-check - Verify stable paths, privacy ignores, templates, and focus view"
 	@echo "  make context JD=job.md ROLE=systems - Export evidence-bound AI context"
 	@echo "  make context-smoke - Exercise the public JD-to-context workflow"
 	@echo "  make privacy     - Check tracked files for private data and secrets"

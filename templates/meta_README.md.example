@@ -3,6 +3,11 @@
 This directory is the ignored, local memory layer for one person. It is created by
 `./cv init` and must never be committed or used as a public template source.
 
+The default VS Code view keeps this directory visible but hides its derived `audits/`
+and `inventory/` subdirectories. Use **Explorer: Show Excluded Files** to inspect them.
+This is presentation only; no paths or data are moved. Run `./cv structure` to verify
+the repository and focus-view contract.
+
 ## Canonical files
 
 - `master_cv.yaml`: lifelong career memory. Only eligible entries in

@@ -19,7 +19,8 @@
 
 ### Editor ###
 ## VS Code workspace settings:
-.vscode/
+.vscode/*
+!.vscode/settings.json
 ## Vim & Emacs temp files:
 .*sw[op]
 *~

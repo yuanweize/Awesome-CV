@@ -89,6 +89,14 @@ idempotent and never overwrites an existing private file:
 Open `meta/README.md` for the private directory map. Edit private files only; never
 put real data into `templates/`.
 
+The tracked VS Code settings provide a compact human view: mother memory (`meta/`),
+current CV source (`sections/`), the `cv` entry point, and public product code remain
+visible, while archives, profiles, baselines, generated output, inventories, and
+caches are hidden from the Explorer by default. Nothing is deleted, and the stable
+paths used by the CLI, Skill, Dify adapter, CI, and existing automation do not change.
+Use **Explorer: Show Excluded Files** when you need an operational path, and run
+`./cv structure` to explain and verify the layout.
+
 初始化后只编辑私有文件。`meta/`、`sections/`、`baselines/`、`profiles/`、真实联系方式、PDF 和
 构建产物默认不会进入 Git。空的 `baselines/`、`profiles/`、`archive/`、`build/` 和 `tmp/` 会由
 初始化器创建，但不会用 `.gitkeep` 提交；这样 Git 永远看不到以后放进去的真实材料。
@@ -160,7 +168,7 @@ for onboarding, claims, applications, role strategy, writing, PDF quality, priva
 archives, technology intake, portfolio lifecycle, and Dify, plus bundled scripts for validation,
 context generation, manifests, outcomes, workspace status, GitHub inventory, portfolio
 and role audits, historical-CV red/blue auditing, privacy, verified archiving, and safe
-workspace initialization.
+workspace initialization plus a tested structure/focus-view contract.
 `assets/` carries standalone schema/manifest examples; the full LaTeX workspace is
 initialized from the repository's tracked `templates/`. The
 repository template and Skill asset are tested for byte-for-byte equality so they
@@ -291,6 +299,7 @@ applications, baselines, unclassified directories, and archives separately.
 | `./cv delete <name>` | Permanently delete a non-active profile after exact confirmation |
 | `./cv context ...` | Generate evidence-bound AI context |
 | `./cv status [--json]` | Preflight master, ledger, manifests, profiles, and unsaved state |
+| `./cv structure [--json]` | Verify public paths, init templates, privacy ignores, and the compact IDE view |
 | `./cv start ...` | Save one JD and initialize its private decision manifest |
 | `./cv manifest validate ...` | Check requirement/claim/bullet traceability and approval |
 | `./cv bundle-audit <manifest>` | Verify every declared PDF, hash, page count, text, and layout gate |
@@ -318,17 +327,24 @@ application; the system never assumes rejection from elapsed time.
 | `make merged` | Cover letter + résumé application PDF |
 | `make all` | Validate and build the complete CV + cover-letter application bundle |
 | `make clean` | Remove generated build artifacts inside the repository only |
-| `make check` | Schema, privacy, unit, Python, and shell checks |
+| `make check` | Structure, schema, privacy, unit, Python, shell, and context-smoke checks |
 | `make pdf-audit PDF=path/to/cv.pdf` | Run deterministic résumé PDF layout/readability gates |
 | `make bundle-audit MANIFEST=path/to/application.yaml` | Audit all declared application PDFs |
 
 The author name is read from `\name{First}{Last}` in private `config.tex` and
 normalized to a shell-safe PDF filename stem.
 
+Use `\cvgithubrepo{owner/repository}` for GitHub project metadata and
+`\cvprojectlink{URL}{label}` for another repository host. Both use one template-level
+style: clickable, body-font, muted metadata colour, and safe rendering of underscores.
+Header/contact links intentionally retain the stronger navigation colour.
+
 ## Project structure
 
 ```text
 Awesome-CV/
+├── .github/                       # CI, example build, and upstream sync
+├── .vscode/settings.json          # Tracked compact human workspace view
 ├── cv                              # Profile and workflow CLI
 ├── Makefile
 ├── src/
@@ -377,6 +393,13 @@ Awesome-CV/
 
 See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for ownership, lifecycle,
 canonical-vs-compatibility boundaries, and cleanup rules.
+
+This tree is the stable storage contract, not the default Explorer presentation.
+`./cv structure --strict` guards every hard-coded boundary: required public layers,
+initializer sources, private `.gitignore` rules, and the focused VS Code view. Adding
+or moving a path therefore requires updating one explicit contract and passing CI,
+rather than discovering a stale caller after publication. Local Git exclude rules are
+also checked so they cannot accidentally shadow public initializer templates.
 
 Refresh public GitHub discovery data, then verify that every original repository has
 an intentional place in career memory:

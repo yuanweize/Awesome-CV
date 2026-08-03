@@ -80,7 +80,11 @@ python3 skills/evidence-first-cv/scripts/validate_master_cv.py --strict
 
 4. In a repository, run `./cv status` and report material warnings such as an
    invalid master, empty ledger, missing manifests, or unsaved active-profile changes.
-5. Stop factual drafting when validation fails. Repair IDs, evidence references,
+5. For onboarding or any directory/template/path change, run `./cv structure --strict`.
+   Treat the physical layout as a stable storage contract and the tracked VS Code
+   exclusions as a human presentation layer; never relocate a path without updating
+   its initializer, ignores, CLI/integration callers, tests, and documentation together.
+6. Stop factual drafting when validation fails. Repair IDs, evidence references,
    scopes, statuses, or eligibility first.
 
 ## Ingest evidence into memory
@@ -239,7 +243,9 @@ career evidence. Never infer candidate facts from agent instructions.
 5. Run `./cv bundle-audit meta/applications/<id>/application.yaml` to verify the CV,
    cover letter, optional merged PDF, declared page counts, and SHA-256 hashes together.
 6. Render every final page and inspect clipping, overlap, stale company names,
-   broken links, orphaned sections, and accidental extra pages.
+   broken links, inconsistent project-link styling, orphaned sections, and accidental
+   extra pages. Use `\cvprojectlink{URL}{label}` or `\cvgithubrepo{owner/repo}` for
+   inline project metadata instead of per-CV color overrides.
 7. Audit every metric and strong verb against its claim/evidence ID.
 8. Generate likely interview questions for every top-half claim. Lower a claim
    when the user cannot defend it.

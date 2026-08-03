@@ -3,6 +3,29 @@
 This repository has four deliberately separate layers. A file should have one
 responsibility and one lifetime; generated CV prose must never become career truth.
 
+## Human view versus storage contract
+
+The physical directories stay separated because public source, canonical memory,
+editable applications, generated output, and immutable history have different privacy
+and lifecycle rules. Collapsing them under one cosmetic parent would shorten the root
+tree but make every CLI, integration, CI job, archive manifest, and external script a
+migration surface.
+
+The tracked `.vscode/settings.json` therefore supplies a compact default Explorer
+instead. It keeps `meta/`, `sections/`, `src/`, `templates/`, `skills/`, and the `cv`
+entry point visible. It hides `.venv/`, archives, baselines, builds, old profiles,
+temporary output, caches, the active-profile marker, and derived `meta/audits/` /
+`meta/inventory/` views without deleting or relocating them. Use **Explorer: Show
+Excluded Files** for occasional
+manual access; agents and tools continue to see the complete filesystem.
+
+Run `./cv structure --strict` after any structural change. The contract checks required
+public paths, every initializer template, private `.gitignore` protections, and the
+focus-view invariants. It is part of `make check`, so a renamed directory cannot leave
+documented or executable paths silently stale. In a Git checkout it also checks local
+exclude precedence, preventing an old unanchored `sections/` rule from silently hiding
+new files under public `templates/sections/`.
+
 ## 1. Public product layer (tracked by Git)
 
 | Path | Responsibility |
@@ -15,6 +38,7 @@ responsibility and one lifetime; generated CV prose must never become career tru
 | `docs/` | Public operating and schema documentation |
 | `tests/` | Unit, safety, privacy, and integration tests |
 | `.github/workflows/` | Public CI, example-PDF release, and upstream sync |
+| `.vscode/settings.json` | Shared human focus view; presentation only, never a data boundary |
 
 Run `./cv init` after cloning. The Skill-owned initializer reconstructs the ignored
 runtime layer from `templates/`, creates every required private/build directory, and
@@ -87,7 +111,8 @@ build/tmp/cache -> disposable cleanup
 
 Run `./cv status` at the start of every AI operation. It separates application,
 baseline, unclassified, and archived counts and reports unsaved active-profile
-drift. Run `./cv portfolio-audit --strict` after a GitHub inventory refresh and
+drift. Run `./cv structure --strict` after changing paths, templates, ignores, or IDE
+presentation. Run `./cv portfolio-audit --strict` after a GitHub inventory refresh and
 `./cv role-audit` after changing career direction. Run `./cv legacy-audit` when old CVs
 need red/blue reconciliation with mother memory. Run `./cv privacy-check` before and
 after staging public changes.

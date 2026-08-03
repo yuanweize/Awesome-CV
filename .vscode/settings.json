@@ -1,0 +1,38 @@
+{
+  "makefile.configureOnOpen": false,
+  "explorer.compactFolders": true,
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/__pycache__": true,
+    ".active_profile": true,
+    ".venv": true,
+    ".vscode": true,
+    "archive": true,
+    "baselines": true,
+    "build": true,
+    "profiles": true,
+    "tmp": true,
+    "meta/audits": true,
+    "meta/inventory": true
+  },
+  "search.exclude": {
+    "**/.venv": true,
+    "**/__pycache__": true,
+    "archive": true,
+    "baselines": true,
+    "build": true,
+    "profiles": true,
+    "tmp": true,
+    "meta/audits": true,
+    "meta/inventory": true
+  },
+  "files.watcherExclude": {
+    "**/.venv/**": true,
+    "**/__pycache__/**": true,
+    "**/archive/**": true,
+    "**/baselines/**": true,
+    "**/build/**": true,
+    "**/profiles/**": true,
+    "**/tmp/**": true
+  }
+}

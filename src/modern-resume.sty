@@ -2,7 +2,7 @@
 % Keep the upstream-derived class as the structural engine and override visual
 % tokens here so future template updates remain reviewable.
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{modern-resume}[2026/08/03 v1.0 Modern Awesome-CV presentation]
+\ProvidesPackage{modern-resume}[2026/08/03 v1.1 Modern Awesome-CV presentation]
 
 \definecolor{modernNavy}{HTML}{17324D}
 \definecolor{modernText}{HTML}{0F172A}
@@ -63,3 +63,14 @@
 \renewcommand{\acvHeaderSocialSep}{\BeginAccSupp{ActualText={}}\enskip\textcolor{modernRule}{\textbar}\enskip\EndAccSupp{}}
 
 \hypersetup{colorlinks=true,urlcolor=modernNavy,linkcolor=modernNavy}
+\urlstyle{same}
+
+% Project links shown as entry metadata should be quieter than navigation in
+% the header. These helpers keep GitHub and other repository links clickable,
+% typographically consistent, and safe for characters such as underscores.
+\newcommand*{\cvprojectlink}[2]{%
+  \href{#1}{\textcolor{modernMuted}{\nolinkurl{#2}}}%
+}
+\newcommand*{\cvgithubrepo}[1]{%
+  \cvprojectlink{https://github.com/#1}{github.com/#1}%
+}

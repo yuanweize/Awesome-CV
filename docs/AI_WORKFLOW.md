@@ -8,6 +8,10 @@ For a fresh clone, begin with `./cv init`. It creates the ignored private memory
 application, evidence, profile, archive, section, build, and temporary paths from
 fictional public templates without overwriting existing work.
 
+The tracked VS Code settings hide operational/history directories from the default
+Explorer without changing their paths. Run `./cv structure --strict` after any layout,
+template, ignore, CLI, or integration change; the same contract is part of `make check`.
+
 ## 1. Maintain memory once
 
 Store stable career facts in `meta/master_cv.yaml`. Use evidence IDs and atomic claim
@@ -32,10 +36,12 @@ until direct proficiency is separately confirmed.
 ## 2. Start with workspace status
 
 ```bash
+./cv structure --strict
 ./cv status
 ```
 
-The report checks master validity, displays recorded career directions, and inspects
+The first command checks the stable repository/storage contract and compact human
+view. The status report checks master validity, displays recorded career directions, and inspects
 the ledger/manifests, active profile drift, and structural warnings. This prevents a
 fresh agent from seeing evidence while missing the owner's intent. Repair invalid
 memory before using it. Never discard unsaved profile differences automatically.
