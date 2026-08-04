@@ -333,6 +333,10 @@ application; the system never assumes rejection from elapsed time.
 | `make pdf-audit PDF=path/to/cv.pdf` | Run deterministic résumé PDF layout/readability gates |
 | `make bundle-audit MANIFEST=path/to/application.yaml` | Audit all declared application PDFs |
 
+`make merged` prefers `qpdf` so the combined document receives a clean cross-reference
+table while preserving clickable links; it falls back to Poppler's `pdfunite` when
+`qpdf` is unavailable.
+
 The author name is read from `\name{First}{Last}` in private
 `workspace/current/config.tex` and
 normalized to a shell-safe PDF filename stem.

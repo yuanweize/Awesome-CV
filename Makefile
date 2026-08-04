@@ -116,11 +116,14 @@ coverletter: prepare-tex-cache | $(BUILD_DIR)
 	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
 
 merged: resume coverletter
-	@if command -v pdfunite >/dev/null 2>&1; then \
+	@if command -v qpdf >/dev/null 2>&1; then \
+		qpdf --empty --pages "$(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf" 1-z "$(BUILD_DIR)/$(AUTHOR)_CV.pdf" 1-z -- "$(BUILD_DIR)/$(AUTHOR)_Application.pdf"; \
+		echo "  -> $(BUILD_DIR)/$(AUTHOR)_Application.pdf (merged with qpdf)"; \
+	elif command -v pdfunite >/dev/null 2>&1; then \
 		pdfunite "$(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf" "$(BUILD_DIR)/$(AUTHOR)_CV.pdf" "$(BUILD_DIR)/$(AUTHOR)_Application.pdf"; \
-		echo "  -> $(BUILD_DIR)/$(AUTHOR)_Application.pdf (merged)"; \
+		echo "  -> $(BUILD_DIR)/$(AUTHOR)_Application.pdf (merged with pdfunite)"; \
 	else \
-		echo "  ⚠ pdfunite not found, skipping merge (install poppler: brew install poppler)"; \
+		echo "  ⚠ qpdf/pdfunite not found, skipping merge (install qpdf or poppler)"; \
 	fi
 
 $(BUILD_DIR):
