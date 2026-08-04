@@ -378,6 +378,13 @@ def build_context(
     default_deliverables = application_defaults.get("deliverables", ["cv"])
     if not isinstance(default_deliverables, list):
         default_deliverables = ["cv"]
+    project_link_policy = application_defaults.get("project_link_policy", {})
+    if not isinstance(project_link_policy, dict):
+        project_link_policy = {}
+    thesis_repository_policy = project_link_policy.get(
+        "thesis_repository", "preferred_when_public"
+    )
+    project_link_style = project_link_policy.get("style", "canonical_project_link")
     jd_fence = markdown_fence(jd_text)
     lines = [
         "# Evidence-bound CV drafting context",
@@ -431,6 +438,10 @@ def build_context(
         "18. Follow the owner's declared deliverables. When cover_letter is selected,",
         "    tailor and evidence-map it as part of the same application bundle; a polished",
         "    CV does not make a stale or generic letter acceptable.",
+        "19. When the selected thesis has public repository evidence and the owner's",
+        "    thesis-repository policy is required_when_public, show the repository link",
+        "    directly in the CV. Do not expect a recruiter to search for it. Use the",
+        "    repository template's canonical project-link helper and style.",
         "",
         "## Candidate",
         "",
@@ -438,6 +449,8 @@ def build_context(
         f"- Location: {personal.get('location', '')}",
         f"- Work authorisation: {personal.get('work_authorization', '')}",
         f"- Default deliverables: {', '.join(default_deliverables)}",
+        f"- Thesis repository link policy: {thesis_repository_policy}",
+        f"- Project link style: {project_link_style}",
     ]
     if include_contact:
         lines.extend(

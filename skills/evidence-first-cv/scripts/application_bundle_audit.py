@@ -6,9 +6,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 import yaml
 
@@ -71,6 +73,120 @@ def load_manifest(path: Path) -> dict[str, Any]:
     return data
 
 
+def load_yaml_mapping(path: Path) -> dict[str, Any]:
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        raise ValueError(f"cannot read YAML {path}: {exc}") from exc
+    if not isinstance(data, dict):
+        raise ValueError(f"YAML root must be a mapping: {path}")
+    return data
+
+
+def visible_link_label(url: str) -> str:
+    parsed = urlsplit(url.strip())
+    host = parsed.netloc.lower()
+    if host.startswith("www."):
+        host = host[4:]
+    path = parsed.path.rstrip("/")
+    if path.lower().endswith(".git"):
+        path = path[:-4]
+    return f"{host}{path}"
+
+
+def selected_cv_claim_ids(manifest: dict[str, Any]) -> set[str]:
+    selected: set[str] = set()
+    for bullet in manifest.get("final_bullets", []):
+        if not isinstance(bullet, dict):
+            continue
+        claim_ids = bullet.get("claim_ids", [])
+        if isinstance(claim_ids, list):
+            selected.update(item for item in claim_ids if isinstance(item, str))
+    return selected
+
+
+def required_thesis_repository_links(
+    master: dict[str, Any], manifest: dict[str, Any]
+) -> list[str]:
+    application_defaults = master.get("application_defaults", {})
+    if not isinstance(application_defaults, dict):
+        return []
+    policy = application_defaults.get("project_link_policy", {})
+    if not isinstance(policy, dict) or policy.get("thesis_repository") != "required_when_public":
+        return []
+
+    education = master.get("education", {})
+    if not isinstance(education, dict):
+        return []
+    thesis_items = [
+        item
+        for key in ("thesis", "bachelor_thesis")
+        if isinstance((item := education.get(key)), dict)
+    ]
+    selected_claims = selected_cv_claim_ids(manifest)
+    selected_thesis_claims: set[str] = set()
+    for thesis in thesis_items:
+        claim_ids = thesis.get("claim_ids", [])
+        if isinstance(claim_ids, list):
+            selected_thesis_claims.update(selected_claims.intersection(claim_ids))
+    if not selected_thesis_claims:
+        return []
+
+    claims = {
+        item.get("id"): item
+        for item in master.get("claim_registry", [])
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
+    evidence = {
+        item.get("id"): item
+        for item in master.get("evidence_registry", [])
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
+    repository_urls: set[str] = set()
+    for claim_id in selected_thesis_claims:
+        claim = claims.get(claim_id, {})
+        for evidence_id in claim.get("evidence", []):
+            item = evidence.get(evidence_id, {})
+            locator = item.get("locator")
+            if (
+                item.get("type") == "public_repository"
+                and item.get("visibility") == "public"
+                and isinstance(locator, str)
+                and visible_link_label(locator)
+            ):
+                repository_urls.add(locator)
+    return sorted(repository_urls)
+
+
+def extract_pdf_text(path: Path) -> str:
+    completed = subprocess.run(
+        ["pdftotext", "-layout", str(path), "-"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError(completed.stderr.strip() or f"pdftotext failed for {path}")
+    return completed.stdout
+
+
+def extract_pdf_links(path: Path) -> set[str]:
+    completed = subprocess.run(
+        ["pdfinfo", "-url", str(path)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError(completed.stderr.strip() or f"pdfinfo -url failed for {path}")
+    links: set[str] = set()
+    for line in completed.stdout.splitlines():
+        columns = line.split(maxsplit=2)
+        if len(columns) == 3 and columns[0].isdigit():
+            links.add(columns[2].strip())
+    return links
+
+
 def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[str, Any]:
     data = load_manifest(manifest_path)
     root = (project_root or find_project_root(manifest_path)).resolve()
@@ -83,6 +199,7 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
 
     errors: list[str] = []
     documents: dict[str, Any] = {}
+    artifact_paths: dict[str, Path] = {}
     documents_to_check = list(deliverables)
     if isinstance(artifacts.get("application_pdf"), str) and artifacts.get("application_pdf", "").strip():
         documents_to_check.append("application")
@@ -109,6 +226,7 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
         if not path.is_file():
             errors.append(f"{kind} artifact not found: {raw_path}")
             continue
+        artifact_paths[kind] = path
 
         expected_hash = artifacts.get(config["sha256"])
         actual_hash = file_sha256(path)
@@ -128,11 +246,36 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
         errors.extend(f"{kind}: {message}" for message in result["errors"])
         documents[kind] = result
 
+    required_project_links: list[str] = []
+    master_path = root / "meta" / "master_cv.yaml"
+    cv_path = artifact_paths.get("cv")
+    if master_path.is_file() and cv_path is not None:
+        master = load_yaml_mapping(master_path)
+        required_project_links = required_thesis_repository_links(master, data)
+        if required_project_links:
+            cv_text = extract_pdf_text(cv_path).lower()
+            cv_link_labels = {
+                visible_link_label(url).lower() for url in extract_pdf_links(cv_path)
+            }
+            for url in required_project_links:
+                label = visible_link_label(url)
+                if label.lower() not in cv_text:
+                    errors.append(
+                        "cv: selected thesis has a required public repository link missing "
+                        f"from visible PDF text: {label}"
+                    )
+                if label.lower() not in cv_link_labels:
+                    errors.append(
+                        "cv: selected thesis repository label is not backed by a clickable "
+                        f"PDF link annotation: {label}"
+                    )
+
     return {
         "ok": not errors,
         "manifest": str(manifest_path),
         "deliverables": deliverables,
         "documents": documents,
+        "required_project_links": required_project_links,
         "errors": errors,
     }
 

@@ -14,7 +14,7 @@ AI receives an explicit factual boundary.
 | `personal_information` | Private identity and contact data |
 | `career_preferences` | Owner-stated interests and application priorities; never CV evidence |
 | `identity_anchors` | Durable evidence-bound identity signals protected from over-tailoring |
-| `application_defaults` | Owner-level default deliverables and complement-review policy |
+| `application_defaults` | Owner-level deliverables, complement review, and project-link policy |
 | `role_families` | Stable target lanes, readiness, strengths, boundaries, keywords, and titles |
 | `evidence_registry` | Proof index; never embed private document contents |
 | `claim_registry` | Only facts AI may use for CV drafting |
@@ -130,18 +130,24 @@ plain-language `usage` rule. Allowed values are `credential`, `domain_identity`,
 from JD-ranked and adjacent claims. Each application selects only one to three anchors;
 the pool is protection against identity erasure, not repeated boilerplate.
 
-## Application defaults (schema 3.5+)
+## Application defaults (schema 3.5+; project links in 3.6+)
 
 ```yaml
 application_defaults:
   deliverables: [cv, cover_letter]
   complement_review: true
+  project_link_policy:
+    thesis_repository: required_when_public
+    style: canonical_project_link
 ```
 
 `deliverables` must include `cv`; `cover_letter` is optional only when the owner
 deliberately wants résumé-only output. `complement_review` requires the application
 workflow to inspect truthful capabilities outside the narrow JD intersection before
-drafting. This is a selection policy, not permission to inflate weak skills.
+drafting. `project_link_policy` makes a selected thesis repository recruiter-visible
+when public evidence exists and keeps its typography consistent through the shared
+project-link helpers. These are presentation and selection policies, not permission to
+inflate weak skills or invent repositories.
 
 ### Status
 

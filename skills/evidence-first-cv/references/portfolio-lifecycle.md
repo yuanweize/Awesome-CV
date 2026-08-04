@@ -17,7 +17,10 @@ authority. Keep those responsibilities separate.
 5. Create or change atomic claims only after reviewing authorship, actual work,
    scope, interview depth, limitations, and evidence. The audit never promotes a
    repository automatically.
-6. Re-run strict master validation and the portfolio audit. Update the review date
+6. Apply the owner's project-link policy during drafting. A selected thesis with a
+   required public repository must expose that link in the final CV using the shared
+   project-link style; portfolio cataloguing alone is not recruiter-visible proof.
+7. Re-run strict master validation and the portfolio audit. Update the review date
    only after every `missing` and `evidence-only` result is intentionally resolved.
 
 ## Tiers

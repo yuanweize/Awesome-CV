@@ -47,8 +47,9 @@ application manifest → human approval → CV + cover letter + bundle audit →
 
 Every exported claim carries a stable ID, exact scope, role tags, evidence
 references, verification status, CV eligibility, and interview-depth confidence.
-Schema 3.5 also records AI/direct delivery mode, personally owned actions, authorship
-boundaries, durable identity anchors, and owner-level application deliverables. A repository may prove a useful product without turning every
+Schema 3.6 also records AI/direct delivery mode, personally owned actions, authorship
+boundaries, durable identity anchors, owner-level application deliverables, and a
+durable thesis-repository link policy. A repository may prove a useful product without turning every
 language, framework, or source-level term inside it into a candidate skill.
 
 ## Requirements
@@ -131,6 +132,10 @@ public schema, “CV” defaults to a tailored one-page résumé, a tailored one
 letter, and a merged PDF; an owner can explicitly choose résumé-only output in
 `application_defaults`. You should not have to drive
 individual scripts or repeatedly explain your history.
+When its thesis policy is `required_when_public`, selecting thesis claims also requires
+the public repository to appear directly in the final CV through the shared project-link
+style; the bundle audit fails if the repository label is missing or is not backed by
+a clickable PDF link annotation.
 
 Every substantive answer or correction also runs through a continuous memory loop.
 The agent decides whether it is a durable claim, career preference, capability

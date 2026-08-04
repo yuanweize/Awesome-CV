@@ -23,6 +23,8 @@ ALLOWED_ROLE_READINESS = {"core", "credible", "stretch"}
 ALLOWED_INTEREST_LEVELS = {"high", "medium", "low"}
 ALLOWED_APPLICATION_PRIORITIES = {"active", "selective", "explore", "paused"}
 ALLOWED_APPLICATION_DELIVERABLES = {"cv", "cover_letter"}
+ALLOWED_THESIS_REPOSITORY_POLICIES = {"required_when_public", "preferred_when_public", "omit"}
+ALLOWED_PROJECT_LINK_STYLES = {"canonical_project_link"}
 ALLOWED_DELIVERY_MODES = {"direct", "ai_assisted", "mixed", "not_applicable"}
 ALLOWED_OWNER_ACTIONS = {
     "requirements",
@@ -224,6 +226,10 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         version_match
         and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 5)
     )
+    governed_project_links = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 6)
+    )
     if not is_v3:
         warnings.append(
             "Legacy master database: add schema_version 3.x, role_families, "
@@ -371,6 +377,25 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                 errors.append("application_defaults.deliverables must include cv")
         if not isinstance(application_defaults.get("complement_review"), bool):
             errors.append("application_defaults.complement_review must be true or false")
+        if governed_project_links:
+            project_link_policy = application_defaults.get("project_link_policy")
+            if not isinstance(project_link_policy, dict):
+                errors.append(
+                    "application_defaults.project_link_policy must be a mapping for schema 3.6+"
+                )
+                project_link_policy = {}
+            thesis_repository = project_link_policy.get("thesis_repository")
+            if thesis_repository not in ALLOWED_THESIS_REPOSITORY_POLICIES:
+                errors.append(
+                    "application_defaults.project_link_policy.thesis_repository must be one of: "
+                    + ", ".join(sorted(ALLOWED_THESIS_REPOSITORY_POLICIES))
+                )
+            style = project_link_policy.get("style")
+            if style not in ALLOWED_PROJECT_LINK_STYLES:
+                errors.append(
+                    "application_defaults.project_link_policy.style must be one of: "
+                    + ", ".join(sorted(ALLOWED_PROJECT_LINK_STYLES))
+                )
 
     evidence_items = data.get("evidence_registry", [])
     if is_v3 and (not isinstance(evidence_items, list) or not evidence_items):

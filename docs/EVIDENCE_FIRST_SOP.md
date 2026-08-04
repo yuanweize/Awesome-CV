@@ -97,6 +97,13 @@ Schema 3.5 adds `application_defaults`. The default public workflow declares bot
 `cv` and `cover_letter`, so a conversational request for a CV produces a complete
 application package unless the owner deliberately selects résumé-only output.
 
+Schema 3.6 adds `application_defaults.project_link_policy`. When a selected thesis has
+public repository evidence and `thesis_repository` is `required_when_public`, the final
+CV must show that repository directly using the shared canonical project-link style.
+The bundle audit treats an omitted visible repository label or a label without a
+clickable PDF link annotation as a failure; the workflow must not expect a recruiter
+to search for evidence that the CV could have linked.
+
 ## Tailoring sequence
 
 1. Preserve the full JD privately.

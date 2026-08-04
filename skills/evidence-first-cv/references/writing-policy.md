@@ -42,6 +42,10 @@ Narrow the claim when any answer is vague.
 - AI tools are workflow details, not résumé differentiators unless the JD asks.
 - Repository stack is project context, not a candidate skill, unless a separate
   direct-use claim and evidenced skill group establish proficiency.
+- When a selected thesis has public repository evidence and the owner's policy is
+  `required_when_public`, show the repository directly in the thesis/project metadata.
+  A repository kept only in private memory does not help a recruiter assess engineering
+  completeness. Use the shared canonical project-link style; do not invent a per-CV style.
 - Lead a project bullet with the problem solved, service function, operational value,
   or measured result. A project name such as `RouteLens` explains nothing by itself.
 - Preserve AI-assisted delivery boundaries internally. Do not volunteer an AI

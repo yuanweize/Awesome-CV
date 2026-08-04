@@ -6,7 +6,8 @@
   positioning boundaries, target titles, and selection keywords.
 - `career_preferences`: owner-stated interests and application priorities; planning
   memory only, never claim evidence or résumé prose.
-- `application_defaults`: owner-level default deliverables and complement-review policy.
+- `application_defaults`: owner-level default deliverables, complement-review policy,
+  and project-link presentation policy.
 - `identity_anchors`: one to five durable, evidence-bound claims whose recognisable
   credential, domain, market-bridge, local-fit, or autonomy value should survive
   JD tailoring. They are a protected review pool, not mandatory boilerplate.
@@ -57,6 +58,13 @@ defining credential from disappearing merely because the vacancy uses different 
 Schema 3.5 adds `application_defaults`. `deliverables` must include `cv` and may add
 `cover_letter`; `complement_review` records whether each application must review useful
 non-core capabilities before drafting. These are workflow preferences, not claims.
+
+Schema 3.6 adds `application_defaults.project_link_policy`. `thesis_repository`
+controls whether a selected thesis with public repository evidence must show the link
+(`required_when_public`), should normally show it (`preferred_when_public`), or should
+omit it (`omit`). `style: canonical_project_link` requires the repository's shared
+project-link helper instead of an application-specific colour or ad hoc URL treatment.
+This is presentation governance, not new evidence.
 
 ## Claim fields
 

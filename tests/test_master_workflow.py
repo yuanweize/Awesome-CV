@@ -34,7 +34,13 @@ from github_inventory import (  # noqa: E402
 from portfolio_audit import audit_portfolio  # noqa: E402
 from role_audit import audit_roles  # noqa: E402
 from resume_pdf_audit import parse_bbox_xml  # noqa: E402
-from application_bundle_audit import audit_bundle, file_sha256  # noqa: E402
+from application_bundle_audit import (  # noqa: E402
+    audit_bundle,
+    extract_pdf_links,
+    file_sha256,
+    required_thesis_repository_links,
+    visible_link_label,
+)
 from application_ledger import (  # noqa: E402
     command_add,
     command_summary,
@@ -135,6 +141,24 @@ class MasterWorkflowTests(unittest.TestCase):
         result = self.validate_copy(data)
         self.assertFalse(result["ok"])
         self.assertTrue(any("unknown claim" in error for error in result["errors"]))
+
+    def test_schema_36_requires_project_link_policy(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["application_defaults"].pop("project_link_policy")
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("project_link_policy must be a mapping" in error for error in result["errors"])
+        )
+
+    def test_schema_36_rejects_unknown_project_link_style(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["application_defaults"]["project_link_policy"]["style"] = "custom_blue"
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("project_link_policy.style" in error for error in result["errors"])
+        )
 
     def test_schema_30_remains_backward_compatible_without_role_positioning(self) -> None:
         data = copy.deepcopy(self.template)
@@ -511,6 +535,136 @@ class MasterWorkflowTests(unittest.TestCase):
         self.assertTrue(
             any("deliverables must include cv" in error for error in result["errors"])
         )
+
+    def test_selected_thesis_requires_its_public_repository_link(self) -> None:
+        manifest = {
+            "final_bullets": [
+                {
+                    "id": "projects.signalwatch",
+                    "section": "projects",
+                    "text": "Built a network-monitoring thesis project.",
+                    "claim_ids": ["project.signalwatch-features"],
+                }
+            ]
+        }
+        self.assertEqual(
+            ["https://github.com/example-user/signalwatch"],
+            required_thesis_repository_links(self.template, manifest),
+        )
+        self.assertEqual(
+            "github.com/example-user/signalwatch",
+            visible_link_label("https://github.com/example-user/signalwatch.git/"),
+        )
+
+    def test_non_thesis_claim_does_not_require_a_project_link(self) -> None:
+        manifest = {
+            "final_bullets": [
+                {
+                    "id": "experience.linux-support",
+                    "section": "experience",
+                    "text": "Investigated Linux service failures.",
+                    "claim_ids": ["experience.northstar-linux-support"],
+                }
+            ]
+        }
+        self.assertEqual([], required_thesis_repository_links(self.template, manifest))
+
+    def test_preferred_thesis_link_policy_is_not_a_hard_bundle_requirement(self) -> None:
+        master = copy.deepcopy(self.template)
+        master["application_defaults"]["project_link_policy"][
+            "thesis_repository"
+        ] = "preferred_when_public"
+        manifest = {
+            "final_bullets": [
+                {
+                    "id": "projects.signalwatch",
+                    "section": "projects",
+                    "text": "Built a network-monitoring thesis project.",
+                    "claim_ids": ["project.signalwatch-features"],
+                }
+            ]
+        }
+        self.assertEqual([], required_thesis_repository_links(master, manifest))
+
+    def test_pdf_link_extraction_reads_annotation_targets(self) -> None:
+        completed = subprocess.CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout=(
+                "Page  Type          URL\n"
+                "   1  Annotation    https://github.com/example-user/signalwatch\n"
+                "   1  Annotation    mailto:alex@example.org\n"
+            ),
+            stderr="",
+        )
+        with mock.patch("application_bundle_audit.subprocess.run", return_value=completed):
+            self.assertEqual(
+                {
+                    "https://github.com/example-user/signalwatch",
+                    "mailto:alex@example.org",
+                },
+                extract_pdf_links(Path("example.pdf")),
+            )
+
+    def test_bundle_audit_rejects_visible_thesis_url_without_clickable_annotation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "templates").mkdir()
+            (root / "templates" / "master_cv.yaml.example").write_text(
+                "schema_version: '3.6'\n", encoding="utf-8"
+            )
+            (root / "meta").mkdir()
+            (root / "meta" / "master_cv.yaml").write_text(
+                yaml.safe_dump(self.template, sort_keys=False), encoding="utf-8"
+            )
+            profile = root / "workspace" / "profiles" / "example"
+            profile.mkdir(parents=True)
+            cv = profile / "Example_CV.pdf"
+            cv.write_bytes(b"cv-pdf-fixture")
+            manifest = root / "manifest.yaml"
+            manifest.write_text(
+                yaml.safe_dump(
+                    {
+                        "deliverables": ["cv"],
+                        "final_bullets": [
+                            {
+                                "id": "projects.signalwatch",
+                                "section": "projects",
+                                "text": "Built a network-monitoring thesis project.",
+                                "claim_ids": ["project.signalwatch-features"],
+                            }
+                        ],
+                        "artifacts": {
+                            "cv_pdf": "workspace/profiles/example/Example_CV.pdf",
+                            "cv_sha256": file_sha256(cv),
+                            "page_count": 1,
+                            "application_pdf": "",
+                        },
+                    },
+                    sort_keys=False,
+                ),
+                encoding="utf-8",
+            )
+            pdf_result = {
+                "ok": True,
+                "pages": 1,
+                "words": 100,
+                "median_word_height": 13.0,
+                "page_metrics": [{"bottom_coverage": 0.8}],
+                "errors": [],
+                "warnings": [],
+            }
+            with (
+                mock.patch("application_bundle_audit.audit_pdf", return_value=pdf_result),
+                mock.patch(
+                    "application_bundle_audit.extract_pdf_text",
+                    return_value="github.com/example-user/signalwatch",
+                ),
+                mock.patch("application_bundle_audit.extract_pdf_links", return_value=set()),
+            ):
+                result = audit_bundle(manifest, root)
+            self.assertFalse(result["ok"])
+            self.assertTrue(any("not backed by a clickable" in error for error in result["errors"]))
 
     def test_new_manifest_preserves_owner_declared_deliverables(self) -> None:
         data = new_manifest(

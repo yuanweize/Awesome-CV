@@ -14,8 +14,10 @@ privacy, and outcome tracking.
 - Keep `meta/master_cv.yaml` as the canonical private memory.
 - Keep career direction in `career_preferences`; interest guides targeting but never
   becomes résumé evidence.
-- Keep the owner's default application deliverables in `application_defaults`; for
-  this workspace, a natural-language CV request means the full CV + cover-letter bundle.
+- Keep the owner's default application deliverables and durable project-link policy in
+  `application_defaults`; for this workspace, a natural-language CV request means the
+  full CV + cover-letter bundle, and a selected thesis with public repository evidence
+  must show that repository directly.
 - Keep durable credential, domain, market-bridge, local-fit, and autonomy signals in
   `identity_anchors`; they protect recognisable candidate identity from over-tailoring.
 - Store proof locations in `evidence_registry`; never embed raw private evidence.
@@ -212,7 +214,11 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    title for roles such as logistics or operations. Map every row to selected claim
    IDs. Do not treat omission as minimalism. The headline must say who the candidate
    is, not impersonate the vacancy title; JD tailoring may change emphasis but may not
-   erase the selected identity anchors.
+   erase the selected identity anchors. Apply `application_defaults.project_link_policy`:
+   when a selected thesis has public repository evidence and the policy is
+   `required_when_public`, place the repository URL directly in the thesis/project entry.
+   Use `\cvgithubrepo{owner/repo}` for GitHub or `\cvprojectlink{URL}{label}` elsewhere;
+   never assume a recruiter will search for a repository that the CV omits.
 9. Map every final bullet to claim IDs in the private manifest; never show IDs in
    visible résumé prose. Run strict validation:
 
@@ -246,6 +252,9 @@ career evidence. Never infer candidate facts from agent instructions.
    broken links, inconsistent project-link styling, orphaned sections, and accidental
    extra pages. Use `\cvprojectlink{URL}{label}` or `\cvgithubrepo{owner/repo}` for
    inline project metadata instead of per-CV color overrides.
+   Treat a missing required thesis-repository label or a label without a matching
+   clickable PDF annotation as a failed bundle, even when the project prose and PDF
+   layout are otherwise valid.
 7. Audit every metric and strong verb against its claim/evidence ID.
 8. Generate likely interview questions for every top-half claim. Lower a claim
    when the user cannot defend it.
@@ -306,6 +315,8 @@ future eligibility.
 - Do not claim that this workflow guarantees interviews or offers.
 - Do not dump every real skill into a CV. Relevant truth is primary; useful adjacent
   truth is capped; unrelated truth stays in memory.
+- Do not omit a public thesis repository when the selected thesis claims and owner
+  policy require it; evidence hidden in the master is not visible recruiter proof.
 - Do not erase or suppress a desired career direction because its evidence is still
   developing. Keep interest, evidence, readiness, and next-proof actions separate.
 

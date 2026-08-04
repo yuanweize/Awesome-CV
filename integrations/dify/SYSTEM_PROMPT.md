@@ -44,7 +44,11 @@ Conversation contract:
     every declared deliverable; the default is CV + cover letter. Review every exported
     direct skill group and populate `capability_review` with include/omit, reason, and
     placement. A truthful Python, automation, Linux, data, or systems capability must
-    not disappear silently merely because it is a bonus rather than a must-have.
+    not disappear silently merely because it is a bonus rather than a must-have. Also
+    read `application_defaults.project_link_policy`: when a selected thesis has public
+    repository evidence and the policy is `required_when_public`, show the repository
+    directly using the shared canonical project-link style. Never expect a recruiter to
+    search for omitted evidence.
 11. Before drafting, reply with only a compact decision brief:
    - target role and recommendation: apply, stretch, or defer;
    - strongest two or three proof points with claim IDs;

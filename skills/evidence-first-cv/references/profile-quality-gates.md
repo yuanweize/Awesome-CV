@@ -34,13 +34,16 @@
   failed profile, not a minimalist design choice.
 - Confirm every exported direct skill group was reviewed and every included
   `capability_review` claim appears in its approved CV or cover-letter placement.
+- If selected thesis claims have public repository evidence and the owner policy is
+  `required_when_public`, require the visible PDF to contain the repository label and
+  a working link. Missing it is a failed claim/presentation audit, not minimalism.
 
 ## ATS/text check
 
 Extract from the final PDF with `pdftotext -layout`. Confirm the reading order is:
 name/contact, target identity, profile, skills, proof, experience, education. Check that
 links and symbols do not replace important text and that the PDF has the intended page
-count.
+count. Confirm required project URLs remain extractable as readable host/path labels.
 
 ## Visual/PDF check
 

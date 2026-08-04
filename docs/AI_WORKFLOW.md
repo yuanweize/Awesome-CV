@@ -139,7 +139,10 @@ After approval, require the complete bundle declared by
    must not disappear simply because it is a bonus rather than a must-have;
 7. every final CV bullet and skill row mapped to claim IDs in the private manifest;
 8. when `cover_letter` is declared, two to six concise factual paragraphs that
-   complement the CV and map back to selected claim IDs.
+   complement the CV and map back to selected claim IDs;
+9. when `application_defaults.project_link_policy.thesis_repository` is
+   `required_when_public`, every selected thesis with public repository evidence shows
+   that repository directly through the shared canonical project-link style.
 
 Reject any new number, title, employer, scope, technology, or result. Good prose does
 not override the database. Validate the trace strictly:
@@ -149,6 +152,9 @@ not override the database. Validate the trace strictly:
 ```
 
 Internal IDs, scores, and instructions must not appear in visible résumé prose.
+Required public repository labels are evidence navigation, not internal metadata, and
+the final bundle audit must reject either their omission or a visible label without a
+matching clickable PDF annotation.
 The target title, lead summary, and first proof points stay inside the primary role.
 Adjacent differentiators are capped at two and roughly 10-15% of visible content.
 

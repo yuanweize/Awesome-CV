@@ -17,7 +17,9 @@ derived cache. Repository presence, language detection, stars,
 forks, and workflow files do not prove authorship, proficiency, production use, or
 interview depth. Link relevant public repositories directly from evidence records;
 record mutable metrics with an `as of` date and normally keep them out of reusable CV
-claims.
+claims. When the governed owner policy requires a selected thesis repository, carry
+that public evidence into the final CV as a direct canonical project link rather than
+expecting a recruiter to discover it independently.
 
 The second command compares the inventory with governed portfolio memory. It reports
 claimed, catalogued, evidence-only, missing, and explicitly risk-excluded repositories.

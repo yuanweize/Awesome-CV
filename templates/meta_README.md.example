@@ -41,4 +41,7 @@ Use `workspace/current/sections/order.tex` to change section priority per privat
 `application_defaults` controls what a natural “new CV” request means. The public
 default is `[cv, cover_letter]`; remove `cover_letter` only when résumé-only output is
 an intentional owner decision. Schema 1.2 also records a capability include/omit
-review so useful evidence-bound bonus skills cannot disappear silently.
+review so useful evidence-bound bonus skills cannot disappear silently. Schema 3.6
+also stores `project_link_policy`: when a selected thesis has a public repository and
+the policy is `required_when_public`, the final CV must expose that link using the
+shared canonical project-link helper.
