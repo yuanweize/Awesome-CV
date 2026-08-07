@@ -33,6 +33,7 @@ __pycache__/
 *.py[cod]
 
 # Local QA and generated AI context
+/tmp/
 *.generated.md
 *.difypkg
 
