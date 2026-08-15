@@ -31,6 +31,11 @@ jobs:
     - name: Install validation dependency
       run: python -m pip install --disable-pip-version-check -r requirements-ci.txt
 
+    - name: Install PDF inspection dependency
+      run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends -y poppler-utils
+
     - name: Run schema, privacy, unit, and syntax checks
       run: make check PYTHON=python
 
