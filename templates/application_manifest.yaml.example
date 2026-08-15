@@ -1,4 +1,4 @@
-schema_version: "1.2"
+schema_version: "1.3"
 application_id: "20260115-example-corp-junior-systems-engineer"
 stage: awaiting-confirmation
 created_at: "2026-01-15"
@@ -12,6 +12,15 @@ job_description:
   path: "meta/applications/20260115-example-corp-junior-systems-engineer/jd.md"
   sha256: "replace-with-the-saved-jd-sha256"
   source_url: "https://jobs.example.org/example"
+  availability:
+    status: open
+    official_url: "https://jobs.example.org/example"
+    verified_at: "2026-01-15"
+    application_route: form
+employer_portfolio:
+  strategy: standalone
+  compared_application_ids: []
+  reason: "No other active role at this employer is under consideration."
 decision:
   recommendation: apply
   reason: "Direct Linux and troubleshooting evidence; one adjacent monitoring requirement."

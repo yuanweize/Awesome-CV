@@ -16,8 +16,8 @@ from typing import Any
 import yaml
 
 
-SCHEMA_VERSION = "1.2"
-SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1", "1.2"}
+SCHEMA_VERSION = "1.3"
+SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1", "1.2", "1.3"}
 MANIFEST_STAGES = (
     "analysis",
     "awaiting-confirmation",
@@ -41,7 +41,11 @@ IDENTITY_SECTIONS = {"headline", "summary", "education", "experience", "projects
 DELIVERABLES = {"cv", "cover_letter"}
 CAPABILITY_DECISIONS = {"include", "omit"}
 CAPABILITY_PLACEMENTS = ADJACENT_SECTIONS | {"cover_letter", "none"}
+VACANCY_STATUSES = {"open", "closed", "unverified"}
+APPLICATION_ROUTES = {"form", "email", "official_instruction", "unverified"}
+EMPLOYER_PORTFOLIO_STRATEGIES = {"standalone", "primary", "backup", "excluded"}
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
+HTTP_URL_PATTERN = re.compile(r"^https?://\S+$")
 
 
 def find_project_root() -> Path:
@@ -134,6 +138,17 @@ def new_manifest(
             "path": jd_path,
             "sha256": jd_hash,
             "source_url": "",
+            "availability": {
+                "status": "unverified",
+                "official_url": "",
+                "verified_at": "",
+                "application_route": "unverified",
+            },
+        },
+        "employer_portfolio": {
+            "strategy": "standalone",
+            "compared_application_ids": [],
+            "reason": "First role at this employer; compare before adding another application.",
         },
         "decision": {
             "recommendation": "review",
@@ -215,11 +230,11 @@ def validate_manifest(
         errors.append(f"unknown role family: {role}")
 
     deliverables = data.get("deliverables", [])
-    if schema_version == "1.2":
+    if schema_version in {"1.2", "1.3"}:
         if not isinstance(deliverables, list) or not deliverables or not all(
             isinstance(item, str) for item in deliverables
         ):
-            errors.append("deliverables must be a non-empty list for schema 1.2")
+            errors.append("deliverables must be a non-empty list for schema 1.2+")
             deliverables = []
         elif len(set(deliverables)) != len(deliverables):
             errors.append("deliverables contains duplicates")
@@ -250,6 +265,72 @@ def validate_manifest(
             errors.append(f"job description file not found: {jd_path}")
         elif not isinstance(expected_hash, str) or sha256(candidate) != expected_hash:
             errors.append("job_description.sha256 does not match the saved JD")
+
+    availability = job.get("availability", {})
+    vacancy_status = ""
+    official_url = ""
+    verified_at = ""
+    application_route = ""
+    if schema_version == "1.3":
+        if not isinstance(availability, dict):
+            errors.append("job_description.availability must be a mapping")
+            availability = {}
+        vacancy_status = availability.get("status")
+        official_url = availability.get("official_url")
+        verified_at = availability.get("verified_at")
+        application_route = availability.get("application_route")
+        if vacancy_status not in VACANCY_STATUSES:
+            errors.append(
+                "job_description.availability.status must be open, closed, or unverified"
+            )
+        if not isinstance(official_url, str):
+            errors.append("job_description.availability.official_url must be a string")
+            official_url = ""
+        elif official_url and not HTTP_URL_PATTERN.fullmatch(official_url):
+            errors.append("job_description.availability.official_url must be an HTTP(S) URL")
+        if not isinstance(verified_at, str):
+            errors.append("job_description.availability.verified_at must be an ISO date")
+            verified_at = ""
+        elif verified_at:
+            try:
+                dt.date.fromisoformat(verified_at)
+            except ValueError:
+                errors.append("job_description.availability.verified_at must be an ISO date")
+        if application_route not in APPLICATION_ROUTES:
+            errors.append(
+                "job_description.availability.application_route must be form, email, "
+                "official_instruction, or unverified"
+            )
+
+    employer_portfolio = data.get("employer_portfolio", {})
+    portfolio_strategy = ""
+    compared_application_ids: list[Any] = []
+    if schema_version == "1.3":
+        if not isinstance(employer_portfolio, dict):
+            errors.append("employer_portfolio must be a mapping")
+            employer_portfolio = {}
+        portfolio_strategy = employer_portfolio.get("strategy")
+        compared_application_ids = employer_portfolio.get("compared_application_ids", [])
+        portfolio_reason = employer_portfolio.get("reason")
+        if portfolio_strategy not in EMPLOYER_PORTFOLIO_STRATEGIES:
+            errors.append(
+                "employer_portfolio.strategy must be standalone, primary, backup, or excluded"
+            )
+        if not isinstance(compared_application_ids, list):
+            errors.append("employer_portfolio.compared_application_ids must be a list")
+            compared_application_ids = []
+        else:
+            for compared_id in compared_application_ids:
+                if not isinstance(compared_id, str) or not ID_PATTERN.fullmatch(compared_id):
+                    errors.append("employer_portfolio.compared_application_ids contains an invalid ID")
+                elif compared_id == application_id:
+                    errors.append("employer_portfolio cannot compare the application with itself")
+        if portfolio_strategy in {"primary", "backup"} and not compared_application_ids:
+            errors.append(
+                f"employer_portfolio strategy {portfolio_strategy} requires a compared application ID"
+            )
+        if not isinstance(portfolio_reason, str) or not portfolio_reason.strip():
+            errors.append("employer_portfolio.reason is required")
 
     identity = data.get("identity_anchors", [])
     if not isinstance(identity, list):
@@ -390,9 +471,9 @@ def validate_manifest(
     capability_review = data.get("capability_review", {})
     capability_entries: list[dict[str, Any]] = []
     seen_capabilities: set[str] = set()
-    if schema_version == "1.2":
+    if schema_version in {"1.2", "1.3"}:
         if not isinstance(capability_review, dict):
-            errors.append("capability_review must be a mapping for schema 1.2")
+            errors.append("capability_review must be a mapping for schema 1.2+")
             capability_review = {}
         if not isinstance(capability_review.get("completed"), bool):
             errors.append("capability_review.completed must be true or false")
@@ -546,7 +627,18 @@ def validate_manifest(
             errors.append(f"stage {stage} requires decision.user_confirmed=true")
         if stage in {"drafted", "validated", "sent", "closed"} and not bullets:
             errors.append(f"stage {stage} requires final_bullets")
-        if schema_version == "1.2" and stage in {
+        if schema_version == "1.3" and stage in {"approved", "drafted", "validated"}:
+            if vacancy_status != "open":
+                errors.append(f"stage {stage} requires an officially verified open vacancy")
+            if not official_url:
+                errors.append(f"stage {stage} requires an official vacancy URL")
+            if not verified_at:
+                errors.append(f"stage {stage} requires a vacancy verification date")
+            if application_route == "unverified":
+                errors.append(f"stage {stage} requires a verified application route")
+            if portfolio_strategy == "excluded":
+                errors.append(f"stage {stage} cannot use an excluded employer-portfolio strategy")
+        if schema_version in {"1.2", "1.3"} and stage in {
             "approved",
             "drafted",
             "validated",
@@ -554,7 +646,7 @@ def validate_manifest(
             "closed",
         } and not capability_review.get("completed"):
             errors.append(f"stage {stage} requires a completed capability_review")
-        if schema_version == "1.2" and stage in {
+        if schema_version in {"1.2", "1.3"} and stage in {
             "approved",
             "drafted",
             "validated",
@@ -571,7 +663,7 @@ def validate_manifest(
                     + claim_id
                 )
         if (
-            schema_version == "1.2"
+            schema_version in {"1.2", "1.3"}
             and "cover_letter" in deliverables
             and stage in {"drafted", "validated", "sent", "closed"}
             and not (2 <= len(letter_paragraphs) <= 6)
@@ -580,7 +672,7 @@ def validate_manifest(
                 f"stage {stage} requires two to six evidence-bound cover_letter_paragraphs"
             )
         if (
-            schema_version in {"1.1", "1.2"}
+            schema_version in {"1.1", "1.2", "1.3"}
             and stage in {"approved", "drafted", "validated", "sent", "closed"}
             and not identity
         ):
@@ -595,7 +687,7 @@ def validate_manifest(
                 errors.append(
                     f"identity anchor {claim_id} has no final bullet in approved placement {placement}"
                 )
-        if schema_version == "1.2" and stage in {"drafted", "validated", "sent", "closed"}:
+        if schema_version in {"1.2", "1.3"} and stage in {"drafted", "validated", "sent", "closed"}:
             for item in capability_entries:
                 if item.get("decision") != "include":
                     continue
@@ -619,7 +711,7 @@ def validate_manifest(
                         f"included capability {claim_id} has no content in approved placement {placement}"
                     )
 
-        if schema_version == "1.2" and stage in {"validated", "sent", "closed"}:
+        if schema_version in {"1.2", "1.3"} and stage in {"validated", "sent", "closed"}:
             artifacts = data.get("artifacts")
             if not isinstance(artifacts, dict):
                 errors.append("artifacts must be a mapping")

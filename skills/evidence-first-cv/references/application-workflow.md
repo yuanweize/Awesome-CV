@@ -1,45 +1,72 @@
 # Application workflow
 
+## Vacancy and employer-portfolio gate
+
+Treat availability as a live claim that expires quickly. Before investing in a tailored
+bundle or placing it in a send batch:
+
+1. Find the role on the employer's current careers board or official ATS.
+2. Prefer a working official application form as the strongest actionability signal.
+3. Use aggregators, cached search results, and social-network mirrors only to discover or
+   preserve JD text. A residual detail page or an `Apply now` label is not enough when the
+   current board omits the role or the outbound application endpoint is dead.
+4. Save the official URL, verification date, and any separate JD-capture source in
+   `jd.md`. Mark roles without an official current signal as `unverified`; do not call
+   them ready to send.
+5. In schema 1.3 manifests, fill `job_description.availability.status`,
+   `official_url`, `verified_at`, and `application_route`. Approved, drafted, and
+   validated stages fail strict validation until an open official vacancy and a usable
+   route are recorded.
+
+When one employer has multiple plausible roles, review them together before drafting or
+sending. Select the role that best reinforces the intended candidate identity and builds
+the strongest career capital. Keep a weaker adjacent role as backup unless simultaneous
+applications would clearly present the same coherent identity. Record the comparison in
+the decision reason; do not rely on independent match scores alone.
+Persist that choice in `employer_portfolio`; primary and backup strategies must name the
+other compared application manifest.
+
 ## Private lifecycle
 
 1. Run workspace status and validate master memory.
-2. Store the full JD under `meta/applications/<id>/jd.md`.
-3. Create `meta/applications/<id>/application.yaml`.
-4. Select one role family and export bounded context. Check recorded interest and
+2. Run the vacancy and employer-portfolio gate above.
+3. Store the full JD under `meta/applications/<id>/jd.md`.
+4. Create `meta/applications/<id>/application.yaml`.
+5. Select one role family and export bounded context. Check recorded interest and
    `stretch_titles`; stretch means analyse the gap, not automatically reject the JD.
    Rank concrete responsibility, tool, and domain matches ahead of generic vacancy
    boilerplate or location words; use verification and interview depth as relevance
    tie-breakers, not as permission for a strong but unrelated claim to displace a JD match.
-5. Map JD requirements to claim IDs and gaps in the manifest. For compound platform
+6. Map JD requirements to claim IDs and gaps in the manifest. For compound platform
    or resiliency requirements, preserve direct personal backup, self-hosting,
    monitoring, or failover evidence, then record formal restore testing, HA ownership,
    enterprise scale, or RTO/RPO as the remaining boundary. Do not turn “not enterprise”
    into “never performed”.
-6. Independently review `identity_anchors` and select one to three durable signals.
+7. Independently review `identity_anchors` and select one to three durable signals.
    Record each reason and placement. For graduate and early-career applications,
    spell out the institution, faculty, and degree in the top third.
-7. Review the remaining eligible claims for zero to two adjacent differentiators;
+8. Review the remaining eligible claims for zero to two adjacent differentiators;
    review only claims pre-governed with `adjacent_values`, then record their concrete
    transfer value and low-prominence placement.
-8. Review every exported direct skill group. Record include/omit decisions for useful
+9. Review every exported direct skill group. Record include/omit decisions for useful
    transferable or bonus capabilities in `capability_review`; do not let a specific
    capability disappear behind a generic project label.
-9. For an early-career or stretch application, run a hands-on proof pass. Identify two
+10. For an early-career or stretch application, run a hands-on proof pass. Identify two
    or three selected claims that visibly prove concrete build, integration, testing,
    deployment, troubleshooting, documentation, or operation. If none exist, keep the
    gap explicit rather than substituting personality adjectives.
-10. Show the decision brief and wait for human confirmation.
-11. Classify the user's confirmation and answers through the continuous memory loop:
+11. Show the decision brief and wait for human confirmation.
+12. Classify the user's confirmation and answers through the continuous memory loop:
     persist durable claims, preferences, and boundaries in the master; keep JD-specific
     motivation in the manifest; then revalidate and regenerate context when selection changes.
-12. Draft every declared deliverable. Include a three-to-five-row evidence-bound CV
+13. Draft every declared deliverable. Include a three-to-five-row evidence-bound CV
     Skills section and map cover-letter factual paragraphs to claims.
-13. Strictly validate the manifest, build, run the per-document PDF layout audit and
+14. Strictly validate the manifest, build, run the per-document PDF layout audit and
     bundle audit, extract text, render, and inspect both documents.
-14. Record the application and claim IDs in the ledger only after it is sent.
-15. Update stages and notes after every external event.
-16. Use funnel summary to choose targeting, narrative, training, or negotiation work.
-17. After a terminal outcome, move the snapshot to the verified private archive.
+15. Record the application and claim IDs in the ledger only after it is sent.
+16. Update stages and notes after every external event.
+17. Use funnel summary to choose targeting, narrative, training, or negotiation work.
+18. After a terminal outcome, move the snapshot to the verified private archive.
 
 ## Identity review: tailoring without erasure
 

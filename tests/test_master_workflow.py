@@ -1120,6 +1120,12 @@ class MasterWorkflowTests(unittest.TestCase):
                 "example",
             )
             data["stage"] = "drafted"
+            data["job_description"]["availability"] = {
+                "status": "open",
+                "official_url": "https://jobs.example.org/example",
+                "verified_at": "2026-01-15",
+                "application_route": "form",
+            }
             data["decision"].update({"recommendation": "apply", "user_confirmed": True})
             degree_id = "education.bsc-computer-engineering"
             data["selected_claims"] = [degree_id, claim_id]
@@ -1178,6 +1184,17 @@ class MasterWorkflowTests(unittest.TestCase):
             ]
             errors = validate_manifest(data, self.template_path, root, strict=True)
             self.assertEqual([], errors)
+
+            data["job_description"]["availability"]["status"] = "unverified"
+            errors = validate_manifest(data, self.template_path, root, strict=True)
+            self.assertTrue(any("officially verified open vacancy" in error for error in errors))
+            data["job_description"]["availability"]["status"] = "open"
+
+            portfolio_data = copy.deepcopy(data)
+            portfolio_data["employer_portfolio"]["strategy"] = "primary"
+            portfolio_data["employer_portfolio"]["compared_application_ids"] = []
+            errors = validate_manifest(portfolio_data, self.template_path, root, strict=True)
+            self.assertTrue(any("requires a compared application ID" in error for error in errors))
 
             data["capability_review"]["entries"] = []
             errors = validate_manifest(data, self.template_path, root, strict=True)

@@ -7,9 +7,15 @@ repository and say “I need a new CV” without knowing commands or schemas.
 
 1. Run workspace status and master validation silently.
 2. If the JD is missing, summarize only material workspace issues and ask for the JD.
-3. Save the JD and create an application manifest.
-4. Build bounded context and map requirements to claims.
-5. Return one compact decision brief:
+3. Verify the role on the employer's current career board or official ATS. Treat an
+   aggregator or cached detail page as discovery only, and mark the role unverified when
+   no current official application path can be confirmed.
+4. If another live role at the same employer is already under consideration, choose a
+   primary candidate identity and state whether the new role reinforces it or should be
+   retained only as a backup.
+5. Save the JD and create an application manifest.
+6. Build bounded context and map requirements to claims.
+7. Return one compact decision brief:
    - role family and apply/stretch/defer recommendation, respecting recorded interest
      without treating it as evidence;
    - two or three strongest claim IDs;
@@ -20,10 +26,10 @@ repository and say “I need a new CV” without knowing commands or schemas.
    - proposed deliverables and any useful direct/bonus capability that would otherwise
      be easy to overlook;
    - zero to three questions that can materially change selection or wording.
-6. Stop for confirmation. “Yes”, “是”, “可以”, or a small correction is enough.
-7. Apply corrections, record confirmation, draft the complete declared bundle, build,
+8. Stop for confirmation. “Yes”, “是”, “可以”, or a small correction is enough.
+9. Apply corrections, record confirmation, draft the complete declared bundle, build,
    and audit both CV and cover letter.
-8. Report artifact paths and checks. Do not mark the application sent until the
+10. Report artifact paths and checks. Do not mark the application sent until the
    user says it was actually submitted.
 
 Do not expose internal command noise, ranking scores, the full master, or long

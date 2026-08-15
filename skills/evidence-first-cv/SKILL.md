@@ -172,7 +172,24 @@ it helps, and propose a real team-evidence action such as a reviewed contributio
 ## Drive a job application
 
 1. If the JD is missing, ask for it and stop. Do not draft a generic CV.
-2. Save the complete JD and initialize its private decision record:
+2. Before treating a vacancy as actionable, verify it against the employer's current
+   career board or official ATS and, when possible, confirm that the final application
+   form can still be submitted. An old direct detail URL, cached search result, LinkedIn
+   mirror, or aggregator listing is discovery evidence, not sufficient proof that a
+   vacancy remains open. Record the verification date, official URL, and any separate JD
+   capture source in the saved JD. If no official current source can be verified, label
+   the status unverified and do not place the role in a ready-to-send batch.
+   For schema 1.3 manifests, populate `job_description.availability` with the
+   official URL, ISO verification date, status, and confirmed application route;
+   strict validation blocks approved/drafted/validated stages when this gate is incomplete.
+3. Before pursuing more than one role at the same employer, compare the roles as one
+   employer portfolio. Choose the primary candidate identity and career-capital path;
+   keep a weaker adjacent role as a backup unless parallel applications clearly reinforce
+   the same identity. Never let independent per-role scores create a contradictory
+   "anything is fine" signal to one recruiting team.
+   Record the outcome in schema 1.3 `employer_portfolio`, including the strategy,
+   compared application IDs when primary/backup is chosen, and the decision reason.
+4. Save the complete JD and initialize its private decision record:
 
 ```bash
 ./cv start --company "Example" --title "Systems Engineer" \
@@ -181,11 +198,11 @@ it helps, and propose a real team-evidence action such as a reviewed contributio
 
    This creates `meta/applications/<id>/jd.md` and `application.yaml`. Preserve
    must-haves, seniority, location, language, work model, and salary when published.
-3. Choose exactly one role family. Use its readiness, strengths, positioning
+5. Choose exactly one role family. Use its readiness, strengths, positioning
    boundaries, stretch titles, and the user's recorded interest when evaluating fit.
    A high-interest stretch lane should receive an evidence-gap analysis, not automatic
    rejection. If no family fits, report the gap before drafting.
-4. Generate a bounded context from the saved JD:
+6. Generate a bounded context from the saved JD:
 
 ```bash
 python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
@@ -194,8 +211,8 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
   --output workspace/build/company-role.generated.md
 ```
 
-5. Read the generated context rather than the full master.
-6. Populate the manifest with the requirement-to-claim matrix, explicit gaps,
+7. Read the generated context rather than the full master.
+8. Populate the manifest with the requirement-to-claim matrix, explicit gaps,
    recommendation, selected claims, and only questions that can change the output.
    Independently review the governed identity anchors and select one to three. Record
    each reason and placement; for graduate/early-career applications, spell out the
@@ -210,9 +227,9 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    Review every exported direct skill group as a separate capability-coverage pass.
    Record useful included or deliberately omitted capabilities in `capability_review`;
    do not let a concrete bonus such as Python disappear behind a generic ERP/project label.
-7. Show the user a compact decision brief and at most three material questions.
+9. Show the user a compact decision brief and at most three material questions.
    Stop before drafting until the user confirms or corrects it.
-8. After confirmation, record it in the manifest and draft every deliverable declared
+10. After confirmation, record it in the manifest and draft every deliverable declared
    by `application_defaults`/the manifest only from selected claim IDs. Preserve scope,
    delivery mode, owned actions, and ownership verbs.
    First run the continuous memory loop over the user's confirmation and answers so a
@@ -238,20 +255,20 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    or "low training cost" as a substitute. Express the evidenced learning loop and let
    the employer infer onboarding leverage; never claim measured ramp-up or training-cost
    reduction without employer evidence.
-9. Map every final bullet to claim IDs in the private manifest; never show IDs in
+11. Map every final bullet to claim IDs in the private manifest; never show IDs in
    visible résumé prose. Run strict validation:
 
 ```bash
 ./cv manifest validate meta/applications/<id>/application.yaml --strict
 ```
 
-10. Prefer one page and two or three proof points. Do not create a static role baseline
+12. Prefer one page and two or three proof points. Do not create a static role baseline
    unless it will save repeated layout or ordering work. Store an intentional baseline
    under ignored `workspace/baselines/`, never among application profiles and never as fact memory.
-11. Use `./cv clone <trusted-base> <application>` only when an existing profile or
+13. Use `./cv clone <trusted-base> <application>` only when an existing profile or
    clone-only baseline layout is useful. It is a compatibility/build backend, not the
    intelligence layer.
-12. When `cover_letter` is a declared deliverable, treat it as required rather than
+14. When `cover_letter` is a declared deliverable, treat it as required rather than
    optional polish. Map its factual paragraphs to selected claim IDs, use it to explain
    motivation, transfer, and boundaries that do not fit the CV, and never send the generic template.
 
