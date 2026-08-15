@@ -31,7 +31,9 @@ Current TeX source belongs in `../workspace/current/`. Generated contexts and PD
 belong in `../workspace/build/`; disposable render output belongs in
 `../workspace/tmp/`; reusable clone-only layout references belong in `../workspace/baselines/`;
 editable application snapshots belong in `../workspace/profiles/`; closed history
-belongs in `../archive/`. Run `./cv status` before beginning a new application.
+belongs in `../archive/`. Recruiter-facing delivery copies belong in
+`../output/pdf/<company>/<role>/`; they are never factual authority. Run `./cv status`
+before beginning a new application.
 
 Use `identity_anchors` in `master_cv.yaml` for durable evidence-bound credentials,
 domains, market bridges, local fit, or autonomy that should survive JD tailoring.
@@ -45,3 +47,8 @@ review so useful evidence-bound bonus skills cannot disappear silently. Schema 3
 also stores `project_link_policy`: when a selected thesis has a public repository and
 the policy is `required_when_public`, the final CV must expose that link using the
 shared canonical project-link helper.
+
+Schema 3.7 may also define `application_defaults.reusable_positioning`. Each phrase
+must cite eligible claim IDs, name allowed role families and placements, and carry a
+per-application use limit. This preserves reviewed boundary wording across agents
+without turning prose into a new fact.

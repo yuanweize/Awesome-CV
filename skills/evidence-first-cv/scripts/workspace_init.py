@@ -26,6 +26,8 @@ RUNTIME_DIRECTORIES = (
     "workspace/tmp",
     "archive/applications",
     "archive/research",
+    "output",
+    "output/pdf",
 )
 
 TEMPLATE_FILES = (
@@ -35,6 +37,7 @@ TEMPLATE_FILES = (
     ("templates/baseline_catalog.yaml.example", "meta/baseline_catalog.yaml"),
     ("templates/config.tex.example", "workspace/current/config.tex"),
     ("templates/letter_config.tex.example", "workspace/current/letter_config.tex"),
+    ("templates/output_pdf_README.md.example", "output/pdf/README.md"),
 )
 
 SECTION_TEMPLATE_NAMES = (

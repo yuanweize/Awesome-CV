@@ -37,6 +37,16 @@ Narrow the claim when any answer is vague.
   group must map to selected claim IDs; keep direct-role groups first.
 - Omit old/weak facts instead of filling space.
 - Avoid slogans, self-ratings, keyword dumps, and defensive disclaimers.
+- Replace "fast learner", "low training cost", and "productive from day one" with an
+  evidence-bound learning loop: unfamiliar topic, owned action, reviewable artifact,
+  validation, and bounded operation. Let the employer infer onboarding leverage unless
+  measured ramp-up or training cost is independently verified.
+- Acknowledge a material enterprise or team-experience boundary once in a cover letter
+  or interview answer when it improves trust. Do not repeat it in the headline, skills,
+  and bullets, and do not let the disclaimer displace hands-on evidence.
+- Treat `application_defaults.reusable_positioning` as optional governed prose, not
+  a claim. Use it only for a listed role family and placement, map every backing claim
+  ID in the manifest, obey its per-application limit, and omit it when immaterial.
 - Never use Senior/Expert/enterprise-scale/zero-downtime without direct proof.
 - Generated framework output is not automatically hand-written language expertise.
 - AI tools are workflow details, not résumé differentiators unless the JD asks.
@@ -113,6 +123,10 @@ not permission to dump an infrastructure inventory.
 - Use the same identity anchor and visual system as the CV, while preserving the exact
   employer, recipient, title, and date.
 - Never send generic template prose or imply that adjacent evidence closes a stated gap.
+- For early-career stretch applications, a useful transfer paragraph may pair one
+  honest enterprise-experience boundary with two concrete self-directed delivery
+  examples and a realistic statement about how the candidate becomes effective. Avoid
+  pleading language or unsupported promises of minimal onboarding.
 
 ## Requirement mapping
 

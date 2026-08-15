@@ -66,6 +66,11 @@ omit it (`omit`). `style: canonical_project_link` requires the repository's shar
 project-link helper instead of an application-specific colour or ad hoc URL treatment.
 This is presentation governance, not new evidence.
 
+Schema 3.7 adds `application_defaults.reusable_positioning`. These are optional,
+reviewed phrases rather than claims. Each entry must cite eligible backing claim IDs,
+restrict role families and placements, provide usage guidance, and set a positive
+per-application use limit. The exporter includes only role-relevant entries.
+
 ## Claim fields
 
 | Field | Rule |

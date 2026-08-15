@@ -46,9 +46,18 @@ def research_plan(root: Path, source_arg: Path, name: str, year: str) -> dict[st
     root = Path(os.path.abspath(root))
     source = Path(os.path.abspath(source_arg if source_arg.is_absolute() else root / source_arg))
     allowed_roots = (root / "workspace" / "profiles", root / "meta" / "chat")
-    if not any(source.is_relative_to(base) and source != base for base in allowed_roots):
+    legacy_archive_root = root / "archive"
+    is_governed_source = any(
+        source.is_relative_to(base) and source != base for base in allowed_roots
+    )
+    is_legacy_archive_child = (
+        source.parent == legacy_archive_root
+        and source.name not in {"applications", "research"}
+    )
+    if not (is_governed_source or is_legacy_archive_child):
         raise ValueError(
-            "research source must be inside workspace/profiles/ or meta/chat/"
+            "research source must be inside workspace/profiles/ or meta/chat/, "
+            "or be a direct legacy child of archive/"
         )
     reject_symlink_components(source, "research source", root)
     if source.is_symlink() or not source.is_dir():

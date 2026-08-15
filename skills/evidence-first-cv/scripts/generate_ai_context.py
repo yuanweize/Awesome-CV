@@ -308,6 +308,20 @@ def build_context(
         for item in data.get("claim_registry", [])
         if isinstance(item, dict) and item.get("id")
     }
+    reusable_positioning = []
+    for item in data.get("application_defaults", {}).get("reusable_positioning", []):
+        if not isinstance(item, dict):
+            continue
+        if role and role not in item.get("role_families", []):
+            continue
+        supporting_claims = [claims_by_id.get(claim_id) for claim_id in item.get("claim_ids", [])]
+        if supporting_claims and all(
+            claim
+            and claim.get("cv_eligible")
+            and claim.get("status") in ELIGIBLE_STATUSES
+            for claim in supporting_claims
+        ):
+            reusable_positioning.append(item)
     for anchor in data.get("identity_anchors", []):
         if not isinstance(anchor, dict):
             continue
@@ -442,6 +456,9 @@ def build_context(
         "    thesis-repository policy is required_when_public, show the repository link",
         "    directly in the CV. Do not expect a recruiter to search for it. Use the",
         "    repository template's canonical project-link helper and style.",
+        "20. Reusable positioning is governed prose, not a new fact. Use it only in an",
+        "    allowed placement, map every supporting claim ID in the manifest, and obey",
+        "    its per-application use limit. Omit it when the boundary is not material.",
         "",
         "## Candidate",
         "",
@@ -492,6 +509,36 @@ def build_context(
                 *[f"  - {item}" for item in role_data.get("boundaries", [])],
             ]
         )
+
+    lines.extend(
+        [
+            "",
+            "## Governed reusable positioning",
+            "",
+            "> These optional phrases preserve a previously reviewed boundary across model",
+            "> changes. They remain usable only with their backing claims and placement limit.",
+            "",
+            "| ID | Text | Supporting claims | Placements | Max uses | Usage guidance |",
+            "|---|---|---|---|---:|---|",
+        ]
+    )
+    for item in reusable_positioning:
+        lines.append(
+            "| `{id}` | {text} | {claims} | {placements} | {max_uses} | {usage} |".format(
+                id=escape_table(item.get("id", "")),
+                text=escape_table(item.get("text", "")),
+                claims=", ".join(
+                    f"`{escape_table(claim_id)}`" for claim_id in item.get("claim_ids", [])
+                ),
+                placements=", ".join(
+                    f"`{escape_table(placement)}`" for placement in item.get("placements", [])
+                ),
+                max_uses=item.get("max_uses_per_application", ""),
+                usage=escape_table(item.get("usage", "")),
+            )
+        )
+    if not reusable_positioning:
+        lines.append("| _none_ | No role-relevant governed phrase is available. | | | | |")
 
     lines.extend(
         [

@@ -104,6 +104,10 @@ The bundle audit treats an omitted visible repository label or a label without a
 clickable PDF link annotation as a failure; the workflow must not expect a recruiter
 to search for evidence that the CV could have linked.
 
+Schema 3.7 adds claim-backed reusable positioning with explicit role, placement, and
+use limits. It preserves reviewed boundary wording across model changes without
+creating a new factual claim.
+
 ## Tailoring sequence
 
 1. Preserve the full JD privately.
@@ -129,8 +133,10 @@ to search for evidence that the CV could have linked.
 13. Audit every fact and metric against claim IDs.
 14. Build CV, cover letter, and merged PDF; run `./cv bundle-audit`, extract text,
     render, inspect both pages, and run privacy checks.
-15. Record the application only when submitted; then record stages and outcome.
-16. After a terminal outcome, archive the snapshot with a verified archive manifest.
+15. Copy only the validated handoff PDFs to `output/pdf/<company>/<role>/` and update
+    the private relative-link index. The profile and manifest remain authoritative.
+16. Record the application only when submitted; then record stages and outcome.
+17. After a terminal outcome, archive the snapshot with a verified archive manifest.
 
 The complement review prevents two opposite failures: mirroring the JD so narrowly
 that useful range disappears, and listing every true skill until the candidate's role

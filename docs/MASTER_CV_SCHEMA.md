@@ -14,7 +14,7 @@ AI receives an explicit factual boundary.
 | `personal_information` | Private identity and contact data |
 | `career_preferences` | Owner-stated interests and application priorities; never CV evidence |
 | `identity_anchors` | Durable evidence-bound identity signals protected from over-tailoring |
-| `application_defaults` | Owner-level deliverables, complement review, and project-link policy |
+| `application_defaults` | Owner-level deliverables, complement review, project-link policy, and governed reusable positioning |
 | `role_families` | Stable target lanes, readiness, strengths, boundaries, keywords, and titles |
 | `evidence_registry` | Proof index; never embed private document contents |
 | `claim_registry` | Only facts AI may use for CV drafting |
@@ -130,7 +130,7 @@ plain-language `usage` rule. Allowed values are `credential`, `domain_identity`,
 from JD-ranked and adjacent claims. Each application selects only one to three anchors;
 the pool is protection against identity erasure, not repeated boilerplate.
 
-## Application defaults (schema 3.5+; project links in 3.6+)
+## Application defaults (schema 3.5+; project links in 3.6+; reusable positioning in 3.7+)
 
 ```yaml
 application_defaults:
@@ -139,6 +139,14 @@ application_defaults:
   project_link_policy:
     thesis_repository: required_when_public
     style: canonical_project_link
+  reusable_positioning:
+  - id: owner-operated-infrastructure-boundary
+    text: "My infrastructure experience is owner-operated rather than enterprise platform ownership, but it is practical."
+    role_families: [systems]
+    claim_ids: [personal.lab-operation]
+    placements: [cover_letter, interview]
+    max_uses_per_application: 1
+    usage: "Use once only when the enterprise boundary is material."
 ```
 
 `deliverables` must include `cv`; `cover_letter` is optional only when the owner
@@ -148,6 +156,12 @@ drafting. `project_link_policy` makes a selected thesis repository recruiter-vis
 when public evidence exists and keeps its typography consistent through the shared
 project-link helpers. These are presentation and selection policies, not permission to
 inflate weak skills or invent repositories.
+
+`reusable_positioning` stores optional, reviewed wording rather than new facts. Every
+entry must reference eligible claims, restrict its role families and placements to
+`cover_letter` or `interview`, and set a positive use limit. The context exporter
+includes only role-relevant entries. A draft must map all backing claim IDs and omit
+the phrase when its boundary is not material.
 
 ### Status
 

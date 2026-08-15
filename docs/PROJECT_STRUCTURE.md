@@ -1,6 +1,6 @@
 # Project structure and data ownership
 
-This repository has four deliberately separate layers. A file should have one
+This repository has five deliberately separate layers. A file should have one
 responsibility and one lifetime; generated CV prose must never become career truth.
 
 ## Physical storage contract
@@ -8,7 +8,7 @@ responsibility and one lifetime; generated CV prose must never become career tru
 The root separates public product code, canonical memory, editable application work,
 and immutable history. The editable application/build layer is physically grouped
 under `workspace/`; it is not simulated with editor exclusions. `meta/`, `workspace/`,
-and `archive/` remain separate because they have different authority and lifecycles.
+`output/`, and `archive/` remain separate because they have different authority and lifecycles.
 
 The tracked `.vscode/settings.json` keeps the complete tree visible. It contains no
 repository `files.exclude`, `search.exclude`, or watcher exclusions.
@@ -80,7 +80,18 @@ layout work when a proven role-family presentation exists. New JD work still sta
 from the master claims and manifest; `./cv clone <baseline> <company-role>` reuses only
 source layout and ordering, never factual authority.
 
-## 4. Private archive layer (ignored by Git)
+## 4. Private delivery layer (ignored by Git)
+
+| Path | Responsibility |
+|---|---|
+| `output/pdf/<company>/<role>/` | Stable recruiter-facing copies of the validated CV, cover letter, and combined application |
+| `output/pdf/README.md` | Human handoff index with relative links to unsent bundles |
+
+Delivery copies are convenience artifacts, not sources. Never recover claims from
+them or edit them independently of the matching `workspace/profiles/` snapshot and
+application manifest.
+
+## 5. Private archive layer (ignored by Git)
 
 | Path | Responsibility |
 |---|---|

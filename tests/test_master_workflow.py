@@ -160,6 +160,42 @@ class MasterWorkflowTests(unittest.TestCase):
             any("project_link_policy.style" in error for error in result["errors"])
         )
 
+    def test_schema_37_requires_claim_backed_reusable_positioning(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["application_defaults"].pop("reusable_positioning")
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("reusable_positioning" in error for error in result["errors"]))
+
+        data = copy.deepcopy(self.template)
+        data["application_defaults"]["reusable_positioning"][0]["claim_ids"] = [
+            "missing.claim"
+        ]
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("references unknown claim" in error for error in result["errors"]))
+
+    def test_context_exports_only_role_relevant_reusable_positioning(self) -> None:
+        systems_context = build_context(
+            self.template,
+            "Linux operations",
+            "systems",
+            10,
+            False,
+            False,
+        )
+        self.assertIn("owner-operated-infrastructure-boundary", systems_context)
+
+        test_context = build_context(
+            self.template,
+            "system validation",
+            "test",
+            10,
+            False,
+            False,
+        )
+        self.assertNotIn("owner-operated-infrastructure-boundary", test_context)
+
     def test_schema_30_remains_backward_compatible_without_role_positioning(self) -> None:
         data = copy.deepcopy(self.template)
         data["schema_version"] = "3.0"
@@ -264,7 +300,8 @@ class MasterWorkflowTests(unittest.TestCase):
             self.assertTrue((root / "meta" / "baseline_catalog.yaml").is_file())
             self.assertTrue((root / "meta" / "README.md").is_file())
             self.assertIn("Only eligible entries", (root / "meta" / "README.md").read_text())
-            self.assertEqual(14, len(first["created_files"]))
+            self.assertTrue((root / "output" / "pdf" / "README.md").is_file())
+            self.assertEqual(15, len(first["created_files"]))
 
             marker = "owner-private-content\n"
             master = root / "meta" / "master_cv.yaml"
@@ -273,7 +310,7 @@ class MasterWorkflowTests(unittest.TestCase):
 
             self.assertEqual(marker, master.read_text(encoding="utf-8"))
             self.assertEqual([], second["created_files"])
-            self.assertEqual(14, len(second["preserved_files"]))
+            self.assertEqual(15, len(second["preserved_files"]))
 
     def test_workspace_init_rejects_private_symlink_destination(self) -> None:
         with (
@@ -2108,6 +2145,30 @@ class MasterWorkflowTests(unittest.TestCase):
             with self.assertRaisesRegex(
                 ValueError, "inside workspace/profiles/ or meta/chat"
             ):
+                research_plan(root, source, "unsafe", "2026")
+
+    def test_research_archive_migrates_direct_legacy_archive_child(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "archive" / "2026-08-15-conversations"
+            source.mkdir(parents=True)
+            (source / "chat.md").write_text("private chat\n", encoding="utf-8")
+
+            plan = research_plan(root, source, "2026-08-15-conversations", "2026")
+            self.assertEqual(
+                "archive/research/2026/2026-08-15-conversations",
+                plan["destination"],
+            )
+            destination = apply_research_archive(plan)
+            self.assertFalse(source.exists())
+            self.assertEqual("private chat\n", (destination / "chat.md").read_text())
+
+    def test_research_archive_rejects_governed_archive_roots(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "archive" / "applications"
+            source.mkdir(parents=True)
+            with self.assertRaisesRegex(ValueError, "direct legacy child"):
                 research_plan(root, source, "unsafe", "2026")
 
     def test_failed_profile_build_restores_workspace(self) -> None:

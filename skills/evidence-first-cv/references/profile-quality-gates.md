@@ -16,6 +16,10 @@
   graduate CV, the institution and degree must be written out at first mention rather
   than hidden in an acronym or left only at the bottom of the page.
 - Put two or three strongest, directly relevant proof points in the top half.
+- For early-career or stretch applications, confirm that two or three prominent proof
+  points use concrete hands-on actions such as built, integrated, tested, deployed,
+  troubleshot, documented, or operated. Reject generic "fast learner" or "low training
+  cost" prose unless independently measured.
 - Keep stretch skills out unless the JD is explicitly junior/graduate and the gap is
   disclosed.
 - Omit low-signal history that consumes attention without improving fit.

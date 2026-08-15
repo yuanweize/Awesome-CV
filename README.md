@@ -47,9 +47,11 @@ application manifest → human approval → CV + cover letter + bundle audit →
 
 Every exported claim carries a stable ID, exact scope, role tags, evidence
 references, verification status, CV eligibility, and interview-depth confidence.
-Schema 3.6 also records AI/direct delivery mode, personally owned actions, authorship
+Schema 3.7 also records AI/direct delivery mode, personally owned actions, authorship
 boundaries, durable identity anchors, owner-level application deliverables, and a
-durable thesis-repository link policy. A repository may prove a useful product without turning every
+durable thesis-repository link policy. It can export claim-backed reusable positioning
+with role, placement, and use limits so reviewed wording survives model changes without
+becoming a new fact. A repository may prove a useful product without turning every
 language, framework, or source-level term inside it into a candidate skill.
 
 ## Requirements
@@ -85,6 +87,7 @@ idempotent and never overwrites an existing private file:
 | `templates/baseline_catalog.yaml.example` | `meta/baseline_catalog.yaml` |
 | `templates/config.tex.example` | `workspace/current/config.tex` |
 | `templates/letter_config.tex.example` | `workspace/current/letter_config.tex` |
+| `templates/output_pdf_README.md.example` | `output/pdf/README.md` |
 | `templates/sections/*.tex` | `workspace/current/sections/*.tex` |
 
 Open `meta/README.md` for the private directory map. Edit private files only; never
@@ -95,7 +98,7 @@ canonical memory remains in `meta/` and closed history remains in `archive/`. Th
 tracked VS Code settings keep the complete tree visible; no repository path is hidden
 from Explorer. Run `./cv structure` to explain and verify the layout.
 
-初始化后只编辑私有文件。`meta/`、`workspace/`、`archive/`、真实联系方式、PDF 和
+初始化后只编辑私有文件。`meta/`、`workspace/`、`output/`、`archive/`、真实联系方式、PDF 和
 构建产物默认不会进入 Git。空的 `workspace/baselines/`、`workspace/profiles/`、`archive/`、`workspace/build/` 和 `workspace/tmp/` 会由
 初始化器创建，但不会用 `.gitkeep` 提交；这样 Git 永远看不到以后放进去的真实材料。
 

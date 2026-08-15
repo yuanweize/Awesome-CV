@@ -52,6 +52,10 @@ __pycache__/
 # contain private filenames even when they do not contain file contents.
 /archive/
 
+# Private recruiter-facing delivery copies and their local index.
+# Authoritative sources remain under workspace/profiles/.
+/output/
+
 # Server scan reports (private IPs and node info)
 tools/tech-stack-collector/reports/*
 !tools/tech-stack-collector/reports/.gitkeep

@@ -25,6 +25,7 @@ ALLOWED_APPLICATION_PRIORITIES = {"active", "selective", "explore", "paused"}
 ALLOWED_APPLICATION_DELIVERABLES = {"cv", "cover_letter"}
 ALLOWED_THESIS_REPOSITORY_POLICIES = {"required_when_public", "preferred_when_public", "omit"}
 ALLOWED_PROJECT_LINK_STYLES = {"canonical_project_link"}
+ALLOWED_POSITIONING_PLACEMENTS = {"cover_letter", "interview"}
 ALLOWED_DELIVERY_MODES = {"direct", "ai_assisted", "mixed", "not_applicable"}
 ALLOWED_OWNER_ACTIONS = {
     "requirements",
@@ -230,6 +231,10 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         version_match
         and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 6)
     )
+    governed_reusable_positioning = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 7)
+    )
     if not is_v3:
         warnings.append(
             "Legacy master database: add schema_version 3.x, role_families, "
@@ -396,6 +401,21 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                     "application_defaults.project_link_policy.style must be one of: "
                     + ", ".join(sorted(ALLOWED_PROJECT_LINK_STYLES))
                 )
+        reusable_positioning = application_defaults.get("reusable_positioning")
+        if governed_reusable_positioning and (
+            not isinstance(reusable_positioning, list) or not reusable_positioning
+        ):
+            errors.append(
+                "application_defaults.reusable_positioning must be a non-empty list for schema 3.7+"
+            )
+            reusable_positioning = []
+        elif reusable_positioning is None:
+            reusable_positioning = []
+        elif not isinstance(reusable_positioning, list):
+            errors.append("application_defaults.reusable_positioning must be a list")
+            reusable_positioning = []
+    else:
+        reusable_positioning = []
 
     evidence_items = data.get("evidence_registry", [])
     if is_v3 and (not isinstance(evidence_items, list) or not evidence_items):
@@ -585,6 +605,58 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                 warnings.append(
                     f"{claim_id} has personal scope but the statement does not label it personal/open-source"
                 )
+
+    seen_positioning_ids: set[str] = set()
+    for index, item in enumerate(reusable_positioning, 1):
+        prefix = f"application_defaults.reusable_positioning[{index}]"
+        if not isinstance(item, dict):
+            errors.append(f"{prefix} must be a mapping")
+            continue
+        positioning_id = item.get("id")
+        _validate_identifier(positioning_id, f"{prefix}.id", errors)
+        if positioning_id in seen_positioning_ids:
+            errors.append(f"duplicate reusable positioning ID: {positioning_id}")
+        elif _is_nonempty_string(positioning_id):
+            seen_positioning_ids.add(positioning_id)
+        for field in ("text", "usage"):
+            if not _is_nonempty_string(item.get(field)):
+                errors.append(f"{prefix}.{field} is required")
+        role_ids = item.get("role_families")
+        if not _list_of_strings(role_ids):
+            errors.append(f"{prefix}.role_families must be a non-empty list of strings")
+        else:
+            _validate_unique_strings(role_ids, f"{prefix}.role_families", errors)
+            for role_id in role_ids:
+                if role_id not in role_families:
+                    errors.append(f"{prefix} references unknown role family: {role_id}")
+        positioning_claim_ids = item.get("claim_ids")
+        if not _list_of_strings(positioning_claim_ids):
+            errors.append(f"{prefix}.claim_ids must be a non-empty list of IDs")
+        else:
+            _validate_unique_strings(positioning_claim_ids, f"{prefix}.claim_ids", errors)
+            for claim_id in positioning_claim_ids:
+                claim = claims_by_id.get(claim_id)
+                if claim is None:
+                    errors.append(f"{prefix} references unknown claim: {claim_id}")
+                elif claim.get("cv_eligible") is not True or claim.get("status") not in {
+                    "verified",
+                    "self_reported",
+                }:
+                    errors.append(f"{prefix} references a claim that is not CV-eligible: {claim_id}")
+        placements = item.get("placements")
+        if not _list_of_strings(placements):
+            errors.append(f"{prefix}.placements must be a non-empty list of strings")
+        else:
+            _validate_unique_strings(placements, f"{prefix}.placements", errors)
+            unknown_placements = sorted(set(placements) - ALLOWED_POSITIONING_PLACEMENTS)
+            if unknown_placements:
+                errors.append(
+                    f"{prefix}.placements has unknown values: "
+                    + ", ".join(unknown_placements)
+                )
+        max_uses = item.get("max_uses_per_application")
+        if not isinstance(max_uses, int) or isinstance(max_uses, bool) or max_uses < 1:
+            errors.append(f"{prefix}.max_uses_per_application must be a positive integer")
 
     identity_anchors = data.get("identity_anchors")
     if governed_identity and (

@@ -142,6 +142,19 @@ existing claims instead of creating duplicates, validate the master after every 
 and briefly tell the user which claim, preference, or boundary changed. This loop runs
 again after answers to application questions and after interview feedback.
 
+When a reviewed sentence should survive model or agent changes, store it under
+`application_defaults.reusable_positioning` rather than as a factual claim. Require
+eligible backing claim IDs, explicit role families and placements, and a use limit;
+the exporter must keep it optional and role-bounded.
+
+When feedback follows a rejection, preserve three separate layers: the employer's
+explicit words, bounded inference about the funnel stage, and the next measurable
+change. Never convert comparative feedback into a newly invented technical failure.
+For feedback that favours candidates with more team or similar-environment experience,
+do not manufacture enterprise scope or make the CV defensive. Put concrete hands-on
+proof high in the next application, state the remaining enterprise boundary once where
+it helps, and propose a real team-evidence action such as a reviewed contribution.
+
 ## Govern the public portfolio
 
 1. Capture a dated discovery inventory with `./cv github-audit`.
@@ -219,6 +232,12 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    `required_when_public`, place the repository URL directly in the thesis/project entry.
    Use `\cvgithubrepo{owner/repo}` for GitHub or `\cvprojectlink{URL}{label}` elsewhere;
    never assume a recruiter will search for a repository that the CV omits.
+   For early-career or stretch applications, run a hands-on proof pass before accepting
+   the draft: ensure that two or three prominent claims show specific build, integrate,
+   test, deploy, troubleshoot, document, or operate actions. Do not write "fast learner"
+   or "low training cost" as a substitute. Express the evidenced learning loop and let
+   the employer infer onboarding leverage; never claim measured ramp-up or training-cost
+   reduction without employer evidence.
 9. Map every final bullet to claim IDs in the private manifest; never show IDs in
    visible résumé prose. Run strict validation:
 

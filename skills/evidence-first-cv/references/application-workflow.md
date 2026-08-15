@@ -24,18 +24,22 @@
 8. Review every exported direct skill group. Record include/omit decisions for useful
    transferable or bonus capabilities in `capability_review`; do not let a specific
    capability disappear behind a generic project label.
-9. Show the decision brief and wait for human confirmation.
-10. Classify the user's confirmation and answers through the continuous memory loop:
+9. For an early-career or stretch application, run a hands-on proof pass. Identify two
+   or three selected claims that visibly prove concrete build, integration, testing,
+   deployment, troubleshooting, documentation, or operation. If none exist, keep the
+   gap explicit rather than substituting personality adjectives.
+10. Show the decision brief and wait for human confirmation.
+11. Classify the user's confirmation and answers through the continuous memory loop:
     persist durable claims, preferences, and boundaries in the master; keep JD-specific
     motivation in the manifest; then revalidate and regenerate context when selection changes.
-11. Draft every declared deliverable. Include a three-to-five-row evidence-bound CV
+12. Draft every declared deliverable. Include a three-to-five-row evidence-bound CV
     Skills section and map cover-letter factual paragraphs to claims.
-12. Strictly validate the manifest, build, run the per-document PDF layout audit and
+13. Strictly validate the manifest, build, run the per-document PDF layout audit and
     bundle audit, extract text, render, and inspect both documents.
-13. Record the application and claim IDs in the ledger only after it is sent.
-14. Update stages and notes after every external event.
-15. Use funnel summary to choose targeting, narrative, training, or negotiation work.
-16. After a terminal outcome, move the snapshot to the verified private archive.
+14. Record the application and claim IDs in the ledger only after it is sent.
+15. Update stages and notes after every external event.
+16. Use funnel summary to choose targeting, narrative, training, or negotiation work.
+17. After a terminal outcome, move the snapshot to the verified private archive.
 
 ## Identity review: tailoring without erasure
 
@@ -96,6 +100,9 @@ Claims describe the candidate; application files describe the opportunity.
 - Clone it for a live JD; do not mutate the base during tailoring.
 - Do not keep dozens of static profiles as memory.
 - PDFs are outputs and may be regenerated; claim IDs and evidence are durable.
+- Keep authoritative PDFs with the application profile. Copy only validated recruiter
+  handoff files to `output/pdf/<company>/<role>/`, update the relative-link index, and
+  never use a delivery copy as source text for a later application.
 - Use the archive dry-run and SHA-256 manifest before moving or deduplicating history.
 
 ## Funnel stages
@@ -108,3 +115,16 @@ hard-coded number of days.
 
 Record facts, not emotional interpretations. A rejection does not prove which
 claim failed unless feedback or repeated patterns support that conclusion.
+
+For rejection feedback, record and act on three layers separately:
+
+1. **Explicit:** what the employer actually said and at which funnel stage.
+2. **Inference:** the narrowest reasonable implication, labelled as inference.
+3. **Action:** a measurable targeting, evidence, narrative, or training change.
+
+If an employer chooses candidates with more extensive team or similar-environment
+experience, treat that as a comparative experience signal. Do not rewrite it as a
+technical failure, and do not invent enterprise employment to close the gap. Improve
+the next application by leading with role-relevant hands-on actions and by building
+real team evidence through reviewed issues, pull requests, code review, or a bounded
+collaborative project.

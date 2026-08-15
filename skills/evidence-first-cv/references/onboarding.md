@@ -19,7 +19,9 @@ Run once from the repository root:
 - `meta/README.md`, a local map of the ignored runtime layer;
 - `meta/applications/`, `meta/evidence/`, `meta/inventory/`, and `meta/audits/`;
 - the current private LaTeX files under `workspace/current/`;
-- empty `workspace/baselines/`, `workspace/profiles/`, `archive/applications/`, `archive/research/`, `workspace/build/`, and `workspace/tmp/` paths.
+- empty `workspace/baselines/`, `workspace/profiles/`, `archive/applications/`,
+  `archive/research/`, `workspace/build/`, `workspace/tmp/`, and `output/pdf/` paths;
+  `output/pdf/README.md` is copied as the private delivery index.
 
 The command is idempotent and never overwrites an existing private file. It rejects
 symbolic-link destinations so a template cannot escape the workspace.
@@ -28,6 +30,8 @@ symbolic-link destinations so a template cannot escape the workspace.
 
 The private application/build layer is physically grouped under `workspace/`: current
 source, editable profiles, reusable baselines, generated output, and temporary files.
+Recruiter-facing copies live only under `output/pdf/<company>/<role>/`; their matching
+profile and manifest remain authoritative.
 The repository's `.vscode/settings.json` does not hide these paths; the complete
 structure remains visible in Explorer.
 

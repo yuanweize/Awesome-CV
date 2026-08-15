@@ -1,0 +1,9 @@
+# PDF delivery index
+
+This ignored directory is the stable handoff entry point for recruiter-facing PDF
+copies. Keep one `company/role/` directory per application. The authoritative TeX,
+manifest, and built artifacts remain under `workspace/profiles/`; delivery copies are
+never factual input for later CV drafting.
+
+List current unsent bundles here with relative links. When a portal accepts one file,
+use the combined application; otherwise attach the separate CV and cover letter.

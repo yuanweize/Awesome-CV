@@ -30,6 +30,7 @@ PUBLIC_PATHS = (
 PRIVATE_IGNORE_RULES = (
     "/archive/",
     "/meta/",
+    "/output/",
     "/workspace/",
 )
 
@@ -38,6 +39,8 @@ PRIVATE_IGNORE_RULES = (
 VISIBLE_PATHS = (
     "archive",
     "meta",
+    "output",
+    "output/pdf",
     "workspace",
     "workspace/current",
     "workspace/profiles",
@@ -50,6 +53,7 @@ HUMAN_SURFACE = (
     "README.md",
     "meta/master_cv.yaml",
     "meta/applications",
+    "output/pdf/README.md",
     "workspace/current/sections",
     "workspace/profiles",
     "cv",
