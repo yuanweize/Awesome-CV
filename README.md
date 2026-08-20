@@ -538,9 +538,8 @@ example PDFs on pushes to `main`. CI never requires private working data.
 
 The visual class is derived from
 [posquit0/Awesome-CV](https://github.com/posquit0/Awesome-CV). The
-`upstream-original` branch tracks an automated snapshot of the original project
-for comparison. Upstream workflow-file changes are intentionally excluded because
-GitHub's built-in Actions token cannot publish them; `.github/upstream-sync-state`
-records the upstream revision represented by each snapshot.
+`upstream-original` branch is retained as a static historical reference. This
+repository is independently maintained and does not automatically merge or sync
+upstream changes; relevant upstream fixes should be reviewed and adopted manually.
 
 Distributed under the [LaTeX Project Public License 1.3c](LICENCE).
