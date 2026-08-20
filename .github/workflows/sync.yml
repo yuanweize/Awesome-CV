@@ -26,16 +26,58 @@ jobs:
 
     - name: Sync upstream changes
       run: |
+        set -euo pipefail
+
         git remote add upstream https://github.com/posquit0/Awesome-CV.git
         git fetch upstream master
 
-        LOCAL=$(git rev-parse HEAD)
-        UPSTREAM=$(git rev-parse upstream/master)
+        state_file=.github/upstream-sync-state
+        current_sha=$(git rev-parse HEAD)
+        upstream_sha=$(git rev-parse upstream/master)
 
-        if [ "$LOCAL" = "$UPSTREAM" ]; then
-          echo "Already up to date."
+        if [ -f "$state_file" ]; then
+          last_synced_sha=$(tr -d '\n' < "$state_file")
         else
-          git merge --ff-only upstream/master
-          git push origin HEAD:upstream-original
-          echo "Synced new commits from upstream."
+          last_synced_sha=$current_sha
         fi
+
+        if ! git merge-base --is-ancestor "$last_synced_sha" "$upstream_sha"; then
+          echo "Recorded upstream state is not an ancestor of upstream/master." >&2
+          exit 1
+        fi
+
+        if [ "$last_synced_sha" = "$upstream_sha" ]; then
+          echo "Already up to date."
+          exit 0
+        fi
+
+        # GITHUB_TOKEN cannot push upstream changes to workflow files. Apply the
+        # remaining upstream diff and record the inspected upstream revision so
+        # the same workflow-only update is not retried every day.
+        patch_file="$RUNNER_TEMP/upstream-non-workflow.patch"
+        git diff --binary "$last_synced_sha" "$upstream_sha" -- \
+          . ':(exclude).github/workflows/**' > "$patch_file"
+
+        if [ -s "$patch_file" ]; then
+          git apply --index "$patch_file"
+        fi
+
+        mkdir -p "$(dirname "$state_file")"
+        printf '%s\n' "$upstream_sha" > "$state_file"
+        git add "$state_file"
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git commit -m "chore: sync upstream snapshot"
+        git push origin HEAD:upstream-original
+
+        if ! git diff --quiet "$last_synced_sha" "$upstream_sha" -- .github/workflows; then
+          echo "::warning::Upstream workflow changes were intentionally excluded because GITHUB_TOKEN cannot publish them."
+          {
+            echo "### Upstream workflow changes excluded"
+            echo
+            echo "The mirror advanced to \`$upstream_sha\`, but kept its existing \`.github/workflows/\` files."
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+        echo "Synced upstream snapshot to $upstream_sha."
