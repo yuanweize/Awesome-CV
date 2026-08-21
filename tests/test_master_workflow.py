@@ -184,7 +184,7 @@ class MasterWorkflowTests(unittest.TestCase):
             False,
             False,
         )
-        self.assertIn("owner-operated-infrastructure-boundary", systems_context)
+        self.assertIn("owner-operated-operational-foundation", systems_context)
 
         test_context = build_context(
             self.template,
@@ -194,7 +194,7 @@ class MasterWorkflowTests(unittest.TestCase):
             False,
             False,
         )
-        self.assertNotIn("owner-operated-infrastructure-boundary", test_context)
+        self.assertNotIn("owner-operated-operational-foundation", test_context)
 
     def test_schema_30_remains_backward_compatible_without_role_positioning(self) -> None:
         data = copy.deepcopy(self.template)

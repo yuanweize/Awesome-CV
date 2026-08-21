@@ -75,7 +75,7 @@ capability_review:
     placement: projects
   - claim_id: personal.lab-operation
     decision: include
-    reason: "Personal systems operation is relevant when its non-enterprise boundary stays explicit."
+    reason: "Personal systems operation is relevant when its owner-operated scope stays accurate."
     placement: experience
 final_bullets:
 - id: bullet.summary.degree

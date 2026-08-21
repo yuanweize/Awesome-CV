@@ -41,7 +41,8 @@ other compared application manifest.
    or resiliency requirements, preserve direct personal backup, self-hosting,
    monitoring, or failover evidence, then record formal restore testing, HA ownership,
    enterprise scale, or RTO/RPO as the remaining boundary. Do not turn “not enterprise”
-   into “never performed”.
+   into “never performed”. These gaps are private analysis by default, not a required
+   paragraph in the CV or cover letter.
 7. Independently review `identity_anchors` and select one to three durable signals.
    Record each reason and placement. For graduate and early-career applications,
    spell out the institution, faculty, and degree in the top third.
@@ -54,7 +55,8 @@ other compared application manifest.
 10. For an early-career or stretch application, run a hands-on proof pass. Identify two
    or three selected claims that visibly prove concrete build, integration, testing,
    deployment, troubleshooting, documentation, or operation. If none exist, keep the
-   gap explicit rather than substituting personality adjectives.
+   gap explicit in the private manifest rather than substituting personality adjectives
+   or publishing a self-rejection paragraph.
 11. Show the decision brief and wait for human confirmation.
 12. Classify the user's confirmation and answers through the continuous memory loop:
     persist durable claims, preferences, and boundaries in the master; keep JD-specific
@@ -152,6 +154,7 @@ For rejection feedback, record and act on three layers separately:
 If an employer chooses candidates with more extensive team or similar-environment
 experience, treat that as a comparative experience signal. Do not rewrite it as a
 technical failure, and do not invent enterprise employment to close the gap. Improve
-the next application by leading with role-relevant hands-on actions and by building
-real team evidence through reviewed issues, pull requests, code review, or a bounded
-collaborative project.
+the next application by leading with role-relevant hands-on actions and any already
+evidenced field, contractor, customer, operator-training, or project collaboration.
+Then build deeper team evidence through reviewed issues, pull requests, code review,
+or a bounded collaborative project.

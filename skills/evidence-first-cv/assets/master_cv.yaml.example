@@ -54,17 +54,17 @@ application_defaults:
     thesis_repository: required_when_public
     style: canonical_project_link
   reusable_positioning:
-  - id: owner-operated-infrastructure-boundary
+  - id: owner-operated-operational-foundation
     text: >-
-      My infrastructure experience is owner-operated rather than enterprise platform
-      ownership, but it is practical.
+      I maintain an owner-operated Linux environment and turn recurring operational
+      needs into documented, reviewable automation.
     role_families: [systems]
     claim_ids: [personal.lab-operation]
     placements: [cover_letter, interview]
     max_uses_per_application: 1
     usage: >-
-      Use once only when the enterprise boundary is material, then lead with the
-      specific operation and troubleshooting evidence in the supporting claim.
+      Use where independent operation and practical ownership matter. Preserve the
+      owner-operated scope without contrasting it against missing enterprise experience.
 
 # Durable, evidence-bound facts that should survive JD tailoring. The drafting
 # agent selects only one to three per application and records their placement.

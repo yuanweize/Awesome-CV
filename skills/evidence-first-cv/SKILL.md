@@ -152,8 +152,10 @@ explicit words, bounded inference about the funnel stage, and the next measurabl
 change. Never convert comparative feedback into a newly invented technical failure.
 For feedback that favours candidates with more team or similar-environment experience,
 do not manufacture enterprise scope or make the CV defensive. Put concrete hands-on
-proof high in the next application, state the remaining enterprise boundary once where
-it helps, and propose a real team-evidence action such as a reviewed contribution.
+proof and existing collaboration high in the next application. Keep the remaining
+enterprise boundary explicit in the private manifest; mention it to a recruiter only
+when directly asked or when omission would create a concrete misleading inference.
+Propose a real team-evidence action such as a reviewed contribution for future depth.
 
 ## Govern the public portfolio
 
@@ -270,7 +272,10 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    intelligence layer.
 14. When `cover_letter` is a declared deliverable, treat it as required rather than
    optional polish. Map its factual paragraphs to selected claim IDs, use it to explain
-   motivation, transfer, and boundaries that do not fit the CV, and never send the generic template.
+   motivation and transfer, and never send the generic template. Do not volunteer a
+   gap inventory or rejection argument. Keep boundaries private by default; state one
+   only when the application explicitly asks, a legal/work-authorisation answer requires
+   it, or omission would otherwise make a factual sentence misleading.
 
 If the repository has `AGENTS.md`, treat it as routing metadata rather than
 career evidence. Never infer candidate facts from agent instructions.

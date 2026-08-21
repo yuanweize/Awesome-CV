@@ -41,9 +41,17 @@ Narrow the claim when any answer is vague.
   evidence-bound learning loop: unfamiliar topic, owned action, reviewable artifact,
   validation, and bounded operation. Let the employer infer onboarding leverage unless
   measured ramp-up or training cost is independently verified.
-- Acknowledge a material enterprise or team-experience boundary once in a cover letter
-  or interview answer when it improves trust. Do not repeat it in the headline, skills,
-  and bullets, and do not let the disclaimer displace hands-on evidence.
+- Keep every material enterprise, team, seniority, and tool boundary explicit in the
+  private manifest and interview preparation. Do not volunteer a catalogue of missing
+  experience in a CV or cover letter. Recruiter-facing materials are selective, not an
+  affidavit of every gap: lead with the closest true evidence and let the employer assess
+  the remaining distance. State a boundary only when directly asked, legally required,
+  or necessary to prevent a concrete misleading inference; then answer truthfully and
+  bridge immediately to the closest evidence.
+- Use positive scope markers such as `owner-operated`, `academic`, `intermittent field
+  assignment`, `assigned validation`, and `cross-border collaboration`. Never use this
+  policy to fabricate enterprise production, staff leadership, years, tools, scale, or
+  outcomes. Independent ownership may prove autonomy; it does not prove people management.
 - Treat `application_defaults.reusable_positioning` as optional governed prose, not
   a claim. Use it only for a listed role family and placement, map every backing claim
   ID in the manifest, obey its per-application limit, and omit it when immaterial.
@@ -117,16 +125,17 @@ not permission to dump an infrastructure inventory.
 
 - Follow declared deliverables; when `cover_letter` is selected, it is part of the
   application package, not an optional afterthought.
-- Complement the CV: explain motivation, credible transfer, boundaries, or one useful
-  bonus capability instead of repeating every bullet.
+- Complement the CV: explain motivation, credible transfer, and one useful bonus
+  capability instead of repeating every bullet or listing unfulfilled requirements.
 - Keep two to six concise factual paragraphs and map each to selected claim IDs.
 - Use the same identity anchor and visual system as the CV, while preserving the exact
   employer, recipient, title, and date.
 - Never send generic template prose or imply that adjacent evidence closes a stated gap.
-- For early-career stretch applications, a useful transfer paragraph may pair one
-  honest enterprise-experience boundary with two concrete self-directed delivery
-  examples and a realistic statement about how the candidate becomes effective. Avoid
-  pleading language or unsupported promises of minimal onboarding.
+- For early-career stretch applications, build the transfer paragraph from two concrete
+  hands-on or collaborative examples and a realistic statement about how the candidate
+  would contribute and deepen the target stack. Preserve exact scope without leading
+  with what the candidate lacks. Avoid pleading language or unsupported promises of
+  minimal onboarding.
 
 ## Requirement mapping
 

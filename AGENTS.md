@@ -10,6 +10,12 @@ old profile, generated draft, chat transcript, or server inventory as factual au
 Use `./cv legacy-audit` for whole-history candidate discovery, then require independent
 evidence or fresh owner confirmation before adding an eligible claim.
 
+Keep requirement gaps and experience boundaries explicit in the private manifest, but
+do not turn recruiter-facing CVs or cover letters into a list of missing experience.
+Lead with the closest true evidence, collaboration, ownership, and transferable scope.
+Never fabricate enterprise production, people leadership, years, tools, or outcomes;
+when directly asked about a gap, answer truthfully and bridge to the closest evidence.
+
 Keep `meta/`, `workspace/`, `archive/`, PDFs, job descriptions, and evidence private.
 Run the privacy checker before
 staging and after staging.

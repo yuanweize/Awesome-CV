@@ -21,7 +21,7 @@
   troubleshot, documented, or operated. Reject generic "fast learner" or "low training
   cost" prose unless independently measured.
 - Keep stretch skills out unless the JD is explicitly junior/graduate and the gap is
-  disclosed.
+  documented privately; recruiter-facing prose must not imply direct use.
 - Omit low-signal history that consumes attention without improving fit.
 - Allow at most two approved adjacent differentiators and keep them out of the target
   title, lead summary, and first proof points. Reject any that cannot state a concrete
@@ -69,6 +69,9 @@ on successful compilation as visual proof.
 - Follow the requested channel and length literally.
 - If asked for email answers, answer in the email.
 - Do not attach a designed report when one-liners were requested.
+- Reject recruiter-facing gap inventories, defensive disclaimers, and sentences that
+  argue against the candidate. Preserve boundaries through accurate positive scope;
+  disclose them only when directly asked or needed to prevent a misleading claim.
 - Do not add screenshots, sensitive infrastructure details, political context, future
   business plans, or an AI manifesto.
 

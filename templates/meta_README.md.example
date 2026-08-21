@@ -50,5 +50,5 @@ shared canonical project-link helper.
 
 Schema 3.7 may also define `application_defaults.reusable_positioning`. Each phrase
 must cite eligible claim IDs, name allowed role families and placements, and carry a
-per-application use limit. This preserves reviewed boundary wording across agents
-without turning prose into a new fact.
+per-application use limit. This preserves reviewed recruiter positioning across agents
+without turning prose into a new fact or encouraging a public gap inventory.
