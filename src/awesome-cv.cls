@@ -78,9 +78,9 @@
 % Needed to use icons from font-awesome
 \RequirePackage{fontawesome6}
 \RequirePackage{accsupp}
-\defaultfontfeatures{
-  Renderer=HarfBuzz,
-}
+% Keep LuaTeX's default font renderer. With the HarfBuzz renderer, the static
+% Source Sans files map an ordinary ASCII hyphen to U+00AD in PDF text
+% extraction, which breaks ATS tokenisation for terms such as hands-on.
 % Use SourceSans3 or Roboto from TeX Live (widely available)
 \IfFontExistsTF{SourceSans3}{
   \setmainfont{SourceSans3}[

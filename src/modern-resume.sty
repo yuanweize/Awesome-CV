@@ -65,6 +65,14 @@
 \hypersetup{colorlinks=true,urlcolor=modernNavy,linkcolor=modernNavy}
 \urlstyle{same}
 
+% ATS text extraction must not contain discretionary soft hyphens. Accept the
+% unhyphenated line-breaking pass and provide a small amount of emergency stretch
+% before TeX considers protruding text. Explicit source hyphens remain printable.
+\pretolerance=10000
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=1.5em
+
 % Project links shown as entry metadata should be quieter than navigation in
 % the header. These helpers keep GitHub and other repository links clickable,
 % typographically consistent, and safe for characters such as underscores.

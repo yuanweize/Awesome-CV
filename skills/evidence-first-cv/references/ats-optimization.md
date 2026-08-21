@@ -53,7 +53,10 @@ otherwise:
 - standard, explicit section headings such as `Profile` or `Professional Summary`,
   `Technical Skills` or `Skills`, `Work Experience` or `Experience`, `Selected Projects`,
   and `Education`;
-- Work Experience and Selected Projects remain distinct when both are present;
+- an early-career CV may use the standard umbrella heading `Relevant Experience` when it
+  intentionally combines clearly scoped contractor, academic, personal, and open-source
+  evidence. When substantial professional history and a separate project portfolio are
+  both present, keep `Work Experience` and `Selected Projects` distinct;
 - ordinary selectable text, embedded Unicode-mapped fonts, and no replacement characters,
   soft hyphens, decorative ligatures that alter extraction, or important icon-only labels;
 - simple bullets, restrained colour, left-aligned hierarchy, and no semantic tables or

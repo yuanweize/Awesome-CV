@@ -57,10 +57,13 @@ visible line in the top identity/contact block. It must be labelled in text, sur
 extraction, and must not exist only in the summary, footer, iconography, or an image.
 Missing or paraphrased text is a failed bundle audit.
 
-Work Experience and Selected Projects must be distinct when both are used. A visually
-single-column page built from semantic tables still fails when extraction order crosses
-fields. Do not record `quality.ats_text_check: passed` until the final artifact, not just
-the source, has passed these checks.
+Use `Relevant Experience` as a standard umbrella only for an intentionally integrated
+early-career evidence section whose entries visibly preserve contractor, academic,
+personal, or open-source scope. When substantial professional history and a separate
+project portfolio are both present, keep `Work Experience` and `Selected Projects`
+distinct. A visually single-column page built from semantic tables still fails when
+extraction order crosses fields. Do not record `quality.ats_text_check: passed` until the
+final artifact, not just the source, has passed these checks.
 
 ## Visual/PDF check
 

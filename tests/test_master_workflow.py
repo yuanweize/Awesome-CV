@@ -115,6 +115,49 @@ Czech Technical University in Prague
         result = audit_ats_text(text, text, document_kind="cover_letter")
         self.assertEqual([], result["errors"])
 
+    @unittest.skipUnless(
+        shutil.which("lualatex") and shutil.which("pdftotext"),
+        "LuaLaTeX and Poppler are required for the PDF extraction regression test",
+    )
+    def test_latex_font_renderer_preserves_ascii_hyphens(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            temp = Path(directory)
+            source = temp / "hyphen-test.tex"
+            source.write_text(
+                "\\documentclass[11pt,a4paper]{awesome-cv}\n"
+                "\\begin{document}\n"
+                "T-Mobile hands-on FastAPI-based\n"
+                "\\end{document}\n",
+                encoding="utf-8",
+            )
+            env = os.environ.copy()
+            env["TEXINPUTS"] = f"{ROOT / 'src'}:{ROOT}:"
+            env["TEXMFVAR"] = str(temp / "texmf-var")
+            env["TEXMFCONFIG"] = str(temp / "texmf-config")
+            env["TEXMFCACHE"] = env["TEXMFVAR"]
+            subprocess.run(
+                [
+                    "lualatex",
+                    "-interaction=nonstopmode",
+                    "-halt-on-error",
+                    f"-output-directory={temp}",
+                    str(source),
+                ],
+                cwd=ROOT,
+                env=env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            extracted = subprocess.run(
+                ["pdftotext", str(temp / "hyphen-test.pdf"), "-"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+            self.assertIn("T-Mobile hands-on FastAPI-based", extracted)
+            self.assertNotIn("\u00ad", extracted)
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.template_path = ROOT / "templates" / "master_cv.yaml.example"
