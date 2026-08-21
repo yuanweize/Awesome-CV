@@ -25,6 +25,8 @@ privacy, and outcome tracking.
 - Generate a small JD-specific context instead of loading the full master into AI.
 - Treat profiles as optional build snapshots, not the source of truth.
 - Move closed application snapshots to a private, verified archive; never delete history by default.
+- Treat a reapplication as a new application event: preserve the prior sent snapshot and
+  PDFs, create a new application ID/profile/manifest, and live-verify the vacancy again.
 - Move interview research and chat exports separately with `archive_research.py` so application source stays small.
 - Store application events in the private ledger; do not rewrite facts to explain rejection.
 
@@ -337,16 +339,31 @@ outcome distinct from `rejected` and `withdrawn`, and the profile may then be ar
 Creating a draft does not mean it was submitted. Update the ledger to `applied`
 only when the user explicitly says the application was sent.
 
+When the owner gives a batch-level confirmation such as “all actionable prepared
+applications were submitted,” reconcile the concrete batch immediately: enumerate the
+prepared roles that still had a usable application route, update each manifest to `sent`,
+and add or update each ledger record to `applied`. Preserve deliberately excluded,
+closed, same-employer backup, language-blocked, or otherwise non-actionable profiles as
+not submitted. Do not infer “not sent” merely because a profile exists, a manifest still
+says `validated`, or a ledger record was missed; report any remaining ambiguity by role.
+
 If the owner corrects a claim after submission, keep the sent artifact unchanged,
 move the manifest to `sent`, and record the correction under
 `post_submission_corrections`. Do not let history force a deprecated claim back into
 future eligibility.
+
+For a reapplication or full delivery refresh, follow the dedicated reapplication rules
+in `references/application-workflow.md`. Never overwrite a sent profile, manifest, or
+PDF in place. Keep recently submitted same-requisition bundles distinct from applications
+that are genuinely ready to resend, and do not mark either as sent without owner confirmation.
 
 ## Non-negotiable guardrails
 
 - Do not invent facts, metrics, dates, employers, tools, ownership, or scale.
 - Do not turn personal/homelab work into enterprise production experience.
 - Do not turn adjacent exposure into direct product-development experience.
+- Do not lead recruiter-facing prose with missing-experience disclaimers or a catalogue
+  of gaps. Preserve those boundaries privately and lead with the closest true evidence.
 - Do not list pending, planned, expired, or tutorial-only items as current skills.
 - Do not proactively advertise AI assistance in the résumé.
 - Do not expose contact data to AI unless required; exporter excludes it by default.

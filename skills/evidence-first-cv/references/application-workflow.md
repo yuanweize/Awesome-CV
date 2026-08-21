@@ -70,6 +70,46 @@ other compared application manifest.
 17. Use funnel summary to choose targeting, narrative, training, or negotiation work.
 18. After a terminal outcome, move the snapshot to the verified private archive.
 
+A batch-level owner confirmation is valid submission evidence, but it must be reconciled
+role by role in the same operation. Update the affected manifests to `sent` and ledger
+records to `applied`; separate roles that were closed, deliberately excluded, retained as
+same-employer backups, blocked by language or eligibility, or lacked a usable application
+route. A missing ledger record or a stale `validated` stage is a synchronization defect,
+not proof that the application was never submitted.
+
+## Reapplication and delivery refresh
+
+A reapplication is a new application event, not an edit to the historical submission.
+Before drafting or publishing a refreshed bundle:
+
+1. Recheck the employer's live board or official ATS and record the verification date,
+   official source, application route, and any explicit language or eligibility gate.
+2. Preserve every previously sent profile, manifest, CV, cover letter, and combined PDF.
+   Run the archive dry-run, create a per-file SHA-256 manifest, verify the moved files,
+   and never overwrite or silently deduplicate the sent snapshot.
+3. Create a new application ID, manifest, and profile. Map only eligible master claims;
+   an old application can supply layout context but is not factual authority.
+4. Rebuild every declared deliverable and repeat strict manifest, text, page-count,
+   visual-render, and bundle checks. A changed source file is not a refreshed delivery
+   until the PDFs and their recorded hashes have been regenerated and verified.
+5. Publish only current handoff files under `output/pdf/<company>/<role>/`: CV, cover
+   letter, combined application, and a role README. The README must include the official
+   apply/source link, saved JD and manifest links, availability verification date,
+   language note, concise match assessment, recommended action, and prior archive link.
+   Keep a root index and batch action guide so another model or the owner can distinguish
+   current delivery from history.
+6. Separate `apply now` from `follow up or wait`. If the identical requisition was
+   submitted recently, prepare the refreshed package but recommend an update/follow-up
+   first; resend only after a material interval, a refreshed requisition, or an explicit
+   owner decision. This protects the application record without blocking the owner's choice.
+7. Keep every rebuilt manifest at `approved` until all final audits pass. Move it to
+   `validated` only after those checks, and to `sent` only after the owner confirms the
+   actual external submission role by role or with a reconcilable batch statement.
+
+Closed vacancies, dead application routes, and roles with an explicit disqualifying
+language or eligibility requirement stay out of the current send queue. Retain the
+archived evidence and record the exclusion reason; do not delete or disguise it.
+
 ## Identity review: tailoring without erasure
 
 The role family controls emphasis; identity anchors preserve the recognisable person.
@@ -133,6 +173,8 @@ Claims describe the candidate; application files describe the opportunity.
   handoff files to `output/pdf/<company>/<role>/`, update the relative-link index, and
   never use a delivery copy as source text for a later application.
 - Use the archive dry-run and SHA-256 manifest before moving or deduplicating history.
+- For a reapplication, link the new role README to the archived prior snapshot and keep
+  the delivery directory limited to current handoff artifacts plus its README.
 
 ## Funnel stages
 

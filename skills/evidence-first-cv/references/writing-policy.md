@@ -37,6 +37,11 @@ Narrow the claim when any answer is vague.
   group must map to selected claim IDs; keep direct-role groups first.
 - Omit old/weak facts instead of filling space.
 - Avoid slogans, self-ratings, keyword dumps, and defensive disclaimers.
+- Avoid negative-first recruiter prose such as `I have not`, `not yet`, `rather than
+  enterprise`, `rather than formal`, `would not present`, or `remains a stretch`, and
+  avoid paragraphs that catalogue missing tools. These phrases belong, if useful, in
+  private gap analysis or a truthful direct answer. In the CV and cover letter, begin
+  with the nearest verified action, scope, collaboration, or transferable result.
 - Replace "fast learner", "low training cost", and "productive from day one" with an
   evidence-bound learning loop: unfamiliar topic, owned action, reviewable artifact,
   validation, and bounded operation. Let the employer infer onboarding leverage unless
