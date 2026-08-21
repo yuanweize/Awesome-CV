@@ -31,3 +31,17 @@ is present, ask for it. After receiving the JD, create the private application w
 map requirements to claims, and show a compact recommendation with at most three
 material questions. Wait for a simple user confirmation before drafting. Validate the
 final application manifest and PDF; do not mark it `applied` until the user says it was sent.
+
+Re-reason every application from the complete JD. Career/search priorities and role
+families help discovery and bound evidence; they are not a whitelist. A prior profile or
+baseline may supply layout only. It must not decide the candidate identity, selected
+claims, proof order, keywords, or omissions for a new role. Tailoring that only swaps the
+company/title/keywords is incomplete.
+
+For every final CV, follow `skills/evidence-first-cv/references/ats-optimization.md` and
+require linear extracted reading order, standard headings, text contact fields, truthful
+JD terminology in context, and no soft hyphens or replacement characters. Visual quality
+alone is not an ATS pass. Treat work authorisation dynamically: answer the application
+form when asked; include one compact CV line only when eligibility uncertainty is
+material; otherwise preserve summary space for role evidence. Use only the governed
+legal-status claim and never infer unrestricted permission or no sponsorship requirement.

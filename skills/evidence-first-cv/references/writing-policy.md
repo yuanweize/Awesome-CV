@@ -28,6 +28,8 @@ Narrow the claim when any answer is vague.
 - Keep personal, academic, and contract scope visible.
 - Use metrics only with evidence and an `as of` date when dynamic.
 - One page, one role family, two or three main proof points for most junior roles.
+- Tailor from the complete JD every time. Change evidence selection, order, emphasis,
+  and explanation; changing only the company/title/keywords is a failed tailoring pass.
 - Preserve a recognisable candidate identity. For graduate and early-career CVs,
   select one to three governed identity anchors and place them in the top third.
   Spell out important institutions, faculties, degrees, domains, and language bridges
@@ -37,6 +39,8 @@ Narrow the claim when any answer is vague.
   group must map to selected claim IDs; keep direct-role groups first.
 - Omit old/weak facts instead of filling space.
 - Avoid slogans, self-ratings, keyword dumps, and defensive disclaimers.
+- Use truthful JD terminology in natural context when a selected claim supports it.
+  Keyword coverage is a diagnostic, not a score, and never authorises an unsupported term.
 - Avoid negative-first recruiter prose such as `I have not`, `not yet`, `rather than
   enterprise`, `rather than formal`, `would not present`, or `remains a stretch`, and
   avoid paragraphs that catalogue missing tools. These phrases belong, if useful, in
@@ -74,6 +78,19 @@ Narrow the claim when any answer is vague.
 - Preserve AI-assisted delivery boundaries internally. Do not volunteer an AI
   disclaimer in ordinary CV prose, but never imply unassisted implementation when the
   recorded owner actions do not include it.
+
+## Work authorisation
+
+- Treat work authorisation as a hiring-risk answer, not a fixed professional-summary
+  opener or identity anchor.
+- If an application form asks, answer there completely from the governed legal-status
+  claim, including any required transition or sponsorship detail.
+- Put one compact line beside location/contact only when the JD, sponsorship gate, or
+  likely employer uncertainty makes it useful. If the form already captures it and no
+  uncertainty is evident, omit it from the CV.
+- Never infer unrestricted permission, `no sponsorship required`, permanent status,
+  permit type, or validity. Do not repeat the same statement across header, summary,
+  cover letter, and application answer.
 
 ## Identity before tailoring
 

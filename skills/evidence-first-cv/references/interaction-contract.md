@@ -25,6 +25,10 @@ repository and say “I need a new CV” without knowing commands or schemas.
      intended low-prominence placement; omit this line when none passes the gates;
    - proposed deliverables and any useful direct/bonus capability that would otherwise
      be easy to overlook;
+   - one-sentence application thesis explaining why this exact evidence order is best
+     for this JD, plus any strong but distracting material intentionally omitted;
+   - proposed work-authorisation placement only when the JD or application route makes
+     eligibility uncertainty material;
    - zero to three questions that can materially change selection or wording.
 8. Stop for confirmation. “Yes”, “是”, “可以”, or a small correction is enough.
 9. Apply corrections, record confirmation, draft the complete declared bundle, build,
@@ -44,3 +48,7 @@ Do not confuse an `adjacent` requirement match with an adjacent differentiator. 
 first is weaker evidence for something the JD asks; the second is a deliberately
 capped, non-required capability that can help delivery. Neither may be presented as
 a direct match.
+
+Current search priorities help discover promising vacancies; never present them as a
+restriction on what the user may apply for. Every supplied JD receives independent
+analysis and the best truthful tailoring available from the governed memory.

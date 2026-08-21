@@ -25,6 +25,8 @@ ALLOWED_APPLICATION_PRIORITIES = {"active", "selective", "explore", "paused"}
 ALLOWED_APPLICATION_DELIVERABLES = {"cv", "cover_letter"}
 ALLOWED_THESIS_REPOSITORY_POLICIES = {"required_when_public", "preferred_when_public", "omit"}
 ALLOWED_PROJECT_LINK_STYLES = {"canonical_project_link"}
+ALLOWED_WORK_AUTHORIZATION_PLACEMENTS = {"dynamic"}
+ALLOWED_ATS_TEXT_GATES = {"strict_final_pdf"}
 ALLOWED_POSITIONING_PLACEMENTS = {"cover_letter", "interview"}
 ALLOWED_DELIVERY_MODES = {"direct", "ai_assisted", "mixed", "not_applicable"}
 ALLOWED_OWNER_ACTIONS = {
@@ -235,6 +237,10 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         version_match
         and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 7)
     )
+    governed_tailoring_policy = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 8)
+    )
     if not is_v3:
         warnings.append(
             "Legacy master database: add schema_version 3.x, role_families, "
@@ -414,6 +420,33 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         elif not isinstance(reusable_positioning, list):
             errors.append("application_defaults.reusable_positioning must be a list")
             reusable_positioning = []
+        if governed_tailoring_policy:
+            tailoring_policy = application_defaults.get("tailoring_policy")
+            if not isinstance(tailoring_policy, dict):
+                errors.append(
+                    "application_defaults.tailoring_policy must be a mapping for schema 3.8+"
+                )
+                tailoring_policy = {}
+            if tailoring_policy.get("per_jd_reasoning_required") is not True:
+                errors.append(
+                    "application_defaults.tailoring_policy.per_jd_reasoning_required must be true"
+                )
+            if tailoring_policy.get("search_priorities_are_whitelist") is not False:
+                errors.append(
+                    "application_defaults.tailoring_policy.search_priorities_are_whitelist must be false"
+                )
+            if (
+                tailoring_policy.get("work_authorization_placement")
+                not in ALLOWED_WORK_AUTHORIZATION_PLACEMENTS
+            ):
+                errors.append(
+                    "application_defaults.tailoring_policy.work_authorization_placement "
+                    "must be dynamic"
+                )
+            if tailoring_policy.get("ats_text_gate") not in ALLOWED_ATS_TEXT_GATES:
+                errors.append(
+                    "application_defaults.tailoring_policy.ats_text_gate must be strict_final_pdf"
+                )
     else:
         reusable_positioning = []
 

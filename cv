@@ -786,7 +786,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}manifest${RESET} <command>    Validate an application decision/bullet manifest
   ${CYAN}validate${RESET} [yaml]       Validate the private master database
   ${CYAN}privacy-check${RESET}         Check tracked files for private data/secrets
-  ${CYAN}pdf-audit${RESET} <pdf>       Check page use, extractable text, and readable-type proxies
+  ${CYAN}pdf-audit${RESET} <pdf>       Check page use, ATS text/headings, and readable-type proxies
   ${CYAN}bundle-audit${RESET} <manifest> Audit every declared CV/cover-letter PDF and hash
   ${CYAN}track${RESET} <command>       Maintain the private application/outcome memory
   ${CYAN}doctor${RESET}                Audit workspace, roles, portfolio, tests, privacy, and profile drift

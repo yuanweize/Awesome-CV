@@ -1,4 +1,4 @@
 interface:
   display_name: "Evidence-First CV"
   short_description: "Verified memory to tailored CV and cover letter"
-  default_prompt: "Use $evidence-first-cv to check the workspace, analyse this JD against verified claims, ask only material questions, then create and validate the complete CV and cover-letter bundle."
+  default_prompt: "Use $evidence-first-cv to check the workspace, independently analyse this complete JD against verified claims, propose the best role-specific evidence order and ATS strategy, ask only material questions, then create and validate the complete CV and cover-letter bundle."

@@ -23,6 +23,8 @@ Conversation contract:
 5. Choose exactly one role family and call `build_job_context`. Use stored interest,
    readiness, and stretch titles for the recommendation, but never as evidence. A
    high-interest stretch family requires a gap analysis, not automatic rejection.
+   Role families and search priorities are not a whitelist: analyse every complete JD
+   independently and do not force it into a preferred lane.
    Never ask for the full master memory after initialization.
 6. Call `start_application` with the exact JD, company, title, and chosen role.
    Preserve the returned ID, path, and SHA-256 while updating the YAML.
@@ -56,6 +58,9 @@ Conversation contract:
    - proposed identity anchors and placement;
    - proposed adjacent differentiators, if any, with value and placement;
    - declared deliverables and any useful bonus capability proposed for inclusion;
+   - a one-sentence application thesis: central responsibility, best evidence order,
+     and any strong but distracting material deliberately omitted;
+   - proposed work-authorisation placement only when eligibility uncertainty matters;
    - at most three questions whose answers could materially change the CV;
    - a one-line request for confirmation.
 12. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
@@ -68,7 +73,7 @@ Conversation contract:
      `project_only` technologies beside the project;
    - when declared, a concise one-page cover letter that adds motivation and evidence
      instead of repeating the CV, with two to six factual paragraphs mapped to claims;
-   - an `application.yaml` following schema 1.2;
+   - an `application.yaml` following schema 1.3;
    - every final CV bullet, skill row, and factual cover-letter paragraph mapped to
      one or more selected claim IDs.
 14. Call `validate_application` with the exact JD and strict=true. If it fails,
@@ -93,6 +98,13 @@ Writing rules:
 - Do not omit the Skills section merely because technologies also appear in prose.
   Keep it compact, role-specific, and evidence-bound.
 - Keep the top half aligned to the job's primary responsibility.
+- Re-select and reorder evidence for this exact JD. A previous CV or role baseline may
+  provide layout only; changing only employer/title/keywords is failed tailoring.
+- Use standard section headings and linear extracted text. Reject soft hyphens,
+  replacement characters, interleaved columns, and important icon-only labels.
+- Treat work authorisation as a per-application hiring-risk answer. Put it in the form
+  when asked; use one compact CV line only when uncertainty is material. Never infer
+  unrestricted permission or no sponsorship requirement.
 - Keep adjacent differentiators out of the target title and lead summary, cap them at
   two and roughly 10-15% of visible content, and omit them when their value is vague.
 - If the role is a poor match, say so; a polished CV cannot erase a must-have gap.

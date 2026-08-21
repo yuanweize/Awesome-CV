@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import statistics
 import subprocess
@@ -12,6 +13,21 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
+
+
+STANDARD_CV_HEADINGS = {
+    "profile": {"profile", "professional summary", "summary"},
+    "skills": {"skills", "technical skills", "core skills"},
+    "experience": {
+        "experience",
+        "work experience",
+        "professional experience",
+        "relevant experience",
+    },
+    "education": {"education"},
+}
+EMAIL_PATTERN = re.compile(r"(?<![\w.+-])[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}(?![\w.-])")
+PHONE_PATTERN = re.compile(r"(?<!\w)(?:\+?\d[\d\s().-]{6,}\d)(?!\w)")
 
 
 def parse_bbox_xml(xml_text: str) -> dict[str, Any]:
@@ -48,12 +64,91 @@ def parse_bbox_xml(xml_text: str) -> dict[str, Any]:
     }
 
 
+def _normalised_lines(text: str) -> set[str]:
+    return {
+        re.sub(r"\s+", " ", line.strip()).rstrip(":").casefold()
+        for line in text.splitlines()
+        if line.strip()
+    }
+
+
+def audit_ats_text(
+    natural_text: str,
+    layout_text: str,
+    *,
+    document_kind: str = "cv",
+) -> dict[str, Any]:
+    """Audit deterministic text properties without pretending to score an ATS."""
+    if document_kind not in {"cv", "cover_letter", "application", "generic"}:
+        raise ValueError(f"unsupported document kind: {document_kind}")
+    variants = (natural_text, layout_text)
+    soft_hyphens = max(text.count("\u00ad") for text in variants)
+    replacement_characters = max(text.count("\ufffd") for text in variants)
+    lines = _normalised_lines(natural_text) | _normalised_lines(layout_text)
+    headings = {
+        category: sorted(values.intersection(lines))
+        for category, values in STANDARD_CV_HEADINGS.items()
+    }
+    combined = "\n".join(variants)
+    email_extractable = EMAIL_PATTERN.search(combined) is not None
+    phone_extractable = PHONE_PATTERN.search(combined) is not None
+
+    errors: list[str] = []
+    warnings: list[str] = []
+    if soft_hyphens:
+        errors.append(f"extracted text contains {soft_hyphens} soft-hyphen character(s)")
+    if replacement_characters:
+        errors.append(
+            f"extracted text contains {replacement_characters} Unicode replacement character(s)"
+        )
+    if document_kind == "cv":
+        for category in ("profile", "skills", "experience", "education"):
+            if not headings[category]:
+                allowed = ", ".join(sorted(STANDARD_CV_HEADINGS[category]))
+                errors.append(
+                    f"missing an exact standard {category} heading; expected one of: {allowed}"
+                )
+        if not email_extractable:
+            errors.append("CV has no extractable email address in document text")
+        if not phone_extractable:
+            warnings.append("CV has no extractable phone number in document text")
+    warnings.append(
+        "Automated text checks cannot prove field classification or linear reading order; "
+        "inspect both natural and layout-preserving extraction."
+    )
+    return {
+        "document_kind": document_kind,
+        "soft_hyphens": soft_hyphens,
+        "replacement_characters": replacement_characters,
+        "standard_headings": headings,
+        "email_extractable": email_extractable,
+        "phone_extractable": phone_extractable,
+        "errors": errors,
+        "warnings": warnings,
+    }
+
+
+def extract_pdf_text(pdf_path: Path, mode: str) -> str:
+    if mode not in {"raw", "layout"}:
+        raise ValueError(f"unsupported pdftotext mode: {mode}")
+    completed = subprocess.run(
+        ["pdftotext", f"-{mode}", str(pdf_path), "-"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError(completed.stderr.strip() or f"pdftotext -{mode} failed")
+    return completed.stdout
+
+
 def audit_pdf(
     pdf_path: Path,
     *,
     max_pages: int = 1,
     min_bottom_coverage: float = 0.75,
     min_median_word_height: float = 12.0,
+    document_kind: str = "cv",
 ) -> dict[str, Any]:
     if not pdf_path.is_file():
         raise ValueError(f"PDF not found: {pdf_path}")
@@ -68,6 +163,13 @@ def audit_pdf(
     if completed.returncode != 0:
         raise ValueError(completed.stderr.strip() or "pdftotext failed")
     metrics = parse_bbox_xml(completed.stdout)
+    natural_text = extract_pdf_text(pdf_path, "raw")
+    layout_text = extract_pdf_text(pdf_path, "layout")
+    ats_text = audit_ats_text(
+        natural_text,
+        layout_text,
+        document_kind=document_kind,
+    )
     errors: list[str] = []
     warnings: list[str] = []
     if metrics["pages"] == 0:
@@ -88,11 +190,20 @@ def audit_pdf(
             f"median word-box height {metrics['median_word_height']:.2f}pt suggests small text; "
             f"minimum is {min_median_word_height:.2f}pt"
         )
+    errors.extend(ats_text["errors"])
+    warnings.extend(ats_text["warnings"])
     warnings.append(
         "BBox metrics are proxies: still render every page and inspect hierarchy, "
         "contrast, clipping, whitespace, and reading order."
     )
-    return {"ok": not errors, "pdf": str(pdf_path), **metrics, "errors": errors, "warnings": warnings}
+    return {
+        "ok": not errors,
+        "pdf": str(pdf_path),
+        **metrics,
+        "ats_text": ats_text,
+        "errors": errors,
+        "warnings": warnings,
+    }
 
 
 def main() -> int:
@@ -101,6 +212,11 @@ def main() -> int:
     parser.add_argument("--max-pages", type=int, default=1)
     parser.add_argument("--min-bottom-coverage", type=float, default=0.75)
     parser.add_argument("--min-median-word-height", type=float, default=12.0)
+    parser.add_argument(
+        "--document-kind",
+        choices=("cv", "cover_letter", "application", "generic"),
+        default="cv",
+    )
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
     try:
@@ -109,6 +225,7 @@ def main() -> int:
             max_pages=args.max_pages,
             min_bottom_coverage=args.min_bottom_coverage,
             min_median_word_height=args.min_median_word_height,
+            document_kind=args.document_kind,
         )
     except (OSError, ValueError, ET.ParseError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

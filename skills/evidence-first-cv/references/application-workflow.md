@@ -34,6 +34,9 @@ other compared application manifest.
 4. Create `meta/applications/<id>/application.yaml`.
 5. Select one role family and export bounded context. Check recorded interest and
    `stretch_titles`; stretch means analyse the gap, not automatically reject the JD.
+   Role families and current search priorities are navigation and evidence boundaries,
+   not a whitelist of acceptable jobs. Re-read the complete JD and make a fresh decision
+   even when its title is outside the current priority lanes.
    Rank concrete responsibility, tool, and domain matches ahead of generic vacancy
    boilerplate or location words; use verification and interview depth as relevance
    tie-breakers, not as permission for a strong but unrelated claim to displace a JD match.
@@ -57,6 +60,10 @@ other compared application manifest.
    deployment, troubleshooting, documentation, or operation. If none exist, keep the
    gap explicit in the private manifest rather than substituting personality adjectives
    or publishing a self-rejection paragraph.
+   Then write a private application thesis naming the central responsibility, hard
+   gates, strongest proof claims, selected identity anchor, truthful JD terms that need
+   visible placement, and lower-value facts that must be omitted. A clone or baseline
+   may provide layout only; it may not provide this judgement.
 11. Show the decision brief and wait for human confirmation.
 12. Classify the user's confirmation and answers through the continuous memory loop:
     persist durable claims, preferences, and boundaries in the master; keep JD-specific
@@ -64,7 +71,9 @@ other compared application manifest.
 13. Draft every declared deliverable. Include a three-to-five-row evidence-bound CV
     Skills section and map cover-letter factual paragraphs to claims.
 14. Strictly validate the manifest, build, run the per-document PDF layout audit and
-    bundle audit, extract text, render, and inspect both documents.
+    bundle audit, extract both natural and layout-preserving text, render, and inspect
+    both documents. Follow `ats-optimization.md`; visual cleanliness alone is not an ATS
+    pass.
 15. Record the application and claim IDs in the ledger only after it is sent.
 16. Update stages and notes after every external event.
 17. Use funnel summary to choose targeting, narrative, training, or negotiation work.

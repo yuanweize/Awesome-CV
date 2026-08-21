@@ -33,7 +33,7 @@ from github_inventory import (  # noqa: E402
 )
 from portfolio_audit import audit_portfolio  # noqa: E402
 from role_audit import audit_roles  # noqa: E402
-from resume_pdf_audit import parse_bbox_xml  # noqa: E402
+from resume_pdf_audit import audit_ats_text, parse_bbox_xml  # noqa: E402
 from application_bundle_audit import (  # noqa: E402
     audit_bundle,
     extract_pdf_links,
@@ -73,6 +73,47 @@ from legacy_cv_audit import (  # noqa: E402
 
 
 class MasterWorkflowTests(unittest.TestCase):
+
+    def test_ats_text_accepts_linear_cv_with_standard_headings(self) -> None:
+        text = """Alex Example
+alex@example.org | 555 010 1234
+Profile
+Systems graduate with Linux testing experience.
+Technical Skills
+Linux, Python, SQL
+Work Experience
+Tested connected devices and documented defects.
+Selected Projects
+Built a network-monitoring project.
+Education
+Czech Technical University in Prague
+"""
+        result = audit_ats_text(text, text, document_kind="cv")
+        self.assertEqual([], result["errors"])
+        self.assertTrue(result["email_extractable"])
+        self.assertTrue(result["phone_extractable"])
+
+    def test_ats_text_rejects_soft_hyphens_and_nonstandard_experience_heading(self) -> None:
+        text = """Alex Example
+alex@example.org | 555 010 1234
+Profile
+Prague\u00adbased systems graduate.
+Skills
+Linux, Python
+Selected Experience & Projects
+Tested connected devices.
+Education
+Czech Technical University in Prague
+"""
+        result = audit_ats_text(text, text, document_kind="cv")
+        self.assertTrue(any("soft-hyphen" in error for error in result["errors"]))
+        self.assertTrue(any("standard experience heading" in error for error in result["errors"]))
+
+    def test_ats_text_does_not_require_cv_sections_for_cover_letter(self) -> None:
+        text = "Alex Example\nalex@example.org\nDear Hiring Team,\nI am applying.\n"
+        result = audit_ats_text(text, text, document_kind="cover_letter")
+        self.assertEqual([], result["errors"])
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.template_path = ROOT / "templates" / "master_cv.yaml.example"
@@ -102,6 +143,13 @@ class MasterWorkflowTests(unittest.TestCase):
         result = self.validate_copy(data)
         self.assertFalse(result["ok"])
         self.assertTrue(any("career_preferences" in error for error in result["errors"]))
+
+    def test_schema_38_requires_per_jd_tailoring_policy(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["application_defaults"].pop("tailoring_policy")
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(any("tailoring_policy" in error for error in result["errors"]))
 
     def test_schema_32_rejects_stretch_title_outside_targets(self) -> None:
         data = copy.deepcopy(self.template)
@@ -1252,6 +1300,28 @@ class MasterWorkflowTests(unittest.TestCase):
             ]
             errors = validate_manifest(data, self.template_path, root)
             self.assertTrue(any("gap and cannot map claims" in error for error in errors))
+
+    def test_validated_schema_13_manifest_requires_passed_quality_checks(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            meta = root / "meta" / "applications" / "example"
+            meta.mkdir(parents=True)
+            jd = meta / "jd.md"
+            jd.write_text("Linux troubleshooting\n", encoding="utf-8")
+            data = new_manifest(
+                "example",
+                "Example Corp",
+                "Systems Engineer",
+                "systems",
+                "meta/applications/example/jd.md",
+                sha256(jd),
+                "example",
+            )
+            data["stage"] = "validated"
+            errors = validate_manifest(data, self.template_path, root, strict=True)
+            self.assertTrue(
+                any("quality.ats_text_check must record a passed" in error for error in errors)
+            )
 
     def test_sent_manifest_can_record_post_submission_claim_correction(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

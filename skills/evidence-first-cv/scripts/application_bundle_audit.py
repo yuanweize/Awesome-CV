@@ -238,6 +238,7 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
             max_pages=int(config["max_pages"]),
             min_bottom_coverage=float(config["min_bottom_coverage"]),
             min_median_word_height=12.0,
+            document_kind=kind,
         )
         if expected_pages != result["pages"]:
             errors.append(

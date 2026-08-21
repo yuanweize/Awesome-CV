@@ -22,7 +22,7 @@ The plugin provides five tools:
 | `career_memory_status` | Check whether memory exists; return safe counts and career-direction priorities |
 | `save_career_memory` | Validate and persist schema 3.x career YAML |
 | `build_job_context` | Select role-bound claims plus a capped outside-role differentiator review pool |
-| `start_application` | Create a schema 1.2 CV + cover-letter manifest skeleton bound to the exact JD hash |
+| `start_application` | Create a schema 1.3 CV + cover-letter manifest skeleton bound to the exact JD hash |
 | `validate_application` | Enforce requirement/claim/gap/capability/CV/cover-letter traceability after confirmation |
 
 The Dify Agent or Chatflow LLM performs requirement interpretation and prose
@@ -101,7 +101,7 @@ The normal conversation is:
    differentiators without allowing them to dominate the target identity;
 5. read the owner's declared deliverables, review each exported direct skill group,
    and record include/omit, reason, and proposed placement;
-6. create the hash-bound schema 1.2 manifest skeleton, then show a compact decision brief
+6. create the hash-bound schema 1.3 manifest skeleton, then show a compact decision brief
    and at most three material questions;
 7. stop until the user confirms or adjusts;
 8. draft every declared deliverable, normally one-page CV content plus a concise,

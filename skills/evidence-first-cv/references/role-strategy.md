@@ -23,6 +23,12 @@ Use `career_preferences.role_interests` as planning memory. It affects which job
 agent recommends and which gaps it helps close; it is never résumé prose and is not
 evidence.
 
+Search priority is not an application whitelist. It may order discovery work, but every
+complete JD supplied by the owner must be analysed independently. Choose the role family
+that best bounds the actual responsibilities and evidence, then tailor the CV to that
+specific job. Do not force a JD into a preferred lane, reject it because it sits outside
+the current lanes, or reuse a lane template without reselecting and reordering proof.
+
 ## AI-assisted work versus AI/ML engineering
 
 Treat these as different facts:

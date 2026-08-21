@@ -169,7 +169,7 @@ profile, build and audit the PDF, and record the application.
 
 The Skill entrypoint stays concise so an agent can route a task without loading the
 whole system. The package itself is complete: one routing contract, focused references
-for onboarding, claims, applications, role strategy, writing, PDF quality, privacy,
+for onboarding, claims, applications, role strategy, ATS optimisation, writing, PDF quality, privacy,
 archives, technology intake, portfolio lifecycle, and Dify, plus bundled scripts for validation,
 context generation, manifests, outcomes, workspace status, GitHub inventory, portfolio
 and role audits, historical-CV red/blue auditing, privacy, verified archiving, and safe
@@ -310,7 +310,7 @@ applications, baselines, unclassified directories, and archives separately.
 | `./cv bundle-audit <manifest>` | Verify every declared PDF, hash, page count, text, and layout gate |
 | `./cv validate [yaml]` | Validate a master database |
 | `./cv privacy-check` | Inspect tracked files for leaks |
-| `./cv pdf-audit <pdf>` | Reject extra pages, sparse layout, tiny-type proxies, or missing ATS text |
+| `./cv pdf-audit <pdf>` | Reject extra pages, sparse layout, tiny type, soft hyphens, missing ATS headings, or missing text |
 | `./cv track ...` | Record stages, validate claim/role IDs, and report funnel metrics |
 | `./cv doctor` | Audit workspace, role intent/evidence, governed portfolio, tests, privacy, and active-profile drift |
 
@@ -333,7 +333,7 @@ application; the system never assumes rejection from elapsed time.
 | `make all` | Validate and build the complete CV + cover-letter application bundle |
 | `make clean` | Remove generated build artifacts inside the repository only |
 | `make check` | Structure, schema, privacy, unit, Python, shell, and context-smoke checks |
-| `make pdf-audit PDF=path/to/cv.pdf` | Run deterministic résumé PDF layout/readability gates |
+| `make pdf-audit PDF=path/to/cv.pdf` | Run deterministic résumé PDF layout, ATS-text, heading, and readability gates |
 | `make bundle-audit MANIFEST=path/to/application.yaml` | Audit all declared application PDFs |
 
 `make merged` prefers `qpdf` so the combined document receives a clean cross-reference

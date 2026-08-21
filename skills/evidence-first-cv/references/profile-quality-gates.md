@@ -44,10 +44,18 @@
 
 ## ATS/text check
 
-Extract from the final PDF with `pdftotext -layout`. Confirm the reading order is:
-name/contact, target identity, profile, skills, proof, experience, education. Check that
-links and symbols do not replace important text and that the PDF has the intended page
-count. Confirm required project URLs remain extractable as readable host/path labels.
+Follow `ats-optimization.md`. Extract both natural and layout-preserving text from the
+final PDF. Confirm the reading order is name/contact, target identity, profile, skills,
+proof, work experience, selected projects, and education as applicable. Require standard
+headings, text contact fields, and truthful selected JD terms in context. Reject soft
+hyphens, replacement characters, broken words, interleaved left/right fields, and icons
+or symbols that replace important text. Confirm the intended page count and required
+project URLs as readable host/path labels.
+
+Work Experience and Selected Projects must be distinct when both are used. A visually
+single-column page built from semantic tables still fails when extraction order crosses
+fields. Do not record `quality.ats_text_check: passed` until the final artifact, not just
+the source, has passed these checks.
 
 ## Visual/PDF check
 
@@ -57,7 +65,8 @@ on successful compilation as visual proof.
 
 - Prefer regular body weight at roughly 9.5--10.5 pt on A4; do not solve a content
   problem by shrinking text below comfortable reading size.
-- Use one ATS-safe column, restrained colour, and a clear left-aligned hierarchy.
+- Use one ATS-safe linear column, restrained colour, and a clear left-aligned hierarchy.
+  Avoid semantic tables, text boxes, and right-hand fields that interrupt extraction.
 - A one-page CV should normally use about three quarters or more of the printable
   height. Large unexplained whitespace is a failed layout, not minimalism.
 - Render the cover letter separately. Require the same header identity, typography,

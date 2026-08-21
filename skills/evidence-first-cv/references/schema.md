@@ -7,7 +7,7 @@
 - `career_preferences`: owner-stated interests and application priorities; planning
   memory only, never claim evidence or résumé prose.
 - `application_defaults`: owner-level default deliverables, complement-review policy,
-  and project-link presentation policy.
+  per-JD tailoring/ATS policy, and project-link presentation policy.
 - `identity_anchors`: one to five durable, evidence-bound claims whose recognisable
   credential, domain, market-bridge, local-fit, or autonomy value should survive
   JD tailoring. They are a protected review pool, not mandatory boilerplate.
@@ -18,11 +18,12 @@
 - `technical_skills.evidenced`: human-friendly skill groups linked back to claim IDs.
 - human sections: navigation/archive only; not authoritative for AI export.
 
-Application state uses a separate schema 1.2 manifest under
+Application state uses a separate schema 1.3 manifest under
 `meta/applications/<id>/application.yaml`. It binds the saved JD hash, role family,
 requirement matches, selected claims, human confirmation, final bullets, declared
 deliverables, capability review, cover-letter paragraphs, and artifact hashes. It never
-adds facts to the master registry. Schema 1.1 records one to three selected
+adds facts to the master registry. Schema 1.3 adds official-vacancy and same-employer
+portfolio gates. Schema 1.1 records one to three selected
 `identity_anchors`, each with a reason and approved placement. Schema 1.0 remains
 readable for closed history; 1.1 remains readable for pre-bundle applications.
 
@@ -70,6 +71,11 @@ Schema 3.7 adds `application_defaults.reusable_positioning`. These are optional,
 reviewed phrases rather than claims. Each entry must cite eligible backing claim IDs,
 restrict role families and placements, provide usage guidance, and set a positive
 per-application use limit. The exporter includes only role-relevant entries.
+
+Schema 3.8 adds `application_defaults.tailoring_policy`. It requires fresh reasoning
+for every complete JD, records that search priorities are not an application whitelist,
+uses dynamic work-authorisation placement, and requires strict ATS-text checks on the
+final PDF. These are workflow controls, not candidate claims.
 
 ## Claim fields
 

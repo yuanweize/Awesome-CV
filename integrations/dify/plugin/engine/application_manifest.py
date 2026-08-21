@@ -213,6 +213,26 @@ def validate_manifest(
     if stage not in MANIFEST_STAGES:
         errors.append(f"stage must be one of: {', '.join(MANIFEST_STAGES)}")
 
+    quality_fields = ("claim_audit", "ats_text_check", "visual_check", "privacy_check")
+    quality = data.get("quality")
+    if schema_version in {"1.2", "1.3"}:
+        if not isinstance(quality, dict):
+            errors.append("quality must be a mapping")
+            quality = {}
+        for field in quality_fields:
+            value = quality.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f"quality.{field} must be a non-empty string")
+            elif (
+                strict
+                and schema_version == "1.3"
+                and stage in {"validated", "sent", "closed"}
+                and not value.startswith("passed")
+            ):
+                errors.append(
+                    f"quality.{field} must record a passed final-artifact check before stage {stage}"
+                )
+
     target = data.get("target")
     if not isinstance(target, dict):
         errors.append("target must be a mapping")

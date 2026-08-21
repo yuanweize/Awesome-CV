@@ -1,7 +1,7 @@
 # Awesome-CV evidence-first master database (public example)
 # Copy to meta/master_cv.yaml. The destination is gitignored.
 
-schema_version: "3.7"
+schema_version: "3.8"
 
 metadata:
   owner: "Alex Example"
@@ -50,6 +50,11 @@ career_preferences:
 application_defaults:
   deliverables: [cv, cover_letter]
   complement_review: true
+  tailoring_policy:
+    per_jd_reasoning_required: true
+    search_priorities_are_whitelist: false
+    work_authorization_placement: dynamic
+    ats_text_gate: strict_final_pdf
   project_link_policy:
     thesis_repository: required_when_public
     style: canonical_project_link

@@ -158,7 +158,7 @@ help:
 	@echo "  make context JD=job.md ROLE=systems - Export evidence-bound AI context"
 	@echo "  make context-smoke - Exercise the public JD-to-context workflow"
 	@echo "  make privacy     - Check tracked files for private data and secrets"
-	@echo "  make pdf-audit PDF=path/to/cv.pdf - Check page use, text extraction, and type-size proxies"
+	@echo "  make pdf-audit PDF=path/to/cv.pdf - Check page use, ATS text/headings, and type-size proxies"
 	@echo "  make bundle-audit MANIFEST=meta/applications/<id>/application.yaml - Audit CV + cover letter as one bundle"
 	@echo "  make portfolio-audit - Compare private GitHub inventory with governed portfolio memory"
 	@echo "  make role-audit   - Report career interests, readiness, and claim coverage"

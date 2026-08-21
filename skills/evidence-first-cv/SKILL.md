@@ -46,7 +46,8 @@ cache authoritative.
   [references/application-workflow.md](references/application-workflow.md) and
   [references/interaction-contract.md](references/interaction-contract.md) and
   [references/writing-policy.md](references/writing-policy.md) and
-  [references/role-strategy.md](references/role-strategy.md). Read
+  [references/role-strategy.md](references/role-strategy.md) and
+  [references/ats-optimization.md](references/ats-optimization.md). Read
   [references/profile-quality-gates.md](references/profile-quality-gates.md)
   before accepting a final profile or PDF.
 - For Git, AI-service, contact-data, or server-report questions: read
@@ -205,7 +206,9 @@ Propose a real team-evidence action such as a reviewed contribution for future d
 5. Choose exactly one role family. Use its readiness, strengths, positioning
    boundaries, stretch titles, and the user's recorded interest when evaluating fit.
    A high-interest stretch lane should receive an evidence-gap analysis, not automatic
-   rejection. If no family fits, report the gap before drafting.
+   rejection. If no family fits, report the gap before drafting. Role families and
+   search priorities bound evidence and discovery; they are not a title whitelist and
+   may not replace fresh analysis of the complete JD.
 6. Generate a bounded context from the saved JD:
 
 ```bash
@@ -218,6 +221,10 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
 7. Read the generated context rather than the full master.
 8. Populate the manifest with the requirement-to-claim matrix, explicit gaps,
    recommendation, selected claims, and only questions that can change the output.
+   Before selecting prose, form a fresh application thesis: the JD's central
+   responsibility pattern, hard gates, two or three strongest proof claims, selected
+   candidate identity, truthful JD terms that need visible placement, and real but
+   distracting facts to omit. Never inherit this judgement from a baseline or prior CV.
    Independently review the governed identity anchors and select one to three. Record
    each reason and placement; for graduate/early-career applications, spell out the
    important institution, faculty, and degree in the top third rather than leaving an
@@ -259,6 +266,10 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    or "low training cost" as a substitute. Express the evidenced learning loop and let
    the employer infer onboarding leverage; never claim measured ramp-up or training-cost
    reduction without employer evidence.
+   Decide work-authorisation placement per application: use the application answer when
+   it asks; add one compact contact/location line only when eligibility uncertainty is
+   material; otherwise keep it out of the summary. Use only the governed legal-status
+   claim and never infer unrestricted permission or no sponsorship requirement.
 11. Map every final bullet to claim IDs in the private manifest; never show IDs in
    visible résumé prose. Run strict validation:
 
@@ -286,7 +297,9 @@ career evidence. Never infer candidate facts from agent instructions.
 
 1. Validate the master and run repository tests.
 2. Build the selected application.
-3. Extract PDF text and confirm reading order.
+3. Extract both natural and layout-preserving PDF text and confirm reading order,
+   standard headings, contact fields, and selected truthful JD terminology. Reject soft
+   hyphens, replacement characters, broken words, and interleaved fields.
 4. Run `./cv pdf-audit workspace/build/<name>_CV.pdf` to reject accidental extra pages, very
    sparse first pages, tiny-text proxies, or missing extractable text.
 5. Run `./cv bundle-audit meta/applications/<id>/application.yaml` to verify the CV,
