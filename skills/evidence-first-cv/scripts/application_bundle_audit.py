@@ -6,8 +6,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
@@ -103,6 +105,23 @@ def selected_cv_claim_ids(manifest: dict[str, Any]) -> set[str]:
         if isinstance(claim_ids, list):
             selected.update(item for item in claim_ids if isinstance(item, str))
     return selected
+
+
+def normalize_visible_text(value: str) -> str:
+    text = unicodedata.normalize("NFKC", value).casefold()
+    text = re.sub(r"[\u2010-\u2015\u2212]", "-", text)
+    return " ".join(text.split())
+
+
+def required_work_authorization_text(master: dict[str, Any]) -> str:
+    defaults = master.get("application_defaults", {})
+    if not isinstance(defaults, dict):
+        return ""
+    policy = defaults.get("work_authorization_policy", {})
+    if not isinstance(policy, dict) or policy.get("cv_required") is not True:
+        return ""
+    value = policy.get("cv_text")
+    return value.strip() if isinstance(value, str) else ""
 
 
 def required_thesis_repository_links(
@@ -248,13 +267,23 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
         documents[kind] = result
 
     required_project_links: list[str] = []
+    required_work_authorization = ""
     master_path = root / "meta" / "master_cv.yaml"
     cv_path = artifact_paths.get("cv")
     if master_path.is_file() and cv_path is not None:
         master = load_yaml_mapping(master_path)
+        cv_text = extract_pdf_text(cv_path)
+        required_work_authorization = required_work_authorization_text(master)
+        if required_work_authorization and normalize_visible_text(
+            required_work_authorization
+        ) not in normalize_visible_text(cv_text):
+            errors.append(
+                "cv: required top-block work-authorisation statement is missing from "
+                "the extracted PDF text"
+            )
         required_project_links = required_thesis_repository_links(master, data)
         if required_project_links:
-            cv_text = extract_pdf_text(cv_path).lower()
+            cv_text = cv_text.lower()
             cv_link_labels = {
                 visible_link_label(url).lower() for url in extract_pdf_links(cv_path)
             }
@@ -277,6 +306,7 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
         "deliverables": deliverables,
         "documents": documents,
         "required_project_links": required_project_links,
+        "required_work_authorization": required_work_authorization,
         "errors": errors,
     }
 

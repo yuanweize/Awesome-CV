@@ -266,10 +266,11 @@ python3 skills/evidence-first-cv/scripts/generate_ai_context.py \
    or "low training cost" as a substitute. Express the evidenced learning loop and let
    the employer infer onboarding leverage; never claim measured ramp-up or training-cost
    reduction without employer evidence.
-   Decide work-authorisation placement per application: use the application answer when
-   it asks; add one compact contact/location line only when eligibility uncertainty is
-   material; otherwise keep it out of the summary. Use only the governed legal-status
-   claim and never infer unrestricted permission or no sponsorship requirement.
+   Include the exact governed work-authorisation statement in every CV as a separate,
+   visible line in the top identity/contact block. Do not place it only in the summary,
+   footer, an icon, or an image, and do not rewrite or omit it during JD tailoring. When
+   an application form asks, answer the residence-status question fully from the governed
+   legal-status claim; the compact CV line does not replace that answer.
 11. Map every final bullet to claim IDs in the private manifest; never show IDs in
    visible résumé prose. Run strict validation:
 

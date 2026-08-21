@@ -69,24 +69,17 @@ or the extracted text fails.
 
 ## Work-authorisation placement
 
-Work authorisation is a hiring-risk answer, not the candidate's professional identity.
-Never place it automatically in every summary.
+Work authorisation is a fixed hiring-risk clarification in this repository. Every CV must
+show the exact `application_defaults.work_authorization_policy.cv_text` as a separate,
+ATS-readable line in the top identity/contact block, immediately around location and
+contact information. Use the visible label `Work authorisation:`. Do not hide it in the
+summary, page header/footer, an icon, an image, metadata, or a cover letter.
 
-Choose placement per application:
-
-1. If the application form directly asks, answer there with the exact approved legal-status
-   claim and any required transition or sponsorship detail.
-2. If the JD has an eligibility/sponsorship condition, or the employer may reasonably be
-   uncertain about local eligibility, add one compact text line beside location/contact or
-   as the final short summary clause.
-3. If the form already captures it and the JD contains no eligibility uncertainty, omit it
-   from the CV so the top summary can carry role evidence.
-4. Never infer `no sponsorship required`, unrestricted work permission, permanent status,
-   a permit type, or validity from graduation or residence alone. Use only the governed
-   claim and answer a direct legal question completely.
-
-Record the selected placement and reason privately. Do not repeat the same statement in
-the header, summary, cover letter, and application answer.
+The fixed CV line is compact by design. When an application form asks about permit type,
+validity, sponsorship, or a future residence transition, answer the question fully from
+the governed legal-status claim. Do not infer permanent residence, unrestricted residence,
+or the absence of residence formalities. The bundle audit must find the governed compact
+text in the final extracted CV before the application can pass.
 
 ## Verification protocol
 

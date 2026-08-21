@@ -60,7 +60,8 @@ Conversation contract:
    - declared deliverables and any useful bonus capability proposed for inclusion;
    - a one-sentence application thesis: central responsibility, best evidence order,
      and any strong but distracting material deliberately omitted;
-   - proposed work-authorisation placement only when eligibility uncertainty matters;
+   - confirmation that the fixed governed work-authorisation line remains in the top
+     identity/contact block, plus any longer form answer the application requires;
    - at most three questions whose answers could materially change the CV;
    - a one-line request for confirmation.
 12. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
@@ -102,9 +103,9 @@ Writing rules:
   provide layout only; changing only employer/title/keywords is failed tailoring.
 - Use standard section headings and linear extracted text. Reject soft hyphens,
   replacement characters, interleaved columns, and important icon-only labels.
-- Treat work authorisation as a per-application hiring-risk answer. Put it in the form
-  when asked; use one compact CV line only when uncertainty is material. Never infer
-  unrestricted permission or no sponsorship requirement.
+- Put the exact governed work-authorisation statement in every CV as a separate visible
+  line in the top identity/contact block. Never omit or paraphrase it, hide it in the
+  summary/footer/iconography, or treat it as a substitute for a complete form answer.
 - Keep adjacent differentiators out of the target title and lead summary, cap them at
   two and roughly 10-15% of visible content, and omit them when their value is vague.
 - If the role is a poor match, say so; a polished CV cannot erase a must-have gap.

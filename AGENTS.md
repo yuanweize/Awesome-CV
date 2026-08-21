@@ -41,7 +41,8 @@ company/title/keywords is incomplete.
 For every final CV, follow `skills/evidence-first-cv/references/ats-optimization.md` and
 require linear extracted reading order, standard headings, text contact fields, truthful
 JD terminology in context, and no soft hyphens or replacement characters. Visual quality
-alone is not an ATS pass. Treat work authorisation dynamically: answer the application
-form when asked; include one compact CV line only when eligibility uncertainty is
-material; otherwise preserve summary space for role evidence. Use only the governed
-legal-status claim and never infer unrestricted permission or no sponsorship requirement.
+alone is not an ATS pass. Treat work authorisation as a fixed CV requirement: answer the
+application form fully when asked, and also include the exact governed compact statement
+in every CV as a separate visible line in the top identity/contact block. Never hide it in the
+summary, footer, an icon, or an image; never omit, rewrite, or strengthen it. The CV line
+does not replace residence-status details required by an application form.

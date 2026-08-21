@@ -77,6 +77,12 @@ for every complete JD, records that search priorities are not an application whi
 uses dynamic work-authorisation placement, and requires strict ATS-text checks on the
 final PDF. These are workflow controls, not candidate claims.
 
+Schema 3.9 adds `application_defaults.work_authorization_policy` and fixes
+`tailoring_policy.work_authorization_placement` to `top_identity_block`. Every CV must
+show the policy's exact `cv_text` under its visible `label`; `claim_id` must reference an
+eligible `legal_status` claim, and `personal_information.work_authorization` must match
+the same text. The application form may still require a longer residence-status answer.
+
 ## Claim fields
 
 | Field | Rule |

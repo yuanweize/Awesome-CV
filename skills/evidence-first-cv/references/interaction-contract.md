@@ -27,8 +27,8 @@ repository and say “I need a new CV” without knowing commands or schemas.
      be easy to overlook;
    - one-sentence application thesis explaining why this exact evidence order is best
      for this JD, plus any strong but distracting material intentionally omitted;
-   - proposed work-authorisation placement only when the JD or application route makes
-     eligibility uncertainty material;
+   - confirmation that the governed fixed work-authorisation line will remain in the
+     top identity/contact block, plus any additional form answer the application requires;
    - zero to three questions that can materially change selection or wording.
 8. Stop for confirmation. “Yes”, “是”, “可以”, or a small correction is enough.
 9. Apply corrections, record confirmation, draft the complete declared bundle, build,

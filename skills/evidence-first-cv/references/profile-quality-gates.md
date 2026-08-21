@@ -52,6 +52,11 @@ hyphens, replacement characters, broken words, interleaved left/right fields, an
 or symbols that replace important text. Confirm the intended page count and required
 project URLs as readable host/path labels.
 
+Require the exact governed work-authorisation statement in every final CV as a separate
+visible line in the top identity/contact block. It must be labelled in text, survive PDF
+extraction, and must not exist only in the summary, footer, iconography, or an image.
+Missing or paraphrased text is a failed bundle audit.
+
 Work Experience and Selected Projects must be distinct when both are used. A visually
 single-column page built from semantic tables still fails when extraction order crosses
 fields. Do not record `quality.ats_text_check: passed` until the final artifact, not just

@@ -25,7 +25,7 @@ ALLOWED_APPLICATION_PRIORITIES = {"active", "selective", "explore", "paused"}
 ALLOWED_APPLICATION_DELIVERABLES = {"cv", "cover_letter"}
 ALLOWED_THESIS_REPOSITORY_POLICIES = {"required_when_public", "preferred_when_public", "omit"}
 ALLOWED_PROJECT_LINK_STYLES = {"canonical_project_link"}
-ALLOWED_WORK_AUTHORIZATION_PLACEMENTS = {"dynamic"}
+ALLOWED_WORK_AUTHORIZATION_PLACEMENTS = {"dynamic", "top_identity_block"}
 ALLOWED_ATS_TEXT_GATES = {"strict_final_pdf"}
 ALLOWED_POSITIONING_PLACEMENTS = {"cover_letter", "interview"}
 ALLOWED_DELIVERY_MODES = {"direct", "ai_assisted", "mixed", "not_applicable"}
@@ -241,6 +241,10 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         version_match
         and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 8)
     )
+    governed_fixed_work_authorization = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 9)
+    )
     if not is_v3:
         warnings.append(
             "Legacy master database: add schema_version 3.x, role_families, "
@@ -441,14 +445,41 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
             ):
                 errors.append(
                     "application_defaults.tailoring_policy.work_authorization_placement "
-                    "must be dynamic"
+                    "must be one of: "
+                    + ", ".join(sorted(ALLOWED_WORK_AUTHORIZATION_PLACEMENTS))
                 )
             if tailoring_policy.get("ats_text_gate") not in ALLOWED_ATS_TEXT_GATES:
                 errors.append(
                     "application_defaults.tailoring_policy.ats_text_gate must be strict_final_pdf"
                 )
+        work_authorization_policy = application_defaults.get("work_authorization_policy")
+        if governed_fixed_work_authorization:
+            if not isinstance(work_authorization_policy, dict):
+                errors.append(
+                    "application_defaults.work_authorization_policy must be a mapping for schema 3.9+"
+                )
+                work_authorization_policy = {}
+            if work_authorization_policy.get("cv_required") is not True:
+                errors.append(
+                    "application_defaults.work_authorization_policy.cv_required must be true"
+                )
+            if work_authorization_policy.get("placement") != "top_identity_block":
+                errors.append(
+                    "application_defaults.work_authorization_policy.placement must be top_identity_block"
+                )
+            for field in ("label", "claim_id", "cv_text"):
+                if not _is_nonempty_string(work_authorization_policy.get(field)):
+                    errors.append(
+                        f"application_defaults.work_authorization_policy.{field} is required"
+                    )
+            if tailoring_policy.get("work_authorization_placement") != "top_identity_block":
+                errors.append(
+                    "schema 3.9+ requires tailoring_policy.work_authorization_placement "
+                    "to be top_identity_block"
+                )
     else:
         reusable_positioning = []
+        work_authorization_policy = {}
 
     evidence_items = data.get("evidence_registry", [])
     if is_v3 and (not isinstance(evidence_items, list) or not evidence_items):
@@ -638,6 +669,29 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                 warnings.append(
                     f"{claim_id} has personal scope but the statement does not label it personal/open-source"
                 )
+
+    if governed_fixed_work_authorization:
+        policy_claim_id = work_authorization_policy.get("claim_id")
+        policy_claim = claims_by_id.get(policy_claim_id)
+        if policy_claim is None:
+            errors.append(
+                "application_defaults.work_authorization_policy.claim_id references "
+                f"unknown claim: {policy_claim_id}"
+            )
+        elif (
+            policy_claim.get("scope") != "legal_status"
+            or policy_claim.get("cv_eligible") is not True
+            or policy_claim.get("status") not in {"verified", "self_reported"}
+        ):
+            errors.append(
+                "application_defaults.work_authorization_policy.claim_id must reference "
+                "an eligible legal_status claim"
+            )
+        if personal.get("work_authorization") != work_authorization_policy.get("cv_text"):
+            errors.append(
+                "personal_information.work_authorization must equal "
+                "application_defaults.work_authorization_policy.cv_text"
+            )
 
     seen_positioning_ids: set[str] = set()
     for index, item in enumerate(reusable_positioning, 1):

@@ -39,6 +39,7 @@ from application_bundle_audit import (  # noqa: E402
     extract_pdf_links,
     file_sha256,
     required_thesis_repository_links,
+    required_work_authorization_text,
     visible_link_label,
 )
 from application_ledger import (  # noqa: E402
@@ -151,6 +152,26 @@ Czech Technical University in Prague
         self.assertFalse(result["ok"])
         self.assertTrue(any("tailoring_policy" in error for error in result["errors"]))
 
+    def test_schema_39_requires_fixed_top_work_authorization_policy(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["application_defaults"].pop("work_authorization_policy")
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("work_authorization_policy" in error for error in result["errors"])
+        )
+
+    def test_schema_39_rejects_work_authorization_policy_without_legal_claim(self) -> None:
+        data = copy.deepcopy(self.template)
+        data["application_defaults"]["work_authorization_policy"]["claim_id"] = (
+            "education.bsc-computer-engineering"
+        )
+        result = self.validate_copy(data)
+        self.assertFalse(result["ok"])
+        self.assertTrue(
+            any("eligible legal_status claim" in error for error in result["errors"])
+        )
+
     def test_schema_32_rejects_stretch_title_outside_targets(self) -> None:
         data = copy.deepcopy(self.template)
         data["role_families"]["systems"]["stretch_titles"] = ["Cloud Wizard"]
@@ -172,7 +193,12 @@ Czech Technical University in Prague
 
     def test_schema_33_rejects_unknown_delivery_action(self) -> None:
         data = copy.deepcopy(self.template)
-        data["claim_registry"][2]["delivery"]["owned_actions"].append("magic")
+        claim = next(
+            item
+            for item in data["claim_registry"]
+            if item["id"] == "project.signalwatch-features"
+        )
+        claim["delivery"]["owned_actions"].append("magic")
         result = self.validate_copy(data)
         self.assertFalse(result["ok"])
         self.assertTrue(any("unknown values: magic" in error for error in result["errors"]))
@@ -641,6 +667,12 @@ Czech Technical University in Prague
             visible_link_label("https://github.com/example-user/signalwatch.git/"),
         )
 
+    def test_every_cv_requires_governed_work_authorization_text(self) -> None:
+        self.assertEqual(
+            "Authorised to work in Germany — no employer-sponsored work permit required.",
+            required_work_authorization_text(self.template),
+        )
+
     def test_non_thesis_claim_does_not_require_a_project_link(self) -> None:
         manifest = {
             "final_bullets": [
@@ -750,6 +782,9 @@ Czech Technical University in Prague
                 result = audit_bundle(manifest, root)
             self.assertFalse(result["ok"])
             self.assertTrue(any("not backed by a clickable" in error for error in result["errors"]))
+            self.assertTrue(
+                any("work-authorisation statement is missing" in error for error in result["errors"])
+            )
 
     def test_new_manifest_preserves_owner_declared_deliverables(self) -> None:
         data = new_manifest(

@@ -1,7 +1,7 @@
 # Awesome-CV evidence-first master database (public example)
 # Copy to meta/master_cv.yaml. The destination is gitignored.
 
-schema_version: "3.8"
+schema_version: "3.9"
 
 metadata:
   owner: "Alex Example"
@@ -32,7 +32,7 @@ personal_information:
   github: "example-user"
   linkedin: "example-user"
   citizenship: "Example citizenship"
-  work_authorization: "Describe the exact work-authorisation boundary here"
+  work_authorization: "Authorised to work in Germany — no employer-sponsored work permit required."
 
 career_preferences:
   role_interests:
@@ -53,8 +53,14 @@ application_defaults:
   tailoring_policy:
     per_jd_reasoning_required: true
     search_priorities_are_whitelist: false
-    work_authorization_placement: dynamic
+    work_authorization_placement: top_identity_block
     ats_text_gate: strict_final_pdf
+  work_authorization_policy:
+    cv_required: true
+    placement: top_identity_block
+    label: "Work authorisation"
+    claim_id: authorization.germany-work-access
+    cv_text: "Authorised to work in Germany — no employer-sponsored work permit required."
   project_link_policy:
     thesis_repository: required_when_public
     style: canonical_project_link
@@ -162,6 +168,13 @@ evidence_registry:
   visibility: private
   verified_on: "2026-01-15"
 
+- id: ev-work-authorization
+  type: official_record
+  title: "Work-authorisation evidence"
+  locator: "private:work-authorization-record"
+  visibility: private
+  verified_on: "2026-01-15"
+
 portfolio_management:
   last_reviewed: "2026-01-15"
   inventory_evidence_id: ev-github-inventory
@@ -170,6 +183,26 @@ portfolio_management:
     reason: "Obsolete tutorial material with no useful authorship or interview signal"
 
 claim_registry:
+- id: authorization.germany-work-access
+  type: work_authorization
+  subject: "German labour market"
+  statement: >-
+    Authorised to work in Germany without an employer-sponsored work permit;
+    exact residence-document details remain private and must be answered accurately.
+  dates: "current"
+  scope: legal_status
+  role_families:
+  - systems
+  - test
+  tags:
+  - germany
+  - work-authorization
+  evidence:
+  - ev-work-authorization
+  status: verified
+  cv_eligible: true
+  interview_depth: moderate
+
 - id: education.bsc-computer-engineering
   type: education
   subject: "Technical University of Example"

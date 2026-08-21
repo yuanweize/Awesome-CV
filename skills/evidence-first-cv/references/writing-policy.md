@@ -81,16 +81,16 @@ Narrow the claim when any answer is vague.
 
 ## Work authorisation
 
-- Treat work authorisation as a hiring-risk answer, not a fixed professional-summary
-  opener or identity anchor.
+- Put the exact governed compact statement in every CV as a separate visible line in the
+  top identity/contact block, labelled `Work authorisation:`. JD tailoring may not omit,
+  paraphrase, or move it into the summary, footer, iconography, or an image.
+- Keep role evidence in the summary; do not repeat the fixed line there or in the cover
+  letter merely for emphasis.
 - If an application form asks, answer there completely from the governed legal-status
-  claim, including any required transition or sponsorship detail.
-- Put one compact line beside location/contact only when the JD, sponsorship gate, or
-  likely employer uncertainty makes it useful. If the form already captures it and no
-  uncertainty is evident, omit it from the CV.
-- Never infer unrestricted permission, `no sponsorship required`, permanent status,
-  permit type, or validity. Do not repeat the same statement across header, summary,
-  cover letter, and application answer.
+  claim, including required residence-status, transition, sponsorship, type, or validity
+  detail. The compact CV statement is not the full legal answer.
+- Never infer permanent residence, unrestricted residence permission, or the absence of
+  residence formalities from labour-market access.
 
 ## Identity before tailoring
 

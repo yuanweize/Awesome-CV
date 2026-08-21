@@ -330,6 +330,8 @@
 % Define writer's address
 % Usage: \address{<address>}
 \newcommand*{\address}[1]{\def\@address{#1}}
+% Usage: \workauthorization{<concise recruiter-facing status>}
+\newcommand*{\workauthorization}[1]{\def\@workauthorization{#1}}
 
 % Define writer's position
 % Usage: \position{<position>}
@@ -579,6 +581,7 @@
     \\[\acvHeaderAfterNameSkip]%
     \ifthenelse{\isundefined{\@position}}{}{\headerpositionstyle{\@position\\[\acvHeaderAfterPositionSkip]}}%
     \ifthenelse{\isundefined{\@address}}{}{\headeraddressstyle{\@address\\[\acvHeaderAfterAddressSkip]}}%
+    \ifthenelse{\isundefined{\@workauthorization}}{}{\headeraddressstyle{\textbf{Work authorisation:} \@workauthorization\\[\acvHeaderAfterAddressSkip]}}%
     \headersocialstyle{%
       \newbool{isstart}%
       \setbool{isstart}{true}%

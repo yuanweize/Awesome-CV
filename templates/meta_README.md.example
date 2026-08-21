@@ -52,3 +52,8 @@ Schema 3.7 may also define `application_defaults.reusable_positioning`. Each phr
 must cite eligible claim IDs, name allowed role families and placements, and carry a
 per-application use limit. This preserves reviewed recruiter positioning across agents
 without turning prose into a new fact or encouraging a public gap inventory.
+
+Schema 3.9 defines `application_defaults.work_authorization_policy`. Its exact compact
+text is mandatory in every CV as a separate top identity/contact line and is verified
+from the final PDF. Keep longer permit, validity, or residence-transition answers in the
+application form when asked.

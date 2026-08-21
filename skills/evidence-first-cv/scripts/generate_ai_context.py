@@ -399,6 +399,15 @@ def build_context(
         "thesis_repository", "preferred_when_public"
     )
     project_link_style = project_link_policy.get("style", "canonical_project_link")
+    work_authorization_policy = application_defaults.get("work_authorization_policy", {})
+    if not isinstance(work_authorization_policy, dict):
+        work_authorization_policy = {}
+    work_authorization_text = work_authorization_policy.get(
+        "cv_text", personal.get("work_authorization", "")
+    )
+    work_authorization_placement = work_authorization_policy.get(
+        "placement", "top_identity_block"
+    )
     jd_fence = markdown_fence(jd_text)
     lines = [
         "# Evidence-bound CV drafting context",
@@ -465,10 +474,11 @@ def build_context(
         "    search priority, baseline, or prior CV may not make these choices for you.",
         "22. Tailoring must change evidence selection, order, emphasis, and explanation.",
         "    Swapping only company, vacancy title, or keywords is not a tailored CV.",
-        "23. Treat work authorisation as a per-application hiring-risk answer. Use the",
-        "    application form when asked; add one compact CV line only when eligibility",
-        "    uncertainty is material. Never infer unrestricted permission or no",
-        "    sponsorship requirement from graduation, location, or residence alone.",
+        "23. Put the governed work-authorisation text in every CV as a separate,",
+        "    visible line in the top identity/contact block. Do not hide it in the",
+        "    summary, footer, an icon, or image. Do not rewrite, omit, or strengthen it.",
+        "    If an application form asks, answer the residence-status question fully",
+        "    from the legal-status claim; the compact CV line does not replace that answer.",
         "24. The final CV must use standard section headings and coherent linear extracted",
         "    text. Reject soft hyphens, replacement characters, interleaved columns, and",
         "    important icon-only labels; visual cleanliness alone is not an ATS pass.",
@@ -477,7 +487,8 @@ def build_context(
         "",
         f"- Name: {personal.get('full_name', '')}",
         f"- Location: {personal.get('location', '')}",
-        f"- Work authorisation: {personal.get('work_authorization', '')}",
+        f"- Required CV work-authorisation text: {work_authorization_text}",
+        f"- Required placement: {work_authorization_placement}",
         f"- Default deliverables: {', '.join(default_deliverables)}",
         f"- Thesis repository link policy: {thesis_repository_policy}",
         f"- Project link style: {project_link_style}",
