@@ -18,12 +18,15 @@
 - `technical_skills.evidenced`: human-friendly skill groups linked back to claim IDs.
 - human sections: navigation/archive only; not authoritative for AI export.
 
-Application state uses a separate schema 1.3 manifest under
+Application state uses a separate schema 1.4 manifest under
 `meta/applications/<id>/application.yaml`. It binds the saved JD hash, role family,
 requirement matches, selected claims, human confirmation, final bullets, declared
-deliverables, capability review, cover-letter paragraphs, and artifact hashes. It never
-adds facts to the master registry. Schema 1.3 adds official-vacancy and same-employer
-portfolio gates. Schema 1.1 records one to three selected
+deliverables, capability review, cover-letter paragraphs, optional portfolio cases,
+and artifact hashes. Each enabled portfolio case must reference one governed private
+`portfolio_asset` and selected claim IDs; the appendix is presentation, not new evidence. It never
+adds facts to the master registry. Schema 1.4 can bind the selected approved Golden
+Pack/version/hash and record submission metadata while remaining backward-compatible.
+Schema 1.3 adds official-vacancy and same-employer portfolio gates. Schema 1.1 records one to three selected
 `identity_anchors`, each with a reason and approved placement. Schema 1.0 remains
 readable for closed history; 1.1 remains readable for pre-bundle applications.
 
@@ -82,6 +85,11 @@ Schema 3.9 adds `application_defaults.work_authorization_policy` and fixes
 show the policy's exact `cv_text` under its visible `label`; `claim_id` must reference an
 eligible `legal_status` claim, and `personal_information.work_authorization` must match
 the same text. The application form may still require a longer residence-status answer.
+
+Schema 3.10 adds `application_defaults.portfolio_appendix_policy` and
+`portfolio_assets`. The policy makes visual proof JD-selected rather than universal;
+each private asset records a capture date, eligible backing claim IDs, and a safe-use
+boundary. Screenshots remain presentation material, never factual authority.
 
 ## Claim fields
 

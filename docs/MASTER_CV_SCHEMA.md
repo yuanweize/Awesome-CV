@@ -14,11 +14,12 @@ AI receives an explicit factual boundary.
 | `personal_information` | Private identity and contact data |
 | `career_preferences` | Owner-stated interests and application priorities; never CV evidence |
 | `identity_anchors` | Durable evidence-bound identity signals protected from over-tailoring |
-| `application_defaults` | Owner-level deliverables, complement review, project-link policy, and governed reusable positioning |
+| `application_defaults` | Owner-level deliverables, complement review, project-link/portfolio-appendix policy, and governed reusable positioning |
 | `role_families` | Stable target lanes, readiness, strengths, boundaries, keywords, and titles |
 | `evidence_registry` | Proof index; never embed private document contents |
 | `claim_registry` | Only facts AI may use for CV drafting |
 | `portfolio_management` | Dated portfolio review and explicit repository exclusions |
+| `portfolio_assets` | Private reviewed screenshots linked to eligible claims, capture dates, and safe-use boundaries |
 | structured history | Human-readable education, work, projects, skills |
 | `exclusions` | Planned, pending, expired, weak, or misleading material |
 
@@ -287,11 +288,19 @@ four values (`execution_leverage`, `delivery_risk_reduction`,
 `skills`, `projects`, or `experience`. It is private and is never a source of new
 career facts.
 
-Use `templates/application_manifest.yaml.example` as the public example. Strict 1.2
-validation requires parsed requirements, selected claims, user confirmation, completed
-capability review, declared deliverables, mapped CV bullets and (when selected) two to
-six mapped cover-letter paragraphs. At validated and later stages it also verifies the
-declared CV/cover-letter artifact paths, SHA-256 hashes, and page counts.
+Use `templates/application_manifest.yaml.example` as the public example. Schema 1.4 adds
+`golden_pack.selected_pack`, `version`, and `cv_sha256`. A selected Pack must match
+`meta/golden_packs.yaml`; strict `validated`, `sent`, and `closed` stages require its
+status to be `approved`. Earlier schemas remain readable for historical applications.
+Strict validation also requires parsed requirements, selected claims, Owner confirmation,
+capability review, declared deliverables, mapped CV bullets and cover-letter paragraphs,
+then verifies declared artifact paths, SHA-256 hashes, and page counts.
+
+The Golden registry is deliberately separate from career schema. See
+`templates/golden_packs.yaml.example`: it demonstrates the generic N-Pack registry. Each
+entry stores a version, status, role-family routing, source snapshot/backend, deterministic
+source fingerprint, and three PDF artifact records. Pack IDs belong to the local user
+instance; the registry never creates or overrides career facts.
 
 中文原则：母库可以很大，但每次给 AI 的上下文必须很小。数据库保存全部事实和
 证据边界，导出器只选择与当前 JD 和岗位族相关、允许用于 CV、且能通过面试追问的

@@ -6,19 +6,29 @@ or document quality.
 ## Setup
 
 ```bash
-python3 -m pip install pyyaml
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements-ci.txt
+./cv doctor
 ./cv init
+./cv demo
 make check
 ```
 
-CI builds only fictitious template data. Never replace examples with a real résumé,
+CI builds only fictitious template/example data. Never replace examples with a real résumé,
 job description, server report, contact detail, or application history.
 
 ## Development rules
 
 - Keep private data under ignored paths.
+- Treat Golden Pack IDs as user configuration; framework code must support N Packs.
+- Put only synthetic or explicitly public-safe assets under `examples/assets/`.
 - Keep archive operations dry-run by default and reject symbolic links.
 - Add or update tests for validator, selection, ledger, privacy, or CLI behaviour.
+- Put reusable fictional fixtures under `tests/fixtures/`; put explanatory public
+  scenarios under `examples/`. Verify that neither contains personal data.
+- When changing a schema, update its validator, public template, Skill asset mirror,
+  documentation, backward-compatibility tests, and Dify mirror where applicable.
 - Keep skill instructions concise; put detailed policy in one-level references.
 - Preserve the LPPL attribution and document material `awesome-cv.cls` changes.
 - Use RFC 5737 addresses (`192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24`) in examples.
@@ -30,6 +40,7 @@ job description, server report, contact detail, or application history.
 make check
 yamllint .
 ./cv privacy-check
+./cv privacy-check --tracked
 git diff --check
 ```
 

@@ -10,19 +10,30 @@ Public:
 - `src/`, `templates/`, `skills/`, `tools/`, `docs/`, tests, workflows, and the
   non-secret `.vscode/settings.json` editor settings;
 - fictitious/example data using `example.org` and RFC 5737 IP ranges.
+- `examples/` fixtures and demo assets that are synthetic or explicitly public-safe.
 
 Private:
 
 - `meta/`: master database, application ledger, JDs, evidence notes, interviews;
 - `workspace/`: current TeX source, baselines, profiles, builds, and temporary output;
 - `archive/`, PDFs, and render images;
+- `assets/portfolio/raw/`, `assets/portfolio/curated/`, and
+  `assets/portfolio/generated/`: local visual evidence and recruiter derivatives;
 - collector reports and real target files;
 - credentials, keys, tokens, internal addresses, and evidence documents.
+
+The tracked `assets/portfolio/README.md` is a policy/index only. All user binary asset trees,
+including `raw-private/`,
+are ignored by default. `raw/` is always private source evidence. `curated/` and
+`generated/` may be recruiter-safe after review, but that does not make them public-Git
+assets automatically. Before any explicit publication, inspect pixels, metadata, Git
+tracking/ignore state, PDF embedding, and the repository's current visibility.
 
 ## Before every push
 
 ```bash
 ./cv privacy-check
+./cv privacy-check --tracked
 git status --short
 git diff --cached
 ./cv privacy-check --staged
@@ -31,6 +42,10 @@ git diff --cached
 The default check includes tracked files and untracked files that are not ignored. The
 automated check is a guardrail, not a guarantee. Review new binary files and unusual file
 names manually.
+
+`--tracked` scans only the Git index and is the appropriate public-tree/CI boundary.
+It also warns about machine-specific absolute home paths. Regex scanning cannot establish
+that images, PDFs, prose, or Git history are privacy-safe; inspect those separately.
 
 Privacy findings deliberately redact the matched value. File and line number are enough
 to investigate locally; CI logs must not become a second copy of a token, email, phone,

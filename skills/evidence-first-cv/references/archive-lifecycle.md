@@ -6,10 +6,13 @@ Use one directory for one responsibility:
 |---|---|
 | `meta/master_cv.yaml` | Canonical facts, claim IDs, evidence locators, and eligibility |
 | `workspace/current/` | Current editable CV and cover-letter source plus active-profile marker |
+| `workspace/golden-packs/` | Reusable reviewed/freeze Golden CV and Portfolio source snapshots |
 | `workspace/baselines/` | Optional long-lived, clone-only layout and ordering references |
 | `workspace/profiles/` | Active or still-editable application source snapshots |
 | `archive/applications/YYYY/` | Closed application snapshots and generated PDFs |
 | `archive/research/` | Interview papers, recruiter research, and chat exports |
+| `archive/golden-packs/` | Superseded Golden source and rendered iterations |
+| `archive/portfolio-assets/` | Superseded visual derivatives with restore notes |
 | `meta/evidence/` | Durable private degree, contract, certificate, and thesis evidence |
 | `workspace/build/`, `workspace/tmp/` | Regenerable output; never evidence or memory |
 
@@ -17,10 +20,12 @@ Profiles remain useful for editing and comparison, but never use them as factual
 authority. Closed profiles belong in the ignored archive after the application
 ledger records their final stage.
 
-Baselines have a different lifetime and therefore live outside `workspace/profiles/`. They may
+Golden Packs have a different lifetime and therefore live outside application profiles.
+They preserve a stable recruiter identity and reviewed content, while the master remains
+the factual authority. Baselines may
 preserve a proven one-page layout or role-family ordering, but must never supply facts.
-Clone one into a new company-role profile, then rebuild its content from the JD
-manifest and eligible mother claims.
+Use a baseline only for layout; normally reuse the selected Golden Pack rather than
+rebuilding CV content from the JD.
 
 Before moving a profile, run the archiver without `--apply`. Review the destination,
 file count, and byte count. Apply only with explicit user approval:

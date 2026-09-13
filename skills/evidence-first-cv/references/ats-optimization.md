@@ -3,30 +3,32 @@
 ## Purpose
 
 Optimise for reliable parsing and fast human comprehension without pretending that an
-ATS is a universal scoring formula. Every application must be reasoned from its complete
-JD and the governed claim pool. Search priorities, role families, previous profiles, and
-baselines help discovery and layout; none may become a whitelist or substitute for fresh
-role-specific judgement.
+ATS is a universal scoring formula. Every application must be reviewed from its complete
+JD and governed claim pool, then matched to the best approved local Golden Pack. The
+Golden Pack fixes the stable recruiter identity and reviewed CV content; the JD controls
+delivery emphasis, approved Portfolio selection/order, and the job-specific cover letter.
+Search priorities and role families remain navigation aids rather than factual authority.
 
-## Fresh-JD synthesis contract
+## Fresh-JD selection contract
 
 Before drafting, form one explicit private application thesis:
 
 1. What is the job's central responsibility pattern, beyond its title?
 2. Which hard requirements can end the application regardless of keyword overlap?
-3. Which two or three eligible claims most directly prove useful performance in this job?
-4. Which identity anchor makes the candidate recognisable and credible for the transition?
+3. Which Golden Pack has the stronger direct evidence pattern?
+4. Which two or three eligible claims should lead the job-specific cover letter?
 5. Which truthful JD terms must be visible because they describe work actually evidenced?
-6. Which real but lower-value claims must be omitted because they dilute the role signal?
+6. Which approved Portfolio modules should be selected, reordered, or omitted for delivery?
 
-Use the selected role family to bound claims, not to predetermine the answer. A role outside
+Use both Golden Packs for comparison rather than creating a new persona. A role outside
 the current search priorities still receives the same analysis. Recommend `apply`,
 `stretch`, or `defer` from the actual requirements and evidence, not from a fixed list of
-preferred titles. Never let a previous CV, baseline, keyword rank, or similarity score make
-the selection decision for the model.
+preferred titles. Do not create a third CV unless the Owner explicitly requests a new role family.
 
-Tailoring means changing evidence selection, order, emphasis, and explanation. Merely
-changing the employer, vacancy title, or a few keywords is not a tailored CV.
+Application adaptation means Golden Pack selection, approved Portfolio page
+selection/order, artifact choice, and a fresh cover letter. It does not change the
+Golden headline, summary, project facts, or stable CV without a separately approved
+Golden Pack change request.
 
 ## Truth-preserving keyword strategy
 

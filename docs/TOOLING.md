@@ -31,21 +31,32 @@ governance; only explicit exclusions, boundaries, and planned/ineligible records
 a red finding. It is not vendored into the Dify runtime because application archives
 and PDFs should not be uploaded to a model service merely to perform local memory maintenance.
 
-Run `./cv doctor` for the full local health path: workspace structure contract and
-status, strict master validation, role-strategy audit, portfolio coverage when a private
-GitHub inventory exists, repository tests, privacy checks, and active-profile drift detection.
-Reference-only profiles and terminal archived applications are not reported as legacy
-application workspaces merely because no manifest remains active.
+Run `./cv doctor` before initialization or after changing machines. It reports required
+Python support, optional build/inspection commands, repository write access, structure,
+and whether the ignored local workspace exists. It never installs packages or reads
+Owner career content. Use `make check` for the full public test suite and the specific
+private validators for an initialized Owner instance.
+
+`./cv demo` builds `output/demo/Awesome-CV_Demo_CV.pdf` from tracked fictional templates
+inside an isolated temporary workspace. It never reads local `meta/`, `workspace/`, or
+Portfolio evidence and is the public clean-clone build smoke test.
 
 `./cv structure` audits the stable path contract separately. It verifies that public
 layers and initializer templates exist, private runtime paths remain ignored, and the
 tracked VS Code settings keep canonical memory and the organized runtime tree visible.
 
-`./cv pdf-audit <pdf>` uses Poppler bounding boxes to enforce one-page output,
+`./cv pdf-audit <pdf>` uses Poppler bounding boxes to enforce the supplied page limit,
 extractable text, a minimum first-page content reach, and a conservative readable-type
-proxy. These metrics catch common regressions but never replace rendered-page review.
+proxy. Golden CVs use `--max-pages 2`. These metrics never replace rendered-page review.
 
-`./cv bundle-audit <manifest>` is the application-level gate. It reads schema 1.2
-deliverables, constrains artifact paths to ignored `workspace/profiles/` or `workspace/build/`, verifies
-SHA-256 and declared page counts, then applies document-appropriate PDF thresholds to
-the CV, cover letter, and optional merged application PDF.
+`./cv bundle-audit <manifest>` is the application-level gate. It reads declared
+deliverables, constrains artifacts to ignored `workspace/profiles/`, `workspace/build/`,
+or `output/pdf/`, verifies hashes/page counts, then applies document-specific PDF gates.
+
+`./cv golden-pack-audit --strict` verifies every Pack in the local N-Pack registry,
+lifecycle state, frozen source fingerprint, matching build backend, CV/Portfolio/Combined
+PDF hashes, and page counts. For `approved`, any source/backend drift is a hard failure.
+
+`./cv cover-letter-audit <document>` is an advisory deterministic voice check. It warns
+about word count, clichés, placeholders, missing company/role, long sentences, Unicode,
+list-heavy formatting, and PDF page count; it does not override human editorial judgment.

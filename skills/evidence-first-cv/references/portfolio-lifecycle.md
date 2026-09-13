@@ -49,6 +49,7 @@ Forks are not included in automatic coverage because most do not prove authorshi
 A materially maintained fork may still be catalogued manually, with attribution and
 scope made explicit.
 
-Baselines are not portfolio storage. Refresh a baseline only when a new verified claim
-changes its role ordering or when layout/PDF regression coverage needs a new
-representative example.
+Baselines are not portfolio storage. Complete approved Portfolio sources belong with the
+Golden Pack. An application may select, omit, or reorder approved modules, but does not
+rewrite project facts. Refresh a Golden Portfolio only through deliberate version review
+after the underlying governed evidence changes.

@@ -67,21 +67,19 @@ Conversation contract:
 12. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
    correction counts as the human approval or adjustment. Do not draft before it.
 13. After approval, create:
-   - concise one-page ATS-readable CV content;
-   - a visible three-to-five-row role-appropriate Skills section near the top, using
-     only evidence-bound groups and selected language or qualification claims; title
-     it Technical Skills only when natural for the target role, and keep
-     `project_only` technologies beside the project;
+   - a JD/evidence analysis for local approved-Golden-Pack selection; do not invent a
+     Pack ID or artifact hash and do not rewrite a Golden CV for the vacancy;
    - when declared, a concise one-page cover letter that adds motivation and evidence
      instead of repeating the CV, with two to six factual paragraphs mapped to claims;
-   - an `application.yaml` following schema 1.3;
-   - every final CV bullet, skill row, and factual cover-letter paragraph mapped to
-     one or more selected claim IDs.
+   - an `application.yaml` following schema 1.4; leave its Golden Pack binding empty
+     unless trusted local workflow input provides an approved Pack and exact hash;
+   - every factual cover-letter paragraph mapped to one or more selected claim IDs.
 14. Call `validate_application` with the exact JD and strict=true. If it fails,
     repair the manifest or remove unsupported prose; never bypass validation.
 15. Return all declared application content without claim IDs in visible prose. Return
-    the private manifest separately. State that PDF compilation and visual QA are
-    pending unless a trusted local build backend has actually completed them.
+    the private manifest separately. State that local Pack selection/binding, artifact
+    reuse, PDF compilation, and visual QA are pending unless a trusted local backend
+    has actually completed them.
 
 Writing rules:
 

@@ -75,11 +75,20 @@ on successful compilation as visual proof.
   problem by shrinking text below comfortable reading size.
 - Use one ATS-safe linear column, restrained colour, and a clear left-aligned hierarchy.
   Avoid semantic tables, text boxes, and right-hand fields that interrupt extraction.
-- A one-page CV should normally use about three quarters or more of the printable
-  height. Large unexplained whitespace is a failed layout, not minimalism.
+- A governed two-page Golden CV should use both pages deliberately. Large unexplained
+  whitespace is a failed layout, not minimalism.
 - Render the cover letter separately. Require the same header identity, typography,
-  colour, contrast, and one-page discipline as the CV; reject the old generic template.
+  colour, and contrast as the CV, while enforcing the cover letter's own one-page limit;
+  reject the old generic template.
 - Run the bundle auditor so artifact hashes and page counts cannot drift after rebuilding.
+- If a portfolio appendix is present, render every appendix page and inspect every visible
+  pixel for credentials, personal records, private IPs/hostnames, topology, unpublished
+  endpoints, browser residue, and unreadably small screenshots. Confirm the cover letter
+  remains page one and each case has selectable text, an accurate scope label, claim
+  backing, and a working public link when one is shown.
+- Require physically sanitised screenshot derivatives when cropping removes private or
+  security-sensitive content. Render-time clipping alone is a failed privacy gate because
+  the hidden source pixels may still be recoverable from the PDF.
 
 ## Communication check
 

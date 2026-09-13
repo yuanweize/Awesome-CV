@@ -25,6 +25,8 @@ new files under public `templates/sections/`.
 | Path | Responsibility |
 |---|---|
 | `src/` | Shared Awesome-CV LaTeX class, modern presentation layer, and document entry points |
+| `assets/portfolio/` | Public policy/index only; all user-specific raw, curated, and generated visuals are ignored |
+| `examples/` | Fictional YAML, JD analysis, and optional synthetic demo assets |
 | `templates/` | Fictional public examples for first-time initialization |
 | `skills/evidence-first-cv/` | Canonical AI workflow, policy, assets, and deterministic scripts |
 | `tools/` | Compatibility wrappers, packaging, cleanup, and privacy utilities |
@@ -51,11 +53,13 @@ tech-stack collector is an evidence-discovery input, not Skill business logic. S
 | Path | Responsibility |
 |---|---|
 | `meta/master_cv.yaml` | Career preferences, role strategy, facts, evidence IDs, atomic claims, governed portfolio, and exclusions |
+| `meta/golden_packs.yaml` | Local N-Pack version/status registry, frozen source fingerprints, and recruiter-PDF hashes |
 | `meta/README.md` | Local map of the ignored runtime layer; guidance only, never career evidence |
 | `meta/applications.yaml` | Application events and funnel outcomes |
 | `meta/applications/<id>/` | One saved JD and its CV + cover-letter decision/claim/artifact manifest |
 | `meta/baseline_catalog.yaml` | Optional role-family metadata for reusable layout baselines |
 | `meta/evidence/` | Durable private proof such as degree or contract records |
+| `meta/evidence/portfolio/` | Private, reviewed visual assets and usage/privacy notes for optional recruiter-facing portfolio appendices |
 | `meta/inventory/` | Dated derived discovery caches such as GitHub API snapshots; never factual authority |
 | `meta/audits/` | Private dated review output and reconciliation notes |
 
@@ -71,20 +75,24 @@ change evidence records or claims.
 | Path | Responsibility |
 |---|---|
 | `workspace/current/` | Current `config.tex`, `letter_config.tex`, `sections/`, and active-profile marker |
+| `workspace/golden-packs/<version>/<pack>/` | Reusable reviewed/freeze CV and Portfolio source snapshot; not factual authority |
 | `workspace/baselines/<role-layout>/` | Optional long-lived, clone-only layout and ordering reference |
-| `workspace/profiles/<company-role>/` | Submitted or still-editable CV + cover-letter application snapshot |
+| `workspace/profiles/<company-role>/` | Submitted or still-editable CV + cover-letter snapshot; may include an optional `sections/portfolio.tex` appendix |
 | `workspace/build/`, `workspace/tmp/` | Regenerable PDFs, contexts, and rendering output |
 
-A baseline is not a mother CV, fact database, or mandatory general résumé. It may save
-layout work when a proven role-family presentation exists. New JD work still starts
-from the master claims and manifest; `./cv clone <baseline> <company-role>` reuses only
-source layout and ordering, never factual authority.
+A Golden Pack is a stable recruiter-facing identity and reviewed source reused across
+applications. A new JD selects the best approved local Pack, may request a small approved
+Portfolio delivery cut/reorder, and receives a fresh cover letter. It does not trigger a
+new CV draft. The public engine supports N Packs; their IDs are user-instance configuration.
+`meta/golden_packs.yaml` binds each version to this source snapshot and its exact PDFs.
+A baseline remains layout-only and neither location is factual authority.
 
 ## 4. Private delivery layer (ignored by Git)
 
 | Path | Responsibility |
 |---|---|
 | `output/pdf/<company>/<role>/` | Stable recruiter-facing copies of the validated CV, cover letter, and combined application |
+| `output/pdf/golden-packs/<version>/` | Registered Pack artifacts with local manifest and hashes |
 | `output/pdf/README.md` | Human handoff index with relative links to unsent bundles |
 
 Delivery copies are convenience artifacts, not sources. Never recover claims from
@@ -96,6 +104,9 @@ application manifest.
 | Path | Responsibility |
 |---|---|
 | `archive/applications/YYYY/` | Closed application snapshots with hash manifests |
+| `archive/golden-packs/` | Superseded Golden source and PDF iterations |
+| `archive/conversations/` | Historical design discussions and chat exports |
+| `archive/portfolio-assets/` | Superseded/rejected visual derivatives with restore notes |
 | `archive/research/` | Closed interview research, chat exports, and old inventories |
 
 Archive movement is planned first and verified after the move. Active applications,
@@ -104,13 +115,14 @@ evidence, and historical source are never mass-deleted during routine cleanup.
 ## Lifecycle
 
 ```text
-evidence -> master claim -> JD manifest -> working CV + CL -> audited application bundle
-                                                              -> submitted profile
+evidence -> master claim -> Golden Pack -> JD selection -> Golden CV + fresh CL
+                                             -> approved Portfolio cut/order -> audited bundle
                                                        -> outcome ledger
 discovery inventory -> portfolio audit -> catalog/exclusion -> human-reviewed claim (or no promotion)
 stated interest -> role family/stretch titles -> role audit -> JD-specific evidence decision
 closed profile/research -> verified private archive
 historical CV/archive -> private legacy audit -> evidence review -> claim/exclusion/no change
+reviewed screenshots -> private portfolio asset record -> JD-selected CL appendix -> rendered privacy review
 workspace/build + workspace/tmp + cache -> disposable cleanup
 ```
 

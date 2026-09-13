@@ -1,161 +1,91 @@
 # Evidence-first CV SOP
 
+This document is the factual-authority and claim-maintenance source of truth. Golden Pack
+governance and per-JD delivery live in
+[GOLDEN_PACK_APPLICATION_WORKFLOW.md](GOLDEN_PACK_APPLICATION_WORKFLOW.md).
+
 ## Source hierarchy
 
-1. Evidence registry: where proof exists.
-2. Atomic claim registry: exactly what may be stated.
-3. Role/JD context: which eligible claims matter now.
-4. Application manifest: requirement, decision, confirmation, capability review,
-   CV/cover-letter claim trace, and artifact integrity.
-5. Profile: human-edited application artifact.
+1. `evidence_registry`: where support exists.
+2. Eligible atomic `claim_registry` entries: exactly what may be stated.
+3. Role/JD context: which claims matter now.
+4. Golden Pack: stable reviewed recruiter expression, never factual authority.
+5. Application manifest: JD decision, selected Golden hash, content trace, and artifacts.
 6. Application ledger: what happened after actual submission.
-7. Private archive: closed snapshots and research, never factual authority.
+7. Private archive: preserved history, never factual authority.
 
-Old CV wording and AI-generated interview notes are not factual sources.
-
-For a whole-history review, run `./cv legacy-audit` and apply the red/blue protocol in
-the Skill reference: recover independently supported omissions, challenge copied
-inflation, and leave unresolved candidates out of eligible claims. Treat blue mapping
-as heuristic triage and close every red finding with an explicit master boundary or
-exclusion; technology presence alone is not governance.
+Old CV wording, screenshots, Portfolio copy, repository descriptions/statistics, AI
+responses, and chat exports are discovery or presentation inputs only.
 
 ## First-time initialization
 
-Run `./cv init` in a fresh clone. It reconstructs all ignored private/runtime paths
-from fictional public templates, rejects symbolic-link destinations, and preserves
-every existing file. Replace the fictional master data before drafting, then run
-`./cv structure --strict`, `./cv validate --strict`, and `./cv status`. The structure
-check preserves stable callers while the organized `workspace/` tree keeps operational
-paths explicit and visible. Do not commit placeholder files inside
-private directories; the initializer is the reproducible directory contract.
+Run `./cv init`. It creates the ignored private/runtime layer from fictional templates,
+rejects unsafe symbolic-link destinations, preserves existing files, and initializes the
+Golden registry placeholder. Replace example data before drafting, then run:
 
-## Portfolio intake
+```bash
+./cv structure --strict
+./cv validate --strict
+./cv status
+```
 
-1. Capture public repository state with `./cv github-audit`.
-2. Run `./cv portfolio-audit --strict`.
-3. Resolve every original repository as primary, supporting, catalog, or explicitly
-   excluded with a reason.
-4. Add repository evidence and a review date before considering a project governed.
-5. Create a claim only after reviewing authorship, implementation scope, limitations,
-   and interview depth. README text, languages, stars, forks, and Actions are discovery
-   signals, not automatic résumé facts.
+## Evidence intake
 
-For AI-assisted repositories, separately record what the product does, how it was
-delivered, which actions the owner personally controls, and which repository
-technologies are project-only context. Do not suppress the real product; do not turn
-its generated source stack into personal language or framework proficiency.
+1. Inspect only material the Owner placed in scope.
+2. Reuse or create an evidence ID. Store a public URL or private logical locator; do not
+   embed secrets, IDs, or entire private documents.
+3. Extract one defensible fact per claim.
+4. Record exact relationship and scope: employment, contractor/intermittent assignment,
+   academic, open source, personal, owner-operated, guided, or AI-assisted.
+5. Record status, eligibility, role families, tags, evidence IDs, limitations, and
+   interview depth.
+6. Reconcile stable IDs and contradictions rather than appending another wording variant.
+7. Link every usable job/project/qualification/skill to claims, or mark it ineligible with
+   a reason.
+8. Validate again and report which claim, preference, or boundary changed.
 
-Optional baselines remain compact role-order and PDF-regression examples under
-`workspace/baselines/`. They do not expand merely because the portfolio catalog grows and never
-serve as factual authority.
+Durable Owner corrections re-enter this loop even when they arrive during application
+work. One-vacancy motivation stays in the manifest. Frustration, incidental conversation,
+and recruiter speculation do not become career memory.
 
 ## Claim rules
 
-- Label employment, contractor, internship, academic, open-source, and personal scope.
-- Never turn a plan into completed work.
-- Never turn personal infrastructure into enterprise production experience.
-- Never turn generated framework code into hand-written product-language experience.
-- Never use source-level terms such as an ORM, WAL mode, concurrency primitive, or
-  framework internals unless the owner independently understands and can defend them.
-- Never list a pending or expired qualification as current.
-- Record evidence for every metric and date mutable public numbers.
-- Use strong titles/adjectives only when evidence and interview depth support their
-  industry meaning.
-- Remove any bullet that cannot survive five minutes of follow-up questions.
-- Classify nested thesis, coursework, and honors entries with valid `claim_ids`, or
-  mark them `cv_eligible: false` with a reason so true facts cannot remain silently
-  stranded outside the drafting registry.
+- Never turn a plan, pending certificate, expired qualification, or learning intention
+  into a current capability.
+- Never turn personal infrastructure into enterprise production, uptime/SLA/on-call,
+  team leadership, or customer scale.
+- Never turn repository technology presence or generated source into personal proficiency.
+- Never strengthen `supported` or `assisted` into `led`, `owned`, or `architected`.
+- Use numbers only with evidence; date mutable public metrics.
+- Preserve professional, contractor, academic, personal, owner-operated, guided, and
+  AI-assisted boundaries where material.
+- Remove or narrow any claim the Owner cannot defend through detailed follow-up.
+- Lead recruiter prose with the closest true action and result; keep the full gap analysis
+  private unless disclosure prevents a misleading inference or answers a direct question.
 
-## Career direction and one role family per profile
+## Portfolio intake
 
-JD context ranking treats concrete responsibility and technology overlap as primary.
-Evidence status and interview depth break ties; they must not push a strongly evidenced
-but unrelated project above a direct language, support, SQL, or domain requirement.
+Use `./cv github-audit` and `./cv portfolio-audit --strict` to inventory public work.
+Resolve each repository into governed project/evidence or an explicit exclusion. README
+text, languages, stars, forks, workflows, and screenshots never auto-create claims.
 
-Define stable families based on responsibilities, not individual company names. Create
-a new family only when the work, proof order, and interview preparation are materially
-different. Too many families reproduce the same identity drift the system is meant to
-prevent. In schema 3.1+, record each family's market readiness, evidence strengths,
-and hard positioning boundaries. Schema 3.2 adds `career_preferences` and
-`stretch_titles`: interest must survive even when evidence is developing, while a
-stretch title remains clearly separated from direct readiness. Run `./cv role-audit`
-after changing direction. Boundaries override old résumé wording and prevent personal
-projects or coursework from being inflated into professional seniority; they must not
-be so broad that they suppress every adjacent application.
+For AI-assisted products, record what the system does, delivery mode, personally owned
+actions, implementation boundaries, tests/validation, operation, and interview depth.
+Keep repository-only tools beside the project rather than in Skills.
 
-Schema 3.3 adds governed AI/direct delivery ownership, `project_only` stack handling,
-skill levels/boundaries, and curated `adjacent_values`. This prevents repository
-languages from leaking into Skills and prevents lexical accidents in the complement
-pool.
+Recruiter visuals illustrate selected claims. Preserve raw originals privately, use
+reviewed recruiter-safe derivatives, and inspect both the source image and rendered PDF.
+See the asset policy in [PRIVACY.md](PRIVACY.md).
 
-Schema 3.4 adds governed `identity_anchors`. These are evidence-bound credential,
-domain, market-bridge, local-fit, or autonomy claims reviewed independently from JD
-ranking. They prevent over-tailoring from erasing the candidate while preserving the
-one-role-family constraint.
+## Historical conflict review
 
-Schema 3.5 adds `application_defaults`. The default public workflow declares both
-`cv` and `cover_letter`, so a conversational request for a CV produces a complete
-application package unless the owner deliberately selects résumé-only output.
+Run `./cv legacy-audit` for whole-history discovery. Blue mapping is heuristic triage;
+red findings require an explicit canonical exclusion/boundary or independent evidence.
+Do not promote an old title, grade, date, metric, scope, or skill because it appeared in
+a previously generated or submitted PDF.
 
-Schema 3.6 adds `application_defaults.project_link_policy`. When a selected thesis has
-public repository evidence and `thesis_repository` is `required_when_public`, the final
-CV must show that repository directly using the shared canonical project-link style.
-The bundle audit treats an omitted visible repository label or a label without a
-clickable PDF link annotation as a failure; the workflow must not expect a recruiter
-to search for evidence that the CV could have linked.
+## Validation boundary
 
-Schema 3.7 adds claim-backed reusable positioning with explicit role, placement, and
-use limits. It preserves reviewed boundary wording across model changes without
-creating a new factual claim.
-
-## Tailoring sequence
-
-1. Preserve the full JD privately.
-2. Map must-haves to eligible claim IDs.
-3. Decide apply, stretch, or defer.
-4. Select one to three identity anchors and record their top-third placement. Spell
-   out an important university, faculty, and degree for graduate applications.
-5. Review the pre-governed unused complement for zero to two adjacent differentiators;
-   require a concrete transfer value and low-prominence placement, or select none.
-6. Review every exported direct skill group, recording include/omit, reason, and
-   placement. Preserve useful, truthful bonus capabilities without crowding the role identity.
-7. Show a compact brief, ask at most three material questions, and wait for approval.
-8. Run the continuous memory loop over the reply: persist durable new claims,
-   preferences, and boundaries; keep JD-only motivation in the manifest; validate and
-   regenerate context if claim selection changed.
-9. Create or clone a private application profile.
-10. Draft the one-page CV with two or three leading proof points.
-11. Add a visible three-to-five-row role-appropriate Skills section from evidenced
-   groups and selected language or qualification claims; map every skill row and final
-   bullet to claims and strictly validate the application manifest.
-12. When declared, draft a one-page cover letter that complements rather than repeats
-    the CV; map each factual paragraph to claims.
-13. Audit every fact and metric against claim IDs.
-14. Build CV, cover letter, and merged PDF; run `./cv bundle-audit`, extract text,
-    render, inspect both pages, and run privacy checks.
-15. Copy only the validated handoff PDFs to `output/pdf/<company>/<role>/` and update
-    the private relative-link index. The profile and manifest remain authoritative.
-16. Record the application only when submitted; then record stages and outcome.
-17. After a terminal outcome, archive the snapshot with a verified archive manifest.
-
-The complement review prevents two opposite failures: mirroring the JD so narrowly
-that useful range disappears, and listing every true skill until the candidate's role
-identity becomes unclear. Direct fit owns the headline and top half. Adjacent value is
-capped, subordinate, and never allowed to manufacture a missing requirement.
-
-## Communication
-
-Follow the recruiter's requested format and length literally. Email questions belong in
-the email. Avoid unsolicited reports, screenshots, sensitive infrastructure, political
-context, future business plans, and explanations of AI usage.
-
-## Feedback thresholds
-
-- 30 matched applications with fewer than three screens: revise targeting/top half.
-- Five screens with fewer than two technical interviews: revise narrative, work
-  authorisation clarity, and salary alignment.
-- Three technical failures: train repeated gaps before rewriting the CV again.
-
-Track stages and offers, not praise or interview length.
-Record a silent application as `no-response` only after the user explicitly closes it;
-do not silently convert old `applied` records based on age.
+Validation establishes schema consistency, traceability, hashes, or rendering quality.
+It does not prove a live vacancy, professional scale, actual submission, recruiter
+acceptance, or Owner approval of a Golden Pack.

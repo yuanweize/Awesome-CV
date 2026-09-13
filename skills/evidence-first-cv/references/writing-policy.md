@@ -27,9 +27,10 @@ Narrow the claim when any answer is vague.
 - Preserve `supported`/`assisted`; never silently upgrade to led/owned/architected.
 - Keep personal, academic, and contract scope visible.
 - Use metrics only with evidence and an `as of` date when dynamic.
-- One page, one role family, two or three main proof points for most junior roles.
-- Tailor from the complete JD every time. Change evidence selection, order, emphasis,
-  and explanation; changing only the company/title/keywords is a failed tailoring pass.
+- Keep the approved Golden CV to its governed two-page contract and stable identity.
+- Analyse the complete JD every time, then adapt through Pack selection, approved
+  Portfolio selection/order, artifact choice, and the cover-letter explanation. Do not
+  rewrite the Golden CV for ordinary application tailoring.
 - Preserve a recognisable candidate identity. For graduate and early-career CVs,
   select one to three governed identity anchors and place them in the top third.
   Spell out important institutions, faculties, degrees, domains, and language bridges
@@ -94,11 +95,10 @@ Narrow the claim when any answer is vague.
 
 ## Identity before tailoring
 
-JD tailoring controls emphasis, ordering, and evidence selection; it must not erase
-the candidate. Before drafting, review `identity_anchors` independently from lexical
-JD ranking. Record each selected anchor, its reason, and its placement in the private
-manifest. An anchor may sit outside the primary role family without being mislabeled
-as an adjacent differentiator, but it still needs an eligible claim and evidence.
+The Golden Pack fixes the recruiter identity and CV evidence order. JD analysis controls
+Pack choice, cover-letter evidence, and approved Portfolio delivery. Review
+`identity_anchors` when maintaining a Pack, not as permission to rewrite the approved CV
+for each vacancy. Application prose still cites eligible claims and preserves the Pack.
 
 Use the headline to say who the person is, not to impersonate the vacancy title. A
 recent graduate can lead with the full degree/institution plus the role-relevant bridge.
@@ -158,6 +158,11 @@ not permission to dump an infrastructure inventory.
   would contribute and deepen the target stack. Preserve exact scope without leading
   with what the candidate lacks. Avoid pleading language or unsupported promises of
   minimal onboarding.
+- When a visual portfolio appendix is enabled, keep the signed letter on page one and
+  follow [portfolio-appendix.md](portfolio-appendix.md). Select role-specific proof,
+  use searchable text beside images, and include relevant evidenced personal, academic,
+  or coursework foundations with honest scope/level instead of suppressing them solely
+  because they are not enterprise employment.
 
 ## Requirement mapping
 

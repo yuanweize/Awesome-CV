@@ -7,23 +7,30 @@ the Skill, tools, documentation, integrations, and tests. Real career memory and
 application artifact live in ignored runtime paths. A fresh clone therefore looks
 empty until it is initialized; this is a privacy boundary, not missing source data.
 
-Run once from the repository root:
+Check the toolchain, then initialize once from the repository root:
 
 ```bash
+./cv doctor
 ./cv init
+./cv demo
 ```
 
 `make init` is an alias for the same deterministic initializer. It creates:
 
-- `meta/master_cv.yaml`, `meta/applications.yaml`, and `meta/baseline_catalog.yaml`;
+- `meta/master_cv.yaml`, `meta/applications.yaml`, `meta/baseline_catalog.yaml`,
+  and `meta/golden_packs.yaml`;
 - `meta/README.md`, a local map of the ignored runtime layer;
 - `meta/applications/`, `meta/evidence/`, `meta/inventory/`, and `meta/audits/`;
 - the current private LaTeX files under `workspace/current/`;
-- empty `workspace/baselines/`, `workspace/profiles/`, `archive/applications/`,
-  `archive/research/`, `workspace/build/`, `workspace/tmp/`, and `output/pdf/` paths;
+- empty `workspace/golden-packs/`, `workspace/baselines/`, `workspace/profiles/`,
+  `archive/applications/`, `archive/conversations/`, `archive/golden-packs/`,
+  `archive/portfolio-assets/`, `archive/research/`, `workspace/build/`,
+  `workspace/tmp/`, `output/pdf/golden-packs/`, and the private/raw plus
+  recruiter-safe Portfolio asset paths under `assets/portfolio/`;
   `output/pdf/README.md` is copied as the private delivery index.
 
-The command is idempotent and never overwrites an existing private file. It rejects
+`./cv demo` builds a fictional one-page PDF in `output/demo/` without reading private
+career data. The initializer is idempotent and never overwrites an existing private file. It rejects
 symbolic-link destinations so a template cannot escape the workspace.
 
 ## Organized and visible runtime tree

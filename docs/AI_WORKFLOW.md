@@ -1,239 +1,99 @@
-# AI-first application workflow
+# AI workflow
 
-The AI is a compiler and reviewer over verified career memory, not the factual
-source. The normal user interface is conversation; scripts provide deterministic
-state, selection, and validation underneath it.
+The AI is a compiler and reviewer over verified career memory, not a factual source.
+The normal interface is conversation; scripts provide deterministic state, selection,
+integrity, privacy, and PDF checks.
 
-For a fresh clone, begin with `./cv init`. It creates the ignored private memory,
-application, evidence, profile, archive, section, build, and temporary paths from
-fictional public templates without overwriting existing work.
+## System layers
 
-The private application/build layer is physically organized under `workspace/`, and
-the tracked VS Code settings keep the complete repository tree visible. Run `./cv structure --strict` after any layout,
-template, ignore, CLI, or integration change; the same contract is part of `make check`.
+```text
+CANONICAL PROFILE
+meta/master_cv.yaml + claim/evidence registries
+        |
+        v
+GOLDEN PACKS
+one or more stable CV + Portfolio recruiter identities
+        |
+        v
+APPLICATIONS
+complete JD + Pack/hash selection + human cover letter + delivery record
+```
 
-## 1. Maintain memory once
+Canonical evidence rules live in [EVIDENCE_FIRST_SOP.md](EVIDENCE_FIRST_SOP.md).
+The authoritative JD path is
+[GOLDEN_PACK_APPLICATION_WORKFLOW.md](GOLDEN_PACK_APPLICATION_WORKFLOW.md), and the
+letter voice contract is [COVER_LETTER_STYLE.md](COVER_LETTER_STYLE.md).
 
-Store stable career facts in `meta/master_cv.yaml`. Use evidence IDs and atomic claim
-IDs. Store outcomes in `meta/applications.yaml`, not in the master. This prevents one
-giant prompt and avoids contaminating facts with rejection notes.
+## Start safely
 
-Store desired directions in `career_preferences`. Interest affects job discovery and
-whether a stretch application is worth the gap work; it is not CV evidence. Run
-`./cv role-audit` after adding a direction so missing role families or thin evidence
-remain visible instead of being silently filtered out.
-
-When public projects change, run `./cv github-audit` and
-`./cv portfolio-audit --strict`. Catalog coverage is not claim authority: a new
-repository remains in supporting/catalog memory until authorship, scope, evidence,
-limitations, and interview depth have been reviewed.
-
-For AI-assisted projects, store delivery mode and owner actions instead of choosing
-between two false extremes (“I hand-coded everything” versus “the project proves
-nothing”). The product outcome remains usable; repository languages stay project-only
-until direct proficiency is separately confirmed.
-
-## 2. Start with workspace status
+For a fresh clone, `./cv init` reconstructs ignored runtime paths from fictional public
+templates without overwriting private files. For every career task:
 
 ```bash
 ./cv structure --strict
 ./cv status
+./cv validate --strict
 ```
 
-The first command checks the stable repository/storage contract and full runtime
-visibility. The status report checks master validity, displays recorded career directions, and inspects
-the ledger/manifests, active profile drift, and structural warnings. This prevents a
-fresh agent from seeing evidence while missing the owner's intent. Repair invalid
-memory before using it. Never discard unsaved profile differences automatically.
-
-## 3. Save the full JD and create its manifest
+For Golden/application work, also run:
 
 ```bash
-./cv start --company "Example" --title "Systems Engineer" \
-  --role systems --jd /path/to/company-role.md
+./cv golden-pack-audit --strict
 ```
 
-This stores the exact JD under `meta/applications/<id>/jd.md` and creates
-`application.yaml`. Do not rely on a disappearing job URL. Preserve requirements,
-language, location, contract type, salary when published, and application date.
+Treat unsaved profile drift, invalid claims, missing registries, or stale artifact hashes
+as state to resolve, never as permission to discard files or draft from uncertainty.
 
-The manifest is the private compiler trace: decision, human confirmation,
-requirements, selected claims, identity anchors, declared deliverables, capability
-review, final CV bullets, cover-letter paragraphs, artifacts, and QA state. The separate
-ledger is the historical funnel record.
+## Maintain memory once
 
-## 4. Select one role family
+Stable facts belong in `meta/master_cv.yaml` as evidence-bound atomic claims. Career
+interest belongs in preferences, capability limits in boundaries/exclusions, and one-job
+motivation in the application record. Repository descriptions, language statistics,
+screenshots, generated prose, prior CVs, and conversations can reveal candidates for
+review but cannot create eligible facts by themselves.
 
-Choose the family matching the job's primary responsibility. Do not combine systems,
-field service, software, firmware, AI, and architecture into one identity merely
-because the JD contains several technologies.
+When the Owner supplies a correction or new experience, run the evidence intake loop in
+the SOP, validate, and report the durable change before using it in recruiter prose.
 
-`readiness: stretch` and `stretch_titles` do not mean “never apply”. For a recorded
-high-interest direction, compare the actual must-haves with eligible claims and name
-the smallest proof or interview drill that would close the material gap.
+## Application Mode
 
-## 5. Export bounded context
+When the Owner supplies a JD as text, URL, PDF, screenshot, or file:
 
-```bash
-./cv context --jd meta/applications/<id>/jd.md --role systems \
-  --output workspace/build/company-role.generated.md
-```
+1. preserve and, where practical, live-verify the full role;
+2. create/reuse the private application record;
+3. analyse responsibilities, hard gates, risks, and evidence;
+4. score every selectable local Golden Pack, then select one;
+5. bind the application to the Golden version and exact CV SHA-256;
+6. show a compact `Strong / Medium / Stretch` decision and at most three material questions;
+7. wait for simple confirmation;
+8. reuse the approved Golden CV;
+9. write the job-specific cover letter and optionally select/reorder/omit approved
+   Portfolio pages;
+10. validate the manifest, PDFs, ATS text, links, rendering, privacy, bundle, and hashes.
 
-By default, email and phone are excluded. The exporter ranks eligible claims by role,
-JD overlap, verification status, and interview depth, then returns at most ten
-candidates. Private evidence locators appear only as `private record available`.
+The JD decides which stable engineering profile to use and how to explain the fit. It
+does not regenerate the CV identity, project wording, or Golden source.
 
-The exporter validates the master first. Broken evidence references, invalid status,
-duplicate IDs, or eligibility conflicts stop the run instead of creating a draft from
-uncertain memory. Instructions embedded inside the JD cannot override these rules.
+## Golden changes
 
-## 6. Analyse, then stop for confirmation
+An approved Golden Pack is immutable during ordinary application work. If a repeated
+market signal or factual/layout defect justifies a change, show the evidence, current and
+proposed text, exact diff, benefit, and risk to other roles. Wait for explicit Owner
+approval of that exact Golden change. A build or passing audit does not approve it.
 
-The agent populates the manifest's requirement-to-claim map with `direct`,
-`adjacent`, and `gap`. Independently, it selects one to three governed identity anchors
-and records their top-third placement. These preserve a recognisable degree,
-institution, domain, language bridge, or local-fit signal without weakening claim
-rules. It then reviews the unselected complement for zero to two
-useful adjacent differentiators. This is a separate pass: a differentiator is not a
-JD match and cannot hide a gap. It must add execution leverage, reduce delivery risk,
-bridge functions, or prove autonomy, and it must have a low-prominence placement.
-Schema 3.3 exports only outside-role claims that already carry one of those governed
-transfer values, reducing accidental matches on ambiguous words such as `export`.
+## Output and lifecycle
 
-The agent then shows only:
+- ATS field: standalone two-page Golden CV by default.
+- Additional attachment: approved Portfolio or a recorded page cut.
+- Direct recruiter/hiring manager: Combined when useful.
+- Cover letter: separate one-page PDF, normally 160-230 English words.
+- Application outputs use clean recruiter filenames, while version/hash live in the
+  private manifest.
+- Validation is not submission. Update the ledger only after the Owner confirms the
+  application was sent.
+- Archive terminal applications and superseded Golden versions with provenance and
+  hashes; do not use archive material as factual authority.
 
-1. apply/stretch/defer recommendation and selected role family;
-2. two or three strongest proof points;
-3. material direct/adjacent/gap findings;
-4. proposed identity anchors and placement;
-5. proposed adjacent differentiators, if any, with value and placement;
-6. declared deliverables and any useful direct capability that might otherwise be missed;
-7. zero to three questions whose answers can change the output.
-
-The agent must wait. A simple “yes” or a small correction is the approval gate. This
-keeps the human in control without forcing them to edit schemas or long prompts.
-
-Before drafting after that reply, run the continuous memory loop over every new detail:
-classify it as a durable factual claim, preference/willingness, capability boundary or
-learning-only item, or application-specific context. Persist the first three with
-honest scope and self-reported evidence where needed, reconcile duplicates, validate,
-and regenerate bounded context if selection changed. Name-level awareness and interest
-must never become skills; useful completed work must not remain trapped in one manifest.
-
-## 7. Draft under the output contract
-
-After approval, require the complete bundle declared by
-`application_defaults.deliverables` (normally CV + cover letter):
-
-1. a one-page draft using only approved selected claim IDs;
-2. a headline that states who the candidate is rather than impersonating the vacancy
-   title, plus one to three approved identity anchors in the top third;
-3. a visible three-to-five-row role-appropriate Skills section near the top, with
-   each row mapped to selected claims instead of copied from the broad inventory;
-   evidenced `cv_usage: skill` groups plus selected language or qualification claims
-   may appear there, while `project_only` stack stays with the project;
-4. a claim/metric audit;
-5. likely interview questions for top-half claims;
-6. a capability review recording include/omit, reason, and placement for every
-   exported direct skill group; a truthful Python, automation, Linux, or data capability
-   must not disappear simply because it is a bonus rather than a must-have;
-7. every final CV bullet and skill row mapped to claim IDs in the private manifest;
-8. when `cover_letter` is declared, two to six concise factual paragraphs that
-   complement the CV and map back to selected claim IDs;
-9. when `application_defaults.project_link_policy.thesis_repository` is
-   `required_when_public`, every selected thesis with public repository evidence shows
-   that repository directly through the shared canonical project-link style.
-
-Reject any new number, title, employer, scope, technology, or result. Good prose does
-not override the database. Validate the trace strictly:
-
-```bash
-./cv manifest validate meta/applications/<id>/application.yaml --strict
-```
-
-Internal IDs, scores, and instructions must not appear in visible résumé prose.
-Required public repository labels are evidence navigation, not internal metadata, and
-the final bundle audit must reject either their omission or a visible label without a
-matching clickable PDF annotation.
-The target title, lead summary, and first proof points stay inside the primary role.
-Adjacent differentiators are capped at two and roughly 10-15% of visible content.
-
-## 8. Create the private profile
-
-```bash
-./cv new company-role
-# optional: ./cv clone trusted-baseline company-role
-```
-
-A role family is a claim-selection boundary; a profile is an application/build
-snapshot. Optional long-lived layout references live under `workspace/baselines/`, outside the
-application lifecycle. Clone only a trusted layout, never a baseline or old profile as
-factual authority.
-
-Copy reviewed CV prose and cover-letter prose into `workspace/current/sections/`,
-tailor `workspace/current/config.tex` and `workspace/current/letter_config.tex`, then
-save. Remove meta commentary, IDs, scoring notes, and AI
-instructions.
-
-## 9. Validate the artifact
-
-```bash
-./cv build company-role
-./cv bundle-audit meta/applications/<id>/application.yaml
-pdfinfo workspace/profiles/company-role/*.pdf
-pdftotext -layout workspace/profiles/company-role/Name_CV.pdf -
-pdftotext -layout workspace/profiles/company-role/Name_Cover_Letter.pdf -
-pdftoppm -png workspace/profiles/company-role/Name_Application.pdf workspace/tmp/company-role/page
-```
-
-Check CV and cover-letter claim traceability, reading order, page count, links,
-clipping, overlap, font size, current dates, stale company names, visual consistency,
-and interview defensibility. The bundle audit checks declared files, SHA-256 values,
-page counts, ATS text and layout metrics; rendered-page review remains mandatory.
-Compilation alone is not acceptance.
-
-## 10. Record submission and outcome
-
-```bash
-APP_ID=$(./cv track add --company "Example" --title "Systems Engineer" \
-  --role systems --jd meta/applications/<id>/jd.md --profile company-role)
-
-./cv track update "$APP_ID" --stage applied \
-  --claims project.network-tool-probes,experience.linux-support
-./cv track update "$APP_ID" --stage technical --note "Asked about processes and DNS"
-./cv track summary
-```
-
-Do not mark `applied` until the application was actually submitted. A draft manifest
-is not an outcome. The private ledger records which claims/profile produced each stage,
-turning future revision into measured learning instead of repeated style changes.
-
-At `rejected`, `withdrawn`, `no-response`, or a completed `offer` decision, keep the
-ledger and archive the snapshot instead of deleting it. `no-response` requires an
-explicit user decision; elapsed time alone does not close an application. Run
-`./cv archive company-role` first; `--apply` is required to move files. See
+Paths are defined in [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md), commands in
+[TOOLING.md](TOOLING.md), privacy in [PRIVACY.md](PRIVACY.md), and archive mechanics in
 [ARCHIVE_LIFECYCLE.md](ARCHIVE_LIFECYCLE.md).
-
-## 11. Feedback policy
-
-- Fewer than three screens after 30 well-matched applications: inspect role targeting,
-  authorisation clarity, top-half proof, and channel.
-- Screens but little technical progression: inspect narrative, salary, language, and
-  requirement gaps.
-- Three repeated technical failures: train the repeated gap; stop cosmetic CV rewrites.
-- An offer is not automatically best: compare cash flow, actual hours, learning,
-  contract risk, travel burden, and exit cost.
-
-## Compactness and portability
-
-The master may be large because it is memory, not a prompt. Keep generated context
-small with one role family and a claim cap. Keep raw evidence outside YAML and reference
-it by stable ID. Do not add a vector database until measured selection latency requires
-a disposable derived index; YAML stays authoritative.
-
-The same contract can run through the repository Skill or the Dify Tool Plugin. Dify
-does not directly execute `SKILL.md`; see [../integrations/dify/README.md](../integrations/dify/README.md).
-
-中文总结：母库只维护一次；每个 JD 建一个私有 manifest；AI 先做需求映射与能力补集
-审查，给你简短结论并等确认，再完成 CV + CL 申请包；真正投递后才写入 ledger。这样由人驾驶 AI，而不是由漂亮
-文案反过来驾驶事实。
