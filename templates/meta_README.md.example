@@ -12,6 +12,8 @@ Run `./cv structure` to verify the repository layout and privacy contract.
   `claim_registry` may supply factual résumé prose.
 - `applications.yaml`: application stages and outcomes.
 - `baseline_catalog.yaml`: optional role-family metadata for reusable layout baselines.
+- `golden_packs.yaml`: user-defined Pack versions, approval state, source fingerprints,
+  and exact CV/Portfolio/Combined PDF hashes. It is governance metadata, not evidence.
 
 ## Subdirectories
 
@@ -30,23 +32,30 @@ an eligible claim without independent evidence or fresh owner confirmation.
 Current TeX source belongs in `../workspace/current/`. Generated contexts and PDFs
 belong in `../workspace/build/`; disposable render output belongs in
 `../workspace/tmp/`; reusable clone-only layout references belong in `../workspace/baselines/`;
-editable application snapshots belong in `../workspace/profiles/`; closed history
+reviewed/freeze Golden source belongs in `../workspace/golden-packs/`; editable
+application snapshots belong in `../workspace/profiles/`; closed history
 belongs in `../archive/`. Recruiter-facing delivery copies belong in
 `../output/pdf/<company>/<role>/`; they are never factual authority. Run `./cv status`
-before beginning a new application.
+before beginning a new application. Portfolio binaries live in ignored
+`../assets/portfolio/{raw-private,raw,curated,generated}/`; their private user index may
+live at `evidence/portfolio/ASSET_INDEX.md`. The tracked asset README is policy only.
 
 Use `identity_anchors` in `master_cv.yaml` for durable evidence-bound credentials,
 domains, market bridges, local fit, or autonomy that should survive JD tailoring.
-Each schema 1.2 application selects only one to three and records their placement.
+Each application selects only one to three and records their placement.
 Use `workspace/current/sections/order.tex` to change section priority per private profile.
 
 `application_defaults` controls what a natural “new CV” request means. The public
 default is `[cv, cover_letter]`; remove `cover_letter` only when résumé-only output is
-an intentional owner decision. Schema 1.2 also records a capability include/omit
+an intentional owner decision. The manifest also records a capability include/omit
 review so useful evidence-bound bonus skills cannot disappear silently. Schema 3.6
 also stores `project_link_policy`: when a selected thesis has a public repository and
 the policy is `required_when_public`, the final CV must expose that link using the
 shared canonical project-link helper.
+
+Schema 1.4 application manifests bind a vacancy to one registered Golden Pack, its
+version, and exact CV SHA-256. A manifest cannot reach strict
+`validated`, `sent`, or `closed` while the selected Pack is still a freeze candidate.
 
 Schema 3.7 may also define `application_defaults.reusable_positioning`. Each phrase
 must cite eligible claim IDs, name allowed role families and placements, and carry a

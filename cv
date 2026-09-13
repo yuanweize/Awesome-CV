@@ -26,7 +26,7 @@ ARCHIVE_DIR="$SCRIPT_DIR/archive/applications"
 
 # Files that compose a profile
 ROOT_FILES=(config.tex letter_config.tex)
-SECTION_FILES=(order.tex summary.tex experience.tex skills.tex letter_body.tex education.tex certificates.tex honors.tex)
+SECTION_FILES=(order.tex summary.tex experience.tex skills.tex letter_body.tex portfolio.tex education.tex certificates.tex honors.tex)
 
 # ── Colors ────────────────────────────────────────────────────────────────────
 RED=$'\033[0;31m'
@@ -562,27 +562,55 @@ cmd_legacy_audit() {
     python3 "$SCRIPT_DIR/tools/legacy_cv_audit.py" "$@"
 }
 
+cmd_golden_pack_audit() {
+    python3 "$SCRIPT_DIR/tools/golden_pack_audit.py" "$@"
+}
+
+cmd_cover_letter_audit() {
+    python3 "$SCRIPT_DIR/tools/cover_letter_audit.py" "$@"
+}
+
+cmd_demo() {
+    python3 "$SCRIPT_DIR/tools/demo_build.py" --root "$SCRIPT_DIR" "$@"
+}
+
 cmd_doctor() {
-    assert_working_files_are_regular
-    local dirty=false
-    local current
-    current=$(get_current)
-    if [[ -n "$current" ]]; then
-        profile_exists "$current" || die "Active profile '$current' is missing."
-        working_tree_differs_from_profile "$current" && dirty=true
+    local failures=0
+    local command
+    echo -e "${BOLD}Awesome-CV environment doctor${RESET}"
+    if python3 -c 'import yaml' >/dev/null 2>&1; then
+        echo -e "${GREEN}PASS${RESET} Python 3 + PyYAML"
+    else
+        echo -e "${RED}FAIL${RESET} Python 3 or PyYAML is unavailable"
+        failures=1
     fi
+    for command in lualatex qpdf pdftotext pdfinfo; do
+        if command -v "$command" >/dev/null 2>&1; then
+            echo -e "${GREEN}PASS${RESET} $command"
+        else
+            case "$command" in
+                lualatex) echo -e "${YELLOW}WARN${RESET} lualatex not found (install TeX Live or MacTeX to build PDFs)" ;;
+                qpdf) echo -e "${YELLOW}WARN${RESET} qpdf not found (install qpdf for PDF structure checks)" ;;
+                pdftotext|pdfinfo) echo -e "${YELLOW}WARN${RESET} $command not found (install Poppler for PDF/ATS inspection)" ;;
+            esac
+        fi
+    done
+    command -v git >/dev/null 2>&1 \
+        && echo -e "${GREEN}PASS${RESET} git" \
+        || echo -e "${YELLOW}WARN${RESET} git not found (install Git for versioned public workflows)"
+    command -v gh >/dev/null 2>&1 \
+        && echo -e "${GREEN}PASS${RESET} GitHub CLI (optional)" \
+        || echo -e "${YELLOW}WARN${RESET} GitHub CLI not found (optional)"
+    [[ -w "$SCRIPT_DIR" ]] \
+        && echo -e "${GREEN}PASS${RESET} repository is writable" \
+        || { echo -e "${RED}FAIL${RESET} repository is not writable"; failures=1; }
     cmd_structure --strict
-    cmd_status
-    cmd_validate --strict
-    cmd_role_audit --strict
-    local -a github_inventories=("$SCRIPT_DIR"/meta/inventory/github/*.json)
-    if [[ -e "${github_inventories[0]}" ]]; then
-        cmd_portfolio_audit --strict
+    if [[ -f "$SCRIPT_DIR/meta/master_cv.yaml" ]]; then
+        echo -e "${GREEN}PASS${RESET} local workspace initialized"
+    else
+        echo -e "${YELLOW}WARN${RESET} local workspace is not initialized; run './cv init'"
     fi
-    make -C "$SCRIPT_DIR" check
-    if $dirty; then
-        die "Working files differ from active profile '$current'. Review './cv diff $current' and save deliberately."
-    fi
+    return "$failures"
 }
 
 cmd_diff() {
@@ -763,6 +791,7 @@ ${BOLD}Usage:${RESET} ./cv <command> [args]
 
 ${BOLD}Commands:${RESET}
   ${CYAN}init${RESET}                  Create the ignored private workspace from public templates
+  ${CYAN}demo${RESET}                  Build a synthetic CV without reading local Owner data
   ${CYAN}list${RESET}                  List application profiles and reusable baselines
   ${CYAN}use${RESET} <profile>         Load a profile; refuses to overwrite unsaved changes
   ${CYAN}save${RESET} [profile]        Save current working files to a profile
@@ -777,6 +806,8 @@ ${BOLD}Commands:${RESET}
   ${CYAN}portfolio-audit${RESET} ...   Compare GitHub inventory with governed career memory
   ${CYAN}role-audit${RESET} ...        Compare interests, readiness, and claim coverage
   ${CYAN}legacy-audit${RESET} ...      Compare private historical CV wording with atomic claims
+  ${CYAN}golden-pack-audit${RESET} ... Verify Golden source fingerprints and final PDF hashes
+  ${CYAN}cover-letter-audit${RESET} ... Warn about cover-letter length, clichés, and placeholders
   ${CYAN}tech-audit${RESET} ...        Run local technology inventory; safe mode by default
   ${CYAN}delete${RESET} <profile>      Permanently delete after exact confirmation
   ${CYAN}context${RESET} [options]     Export evidence-bound AI context from a JD
@@ -789,10 +820,11 @@ ${BOLD}Commands:${RESET}
   ${CYAN}pdf-audit${RESET} <pdf>       Check page use, ATS text/headings, and readable-type proxies
   ${CYAN}bundle-audit${RESET} <manifest> Audit every declared CV/cover-letter PDF and hash
   ${CYAN}track${RESET} <command>       Maintain the private application/outcome memory
-  ${CYAN}doctor${RESET}                Audit workspace, roles, portfolio, tests, privacy, and profile drift
+  ${CYAN}doctor${RESET}                Check dependencies, repository structure, and initialization state
 
 ${BOLD}Examples:${RESET}
   ./cv init                     # First-time, idempotent private workspace setup
+  ./cv demo                     # Build output/demo/Awesome-CV_Demo_CV.pdf from public fixtures
   ./cv list                     # See all profiles
   ./cv use acme-systems         # Switch to one application snapshot
   ./cv save                     # Save changes to current profile
@@ -807,6 +839,8 @@ ${BOLD}Examples:${RESET}
   ./cv portfolio-audit --strict # Require every original repo to be governed or excluded
   ./cv role-audit                # Inspect desired directions and evidence depth
   ./cv legacy-audit --extra-pdf meta/old-cv.pdf
+  ./cv golden-pack-audit --strict
+  ./cv cover-letter-audit output/pdf/acme-role/Candidate_Name_Cover_Letter.pdf --company Acme --role "Systems Engineer"
   ./cv tech-audit               # Write a private safe local technology inventory
   ./cv context --jd job.md --role systems -o workspace/build/job-context.md
   ./cv status                    # Agent preflight before every application
@@ -830,6 +864,7 @@ EOF
 # ── Dispatch ──────────────────────────────────────────────────────────────────
 case "${1:-}" in
     init)    shift; cmd_init "$@" ;;
+    demo)    shift; cmd_demo "$@" ;;
     list)    cmd_list ;;
     use)     cmd_use "${2:-}" "${3:-}" ;;
     save)    cmd_save "${2:-}" ;;
@@ -844,6 +879,8 @@ case "${1:-}" in
     portfolio-audit) shift; cmd_portfolio_audit "$@" ;;
     role-audit) shift; cmd_role_audit "$@" ;;
     legacy-audit) shift; cmd_legacy_audit "$@" ;;
+    golden-pack-audit) shift; cmd_golden_pack_audit "$@" ;;
+    cover-letter-audit) shift; cmd_cover_letter_audit "$@" ;;
     tech-audit) shift; cmd_tech_audit "$@" ;;
     delete)  cmd_delete "${2:-}" ;;
     context) shift; cmd_context "$@" ;;

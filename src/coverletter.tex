@@ -64,4 +64,11 @@
 % Print the signature and enclosures
 \makeletterclosing
 
+% Optional application-specific visual proof appendix. The signed letter remains
+% page one; profiles without this file retain the ordinary one-page output.
+\IfFileExists{workspace/current/sections/portfolio.tex}{%
+  \clearpage
+  \input{workspace/current/sections/portfolio.tex}%
+}{}
+
 \end{document}

@@ -15,6 +15,8 @@ from workspace_init import SECTION_TEMPLATE_NAMES, TEMPLATE_FILES, find_project_
 
 PUBLIC_PATHS = (
     ".github/workflows",
+    "assets/portfolio",
+    "examples",
     "docs",
     "integrations/dify",
     "skills/evidence-first-cv",
@@ -24,11 +26,17 @@ PUBLIC_PATHS = (
     "tools",
     "Makefile",
     "README.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
     "cv",
 )
 
 PRIVATE_IGNORE_RULES = (
     "/archive/",
+    "/assets/portfolio/raw-private/",
+    "/assets/portfolio/raw/",
+    "/assets/portfolio/curated/",
+    "/assets/portfolio/generated/",
     "/meta/",
     "/output/",
     "/workspace/",
@@ -43,6 +51,7 @@ VISIBLE_PATHS = (
     "output/pdf",
     "workspace",
     "workspace/current",
+    "workspace/golden-packs",
     "workspace/profiles",
     "workspace/baselines",
     "workspace/build",
@@ -53,8 +62,10 @@ HUMAN_SURFACE = (
     "README.md",
     "meta/master_cv.yaml",
     "meta/applications",
+    "assets/portfolio/README.md",
     "output/pdf/README.md",
     "workspace/current/sections",
+    "workspace/golden-packs",
     "workspace/profiles",
     "cv",
 )

@@ -16,7 +16,7 @@ PRIVATE_PATHS = (
     "archive/",
     "meta/",
 )
-PRIVATE_SUFFIXES = {".pdf", ".aux", ".log", ".out", ".synctex.gz", ".key", ".p12", ".pfx", ".pem"}
+PRIVATE_SUFFIXES = {".aux", ".log", ".out", ".synctex.gz", ".key", ".p12", ".pfx", ".pem"}
 SECRET_FILENAMES = {".env", "targets.yaml", "targets.json", "credentials.json", "secrets.yaml", "secrets.yml"}
 
 SECRET_PATTERNS = {
@@ -38,18 +38,20 @@ PUBLIC_ATTRIBUTION_EMAILS = {
     ("src/awesome-cv.cls", "posquit0.bj" + "@gmail.com"),
 }
 IP_PATTERN = re.compile(r"(?<![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])")
+ABSOLUTE_HOME_PATTERN = re.compile(r"(?:/Users|/home)/[A-Za-z0-9._-]+/")
 DOCUMENTATION_NETWORKS = tuple(
     ipaddress.ip_network(value)
     for value in ("192.0.2.0/24", "198.51.100.0/24", "203.0.113.0/24", "127.0.0.0/8", "0.0.0.0/32")
 )
 
 
-def git_files(root: Path, staged: bool) -> list[str]:
-    command = (
-        ["git", "diff", "--cached", "--diff-filter=ACMR", "--name-only", "-z"]
-        if staged
-        else ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"]
-    )
+def git_files(root: Path, scope: str) -> list[str]:
+    if scope == "staged":
+        command = ["git", "diff", "--cached", "--diff-filter=ACMR", "--name-only", "-z"]
+    elif scope == "tracked":
+        command = ["git", "ls-files", "--cached", "-z"]
+    else:
+        command = ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"]
     result = subprocess.run(command, cwd=root, check=True, capture_output=True)
     return [item.decode("utf-8") for item in result.stdout.split(b"\0") if item]
 
@@ -109,6 +111,10 @@ def content_violations(root: Path, paths: list[str], staged: bool = False) -> li
             continue
 
         for line_number, line in enumerate(text.splitlines(), 1):
+            if ABSOLUTE_HOME_PATTERN.search(line):
+                issues.append(
+                    f"{relative}:{line_number}: machine-specific absolute home path [value redacted]"
+                )
             for label, pattern in SECRET_PATTERNS.items():
                 match = pattern.search(line)
                 if not match:
@@ -130,7 +136,9 @@ def content_violations(root: Path, paths: list[str], staged: bool = False) -> li
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--staged", action="store_true", help="Check staged files instead of all tracked files")
+    scope = parser.add_mutually_exclusive_group()
+    scope.add_argument("--staged", action="store_true", help="Check staged files from the Git index")
+    scope.add_argument("--tracked", action="store_true", help="Check only files currently tracked by Git")
     args = parser.parse_args()
 
     try:
@@ -146,7 +154,8 @@ def main() -> int:
         print("ERROR: run the privacy check inside a Git repository", file=sys.stderr)
         return 2
     try:
-        paths = git_files(root, args.staged)
+        selected_scope = "staged" if args.staged else ("tracked" if args.tracked else "working")
+        paths = git_files(root, selected_scope)
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: git file listing failed: {exc}", file=sys.stderr)
         return 2
@@ -159,8 +168,12 @@ def main() -> int:
         print("Remove the file from Git tracking, rotate exposed credentials, and rerun the check.")
         return 1
 
-    scope = "staged" if args.staged else "tracked/untracked non-ignored"
-    print(f"Privacy check passed: {len(paths)} {scope} files inspected")
+    label = {
+        "staged": "staged",
+        "tracked": "tracked",
+        "working": "tracked/untracked non-ignored",
+    }[selected_scope]
+    print(f"Privacy check passed: {len(paths)} {label} files inspected")
     return 0
 
 

@@ -7,6 +7,9 @@
 \definecolor{modernNavy}{HTML}{17324D}
 \definecolor{modernText}{HTML}{0F172A}
 \definecolor{modernMuted}{HTML}{52606D}
+\definecolor{modernBody}{HTML}{1F2937}
+\definecolor{modernSecondary}{HTML}{475569}
+\definecolor{modernMetadata}{HTML}{64748B}
 \definecolor{modernRule}{HTML}{CBD5E1}
 \colorlet{awesome}{modernNavy}
 \colorlet{text}{modernText}
@@ -81,4 +84,62 @@
 }
 \newcommand*{\cvgithubrepo}[1]{%
   \cvprojectlink{https://github.com/#1}{github.com/#1}%
+}
+
+% Recruiter-facing links use short, labelled actions instead of dominant raw
+% URLs.  \casestudylink is intentionally empty in standalone CV builds; the
+% combined CV+portfolio source redefines it to a named internal destination.
+\newcommand*{\cvactionlink}[2]{%
+  \href{#1}{\textcolor{modernNavy}{\bfseries #2~$\nearrow$}}%
+}
+\providecommand*{\casestudylink}[2]{}
+
+% Compact metadata used by Golden Portfolio pages. Mutable GitHub numbers must
+% include an explicit snapshot date in the caller text.
+\newcommand*{\cvmetarow}[1]{%
+  {\fontsize{8.2pt}{10pt}\selectfont\bodyfont\color{modernMuted}#1\par}%
+}
+
+% A compact parent-child pattern for project-based work beneath one contractual
+% employer. Keep the text in source order for ATS extraction while using a
+% restrained left rule and indentation to make the relationship immediately
+% visible to a human reader.
+\newcommand*{\cvassignmentslabel}[1]{%
+  \par\vspace{1.5mm}%
+  {\fontsize{8.3pt}{10pt}\selectfont\bodyfont\bfseries\color{modernNavy}%
+    \MakeUppercase{#1}\par}%
+  \vspace{.6mm}%
+}
+
+\newcommand*{\cvassignment}[4]{%
+  \par\noindent\hspace*{3mm}%
+  {\color{modernRule}\vrule width .65pt}%
+  \hspace{2.4mm}%
+  \begin{minipage}[t]{\dimexpr\linewidth-6.1mm\relax}
+    {\fontsize{9.6pt}{11.5pt}\selectfont\bodyfont\bfseries\color{modernText}#1}%
+    \hfill
+    {\fontsize{8.8pt}{10.6pt}\selectfont\bodyfont\mdseries\color{modernMuted}#2}\par
+    {\fontsize{8.8pt}{10.6pt}\selectfont\bodyfont\mdseries\color{modernMuted}#3}\par
+    \vspace{.35mm}%
+    {\raggedright\fontsize{9.3pt}{11.4pt}\selectfont\bodyfont\color{modernText}#4\par}%
+  \end{minipage}%
+  \par\vspace{1.15mm}%
+}
+
+% Golden-Pack child entry with one compact, consistently styled location/date
+% line. The normal document flow determines the block height, so the next
+% cventry cannot collide with a multi-line assignment description.
+\newcommand*{\cvgoldenassignment}[3]{%
+  \par\noindent\hspace*{3mm}%
+  {\color{modernRule}\vrule width .65pt}%
+  \hspace{2.4mm}%
+  \begin{minipage}[t]{\dimexpr\linewidth-6.1mm\relax}
+    \noindent\begin{tabularx}{\linewidth}{@{}X>{\RaggedLeft\arraybackslash}p{.58\linewidth}@{}}
+      {\fontsize{9.6pt}{11.5pt}\selectfont\bodyfont\bfseries\color{modernText}#1} &
+      {\fontsize{8.8pt}{10.6pt}\selectfont\bodyfont\mdseries\color{modernMuted}#2}
+    \end{tabularx}
+    \vspace{.35mm}%
+    {\raggedright\fontsize{9.3pt}{11.4pt}\selectfont\bodyfont\color{modernText}#3\par}%
+  \end{minipage}%
+  \par\vspace{1.05mm}%
 }

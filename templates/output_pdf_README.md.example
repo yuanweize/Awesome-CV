@@ -5,5 +5,9 @@ copies. Keep one `company/role/` directory per application. The authoritative Te
 manifest, and built artifacts remain under `workspace/profiles/`; delivery copies are
 never factual input for later CV drafting.
 
+Versioned Golden Pack artifact sets belong under
+`golden-packs/<version>/`. Keep prior iterations in the private archive rather than
+cluttering the active delivery directory.
+
 List current unsent bundles here with relative links. When a portal accepts one file,
 use the combined application; otherwise attach the separate CV and cover letter.

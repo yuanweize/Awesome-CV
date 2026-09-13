@@ -1,4 +1,4 @@
-.PHONY: all resume coverletter merged init clean help validate validate-template status structure-check context context-smoke privacy pdf-audit bundle-audit portfolio-audit role-audit legacy-audit test check dify-check dify-package prepare-tex-cache
+.PHONY: all resume coverletter portfolio cv-portfolio merged init demo clean help validate validate-template status structure-check context context-smoke privacy privacy-tracked pdf-audit bundle-audit portfolio-audit role-audit legacy-audit golden-pack-audit cover-letter-audit test check dify-check dify-package prepare-tex-cache
 
 CC = lualatex
 PYTHON ?= python3
@@ -9,6 +9,9 @@ JD ?=
 ROLE ?=
 PDF ?= $(BUILD_DIR)/$(AUTHOR)_CV.pdf
 MANIFEST ?=
+COVER_LETTER ?=
+COMPANY ?=
+TITLE ?=
 CONTEXT_OUTPUT ?= $(BUILD_DIR)/ai-context.generated.md
 PYTHONPYCACHEPREFIX ?= /tmp/awesome-cv-pycache
 export PYTHONPYCACHEPREFIX
@@ -69,6 +72,9 @@ context-smoke:
 privacy:
 	@$(PYTHON) tools/privacy_check.py
 
+privacy-tracked:
+	@$(PYTHON) tools/privacy_check.py --tracked
+
 pdf-audit:
 	@$(PYTHON) tools/resume_pdf_audit.py "$(PDF)"
 
@@ -84,6 +90,13 @@ role-audit:
 
 legacy-audit:
 	@$(PYTHON) tools/legacy_cv_audit.py
+
+golden-pack-audit:
+	@$(PYTHON) tools/golden_pack_audit.py --strict
+
+cover-letter-audit:
+	@test -n "$(COVER_LETTER)" || (echo "Usage: make cover-letter-audit COVER_LETTER=path [COMPANY=name] [TITLE=role]" >&2; exit 2)
+	@$(PYTHON) tools/cover_letter_audit.py "$(COVER_LETTER)" $(if $(COMPANY),--company "$(COMPANY)",) $(if $(TITLE),--role "$(TITLE)",)
 
 test:
 	@$(PYTHON) -m unittest discover -s tests -v
@@ -115,12 +128,24 @@ coverletter: prepare-tex-cache | $(BUILD_DIR)
 	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_Cover_Letter" src/coverletter.tex
 	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
 
+portfolio: prepare-tex-cache | $(BUILD_DIR)
+	@test -f "$(CURRENT_DIR)/sections/portfolio.tex" || (echo "Current profile has no portfolio.tex" >&2; exit 2)
+	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_Technical_Portfolio" src/portfolio.tex
+	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_Technical_Portfolio" src/portfolio.tex
+	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_Technical_Portfolio.pdf"
+
+cv-portfolio: prepare-tex-cache | $(BUILD_DIR)
+	@test -f "$(CURRENT_DIR)/sections/portfolio.tex" || (echo "Current profile has no portfolio.tex" >&2; exit 2)
+	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_CV_Portfolio" src/cv_portfolio.tex
+	$(CC) -output-directory="$(BUILD_DIR)" -jobname="$(AUTHOR)_CV_Portfolio" src/cv_portfolio.tex
+	@echo "  -> $(BUILD_DIR)/$(AUTHOR)_CV_Portfolio.pdf"
+
 merged: resume coverletter
 	@if command -v qpdf >/dev/null 2>&1; then \
-		qpdf --empty --pages "$(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf" 1-z "$(BUILD_DIR)/$(AUTHOR)_CV.pdf" 1-z -- "$(BUILD_DIR)/$(AUTHOR)_Application.pdf"; \
+		qpdf --empty --pages "$(BUILD_DIR)/$(AUTHOR)_CV.pdf" 1-z "$(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf" 1-z -- "$(BUILD_DIR)/$(AUTHOR)_Application.pdf"; \
 		echo "  -> $(BUILD_DIR)/$(AUTHOR)_Application.pdf (merged with qpdf)"; \
 	elif command -v pdfunite >/dev/null 2>&1; then \
-		pdfunite "$(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf" "$(BUILD_DIR)/$(AUTHOR)_CV.pdf" "$(BUILD_DIR)/$(AUTHOR)_Application.pdf"; \
+		pdfunite "$(BUILD_DIR)/$(AUTHOR)_CV.pdf" "$(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf" "$(BUILD_DIR)/$(AUTHOR)_Application.pdf"; \
 		echo "  -> $(BUILD_DIR)/$(AUTHOR)_Application.pdf (merged with pdfunite)"; \
 	else \
 		echo "  ⚠ qpdf/pdfunite not found, skipping merge (install qpdf or poppler)"; \
@@ -135,6 +160,9 @@ $(BUILD_DIR):
 
 init:
 	@./cv init
+
+demo:
+	@./cv demo
 
 #-------------------------------------------------------------------------------
 # Cleanup
@@ -152,23 +180,29 @@ help:
 	@echo ""
 	@echo "Targets:"
 	@echo "  make init        - Idempotent first-time setup of the ignored private workspace"
+	@echo "  make demo        - Build a synthetic CV without reading local Owner data"
 	@echo "  make validate    - Validate the private evidence-first master database"
 	@echo "  make status      - Report memory, manifests, applications, and profile drift"
 	@echo "  make structure-check - Verify stable paths, privacy ignores, templates, and visibility"
 	@echo "  make context JD=job.md ROLE=systems - Export evidence-bound AI context"
 	@echo "  make context-smoke - Exercise the public JD-to-context workflow"
 	@echo "  make privacy     - Check tracked files for private data and secrets"
+	@echo "  make privacy-tracked - Check only the public Git-tracked tree"
 	@echo "  make pdf-audit PDF=path/to/cv.pdf - Check page use, ATS text/headings, and type-size proxies"
 	@echo "  make bundle-audit MANIFEST=meta/applications/<id>/application.yaml - Audit CV + cover letter as one bundle"
 	@echo "  make portfolio-audit - Compare private GitHub inventory with governed portfolio memory"
 	@echo "  make role-audit   - Report career interests, readiness, and claim coverage"
 	@echo "  make legacy-audit - Compare private historical CV wording with governed claims"
+	@echo "  make golden-pack-audit - Verify Golden source fingerprints, PDF hashes, and page counts"
+	@echo "  make cover-letter-audit COVER_LETTER=path - Warn about length, clichés, placeholders, and PDF pages"
 	@echo "  make test        - Run unit and syntax tests"
 	@echo "  make check       - Validate template, privacy, and tests"
 	@echo "  make dify-check  - Sync the locked Dify SDK and load all plugin tools"
 	@echo "  make dify-package - Build and inspect a clean ignored .difypkg archive"
 	@echo "  make resume      - Build $(BUILD_DIR)/$(AUTHOR)_CV.pdf"
 	@echo "  make coverletter - Build $(BUILD_DIR)/$(AUTHOR)_Cover_Letter.pdf"
+	@echo "  make portfolio   - Build a standalone portfolio from the current profile"
+	@echo "  make cv-portfolio - Build CV + portfolio with named internal case-study links"
 	@echo "  make merged      - Merge Cover Letter + CV into $(BUILD_DIR)/$(AUTHOR)_Application.pdf"
 	@echo "  make all         - Build the complete application bundle (CV + cover letter + merged PDF)"
 	@echo "  make clean       - Remove all build artifacts"

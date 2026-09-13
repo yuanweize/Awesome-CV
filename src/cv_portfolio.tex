@@ -1,0 +1,40 @@
+%!TEX TS-program = lualatex
+%!TEX encoding = UTF-8 Unicode
+% Combined Golden Pack: ATS-safe CV first, then the matching portfolio.
+
+\documentclass[11pt, a4paper]{awesome-cv}
+\usepackage{modern-resume}
+
+\geometry{left=1.55cm, top=1.25cm, right=1.55cm, bottom=1.35cm, footskip=.5cm}
+\colorlet{awesome}{modernNavy}
+\setbool{acvSectionColorHighlight}{false}
+\renewcommand{\acvHeaderSocialSep}{\quad\textbar\quad}
+
+\input{workspace/current/config.tex}
+\newcommand{\contentpath}{workspace/current/sections}
+
+% Named destinations are stable when portfolio pages are reordered. The
+% standalone CV leaves these actions hidden through the package fallback.
+\renewcommand*{\casestudylink}[2]{%
+  \enskip\hyperlink{#1}{\textcolor{modernNavy}{\bfseries #2~$\rightarrow$}}%
+}
+
+\begin{document}
+\makecvheader[L]
+\makeatletter
+\makecvfooter{}{}{}
+\makeatother
+
+\IfFileExists{\contentpath/order.tex}{
+  \input{\contentpath/order.tex}
+}{
+  \input{\contentpath/summary.tex}
+  \input{\contentpath/skills.tex}
+  \input{\contentpath/experience.tex}
+  \input{\contentpath/education.tex}
+}
+
+\clearpage
+\newgeometry{left=1.35cm, top=1.15cm, right=1.35cm, bottom=1.2cm, footskip=.45cm}
+\input{workspace/current/sections/portfolio.tex}
+\end{document}

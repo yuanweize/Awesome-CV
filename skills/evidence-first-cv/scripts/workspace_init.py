@@ -15,25 +15,36 @@ RUNTIME_DIRECTORIES = (
     "meta",
     "meta/applications",
     "meta/evidence",
+    "meta/evidence/portfolio",
     "meta/inventory",
     "meta/audits",
     "workspace",
     "workspace/current",
     "workspace/current/sections",
     "workspace/baselines",
+    "workspace/golden-packs",
     "workspace/profiles",
     "workspace/build",
     "workspace/tmp",
     "archive/applications",
+    "archive/conversations",
+    "archive/golden-packs",
+    "archive/portfolio-assets",
     "archive/research",
     "output",
     "output/pdf",
+    "output/pdf/golden-packs",
+    "assets/portfolio/raw",
+    "assets/portfolio/raw-private",
+    "assets/portfolio/curated",
+    "assets/portfolio/generated",
 )
 
 TEMPLATE_FILES = (
     ("templates/meta_README.md.example", "meta/README.md"),
     ("templates/master_cv.yaml.example", "meta/master_cv.yaml"),
     ("templates/applications.yaml.example", "meta/applications.yaml"),
+    ("templates/golden_packs.yaml.example", "meta/golden_packs.yaml"),
     ("templates/baseline_catalog.yaml.example", "meta/baseline_catalog.yaml"),
     ("templates/config.tex.example", "workspace/current/config.tex"),
     ("templates/letter_config.tex.example", "workspace/current/letter_config.tex"),
@@ -178,10 +189,14 @@ def main() -> int:
     if args.json:
         print(json.dumps({"root": str(root), **result}, indent=2))
     else:
-        print("\nWorkspace ready. Public example data was copied only into ignored paths.")
+        print("\nAwesome-CV local workspace initialized.")
         print("Directory map: meta/README.md")
-        print("Next: replace the fictional master data, run './cv validate --strict',")
-        print("then tell the agent you want a new CV and provide the complete JD.")
+        print("Next:")
+        print("1. Edit your local career evidence in meta/master_cv.yaml")
+        print("2. Run './cv doctor'")
+        print("3. Run './cv validate --strict'")
+        print("4. Run './cv demo' to verify the public renderer")
+        print("5. Define and review your first Golden Pack in meta/golden_packs.yaml")
     return 0
 
 
