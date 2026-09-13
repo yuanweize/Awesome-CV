@@ -1,0 +1,26 @@
+# Public synthetic example. Copy to meta/golden_packs.yaml and replace it with
+# pack IDs, paths, fingerprints, and artifacts from your own local instance.
+schema_version: "1.0"
+packs:
+  systems-generalist:
+    version: v1.0
+    status: draft
+    approved_at: ""
+    headline: "Systems Engineer"
+    role_families: [systems, operations]
+    source_profile: "workspace/profiles/golden-systems-generalist-v1.0"
+    source_snapshot: "workspace/golden-packs/v1.0/systems-generalist"
+    source_sha256: "replace-with-frozen-source-sha256"
+    artifacts:
+      cv:
+        path: "output/pdf/golden-packs/v1.0/Example_CV.pdf"
+        sha256: "replace-with-pdf-sha256"
+        page_count: 2
+      portfolio:
+        path: "output/pdf/golden-packs/v1.0/Example_Portfolio.pdf"
+        sha256: "replace-with-pdf-sha256"
+        page_count: 1
+      combined:
+        path: "output/pdf/golden-packs/v1.0/Example_Combined.pdf"
+        sha256: "replace-with-pdf-sha256"
+        page_count: 3

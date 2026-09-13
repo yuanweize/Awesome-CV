@@ -1,7 +1,7 @@
 # Awesome-CV evidence-first master database (public example)
 # Copy to meta/master_cv.yaml. The destination is gitignored.
 
-schema_version: "3.9"
+schema_version: "3.10"
 
 metadata:
   owner: "Alex Example"
@@ -50,6 +50,15 @@ career_preferences:
 application_defaults:
   deliverables: [cv, cover_letter]
   complement_review: true
+  portfolio_appendix_policy:
+    mode: jd_selected
+    default_max_pages: 1
+    max_cases: 3
+    triggers: [owner_explicitly_requests, vacancy_requests_project_or_homelab_evidence]
+    rules:
+    - "Keep the signed cover letter on page one."
+    - "Select only role-specific cases backed by eligible claims."
+    - "Use selectable text and review every screenshot for sensitive data."
   tailoring_policy:
     per_jd_reasoning_required: true
     search_priorities_are_whitelist: false
@@ -181,6 +190,15 @@ portfolio_management:
   excluded_repositories:
   - repo: "https://github.com/example-user/obsolete-tutorial"
     reason: "Obsolete tutorial material with no useful authorship or interview signal"
+
+portfolio_assets:
+- id: asset.signalwatch-dashboard
+  title: "SignalWatch sanitised dashboard screenshot"
+  locator: "private:meta/evidence/portfolio/signalwatch-dashboard.png"
+  captured_on: "2026-01-15"
+  visibility: private
+  claim_ids: [project.signalwatch-features]
+  safe_use: "Use only after confirming that no credentials, private hosts, or customer data are visible."
 
 claim_registry:
 - id: authorization.germany-work-access

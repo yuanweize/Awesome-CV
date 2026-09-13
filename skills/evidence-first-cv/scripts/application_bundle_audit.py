@@ -28,7 +28,7 @@ DOCUMENTS = {
         "path": "cv_pdf",
         "sha256": "cv_sha256",
         "pages": "page_count",
-        "max_pages": 1,
+        "max_pages": 2,
         "min_bottom_coverage": 0.75,
     },
     "cover_letter": {
@@ -219,6 +219,12 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
     errors: list[str] = []
     documents: dict[str, Any] = {}
     artifact_paths: dict[str, Path] = {}
+    portfolio_appendix = data.get("portfolio_appendix", {})
+    portfolio_pages = 0
+    if isinstance(portfolio_appendix, dict) and portfolio_appendix.get("enabled") is True:
+        declared_pages = portfolio_appendix.get("page_count")
+        if isinstance(declared_pages, int) and 1 <= declared_pages <= 2:
+            portfolio_pages = declared_pages
     documents_to_check = list(deliverables)
     if isinstance(artifacts.get("application_pdf"), str) and artifacts.get("application_pdf", "").strip():
         documents_to_check.append("application")
@@ -236,10 +242,12 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
         allowed_roots = [
             (root / "workspace" / "profiles").resolve(),
             (root / "workspace" / "build").resolve(),
+            (root / "output" / "pdf").resolve(),
         ]
         if not any(path.is_relative_to(candidate) for candidate in allowed_roots):
             errors.append(
-                f"{kind} artifact must stay under workspace/profiles/ or workspace/build/"
+                f"{kind} artifact must stay under workspace/profiles/, workspace/build/, "
+                "or output/pdf/"
             )
             continue
         if not path.is_file():
@@ -252,9 +260,20 @@ def audit_bundle(manifest_path: Path, project_root: Path | None = None) -> dict[
         if expected_hash != actual_hash:
             errors.append(f"{kind} SHA-256 does not match the manifest")
         expected_pages = artifacts.get(config["pages"])
+        max_pages = int(config["max_pages"])
+        if kind == "cover_letter":
+            max_pages += portfolio_pages
+        elif kind == "application":
+            max_pages = sum(
+                int(DOCUMENTS[deliverable]["max_pages"])
+                for deliverable in deliverables
+                if deliverable in {"cv", "cover_letter"}
+            )
+            if "cover_letter" in deliverables:
+                max_pages += portfolio_pages
         result = audit_pdf(
             path,
-            max_pages=int(config["max_pages"]),
+            max_pages=max_pages,
             min_bottom_coverage=float(config["min_bottom_coverage"]),
             min_median_word_height=12.0,
             document_kind=kind,

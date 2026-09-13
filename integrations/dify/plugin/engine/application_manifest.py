@@ -16,8 +16,8 @@ from typing import Any
 import yaml
 
 
-SCHEMA_VERSION = "1.3"
-SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1", "1.2", "1.3"}
+SCHEMA_VERSION = "1.4"
+SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1", "1.2", "1.3", "1.4"}
 MANIFEST_STAGES = (
     "analysis",
     "awaiting-confirmation",
@@ -39,11 +39,13 @@ ADJACENT_VALUES = {
 ADJACENT_SECTIONS = {"projects", "experience", "skills"}
 IDENTITY_SECTIONS = {"headline", "summary", "education", "experience", "projects", "skills"}
 DELIVERABLES = {"cv", "cover_letter"}
+SUBMISSION_ARTIFACT_TYPES = {"cv", "portfolio", "combined", "cover_letter"}
 CAPABILITY_DECISIONS = {"include", "omit"}
 CAPABILITY_PLACEMENTS = ADJACENT_SECTIONS | {"cover_letter", "none"}
 VACANCY_STATUSES = {"open", "closed", "unverified"}
 APPLICATION_ROUTES = {"form", "email", "official_instruction", "unverified"}
 EMPLOYER_PORTFOLIO_STRATEGIES = {"standalone", "primary", "backup", "excluded"}
+GOLDEN_PACK_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 HTTP_URL_PATTERN = re.compile(r"^https?://\S+$")
 
@@ -93,6 +95,15 @@ def master_index(path: Path) -> tuple[dict[str, dict[str, Any]], set[str]]:
     }
     roles = set(data.get("role_families", {})) if isinstance(data.get("role_families"), dict) else set()
     return claims, roles
+
+
+def master_portfolio_asset_ids(path: Path) -> set[str]:
+    data = load_yaml(path, "master database")
+    return {
+        item["id"]
+        for item in data.get("portfolio_assets", [])
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
 
 
 def reviewable_skill_claim_ids(path: Path) -> set[str]:
@@ -150,6 +161,11 @@ def new_manifest(
             "compared_application_ids": [],
             "reason": "First role at this employer; compare before adding another application.",
         },
+        "golden_pack": {
+            "selected_pack": "",
+            "version": "",
+            "cv_sha256": "",
+        },
         "decision": {
             "recommendation": "review",
             "reason": "",
@@ -169,7 +185,19 @@ def new_manifest(
         },
         "final_bullets": [],
         "cover_letter_paragraphs": [],
+        "portfolio_appendix": {
+            "enabled": False,
+            "page_count": 0,
+            "reason": "",
+            "cases": [],
+        },
         "post_submission_corrections": [],
+        "submission": {
+            "submitted_at": "",
+            "channel": "",
+            "delivered_artifacts": [],
+            "reference": "",
+        },
         "artifacts": {
             "profile": profile,
             "cv_pdf": "",
@@ -215,7 +243,7 @@ def validate_manifest(
 
     quality_fields = ("claim_audit", "ats_text_check", "visual_check", "privacy_check")
     quality = data.get("quality")
-    if schema_version in {"1.2", "1.3"}:
+    if schema_version in {"1.2", "1.3", "1.4"}:
         if not isinstance(quality, dict):
             errors.append("quality must be a mapping")
             quality = {}
@@ -225,7 +253,7 @@ def validate_manifest(
                 errors.append(f"quality.{field} must be a non-empty string")
             elif (
                 strict
-                and schema_version == "1.3"
+                and schema_version in {"1.3", "1.4"}
                 and stage in {"validated", "sent", "closed"}
                 and not value.startswith("passed")
             ):
@@ -250,7 +278,7 @@ def validate_manifest(
         errors.append(f"unknown role family: {role}")
 
     deliverables = data.get("deliverables", [])
-    if schema_version in {"1.2", "1.3"}:
+    if schema_version in {"1.2", "1.3", "1.4"}:
         if not isinstance(deliverables, list) or not deliverables or not all(
             isinstance(item, str) for item in deliverables
         ):
@@ -291,7 +319,7 @@ def validate_manifest(
     official_url = ""
     verified_at = ""
     application_route = ""
-    if schema_version == "1.3":
+    if schema_version in {"1.3", "1.4"}:
         if not isinstance(availability, dict):
             errors.append("job_description.availability must be a mapping")
             availability = {}
@@ -325,7 +353,7 @@ def validate_manifest(
     employer_portfolio = data.get("employer_portfolio", {})
     portfolio_strategy = ""
     compared_application_ids: list[Any] = []
-    if schema_version == "1.3":
+    if schema_version in {"1.3", "1.4"}:
         if not isinstance(employer_portfolio, dict):
             errors.append("employer_portfolio must be a mapping")
             employer_portfolio = {}
@@ -351,6 +379,90 @@ def validate_manifest(
             )
         if not isinstance(portfolio_reason, str) or not portfolio_reason.strip():
             errors.append("employer_portfolio.reason is required")
+
+    golden_pack = data.get("golden_pack", {})
+    selected_pack = ""
+    selected_pack_status = ""
+    if schema_version == "1.4":
+        if not isinstance(golden_pack, dict):
+            errors.append("golden_pack must be a mapping")
+            golden_pack = {}
+        selected_pack = golden_pack.get("selected_pack", "")
+        version = golden_pack.get("version", "")
+        cv_hash = golden_pack.get("cv_sha256", "")
+        if selected_pack and (
+            not isinstance(selected_pack, str)
+            or not GOLDEN_PACK_ID_PATTERN.fullmatch(selected_pack)
+        ):
+            errors.append("golden_pack.selected_pack must be a safe Golden Pack ID")
+        if selected_pack:
+            if not isinstance(version, str) or not re.fullmatch(r"v\d+\.\d+", version):
+                errors.append("golden_pack.version must look like v2.0")
+            if not isinstance(cv_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", cv_hash):
+                errors.append("golden_pack.cv_sha256 must be a lowercase SHA-256")
+            registry_path = project_root / "meta" / "golden_packs.yaml"
+            if not registry_path.is_file():
+                errors.append("meta/golden_packs.yaml is required after selecting a Golden Pack")
+            else:
+                registry = load_yaml(registry_path, "Golden Pack registry")
+                pack = registry.get("packs", {}).get(selected_pack, {})
+                if not isinstance(pack, dict):
+                    errors.append(f"Golden Pack is missing from the registry: {selected_pack}")
+                else:
+                    selected_pack_status = str(pack.get("status", ""))
+                    if pack.get("version") != version:
+                        errors.append("golden_pack.version does not match the registry")
+                    registry_cv = pack.get("artifacts", {}).get("cv", {})
+                    if not isinstance(registry_cv, dict) or registry_cv.get("sha256") != cv_hash:
+                        errors.append("golden_pack.cv_sha256 does not match the registry")
+        elif version or cv_hash:
+            errors.append("golden_pack version/hash require selected_pack")
+
+    # Added within schema 1.4 as a backward-compatible optional record. New
+    # manifests include it; older 1.4 manifests remain valid without migration.
+    if schema_version == "1.4" and "submission" in data:
+        submission = data.get("submission")
+        if not isinstance(submission, dict):
+            errors.append("submission must be a mapping")
+            submission = {}
+        submitted_at = submission.get("submitted_at", "")
+        channel = submission.get("channel", "")
+        delivered_artifacts = submission.get("delivered_artifacts", [])
+        reference = submission.get("reference", "")
+        for field, value in (
+            ("submitted_at", submitted_at),
+            ("channel", channel),
+            ("reference", reference),
+        ):
+            if not isinstance(value, str):
+                errors.append(f"submission.{field} must be a string")
+        if isinstance(submitted_at, str) and submitted_at:
+            try:
+                dt.datetime.fromisoformat(submitted_at.replace("Z", "+00:00"))
+            except ValueError:
+                errors.append("submission.submitted_at must be an ISO date or datetime")
+        if not isinstance(delivered_artifacts, list) or not all(
+            isinstance(item, str) for item in delivered_artifacts
+        ):
+            errors.append("submission.delivered_artifacts must be a list of artifact types")
+            delivered_artifacts = []
+        elif len(set(delivered_artifacts)) != len(delivered_artifacts):
+            errors.append("submission.delivered_artifacts contains duplicates")
+        unknown_submission_artifacts = sorted(
+            set(delivered_artifacts) - SUBMISSION_ARTIFACT_TYPES
+        )
+        if unknown_submission_artifacts:
+            errors.append(
+                "submission.delivered_artifacts contains unknown values: "
+                + ", ".join(unknown_submission_artifacts)
+            )
+        if stage in {"sent", "closed"}:
+            if not isinstance(submitted_at, str) or not submitted_at:
+                errors.append(f"stage {stage} requires submission.submitted_at")
+            if not isinstance(channel, str) or not channel.strip():
+                errors.append(f"stage {stage} requires submission.channel")
+            if not delivered_artifacts:
+                errors.append(f"stage {stage} requires submission.delivered_artifacts")
 
     identity = data.get("identity_anchors", [])
     if not isinstance(identity, list):
@@ -465,6 +577,66 @@ def validate_manifest(
             and not historical_exception
         ):
             errors.append(f"selected claim {claim_id} is outside role family {role}")
+
+    portfolio_appendix = data.get("portfolio_appendix")
+    if portfolio_appendix is not None:
+        if not isinstance(portfolio_appendix, dict):
+            errors.append("portfolio_appendix must be a mapping")
+            portfolio_appendix = {}
+        enabled = portfolio_appendix.get("enabled")
+        if not isinstance(enabled, bool):
+            errors.append("portfolio_appendix.enabled must be true or false")
+            enabled = False
+        page_count = portfolio_appendix.get("page_count")
+        cases = portfolio_appendix.get("cases", [])
+        reason = portfolio_appendix.get("reason")
+        if not isinstance(cases, list):
+            errors.append("portfolio_appendix.cases must be a list")
+            cases = []
+        if enabled:
+            if "cover_letter" not in deliverables:
+                errors.append("enabled portfolio_appendix requires the cover_letter deliverable")
+            if not isinstance(page_count, int) or not 1 <= page_count <= 2:
+                errors.append("enabled portfolio_appendix.page_count must be 1 or 2")
+            if not isinstance(reason, str) or not reason.strip():
+                errors.append("enabled portfolio_appendix.reason is required")
+            if not 1 <= len(cases) <= 3:
+                errors.append("enabled portfolio_appendix must contain one to three cases")
+        else:
+            if page_count not in {0, None}:
+                errors.append("disabled portfolio_appendix.page_count must be 0")
+            if cases:
+                errors.append("disabled portfolio_appendix.cases must be empty")
+        known_asset_ids = master_portfolio_asset_ids(master_path)
+        seen_case_ids: set[str] = set()
+        for index, item in enumerate(cases, 1):
+            prefix = f"portfolio_appendix.cases[{index}]"
+            if not isinstance(item, dict):
+                errors.append(f"{prefix} must be a mapping")
+                continue
+            case_id = item.get("id")
+            if not isinstance(case_id, str) or not ID_PATTERN.fullmatch(case_id):
+                errors.append(f"{prefix}.id is invalid")
+            elif case_id in seen_case_ids:
+                errors.append(f"duplicate portfolio case ID: {case_id}")
+            else:
+                seen_case_ids.add(case_id)
+            if not isinstance(item.get("title"), str) or not item.get("title", "").strip():
+                errors.append(f"{prefix}.title is required")
+            asset_id = item.get("asset_id")
+            if not isinstance(asset_id, str) or asset_id not in known_asset_ids:
+                errors.append(f"{prefix}.asset_id references an unknown portfolio asset")
+            mapped = item.get("claim_ids", [])
+            if not isinstance(mapped, list) or not mapped or not all(
+                isinstance(claim_id, str) for claim_id in mapped
+            ):
+                errors.append(f"{prefix}.claim_ids must contain at least one claim")
+                mapped = []
+            for claim_id in mapped:
+                if claim_id not in selected_set:
+                    errors.append(
+                        f"{prefix} uses claim not present in selected_claims: {claim_id}"
+                    )
     for claim_id in sorted(adjacent_ids):
         if claim_id not in selected_set:
             errors.append(
@@ -491,7 +663,7 @@ def validate_manifest(
     capability_review = data.get("capability_review", {})
     capability_entries: list[dict[str, Any]] = []
     seen_capabilities: set[str] = set()
-    if schema_version in {"1.2", "1.3"}:
+    if schema_version in {"1.2", "1.3", "1.4"}:
         if not isinstance(capability_review, dict):
             errors.append("capability_review must be a mapping for schema 1.2+")
             capability_review = {}
@@ -647,7 +819,7 @@ def validate_manifest(
             errors.append(f"stage {stage} requires decision.user_confirmed=true")
         if stage in {"drafted", "validated", "sent", "closed"} and not bullets:
             errors.append(f"stage {stage} requires final_bullets")
-        if schema_version == "1.3" and stage in {"approved", "drafted", "validated"}:
+        if schema_version in {"1.3", "1.4"} and stage in {"approved", "drafted", "validated"}:
             if vacancy_status != "open":
                 errors.append(f"stage {stage} requires an officially verified open vacancy")
             if not official_url:
@@ -658,7 +830,7 @@ def validate_manifest(
                 errors.append(f"stage {stage} requires a verified application route")
             if portfolio_strategy == "excluded":
                 errors.append(f"stage {stage} cannot use an excluded employer-portfolio strategy")
-        if schema_version in {"1.2", "1.3"} and stage in {
+        if schema_version in {"1.2", "1.3", "1.4"} and stage in {
             "approved",
             "drafted",
             "validated",
@@ -666,7 +838,7 @@ def validate_manifest(
             "closed",
         } and not capability_review.get("completed"):
             errors.append(f"stage {stage} requires a completed capability_review")
-        if schema_version in {"1.2", "1.3"} and stage in {
+        if schema_version in {"1.2", "1.3", "1.4"} and stage in {
             "approved",
             "drafted",
             "validated",
@@ -683,7 +855,7 @@ def validate_manifest(
                     + claim_id
                 )
         if (
-            schema_version in {"1.2", "1.3"}
+            schema_version in {"1.2", "1.3", "1.4"}
             and "cover_letter" in deliverables
             and stage in {"drafted", "validated", "sent", "closed"}
             and not (2 <= len(letter_paragraphs) <= 6)
@@ -692,7 +864,7 @@ def validate_manifest(
                 f"stage {stage} requires two to six evidence-bound cover_letter_paragraphs"
             )
         if (
-            schema_version in {"1.1", "1.2", "1.3"}
+            schema_version in {"1.1", "1.2", "1.3", "1.4"}
             and stage in {"approved", "drafted", "validated", "sent", "closed"}
             and not identity
         ):
@@ -707,7 +879,7 @@ def validate_manifest(
                 errors.append(
                     f"identity anchor {claim_id} has no final bullet in approved placement {placement}"
                 )
-        if schema_version in {"1.2", "1.3"} and stage in {"drafted", "validated", "sent", "closed"}:
+        if schema_version in {"1.2", "1.3", "1.4"} and stage in {"drafted", "validated", "sent", "closed"}:
             for item in capability_entries:
                 if item.get("decision") != "include":
                     continue
@@ -731,7 +903,13 @@ def validate_manifest(
                         f"included capability {claim_id} has no content in approved placement {placement}"
                     )
 
-        if schema_version in {"1.2", "1.3"} and stage in {"validated", "sent", "closed"}:
+        if schema_version == "1.4" and stage in {"validated", "sent", "closed"}:
+            if not selected_pack:
+                errors.append(f"stage {stage} requires a selected Golden Pack")
+            elif selected_pack_status != "approved":
+                errors.append(f"stage {stage} requires an Owner-approved Golden Pack")
+
+        if schema_version in {"1.2", "1.3", "1.4"} and stage in {"validated", "sent", "closed"}:
             artifacts = data.get("artifacts")
             if not isinstance(artifacts, dict):
                 errors.append("artifacts must be a mapping")
@@ -752,11 +930,12 @@ def validate_manifest(
                 allowed_roots = [
                     (project_root / "workspace" / "profiles").resolve(),
                     (project_root / "workspace" / "build").resolve(),
+                    (project_root / "output" / "pdf").resolve(),
                 ]
                 if not any(candidate.is_relative_to(root) for root in allowed_roots):
                     errors.append(
-                        f"artifacts.{path_field} must stay under workspace/profiles/ "
-                        "or workspace/build/"
+                        f"artifacts.{path_field} must stay under workspace/profiles/, "
+                        "workspace/build/, or output/pdf/"
                     )
                 elif not candidate.is_file():
                     errors.append(f"artifact file not found: {raw_path}")

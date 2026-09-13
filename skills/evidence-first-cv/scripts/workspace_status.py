@@ -166,6 +166,20 @@ def collect_status(root: Path) -> dict[str, Any]:
         and target.get("profile")
     }
 
+    golden_registry = safe_yaml(root / "meta" / "golden_packs.yaml")
+    golden_items = golden_registry.get("packs", {})
+    if not isinstance(golden_items, dict):
+        golden_items = {}
+    golden_profiles: set[str] = set()
+    golden_statuses: dict[str, str] = {}
+    for pack_id, item in golden_items.items():
+        if not isinstance(pack_id, str) or not isinstance(item, dict):
+            continue
+        source_profile = item.get("source_profile")
+        if isinstance(source_profile, str) and source_profile:
+            golden_profiles.add(Path(source_profile).name)
+        golden_statuses[pack_id] = str(item.get("status", "unknown"))
+
     baselines_root = root / "workspace" / "baselines"
     baseline_count, baseline_bytes = directory_inventory(baselines_root)
     baseline_names = (
@@ -211,7 +225,8 @@ def collect_status(root: Path) -> dict[str, Any]:
         catalogued_baselines.add(baseline_id)
 
     linked_application_profiles = (ledger_profiles | manifest_profiles) & profile_names
-    unclassified_profiles = profile_names - linked_application_profiles
+    linked_golden_profiles = golden_profiles & profile_names
+    unclassified_profiles = profile_names - linked_application_profiles - linked_golden_profiles
     existing_baselines = catalogued_baselines & baseline_names
     unclassified_baselines = baseline_names - catalogued_baselines
     missing_catalog_baselines = catalogued_baselines - baseline_names
@@ -278,7 +293,7 @@ def collect_status(root: Path) -> dict[str, Any]:
         warnings.append("empty skills/drive-evidence-first-cv skeleton exists")
 
     return {
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "master": {
             "valid": bool(validation.get("ok")),
             "example_data": example_data,
@@ -293,6 +308,11 @@ def collect_status(root: Path) -> dict[str, Any]:
             "stages": dict(sorted(stages.items())),
             "manifests": len(manifests),
             "manifest_stages": dict(sorted(manifest_stages.items())),
+        },
+        "golden_packs": {
+            "registered": len(golden_items),
+            "profiles": sorted(linked_golden_profiles),
+            "statuses": dict(sorted(golden_statuses.items())),
         },
         "profiles": {
             "active": active,
@@ -323,6 +343,7 @@ def collect_status(root: Path) -> dict[str, Any]:
 def render_text(status: dict[str, Any]) -> str:
     master = status["master"]
     applications = status["applications"]
+    golden_packs = status["golden_packs"]
     profiles = status["profiles"]
     baselines = status["baselines"]
     lines = [
@@ -341,6 +362,7 @@ def render_text(status: dict[str, Any]) -> str:
     lines.extend(
         [
             f"Applications: {applications['records']} ledger records; {applications['manifests']} manifests; stages={applications['stages']}",
+            f"Golden Packs: {golden_packs['registered']} registered; statuses={golden_packs['statuses']}",
             f"Profiles: {profiles['count']} total ({profiles['applications']} application, "
             f"{profiles['unclassified']} unclassified); "
             f"{profiles['archived']} application archives, {profiles['archived_research']} research archives; "

@@ -245,6 +245,10 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
         version_match
         and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 9)
     )
+    governed_portfolio_appendix = bool(
+        version_match
+        and (int(version_match.group(1)), int(version_match.group(2))) >= (3, 10)
+    )
     if not is_v3:
         warnings.append(
             "Legacy master database: add schema_version 3.x, role_families, "
@@ -392,6 +396,39 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                 errors.append("application_defaults.deliverables must include cv")
         if not isinstance(application_defaults.get("complement_review"), bool):
             errors.append("application_defaults.complement_review must be true or false")
+        if governed_portfolio_appendix:
+            appendix_policy = application_defaults.get("portfolio_appendix_policy")
+            if not isinstance(appendix_policy, dict):
+                errors.append(
+                    "application_defaults.portfolio_appendix_policy must be a mapping for schema 3.10+"
+                )
+                appendix_policy = {}
+            if appendix_policy.get("mode") != "jd_selected":
+                errors.append(
+                    "application_defaults.portfolio_appendix_policy.mode must be jd_selected"
+                )
+            max_pages = appendix_policy.get("default_max_pages")
+            if not isinstance(max_pages, int) or isinstance(max_pages, bool) or not 1 <= max_pages <= 2:
+                errors.append(
+                    "application_defaults.portfolio_appendix_policy.default_max_pages must be 1 or 2"
+                )
+            max_cases = appendix_policy.get("max_cases")
+            if not isinstance(max_cases, int) or isinstance(max_cases, bool) or not 1 <= max_cases <= 3:
+                errors.append(
+                    "application_defaults.portfolio_appendix_policy.max_cases must be between 1 and 3"
+                )
+            for field in ("triggers", "rules"):
+                values = appendix_policy.get(field)
+                if not _list_of_strings(values):
+                    errors.append(
+                        f"application_defaults.portfolio_appendix_policy.{field} must be a non-empty list of strings"
+                    )
+                else:
+                    _validate_unique_strings(
+                        values,
+                        f"application_defaults.portfolio_appendix_policy.{field}",
+                        errors,
+                    )
         if governed_project_links:
             project_link_policy = application_defaults.get("project_link_policy")
             if not isinstance(project_link_policy, dict):
@@ -838,6 +875,47 @@ def validate_master_cv(yaml_path: Path) -> dict[str, Any]:
                 excluded_repo_urls.add(repo_url)
             if not _is_nonempty_string(exclusion.get("reason")):
                 errors.append(f"{prefix}.reason is required")
+
+    portfolio_assets = data.get("portfolio_assets")
+    if governed_portfolio_appendix:
+        if not isinstance(portfolio_assets, list) or not portfolio_assets:
+            errors.append("portfolio_assets must be a non-empty list for schema 3.10+")
+            portfolio_assets = []
+    elif portfolio_assets is None:
+        portfolio_assets = []
+    elif not isinstance(portfolio_assets, list):
+        errors.append("portfolio_assets must be a list")
+        portfolio_assets = []
+    seen_asset_ids: set[str] = set()
+    for index, asset in enumerate(portfolio_assets, 1):
+        prefix = f"portfolio_assets[{index}]"
+        if not isinstance(asset, dict):
+            errors.append(f"{prefix} must be a mapping")
+            continue
+        asset_id = asset.get("id")
+        _validate_identifier(asset_id, f"{prefix}.id", errors)
+        if asset_id in seen_asset_ids:
+            errors.append(f"duplicate portfolio asset ID: {asset_id}")
+        elif _is_nonempty_string(asset_id):
+            seen_asset_ids.add(asset_id)
+        for field in ("title", "locator", "captured_on", "visibility", "safe_use"):
+            if not _is_nonempty_string(asset.get(field)):
+                errors.append(f"{prefix}.{field} is required")
+        if asset.get("visibility") != "private":
+            errors.append(f"{prefix}.visibility must be private")
+        if not str(asset.get("locator", "")).startswith("private:"):
+            errors.append(f"{prefix}.locator must use a private: symbolic locator")
+        asset_claim_ids = asset.get("claim_ids")
+        if not _list_of_strings(asset_claim_ids):
+            errors.append(f"{prefix}.claim_ids must be a non-empty list of IDs")
+        else:
+            _validate_unique_strings(asset_claim_ids, f"{prefix}.claim_ids", errors)
+            for claim_id in asset_claim_ids:
+                claim = claims_by_id.get(claim_id)
+                if claim is None:
+                    errors.append(f"{prefix} references unknown claim: {claim_id}")
+                elif claim.get("cv_eligible") is not True:
+                    errors.append(f"{prefix} references a claim that is not CV-eligible: {claim_id}")
 
     def validate_claim_classification(item: dict[str, Any], prefix: str) -> None:
         references = item.get("claim_ids")
