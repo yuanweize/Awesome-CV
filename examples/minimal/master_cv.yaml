@@ -1,0 +1,433 @@
+# Awesome-CV evidence-first master database (public example)
+# Copy to meta/master_cv.yaml. The destination is gitignored.
+
+schema_version: "3.10"
+
+metadata:
+  owner: "Alex Example"
+  last_updated: "2026-01-15"
+  default_language: "en"
+  notes: >-
+    Structured sections remain useful for humans. claim_registry is the only
+    source that should be supplied to an AI when drafting a targeted CV.
+
+privacy:
+  ai_context_include_contact: false
+  sensitive_fields:
+  - date_of_birth
+  - phone
+  - street_address
+  - citizenship
+  - residence_permit_number
+  rules:
+  - "Keep this file under meta/ and never commit it."
+  - "Use evidence IDs instead of embedding private document contents."
+  - "Export contact details only when explicitly required."
+
+personal_information:
+  full_name: "Alex Example"
+  location: "Berlin, Germany"
+  email: "alex@example.org"
+  phone: "insert locally"
+  github: "example-user"
+  linkedin: "example-user"
+  citizenship: "Example citizenship"
+  work_authorization: "Authorised to work in Germany — no employer-sponsored work permit required."
+
+career_preferences:
+  role_interests:
+  - role_family: systems
+    interest: high
+    application_priority: active
+    notes: "Actively pursue Linux, platform-support, and infrastructure roles"
+  - role_family: test
+    interest: medium
+    application_priority: selective
+    notes: "Prefer system-level validation over manual-only QA"
+
+# Controls what a natural-language request such as "make my CV" means for this
+# owner. Remove cover_letter only when you deliberately want résumé-only output.
+application_defaults:
+  deliverables: [cv, cover_letter]
+  complement_review: true
+  portfolio_appendix_policy:
+    mode: jd_selected
+    default_max_pages: 1
+    max_cases: 3
+    triggers: [owner_explicitly_requests, vacancy_requests_project_or_homelab_evidence]
+    rules:
+    - "Keep the signed cover letter on page one."
+    - "Select only role-specific cases backed by eligible claims."
+    - "Use selectable text and review every screenshot for sensitive data."
+  tailoring_policy:
+    per_jd_reasoning_required: true
+    search_priorities_are_whitelist: false
+    work_authorization_placement: top_identity_block
+    ats_text_gate: strict_final_pdf
+  work_authorization_policy:
+    cv_required: true
+    placement: top_identity_block
+    label: "Work authorisation"
+    claim_id: authorization.germany-work-access
+    cv_text: "Authorised to work in Germany — no employer-sponsored work permit required."
+  project_link_policy:
+    thesis_repository: required_when_public
+    style: canonical_project_link
+  reusable_positioning:
+  - id: owner-operated-operational-foundation
+    text: >-
+      I maintain an owner-operated Linux environment and turn recurring operational
+      needs into documented, reviewable automation.
+    role_families: [systems]
+    claim_ids: [personal.lab-operation]
+    placements: [cover_letter, interview]
+    max_uses_per_application: 1
+    usage: >-
+      Use where independent operation and practical ownership matter. Preserve the
+      owner-operated scope without contrasting it against missing enterprise experience.
+
+# Durable, evidence-bound facts that should survive JD tailoring. The drafting
+# agent selects only one to three per application and records their placement.
+identity_anchors:
+- claim_id: education.bsc-computer-engineering
+  value: credential
+  usage: >-
+    Spell out the university and degree in the top third for graduate and
+    early-career applications; tailoring may change emphasis but not erase it.
+
+role_families:
+  systems:
+    label: "Systems and infrastructure"
+    readiness: credible
+    strengths:
+    - "Verified Linux troubleshooting plus a maintained personal lab"
+    boundaries:
+    - "Personal infrastructure is not enterprise production experience"
+    target_titles:
+    - "Junior Systems Engineer"
+    - "Infrastructure Support Engineer"
+    - "Technical Operations Engineer"
+    - "Junior Site Reliability Engineer"
+    stretch_titles:
+    - "Junior Site Reliability Engineer"
+    keywords:
+    - linux
+    - networking
+    - systemd
+    - docker
+    - monitoring
+  test:
+    label: "System test and validation"
+    readiness: core
+    strengths:
+    - "Professional Linux troubleshooting and repeatable project benchmarks"
+    boundaries:
+    - "Do not invent test certifications, safety standards, or framework ownership"
+    target_titles:
+    - "System Test Engineer"
+    - "Test Automation Engineer"
+    stretch_titles: []
+    keywords:
+    - python
+    - pytest
+    - validation
+    - jira
+    - logs
+
+evidence_registry:
+- id: ev-degree-record
+  type: official_record
+  title: "University degree record"
+  locator: "private:degree-certificate"
+  visibility: private
+  verified_on: "2026-01-10"
+
+- id: ev-employment-reference
+  type: employment_record
+  title: "Northstar Systems employment reference"
+  locator: "private:employment-reference"
+  visibility: private
+  verified_on: "2026-01-10"
+
+- id: ev-project-repository
+  type: public_repository
+  title: "SignalWatch source repository"
+  locator: "https://github.com/example-user/signalwatch"
+  visibility: public
+  verified_on: "2026-01-15"
+
+- id: ev-project-benchmark
+  type: test_report
+  title: "SignalWatch benchmark report"
+  locator: "private:signalwatch-benchmark-2025-12"
+  visibility: private
+  verified_on: "2026-01-15"
+
+- id: ev-personal-lab
+  type: self_reported
+  title: "Personal Linux lab notes"
+  locator: "private:lab-inventory"
+  visibility: self_reported
+  verified_on: "2026-01-15"
+
+- id: ev-github-inventory
+  type: derived_public_inventory
+  title: "Dated public GitHub portfolio inventory"
+  locator: "private:github-public-portfolio-inventory"
+  visibility: private
+  verified_on: "2026-01-15"
+
+- id: ev-work-authorization
+  type: official_record
+  title: "Work-authorisation evidence"
+  locator: "private:work-authorization-record"
+  visibility: private
+  verified_on: "2026-01-15"
+
+portfolio_management:
+  last_reviewed: "2026-01-15"
+  inventory_evidence_id: ev-github-inventory
+  excluded_repositories:
+  - repo: "https://github.com/example-user/obsolete-tutorial"
+    reason: "Obsolete tutorial material with no useful authorship or interview signal"
+
+portfolio_assets:
+- id: asset.signalwatch-dashboard
+  title: "SignalWatch sanitised dashboard screenshot"
+  locator: "private:meta/evidence/portfolio/signalwatch-dashboard.png"
+  captured_on: "2026-01-15"
+  visibility: private
+  claim_ids: [project.signalwatch-features]
+  safe_use: "Use only after confirming that no credentials, private hosts, or customer data are visible."
+
+claim_registry:
+- id: authorization.germany-work-access
+  type: work_authorization
+  subject: "German labour market"
+  statement: >-
+    Authorised to work in Germany without an employer-sponsored work permit;
+    exact residence-document details remain private and must be answered accurately.
+  dates: "current"
+  scope: legal_status
+  role_families:
+  - systems
+  - test
+  tags:
+  - germany
+  - work-authorization
+  evidence:
+  - ev-work-authorization
+  status: verified
+  cv_eligible: true
+  interview_depth: moderate
+
+- id: education.bsc-computer-engineering
+  type: education
+  subject: "Technical University of Example"
+  statement: "Completed a B.Sc. in Computer Engineering."
+  dates: "2022-09 to 2025-06"
+  scope: academic
+  role_families:
+  - systems
+  - test
+  tags:
+  - computer-engineering
+  - bachelor
+  evidence:
+  - ev-degree-record
+  status: verified
+  cv_eligible: true
+  interview_depth: strong
+
+- id: experience.northstar-linux-support
+  type: experience
+  subject: "Northstar Systems"
+  statement: >-
+    Investigated Linux service failures with systemd, journalctl, TCP/IP tools,
+    and documented reproduction steps for the operations team.
+  dates: "2024-02 to 2025-05"
+  scope: internship
+  role_families:
+  - systems
+  - test
+  tags:
+  - linux
+  - systemd
+  - networking
+  - troubleshooting
+  evidence:
+  - ev-employment-reference
+  status: verified
+  cv_eligible: true
+  interview_depth: strong
+
+- id: project.signalwatch-features
+  type: project
+  subject: "SignalWatch"
+  statement: >-
+    Built a personal open-source Python service that schedules network probes,
+    stores results in SQLite, and exposes health and history through an HTTP API.
+  dates: "2025-03 to present"
+  scope: personal_open_source
+  role_families:
+  - systems
+  - test
+  tags:
+  - python
+  - sqlite
+  - http
+  - networking
+  adjacent_values:
+  - execution_leverage
+  - autonomy
+  evidence:
+  - ev-project-repository
+  delivery:
+    mode: ai_assisted
+    owned_actions:
+    - requirements
+    - architecture
+    - integration
+    - review
+    - testing
+    - deployment
+    - operation
+    - documentation
+    boundaries:
+    - "Repository technologies describe the artifact, not automatic independent language proficiency"
+  status: verified
+  cv_eligible: true
+  interview_depth: strong
+
+- id: project.signalwatch-benchmark
+  type: project
+  subject: "SignalWatch"
+  statement: >-
+    Replayed 10,000 probe results for a personal open-source service in a
+    repeatable benchmark and documented the test environment, throughput, and limitations.
+  dates: "2025-12"
+  scope: personal_open_source
+  role_families:
+  - systems
+  - test
+  tags:
+  - benchmarking
+  - testing
+  - performance
+  evidence:
+  - ev-project-benchmark
+  delivery:
+    mode: direct
+    owned_actions:
+    - requirements
+    - implementation
+    - testing
+    - analysis
+    - documentation
+    boundaries:
+    - "Benchmark results apply only to the documented test environment"
+  status: verified
+  cv_eligible: true
+  interview_depth: strong
+
+- id: personal.lab-operation
+  type: experience
+  subject: "Personal Linux lab"
+  statement: >-
+    Maintain a small personal Linux environment using Docker Compose, systemd,
+    WireGuard, and basic Prometheus/Grafana monitoring.
+  dates: "2023 to present"
+  scope: personal
+  role_families:
+  - systems
+  tags:
+  - linux
+  - docker-compose
+  - wireguard
+  - prometheus
+  - grafana
+  adjacent_values:
+  - execution_leverage
+  - autonomy
+  evidence:
+  - ev-personal-lab
+  status: self_reported
+  cv_eligible: true
+  interview_depth: moderate
+
+education:
+  institution: "Technical University of Example"
+  degree: "B.Sc. in Computer Engineering"
+  location: "Example City, Germany"
+  dates: "2022-09 to 2025-06"
+  thesis:
+    title: "Reliable Network Monitoring on Small Linux Systems"
+    evidence:
+    - ev-degree-record
+    claim_ids:
+    - project.signalwatch-features
+    - project.signalwatch-benchmark
+
+honors_and_achievements:
+  early_achievements:
+  - title: "Example secondary-school programming award"
+    date: "2018"
+    cv_eligible: false
+    eligibility_reason: >-
+      Retained in lifetime memory but weaker than current degree, work, and project evidence.
+
+work_experience:
+- company: "Northstar Systems"
+  title: "Systems Support Intern"
+  location: "Berlin, Germany"
+  dates: "2024-02 to 2025-05"
+  claim_ids:
+  - experience.northstar-linux-support
+
+open_source_and_projects:
+- name: "SignalWatch"
+  repo: "https://github.com/example-user/signalwatch"
+  portfolio_tier: primary
+  evidence_ids:
+  - ev-project-repository
+  last_reviewed: "2026-01-15"
+  claim_ids:
+  - project.signalwatch-features
+  - project.signalwatch-benchmark
+
+technical_skills:
+  evidenced:
+  - name: "Python"
+    cv_usage: skill
+    level: "Working project experience"
+    boundaries:
+    - "AI-assisted project delivery does not imply unassisted mastery of every library"
+    claim_ids:
+    - project.signalwatch-features
+  - name: "Linux and systemd"
+    cv_usage: skill
+    level: "Professional internship plus personal operation"
+    boundaries:
+    - "Personal lab operation is not enterprise production ownership"
+    claim_ids:
+    - experience.northstar-linux-support
+    - personal.lab-operation
+  - name: "TCP/IP troubleshooting"
+    cv_usage: skill
+    level: "Working support and project experience"
+    boundaries:
+    - "No carrier-core or enterprise network ownership"
+    claim_ids:
+    - experience.northstar-linux-support
+
+languages:
+- language: "English"
+  proficiency: "Professional working proficiency"
+- language: "German"
+  proficiency: "Intermediate"
+
+exclusions:
+- item: "Kubernetes migration"
+  reason: "Planned only; no working implementation yet"
+- item: "Pending cloud certificate"
+  reason: "Do not list until the certificate is issued"

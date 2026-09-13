@@ -3,7 +3,15 @@ yaml-files:
 - '*.yml'
 
 ignore: |
+  .venv/**
+  archive/**
+  assets/portfolio/raw/**
+  assets/portfolio/raw-private/**
+  assets/portfolio/curated/**
+  assets/portfolio/generated/**
   meta/**
+  output/**
+  tmp/**
   workspace/**
   tools/tech-stack-collector/targets.yaml
 

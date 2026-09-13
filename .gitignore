@@ -1,5 +1,4 @@
-### TeX ###
-## Core latex/pdflatex auxiliary files:
+# TeX auxiliaries
 *.aux
 *.lof
 *.log
@@ -9,58 +8,50 @@
 *.toc
 *.synctex.gz
 
-## Intermediate documents:
 *.dvi
 *-converted-to.*
 
-## Build outputs
-*.pdf
-
-### Editor ###
-## VS Code workspace settings:
-.vscode/*
-!.vscode/settings.json
-## Vim & Emacs temp files:
-.*sw[op]
-*~
-
-### Mac OS X ###
-*.DS_Store
-
-### Python ###
+# Python caches and environments
 .venv/
 __pycache__/
+**/__pycache__/
+*.pyc
 *.py[cod]
 .pytest_cache/
 
-# Local QA and generated AI context
+# OS and editors
+.vscode/*
+!.vscode/settings.json
+.*sw[op]
+*~
+*.DS_Store
+
+# Local QA, packages, and generated AI context
 /tmp/
-/tmp_pic/
 *-conversations/
 *conversations/
 *.generated.md
 *.difypkg
 
-#-------------------------------------------------------------------------------
-# PRIVACY - NEVER COMMIT SENSITIVE PRIVATE DATA
-#-------------------------------------------------------------------------------
-# Current CV, editable profiles, layout baselines, and generated output.
-# This single private runtime root is reconstructed by ./cv init.
-/workspace/
-
-# Private master database, evidence, interview notes, and personal research.
-# Public guidance belongs in docs/, never in meta/.
+# Local career data and applications
 /meta/
 
-# Closed applications and private research archives. Archive manifests may
-# contain private filenames even when they do not contain file contents.
-/archive/
+# Private evidence and user-specific Portfolio assets
+/assets/portfolio/raw/
+/assets/portfolio/raw-private/
+/assets/portfolio/curated/
+/assets/portfolio/generated/
 
-# Private recruiter-facing delivery copies and their local index.
-# Authoritative sources remain under workspace/profiles/.
+# Workspace and build state
+/workspace/
+
+# Generated output, including user PDFs
 /output/
 
-# Server scan reports (private IPs and node info)
+# Local archives and conversation history
+/archive/
+
+# Local inventory reports (private hosts and node information)
 tools/tech-stack-collector/reports/*
 !tools/tech-stack-collector/reports/.gitkeep
 tools/tech-stack-collector/targets.yaml
@@ -80,5 +71,5 @@ credentials*.json
 secrets*.yaml
 secrets*.yml
 
-# Handoff / internal notes
+# Local handoff notes
 PROJECT_HANDOFF.md
