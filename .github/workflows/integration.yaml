@@ -36,6 +36,14 @@ jobs:
         sudo apt-get update
         sudo apt-get install --no-install-recommends -y poppler-utils
 
+    - name: Exercise clean-clone onboarding
+      run: |
+        ./cv doctor
+        ./cv init
+        ./cv init --json
+        ./cv validate --strict
+        ./cv privacy-check --tracked
+
     - name: Run schema, privacy, unit, and syntax checks
       run: make check PYTHON=python
 
@@ -51,19 +59,15 @@ jobs:
       with:
         persist-credentials: false
 
-    - name: Setup for CI (use template data)
-      run: |
-        mkdir -p workspace/current/sections
-        cp templates/config.tex.example workspace/current/config.tex
-        cp templates/letter_config.tex.example workspace/current/letter_config.tex
-        cp templates/sections/*.tex workspace/current/sections/
-        echo "Using template data for CI build"
+    - name: Initialize fictional local instance
+      run: ./cv init
 
     - name: Compile Resume
       uses: xu-cheng/latex-action@e2f99d4b3685b0da93f97e1b86ad8fab81105098 # v3
       with:
         root_file: src/main.tex
         latexmk_use_lualatex: true
+        post_compile: ./cv demo && test -f output/demo/Awesome-CV_Demo_CV.pdf
       env:
         TEXINPUTS: "src/:.:"
 

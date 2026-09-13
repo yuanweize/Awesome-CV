@@ -418,7 +418,7 @@ Czech Technical University in Prague
             self.assertTrue((root / "meta" / "README.md").is_file())
             self.assertIn("Only eligible entries", (root / "meta" / "README.md").read_text())
             self.assertTrue((root / "output" / "pdf" / "README.md").is_file())
-            self.assertEqual(15, len(first["created_files"]))
+            self.assertEqual(16, len(first["created_files"]))
 
             marker = "owner-private-content\n"
             master = root / "meta" / "master_cv.yaml"
@@ -427,7 +427,7 @@ Czech Technical University in Prague
 
             self.assertEqual(marker, master.read_text(encoding="utf-8"))
             self.assertEqual([], second["created_files"])
-            self.assertEqual(15, len(second["preserved_files"]))
+            self.assertEqual(16, len(second["preserved_files"]))
 
     def test_workspace_init_rejects_private_symlink_destination(self) -> None:
         with (
@@ -654,7 +654,8 @@ Czech Technical University in Prague
         self.assertIn("personal.lab-operation", context)
         self.assertIn("## Evidence-bound skill groups", context)
         self.assertIn("| Python | `direct` |", context)
-        self.assertIn("explicit three-to-five-row role-appropriate Skills section", context)
+        self.assertIn("Reuse a selected approved Golden CV unchanged", context)
+        self.assertIn("Do not impose a new page", context)
         self.assertNotIn("alex@example.org", context)
         self.assertNotIn("+49", context)
         self.assertIn("- Market readiness: credible", context)
@@ -797,7 +798,7 @@ Czech Technical University in Prague
                         "artifacts": {
                             "cv_pdf": "workspace/profiles/example/Example_CV.pdf",
                             "cv_sha256": file_sha256(cv),
-                            "page_count": 1,
+                            "page_count": 2,
                             "application_pdf": "",
                         },
                     },
@@ -859,7 +860,7 @@ Czech Technical University in Prague
                         "artifacts": {
                             "cv_pdf": "workspace/profiles/example/Example_CV.pdf",
                             "cv_sha256": file_sha256(cv),
-                            "page_count": 1,
+                            "page_count": 2,
                             "cover_letter_pdf": "workspace/profiles/example/Example_Cover_Letter.pdf",
                             "cover_letter_sha256": file_sha256(letter),
                             "cover_letter_page_count": 1,
@@ -870,19 +871,79 @@ Czech Technical University in Prague
                 ),
                 encoding="utf-8",
             )
-            pdf_result = {
+            cv_pdf_result = {
                 "ok": True,
-                "pages": 1,
+                "pages": 2,
                 "words": 100,
                 "median_word_height": 13.0,
                 "page_metrics": [{"bottom_coverage": 0.8}],
                 "errors": [],
                 "warnings": [],
             }
-            with mock.patch("application_bundle_audit.audit_pdf", return_value=pdf_result):
+            cover_letter_pdf_result = {**cv_pdf_result, "pages": 1}
+            with mock.patch(
+                "application_bundle_audit.audit_pdf",
+                side_effect=[cv_pdf_result, cover_letter_pdf_result],
+            ):
                 result = audit_bundle(manifest, root)
             self.assertTrue(result["ok"])
             self.assertEqual(["cv", "cover_letter"], list(result["documents"]))
+
+    def test_bundle_audit_allows_only_manifest_declared_portfolio_pages(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            profile = root / "workspace" / "profiles" / "example"
+            profile.mkdir(parents=True)
+            paths = {
+                "cv": profile / "Example_CV.pdf",
+                "cover_letter": profile / "Example_Cover_Letter.pdf",
+                "application": profile / "Example_Application.pdf",
+            }
+            for kind, path in paths.items():
+                path.write_bytes(f"{kind}-fixture".encode())
+            manifest = root / "manifest.yaml"
+            manifest.write_text(
+                yaml.safe_dump(
+                    {
+                        "deliverables": ["cv", "cover_letter"],
+                        "portfolio_appendix": {
+                            "enabled": True,
+                            "page_count": 1,
+                            "reason": "Role-selected visual proof.",
+                            "cases": [],
+                        },
+                        "artifacts": {
+                            "cv_pdf": "workspace/profiles/example/Example_CV.pdf",
+                            "cv_sha256": file_sha256(paths["cv"]),
+                            "page_count": 2,
+                            "cover_letter_pdf": "workspace/profiles/example/Example_Cover_Letter.pdf",
+                            "cover_letter_sha256": file_sha256(paths["cover_letter"]),
+                            "cover_letter_page_count": 2,
+                            "application_pdf": "workspace/profiles/example/Example_Application.pdf",
+                            "application_sha256": file_sha256(paths["application"]),
+                            "application_page_count": 4,
+                        },
+                    },
+                    sort_keys=False,
+                ),
+                encoding="utf-8",
+            )
+
+            def pdf_result(_path: Path, *, max_pages: int, **_kwargs: object) -> dict[str, object]:
+                return {
+                    "ok": True,
+                    "pages": max_pages,
+                    "words": 100,
+                    "median_word_height": 13.0,
+                    "page_metrics": [{"bottom_coverage": 0.8}],
+                    "errors": [],
+                    "warnings": [],
+                }
+
+            with mock.patch("application_bundle_audit.audit_pdf", side_effect=pdf_result) as audit:
+                result = audit_bundle(manifest, root)
+            self.assertTrue(result["ok"])
+            self.assertEqual([2, 2, 4], [call.kwargs["max_pages"] for call in audit.call_args_list])
 
     def test_context_scoring_ignores_common_english_stopwords(self) -> None:
         self.assertEqual({"routing", "c"}, tokens("and to the routing with C"))
@@ -1095,9 +1156,19 @@ Czech Technical University in Prague
             (root / ".gitignore").write_text("ignored.txt\n", encoding="utf-8")
             (root / "untracked.md").write_text("candidate\n", encoding="utf-8")
             (root / "ignored.txt").write_text("private\n", encoding="utf-8")
-            paths = git_files(root, staged=False)
+            paths = git_files(root, "working")
             self.assertIn("untracked.md", paths)
             self.assertNotIn("ignored.txt", paths)
+
+    def test_tracked_privacy_scope_excludes_untracked_files(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            (root / "tracked.md").write_text("public\n", encoding="utf-8")
+            (root / "untracked.md").write_text("local\n", encoding="utf-8")
+            subprocess.run(["git", "add", "tracked.md"], cwd=root, check=True)
+            paths = git_files(root, "tracked")
+            self.assertEqual(["tracked.md"], paths)
 
     def test_privacy_findings_do_not_repeat_sensitive_values(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -1113,6 +1184,18 @@ Czech Technical University in Prague
             self.assertNotIn(private_email, rendered)
             self.assertNotIn(private_ip, rendered)
             self.assertIn("value redacted", rendered)
+
+    def test_privacy_rejects_machine_specific_home_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            private_home = "/" + "Users/private-user/Documents/local.yaml"
+            (root / "notes.md").write_text(
+                f"Use {private_home}\n",
+                encoding="utf-8",
+            )
+            issues = content_violations(root, ["notes.md"])
+            self.assertTrue(any("absolute home path" in issue for issue in issues))
+            self.assertNotIn("private-user", "\n".join(issues))
 
     def test_application_ledger_records_claims_and_stage(self) -> None:
         data = {"schema_version": "1.0", "applications": []}
@@ -1310,6 +1393,27 @@ Czech Technical University in Prague
             ]
             errors = validate_manifest(data, self.template_path, root, strict=True)
             self.assertEqual([], errors)
+
+            data["portfolio_appendix"] = {
+                "enabled": True,
+                "page_count": 1,
+                "reason": "The vacancy explicitly invites personal-project evidence.",
+                "cases": [
+                    {
+                        "id": "case.signalwatch",
+                        "title": "Network diagnostics made visible",
+                        "asset_id": "asset.signalwatch-dashboard",
+                        "claim_ids": [claim_id],
+                    }
+                ],
+            }
+            errors = validate_manifest(data, self.template_path, root, strict=True)
+            self.assertEqual([], errors)
+
+            invalid_portfolio = copy.deepcopy(data)
+            invalid_portfolio["portfolio_appendix"]["cases"][0]["asset_id"] = "asset.unknown"
+            errors = validate_manifest(invalid_portfolio, self.template_path, root, strict=True)
+            self.assertTrue(any("unknown portfolio asset" in error for error in errors))
 
             data["job_description"]["availability"]["status"] = "unverified"
             errors = validate_manifest(data, self.template_path, root, strict=True)
