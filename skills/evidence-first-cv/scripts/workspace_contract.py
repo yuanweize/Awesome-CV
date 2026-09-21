@@ -49,6 +49,7 @@ VISIBLE_PATHS = (
     "meta",
     "output",
     "output/pdf",
+    "output/pdf/applications",
     "workspace",
     "workspace/current",
     "workspace/golden-packs",

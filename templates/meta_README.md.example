@@ -23,6 +23,8 @@ Run `./cv structure` to verify the repository layout and privacy contract.
 - `inventory/`: dated discovery snapshots from GitHub or technical environments.
   Inventory is not résumé evidence until reviewed.
 - `audits/`: dated private analyses and reconciliation reports.
+- `chat/`: private source conversations retained for traceable research, never facts.
+- `reapplication_batches/`: deliberate multi-role/reapplication planning records.
 
 Within `evidence/`, use stable subject folders such as `education/`, `employment/`,
 `certifications/`, and `legacy-cv/`. A historical CV is discovery material only: it
@@ -35,7 +37,8 @@ belong in `../workspace/build/`; disposable render output belongs in
 reviewed/freeze Golden source belongs in `../workspace/golden-packs/`; editable
 application snapshots belong in `../workspace/profiles/`; closed history
 belongs in `../archive/`. Recruiter-facing delivery copies belong in
-`../output/pdf/<company>/<role>/`; they are never factual authority. Run `./cv status`
+`../output/pdf/applications/<application-id>/`; older layouts under `output/pdf/` remain
+legacy/read-only. Delivery files are never factual authority. Run `./cv status`
 before beginning a new application. Portfolio binaries live in ignored
 `../assets/portfolio/{raw-private,raw,curated,generated}/`; their private user index may
 live at `evidence/portfolio/ASSET_INDEX.md`. The tracked asset README is policy only.

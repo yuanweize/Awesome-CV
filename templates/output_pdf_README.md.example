@@ -1,9 +1,10 @@
 # PDF delivery index
 
 This ignored directory is the stable handoff entry point for recruiter-facing PDF
-copies. Keep one `company/role/` directory per application. The authoritative TeX,
-manifest, and built artifacts remain under `workspace/profiles/`; delivery copies are
-never factual input for later CV drafting.
+copies. New application bundles live under `applications/<application-id>/`. Historical
+layouts directly under `pdf/` remain valid legacy delivery records and need not be moved.
+The application manifest under `meta/applications/<application-id>/` records the selected
+Pack and exact artifact hashes; delivery copies are never factual input for later drafting.
 
 Versioned Golden Pack artifact sets belong under
 `golden-packs/<version>/`. Keep prior iterations in the private archive rather than

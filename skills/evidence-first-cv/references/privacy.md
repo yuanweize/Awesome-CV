@@ -3,7 +3,8 @@
 - Keep all real memory/evidence/JDs under ignored `meta/`.
 - Keep current TeX content under ignored `workspace/current/` and variants under
   `workspace/profiles/`.
-- Keep recruiter-facing copies under ignored `output/pdf/<company>/<role>/`; delivery
+- Keep new recruiter-facing copies under ignored
+  `output/pdf/applications/<application-id>/`; delivery
   files and their index are never factual authority.
 - Keep PDFs, rendered images, generated contexts, and collector reports ignored.
 - Export evidence IDs and statements, never raw private documents.

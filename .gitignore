@@ -1,4 +1,12 @@
-# TeX auxiliaries
+# Python caches and environments
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.py[cod]
+.pytest_cache/
+
+# TeX and build caches
 *.aux
 *.lof
 *.log
@@ -11,51 +19,12 @@
 *.dvi
 *-converted-to.*
 
-# Python caches and environments
-.venv/
-__pycache__/
-**/__pycache__/
-*.pyc
-*.py[cod]
-.pytest_cache/
-
-# OS and editors
+# OS/editor files
 .vscode/*
 !.vscode/settings.json
 .*sw[op]
 *~
 *.DS_Store
-
-# Local QA, packages, and generated AI context
-/tmp/
-*-conversations/
-*conversations/
-*.generated.md
-*.difypkg
-
-# Local career data and applications
-/meta/
-
-# Private evidence and user-specific Portfolio assets
-/assets/portfolio/raw/
-/assets/portfolio/raw-private/
-/assets/portfolio/curated/
-/assets/portfolio/generated/
-
-# Workspace and build state
-/workspace/
-
-# Generated output, including user PDFs
-/output/
-
-# Local archives and conversation history
-/archive/
-
-# Local inventory reports (private hosts and node information)
-tools/tech-stack-collector/reports/*
-!tools/tech-stack-collector/reports/.gitkeep
-tools/tech-stack-collector/targets.yaml
-tools/tech-stack-collector/targets.json
 
 # Secrets and local credentials
 .env
@@ -70,6 +39,37 @@ id_ed25519*
 credentials*.json
 secrets*.yaml
 secrets*.yml
+
+# Local QA/packages
+/tmp/
+*-conversations/
+*conversations/
+*.generated.md
+*.difypkg
+
+# User career and application data
+/meta/
+
+# Owner evidence/assets
+/assets/portfolio/raw/
+/assets/portfolio/raw-private/
+/assets/portfolio/curated/
+/assets/portfolio/generated/
+
+# Workspace runtime/build state
+/workspace/
+
+# Generated outputs, including recruiter PDFs
+/output/
+
+# Local archive/history
+/archive/
+
+# Local inventory reports (private hosts and node information)
+tools/tech-stack-collector/reports/*
+!tools/tech-stack-collector/reports/.gitkeep
+tools/tech-stack-collector/targets.yaml
+tools/tech-stack-collector/targets.json
 
 # Local handoff notes
 PROJECT_HANDOFF.md

@@ -25,7 +25,7 @@ Check the toolchain, then initialize once from the repository root:
 - empty `workspace/golden-packs/`, `workspace/baselines/`, `workspace/profiles/`,
   `archive/applications/`, `archive/conversations/`, `archive/golden-packs/`,
   `archive/portfolio-assets/`, `archive/research/`, `workspace/build/`,
-  `workspace/tmp/`, `output/pdf/golden-packs/`, and the private/raw plus
+  `workspace/tmp/`, `output/pdf/applications/`, `output/pdf/golden-packs/`, and the private/raw plus
   recruiter-safe Portfolio asset paths under `assets/portfolio/`;
   `output/pdf/README.md` is copied as the private delivery index.
 
@@ -37,8 +37,9 @@ symbolic-link destinations so a template cannot escape the workspace.
 
 The private application/build layer is physically grouped under `workspace/`: current
 source, editable profiles, reusable baselines, generated output, and temporary files.
-Recruiter-facing copies live only under `output/pdf/<company>/<role>/`; their matching
-profile and manifest remain authoritative.
+New recruiter-facing copies live under `output/pdf/applications/<application-id>/`;
+historical delivery layouts remain legacy/read-only. Their manifest remains the
+application record and the delivery copies are never factual authority.
 The repository's `.vscode/settings.json` does not hide these paths; the complete
 structure remains visible in Explorer.
 

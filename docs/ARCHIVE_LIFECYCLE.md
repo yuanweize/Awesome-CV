@@ -63,3 +63,10 @@ manifest, and verifies the moved bytes. The first command is always a read-only 
 Delete only regenerable output (`workspace/build/`, `workspace/tmp/`, LaTeX auxiliaries, caches) without
 archiving. Remove historical source or evidence only after a verified archive exists
 and the user explicitly approves the deletion list.
+
+Archive means retired or historical and is not part of normal runtime. Application tools
+must not silently search it. Do not archive an application record merely because it is
+old: live, submitted, interview, rejected, offer, and withdrawn history can remain under
+`meta/applications/`. Archive only superseded layouts, retired source snapshots, old
+freeze candidates, obsolete asset derivatives, and closed research exports with useful
+provenance.

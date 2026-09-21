@@ -33,6 +33,7 @@ RUNTIME_DIRECTORIES = (
     "archive/research",
     "output",
     "output/pdf",
+    "output/pdf/applications",
     "output/pdf/golden-packs",
     "assets/portfolio/raw",
     "assets/portfolio/raw-private",
@@ -124,7 +125,9 @@ def initialize_workspace(
         "created_directories": [],
         "created_files": [],
         "preserved_files": [],
+        "skipped_files": [],
     }
+    profile_managed_current = (root / "workspace/current/.active_profile").is_file()
 
     mappings = list(TEMPLATE_FILES)
     mappings.extend(
@@ -156,6 +159,9 @@ def initialize_workspace(
                 raise ValueError(f"Expected a file but found another object: {destination}")
             result["preserved_files"].append(destination_relative)
             continue
+        if profile_managed_current and destination_relative.startswith("workspace/current/"):
+            result["skipped_files"].append(destination_relative)
+            continue
         shutil.copy2(source, destination)
         _private_mode(destination)
         result["created_files"].append(destination_relative)
@@ -167,6 +173,8 @@ def initialize_workspace(
             emit(f"Created private file: {relative}")
         for relative in result["preserved_files"]:
             emit(f"Preserved existing file: {relative}")
+        for relative in result["skipped_files"]:
+            emit(f"Skipped profile-managed file: {relative}")
 
     return result
 

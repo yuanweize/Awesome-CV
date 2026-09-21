@@ -441,6 +441,32 @@ Czech Technical University in Prague
             with self.assertRaisesRegex(ValueError, "symbolic-link destination"):
                 initialize_workspace(root)
 
+    def test_workspace_init_does_not_dirty_an_active_profile(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(ROOT / "templates", root / "templates")
+            initialize_workspace(root)
+            (root / "workspace/current/.active_profile").write_text(
+                "golden-example-v1.0\n", encoding="utf-8"
+            )
+            missing = (
+                root / "workspace/current/letter_config.tex",
+                root / "workspace/current/sections/honors.tex",
+            )
+            for path in missing:
+                path.unlink()
+
+            result = initialize_workspace(root)
+
+            self.assertTrue(all(not path.exists() for path in missing))
+            self.assertEqual(
+                {
+                    "workspace/current/letter_config.tex",
+                    "workspace/current/sections/honors.tex",
+                },
+                set(result["skipped_files"]),
+            )
+
     def test_workspace_init_validates_templates_before_creating_private_paths(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

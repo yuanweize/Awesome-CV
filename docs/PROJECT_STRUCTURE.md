@@ -13,6 +13,24 @@ under `workspace/`; it is not simulated with editor exclusions. `meta/`, `worksp
 The tracked `.vscode/settings.json` keeps the complete tree visible. It contains no
 repository `files.exclude`, `search.exclude`, or watcher exclusions.
 
+## Directory responsibility map
+
+| Path | Purpose | Tracked? | Runtime? | Source of truth? |
+|---|---|---:|---:|---|
+| `docs/` | Canonical human-readable policy | yes | no | yes, for policy |
+| `src/`, `tools/`, `skills/`, `integrations/` | Public rendering and workflow engine | yes | no | yes, for implementation |
+| `templates/`, `examples/`, `tests/` | Synthetic bootstrap and regression material | yes | no | yes, for public contracts |
+| `meta/` | User career, Golden registry, applications, evidence, and audits | no | yes | yes, for domain data |
+| `assets/portfolio/` | User-local visual evidence and recruiter-safe derivatives | policy only | yes | asset index governs usage |
+| `workspace/` | Current/editable sources, frozen snapshots, and disposable builds | no | yes | only active source profiles/snapshots |
+| `output/` | Generated recruiter-facing artifacts | no | yes | no; manifests/registries bind them |
+| `archive/` | Retired and historical material, never normal runtime | no | no | no |
+
+The public repository works without the four ignored user layers. `archive/` is never
+searched by routine application tools. An application record may remain active in
+`meta/applications/` regardless of age; archive status means retired structure, not simply
+an old date.
+
 Run `./cv structure --strict` after any structural change. The contract checks required
 public paths, every initializer template, private `.gitignore` protections, and the
 runtime-visibility invariants. It is part of `make check`, so a renamed directory cannot leave
@@ -75,25 +93,32 @@ change evidence records or claims.
 | Path | Responsibility |
 |---|---|
 | `workspace/current/` | Current `config.tex`, `letter_config.tex`, `sections/`, and active-profile marker |
-| `workspace/golden-packs/<version>/<pack>/` | Reusable reviewed/freeze CV and Portfolio source snapshot; not factual authority |
+| `workspace/golden-packs/<version>/<pack>/` | Immutable reviewed/frozen source snapshot used for registry fingerprinting |
 | `workspace/baselines/<role-layout>/` | Optional long-lived, clone-only layout and ordering reference |
-| `workspace/profiles/<company-role>/` | Submitted or still-editable CV + cover-letter snapshot; may include an optional `sections/portfolio.tex` appendix |
+| `workspace/profiles/golden-*` | Editable/build-compatible backend consumed by `./cv use` and `./cv build` |
+| `workspace/profiles/<company-role>/` | Legacy or still-editable application source snapshot |
 | `workspace/build/`, `workspace/tmp/` | Regenerable PDFs, contexts, and rendering output |
 
 A Golden Pack is a stable recruiter-facing identity and reviewed source reused across
 applications. A new JD selects the best approved local Pack, may request a small approved
 Portfolio delivery cut/reorder, and receives a fresh cover letter. It does not trigger a
 new CV draft. The public engine supports N Packs; their IDs are user-instance configuration.
-`meta/golden_packs.yaml` binds each version to this source snapshot and its exact PDFs.
+`meta/golden_packs.yaml` binds each version to both the active build profile and frozen
+snapshot, plus its exact PDFs. These are intentional roles rather than competing factual
+sources: the master owns facts, the profile builds, and the snapshot detects drift.
 A baseline remains layout-only and neither location is factual authority.
 
 ## 4. Private delivery layer (ignored by Git)
 
 | Path | Responsibility |
 |---|---|
-| `output/pdf/<company>/<role>/` | Stable recruiter-facing copies of the validated CV, cover letter, and combined application |
+| `output/pdf/applications/<application-id>/` | Canonical location for newly generated seven-file application matrices |
 | `output/pdf/golden-packs/<version>/` | Registered Pack artifacts with local manifest and hashes |
 | `output/pdf/README.md` | Human handoff index with relative links to unsent bundles |
+
+Pre-normalisation application directories directly below `output/pdf/` are supported as
+legacy/read-only records. Do not mass-move them or rewrite historical manifests merely to
+match the new layout.
 
 Delivery copies are convenience artifacts, not sources. Never recover claims from
 them or edit them independently of the matching `workspace/profiles/` snapshot and
