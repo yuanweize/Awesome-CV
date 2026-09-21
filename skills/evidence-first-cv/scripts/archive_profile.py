@@ -102,12 +102,16 @@ def archive_plan(profiles_dir: Path, archive_dir: Path, name: str, year: str) ->
         raise ValueError(f"archive destination already exists: {destination}")
 
     files, total_bytes = inventory_profile(source)
+    try:
+        destination_label = destination.relative_to(project_base).as_posix()
+    except ValueError:
+        destination_label = str(destination)
     return {
         "schema_version": "1.0",
         "profile": name,
         "archived_at": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
         "source": source.relative_to(project_base).as_posix(),
-        "destination": f"archive/applications/{year}/{name}",
+        "destination": destination_label,
         "file_count": len(files),
         "total_bytes": total_bytes,
         "files": files,
@@ -176,7 +180,11 @@ def main() -> int:
     parser.add_argument(
         "--profiles-dir", type=Path, default=root / "workspace" / "profiles"
     )
-    parser.add_argument("--archive-dir", type=Path, default=root / "archive" / "applications")
+    parser.add_argument(
+        "--archive-dir",
+        type=Path,
+        default=root / "archive" / "applications" / "profiles",
+    )
     parser.add_argument(
         "--active-file",
         type=Path,

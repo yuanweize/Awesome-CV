@@ -412,6 +412,8 @@ Czech Technical University in Prague
 
             for relative in RUNTIME_DIRECTORIES:
                 self.assertTrue((root / relative).is_dir(), relative)
+            self.assertFalse((root / "archive" / "portfolio-assets").exists())
+            self.assertFalse((root / "archive" / "repository-cleanup").exists())
             self.assertTrue((root / "meta" / "master_cv.yaml").is_file())
             self.assertTrue((root / "meta" / "applications.yaml").is_file())
             self.assertTrue((root / "meta" / "baseline_catalog.yaml").is_file())
@@ -2120,7 +2122,7 @@ Czech Technical University in Prague
             root = Path(directory)
             profiles = root / "workspace" / "profiles"
             baselines = root / "workspace" / "baselines"
-            archive = root / "archive" / "applications"
+            archive = root / "archive" / "applications" / "profiles"
             profiles.mkdir(parents=True)
             baselines.mkdir(parents=True)
             for year in ("2025", "2026"):
@@ -2379,7 +2381,7 @@ Czech Technical University in Prague
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             profiles = root / "workspace" / "profiles"
-            archive = root / "archive" / "applications"
+            archive = root / "archive" / "applications" / "profiles"
             source = profiles / "closed-role"
             (source / "sections").mkdir(parents=True)
             (source / "config.tex").write_text("private\n", encoding="utf-8")
@@ -2388,6 +2390,10 @@ Czech Technical University in Prague
             plan = archive_plan(profiles, archive, "closed-role", "2026")
             self.assertTrue(source.exists(), "planning must not move the profile")
             self.assertEqual(2, plan["file_count"])
+            self.assertEqual(
+                "archive/applications/profiles/2026/closed-role",
+                plan["destination"],
+            )
 
             destination = apply_archive(plan)
             self.assertFalse(source.exists())

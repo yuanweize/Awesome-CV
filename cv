@@ -22,7 +22,7 @@ BASELINES_DIR="$WORKSPACE_DIR/baselines"
 ACTIVE_FILE="$CURRENT_DIR/.active_profile"
 SECTIONS_DIR="$CURRENT_DIR/sections"
 BUILD_DIR="$WORKSPACE_DIR/build"
-ARCHIVE_DIR="$SCRIPT_DIR/archive/applications"
+ARCHIVE_DIR="$SCRIPT_DIR/archive/applications/profiles"
 
 # Files that compose a profile
 ROOT_FILES=(config.tex letter_config.tex)
@@ -840,21 +840,21 @@ ${BOLD}Examples:${RESET}
   ./cv init                     # First-time, idempotent private workspace setup
   ./cv demo                     # Build output/demo/Awesome-CV_Demo_CV.pdf from public fixtures
   ./cv list                     # See all profiles
-  ./cv use acme-systems         # Switch to one application snapshot
+  ./cv use golden-example-v1.0  # Switch to one governed Golden build profile
   ./cv save                     # Save changes to current profile
-  ./cv build acme-systems       # Build another profile without switching
-  ./cv new acme-systems         # Create a clean profile from public templates
-  ./cv clone systems acme       # Optionally reuse a trusted baseline layout
-  ./cv diff acme beta           # Compare two application snapshots
+  ./cv build golden-example-v1.0 # Build another profile without switching
+  ./cv new golden-example-v1.0  # Create a draft profile from public templates
+  ./cv clone systems golden-example-v1.0 # Optionally reuse a trusted baseline layout
+  ./cv diff golden-a golden-b   # Compare two Golden source profiles
   ./cv archive old-role         # Plan only; no files move
   ./cv archive old-role --apply # Move after review and write SHA-256 manifest
-  ./cv archive-research workspace/profiles/old/interview_prep old-interview --apply
+  ./cv archive-research workspace/profiles/legacy-old/interview_prep old-interview --apply
   ./cv github-audit             # Owner from private master; writes dated private JSON
   ./cv portfolio-audit --strict # Require every original repo to be governed or excluded
   ./cv role-audit                # Inspect desired directions and evidence depth
   ./cv legacy-audit --extra-pdf meta/old-cv.pdf
   ./cv golden-pack-audit --strict
-  ./cv cover-letter-audit output/pdf/acme-role/Candidate_Name_Cover_Letter.pdf --company Acme --role "Systems Engineer"
+  ./cv cover-letter-audit output/pdf/applications/acme-role/Candidate_Name_Cover_Letter.pdf --company Acme --role "Systems Engineer"
   ./cv tech-audit               # Write a private safe local technology inventory
   ./cv context --jd job.md --role systems -o workspace/build/job-context.md
   ./cv status                    # Agent preflight before every application

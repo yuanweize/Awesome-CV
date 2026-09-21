@@ -230,7 +230,11 @@ def collect_status(root: Path) -> dict[str, Any]:
     existing_baselines = catalogued_baselines & baseline_names
     unclassified_baselines = baseline_names - catalogued_baselines
     missing_catalog_baselines = catalogued_baselines - baseline_names
-    archive_count = len(list((root / "archive" / "applications").glob("*/*"))) if (root / "archive" / "applications").is_dir() else 0
+    archive_count = sum(
+        len(list((root / "archive" / "applications" / category).glob("*/*")))
+        for category in ("profiles", "legacy-bundles")
+        if (root / "archive" / "applications" / category).is_dir()
+    )
     research_archive_count = len(list((root / "archive" / "research").glob("*/*"))) if (root / "archive" / "research").is_dir() else 0
 
     active_file = root / "workspace" / "current" / ".active_profile"

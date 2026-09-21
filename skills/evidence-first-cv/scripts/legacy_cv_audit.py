@@ -786,7 +786,11 @@ def main() -> int:
     parser.add_argument(
         "--baselines-dir", type=Path, default=root / "workspace" / "baselines"
     )
-    parser.add_argument("--archive-dir", type=Path, default=root / "archive" / "applications")
+    parser.add_argument(
+        "--archive-dir",
+        type=Path,
+        default=root / "archive" / "applications" / "profiles",
+    )
     parser.add_argument("--extra-pdf", type=Path, action="append", default=[])
     parser.add_argument(
         "--output",
