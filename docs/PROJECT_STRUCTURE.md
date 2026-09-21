@@ -5,8 +5,8 @@ responsibility and one lifetime; generated CV prose must never become career tru
 
 ## Physical storage contract
 
-The root separates public product code, canonical memory, editable application work,
-and immutable history. The editable application/build layer is physically grouped
+The root separates public product code, canonical memory, editable Golden/build work,
+and immutable history. The private execution/build layer is physically grouped
 under `workspace/`; it is not simulated with editor exclusions. `meta/`, `workspace/`,
 `output/`, and `archive/` remain separate because they have different authority and lifecycles.
 
@@ -79,7 +79,7 @@ tech-stack collector is an evidence-discovery input, not Skill business logic. S
 | `meta/evidence/` | Durable private proof such as degree or contract records |
 | `meta/evidence/portfolio/` | Private, reviewed visual assets and usage/privacy notes for optional recruiter-facing portfolio appendices |
 | `meta/inventory/` | Dated derived discovery caches such as GitHub API snapshots; never factual authority |
-| `meta/audits/` | Private dated review output and reconciliation notes |
+| `meta/audits/` | Current private integrity and reconciliation reports; historical snapshots are archived |
 
 Only eligible `claim_registry` entries are factual input to CV drafting. Human-readable
 history and technical inventory are navigation aids; the validator warns when a
@@ -88,15 +88,14 @@ classified or linked to claims.
 Installed-tool and GitHub inventories must pass human review before they create or
 change evidence records or claims.
 
-## 3. Private application/build layer (ignored by Git)
+## 3. Private execution/build layer (ignored by Git)
 
 | Path | Responsibility |
 |---|---|
 | `workspace/current/` | Current `config.tex`, `letter_config.tex`, `sections/`, and active-profile marker |
 | `workspace/golden-packs/<version>/<pack>/` | Immutable reviewed/frozen source snapshot used for registry fingerprinting |
 | `workspace/baselines/<role-layout>/` | Optional long-lived, clone-only layout and ordering reference |
-| `workspace/profiles/golden-*` | Editable/build-compatible backend consumed by `./cv use` and `./cv build` |
-| `workspace/profiles/<company-role>/` | Legacy or still-editable application source snapshot |
+| `workspace/profiles/golden-*` | Current editable/build-compatible Golden backends consumed by `./cv use` and `./cv build` |
 | `workspace/build/`, `workspace/tmp/` | Regenerable PDFs, contexts, and rendering output |
 
 A Golden Pack is a stable recruiter-facing identity and reviewed source reused across
@@ -104,8 +103,9 @@ applications. A new JD selects the best approved local Pack, may request a small
 Portfolio delivery cut/reorder, and receives a fresh cover letter. It does not trigger a
 new CV draft. The public engine supports N Packs; their IDs are user-instance configuration.
 `meta/golden_packs.yaml` binds each version to both the active build profile and frozen
-snapshot, plus its exact PDFs. These are intentional roles rather than competing factual
-sources: the master owns facts, the profile builds, and the snapshot detects drift.
+snapshot, plus its exact PDFs. These are intentional roles rather than competing editable
+sources: the master owns facts, the profile builds, and the immutable snapshot detects
+source drift during strict Golden audit.
 A baseline remains layout-only and neither location is factual authority.
 
 ## 4. Private delivery layer (ignored by Git)
@@ -116,9 +116,10 @@ A baseline remains layout-only and neither location is factual authority.
 | `output/pdf/golden-packs/<version>/` | Registered Pack artifacts with local manifest and hashes |
 | `output/pdf/README.md` | Human handoff index with relative links to unsent bundles |
 
-Pre-normalisation application directories directly below `output/pdf/` are supported as
-legacy/read-only records. Do not mass-move them or rewrite historical manifests merely to
-match the new layout.
+Pre-normalisation application directories are preserved under
+`archive/applications/outputs/`. New runtime writes only to
+`output/pdf/applications/<application-id>/`; legacy manifests remain historical records
+and are not silently rewritten.
 
 Delivery copies are convenience artifacts, not sources. Never recover claims from
 them or edit them independently of the matching `workspace/profiles/` snapshot and
@@ -128,14 +129,36 @@ application manifest.
 
 | Path | Responsibility |
 |---|---|
-| `archive/applications/YYYY/` | Closed application snapshots with hash manifests |
+| `archive/applications/profiles/<year>/` | Retired per-JD source profiles |
+| `archive/applications/outputs/` | Legacy company/role delivery layouts and guides |
+| `archive/applications/legacy-bundles/` | Earlier complete source/PDF archives with manifests |
+| `archive/applications/reapplication-batches/` | Superseded multi-role planning records |
 | `archive/golden-packs/` | Superseded Golden source and PDF iterations |
 | `archive/conversations/` | Historical design discussions and chat exports |
-| `archive/portfolio-assets/` | Superseded/rejected visual derivatives with restore notes |
-| `archive/research/` | Closed interview research, chat exports, and old inventories |
+| `archive/assets/portfolio/` | Superseded/rejected visual derivatives with restore notes |
+| `archive/research/` | Closed interview, market, financial, and technical research |
+| `archive/audits/` | Historical audit snapshots |
+| `archive/repository-history/` | Repository migration and cleanup records |
 
 Archive movement is planned first and verified after the move. Active applications,
 evidence, and historical source are never mass-deleted during routine cleanup.
+
+## Future file-location rules
+
+| New material | Required location |
+|---|---|
+| Career fact or evidence registration | `meta/master_cv.yaml` and `meta/evidence/` |
+| Vacancy/JD | `meta/applications/<application-id>/jd.md` |
+| JD analysis, cover letter, notes, manifest | `meta/applications/<application-id>/` |
+| Application PDFs | `output/pdf/applications/<application-id>/` |
+| Current Golden build source | `workspace/profiles/golden-*/` |
+| Approved Golden PDFs | `output/pdf/golden-packs/<version>/` |
+| Immutable Golden fingerprint snapshot | `workspace/golden-packs/<version>/<pack>/` |
+| Retired Golden generation | `archive/golden-packs/` |
+| Retired per-JD profile/output | `archive/applications/` |
+| Historical conversation | `archive/conversations/` |
+| Retired asset derivative | `archive/assets/portfolio/` |
+| Temporary build/render output | `workspace/build/` or `workspace/tmp/` |
 
 ## Lifecycle
 

@@ -9,7 +9,7 @@ screenshots, employers, infrastructure, or approved recruiter assets.
 - `generated/`: user-specific diagrams; still local and ignored.
 - `examples/assets/`: synthetic or explicitly public-safe assets used by public demos.
 - `meta/evidence/portfolio/ASSET_INDEX.md`: optional private, detailed user asset index.
-- `archive/portfolio-assets/`: private superseded derivatives with provenance notes.
+- `archive/assets/portfolio/`: private superseded derivatives with provenance notes.
 
 “Recruiter-safe” is not the same as “safe to publish in Git.” Before sharing any visual,
 inspect pixels, metadata, embedded PDF objects, licences, and current Git tracking state.

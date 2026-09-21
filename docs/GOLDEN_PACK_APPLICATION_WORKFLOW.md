@@ -28,13 +28,14 @@ delivery selection, not the candidate's factual identity.
 |---|---|---:|
 | `meta/master_cv.yaml` | career facts and evidence-bound claims | only through evidence intake |
 | `meta/golden_packs.yaml` | Golden version, status, source fingerprint, artifact hashes | no |
-| `workspace/golden-packs/` | reviewed/frozen Golden source snapshot | no |
+| `workspace/golden-packs/` | immutable Golden source-fingerprint snapshot used by strict audit | no |
 | `meta/applications/<id>/` | one JD, decision, mappings, letter, and artifact record | yes |
 | `output/pdf/applications/<application-id>/` | recruiter delivery copies | generated only |
 | `archive/` | closed history | no routine edits |
 
-Profiles under `workspace/profiles/` remain build backends and historical editing
-surfaces. They are not factual authority and are not permission to rewrite a Golden CV.
+Golden profiles under `workspace/profiles/` are current build backends. Retired per-JD
+profiles live under `archive/applications/profiles/`; neither location is factual
+authority or permission to rewrite a Golden CV.
 
 ## Golden Pack registry and states
 

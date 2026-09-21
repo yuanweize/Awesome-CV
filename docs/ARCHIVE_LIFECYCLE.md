@@ -10,15 +10,16 @@ meta/baseline_catalog.yaml          optional baseline role-family metadata
 meta/evidence/                      durable private proof
 workspace/current/                  current editable TeX source and active marker
 workspace/baselines/<role-layout>/  long-lived clone-only layout references
-workspace/profiles/<company-role>/  active/editable application snapshots
-archive/applications/YYYY/...       closed application snapshots
+workspace/profiles/golden-*/        current Golden build backends
+archive/applications/profiles/...   retired per-JD source profiles
+archive/applications/outputs/...    retired company/role delivery layouts
 archive/research/...                interview research and correspondence
 workspace/build/ and workspace/tmp/ disposable generated output
 ```
 
-`workspace/profiles/` is not deprecated. It remains the compatibility and editing layer for
-old or live CVs. It must not be used as the AI source of truth; only eligible entries
-in `claim_registry` may drive new factual prose.
+`workspace/profiles/` contains current Golden build backends. Per-JD source profiles are
+legacy and belong in `archive/applications/profiles/`. Neither location may be used as
+the AI source of truth; only eligible entries in `claim_registry` may drive factual prose.
 
 An intentional general/layout snapshot belongs in `workspace/baselines/`, with optional metadata
 in `meta/baseline_catalog.yaml`. Baselines are not application records, are never
@@ -40,7 +41,7 @@ the move explicitly:
 ```
 
 The archiver rejects symbolic links and active profiles, writes a per-file SHA-256
-manifest, moves the profile under `archive/applications/<year>/`, and verifies the
+manifest, moves the profile under `archive/applications/profiles/<year>/`, and verifies the
 archived bytes. A manifest proves that the archive copy is intact; it does not make
 the archive safe to publish because filenames may still be sensitive.
 
@@ -52,13 +53,14 @@ under `archive/research/`; keep only the source snapshot and final application u
 Plan and verify a research move separately:
 
 ```bash
-./cv archive-research workspace/profiles/company-role/interview_prep company-role-interview
-./cv archive-research workspace/profiles/company-role/interview_prep company-role-interview --apply
+./cv archive-research workspace/profiles/legacy-company-role/interview_prep company-role-interview
+./cv archive-research workspace/profiles/legacy-company-role/interview_prep company-role-interview --apply
 ```
 
-The research archiver accepts a child directory under `workspace/profiles/` or `meta/chat/`,
-rejects symbolic links and destinations that already exist, writes a per-file SHA-256
-manifest, and verifies the moved bytes. The first command is always a read-only plan.
+The research archiver is compatibility tooling for research still attached to a legacy
+profile under `workspace/profiles/` or a temporary import under `meta/chat/`. It rejects
+symbolic links and existing destinations, writes a per-file SHA-256 manifest, and verifies
+the moved bytes. The first command is always a read-only plan.
 
 Delete only regenerable output (`workspace/build/`, `workspace/tmp/`, LaTeX auxiliaries, caches) without
 archiving. Remove historical source or evidence only after a verified archive exists
@@ -70,3 +72,7 @@ old: live, submitted, interview, rejected, offer, and withdrawn history can rema
 `meta/applications/`. Archive only superseded layouts, retired source snapshots, old
 freeze candidates, obsolete asset derivatives, and closed research exports with useful
 provenance.
+
+Within `archive/applications/`, use `profiles/` for retired per-JD source,
+`outputs/` for the pre-normalisation delivery layout, `legacy-bundles/` for earlier
+complete archives, and `reapplication-batches/` for superseded batch planning.

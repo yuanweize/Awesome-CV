@@ -1,8 +1,9 @@
 # PDF delivery index
 
-This ignored directory is the stable handoff entry point for recruiter-facing PDF
-copies. New application bundles live under `applications/<application-id>/`. Historical
-layouts directly under `pdf/` remain valid legacy delivery records and need not be moved.
+This ignored directory is the stable handoff entry point for current recruiter-facing
+PDF copies. New application bundles live only under `applications/<application-id>/`.
+Retired layouts belong under `archive/applications/outputs/`, never directly below
+`output/pdf/`.
 The application manifest under `meta/applications/<application-id>/` records the selected
 Pack and exact artifact hashes; delivery copies are never factual input for later drafting.
 
@@ -11,4 +12,5 @@ Versioned Golden Pack artifact sets belong under
 cluttering the active delivery directory.
 
 List current unsent bundles here with relative links. When a portal accepts one file,
-use the combined application; otherwise attach the separate CV and cover letter.
+use the recommended combined application; otherwise attach the separate CV, Portfolio,
+and cover letter as supported by the vacancy portal.
