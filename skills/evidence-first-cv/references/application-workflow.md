@@ -55,8 +55,13 @@ Pack selection, or delivery. Wait for simple confirmation.
 - Copy/reuse the approved two-page Golden CV; never regenerate it from the JD.
 - Write one fresh job-specific cover letter using `cover-letter-style.md`.
 - If useful, select/reorder/omit approved Portfolio pages without rewriting them.
+- If the selected approved Pack has a Portfolio, create the standard local delivery
+  matrix: standalone CV, Portfolio, and cover letter; CV + cover letter; CV + Portfolio;
+  cover letter + Portfolio; and complete cover letter + CV + Portfolio. Reuse approved
+  Golden bytes and assemble combinations without rebuilding Golden content.
 - Use standalone CV for ATS by default; add a separate Portfolio where possible. Combined
-  is useful for direct recruiter/hiring-manager delivery, not the default ATS upload.
+  files are useful for direct recruiter/hiring-manager delivery or constrained upload
+  slots, not the default ATS resume upload.
 - Recruiter-facing filenames omit internal terms such as draft, Golden Pack, and version.
 
 ## 5. Validate and record

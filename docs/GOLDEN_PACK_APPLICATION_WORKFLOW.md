@@ -162,6 +162,25 @@ The audit is advisory. Human review remains authoritative.
 
 Pack selection and file selection are separate decisions.
 
+After Owner confirmation, materialise a standard local delivery matrix whenever the
+selected approved Pack contains a Portfolio. This prevents upload-form differences from
+requiring another build or another instruction:
+
+```text
+Candidate_Name_CV.pdf
+Candidate_Name_Portfolio.pdf
+Candidate_Name_Cover_Letter.pdf
+Candidate_Name_CV_Cover_Letter.pdf
+Candidate_Name_CV_Portfolio.pdf
+Candidate_Name_Cover_Letter_Portfolio.pdf
+Candidate_Name_Complete_Application.pdf   # cover letter -> CV -> Portfolio
+```
+
+The matrix is a set of delivery wrappers around approved artifacts, not seven rewritten
+documents. Copy the approved CV and Portfolio byte-for-byte where applicable. Assemble
+combined files without changing page content, and keep the application-specific cover
+letter as the only newly drafted recruiter document.
+
 | Channel | Default |
 |---|---|
 | ATS résumé field | standalone two-page Golden CV |
@@ -169,11 +188,17 @@ Pack selection and file selection are separate decisions.
 | Direct recruiter/hiring-manager email | Combined PDF when technically useful |
 | Separate cover-letter field | one-page job-specific cover letter |
 | One upload slot with unknown parsing | CV rather than Combined |
+| One non-ATS upload slot for a technical reviewer | complete cover letter + CV + Portfolio |
+| Supporting-material slot but no separate letter slot | cover letter + Portfolio |
 
 Golden Portfolios remain complete. A delivery cut may select, omit, or reorder approved
 pages, but it may not rewrite project facts. Do not upload Combined as the default ATS CV.
 
-Recruiter-facing filenames omit internal lifecycle language:
+Recruiter-facing filenames omit internal lifecycle language. The standard matrix is
+created locally even when the current portal needs only one or two files; the application
+README must state which file belongs in which upload slot.
+
+Minimum standalone names remain:
 
 ```text
 output/pdf/<company-role>/
@@ -184,7 +209,9 @@ output/pdf/<company-role>/
 ```
 
 Copy the approved Golden artifact; do not rebuild its factual content from application
-data. Build only the job-specific letter and an explicitly approved Portfolio page cut.
+data. Build only the job-specific letter, an explicitly approved Portfolio page cut when
+needed, and deterministic PDF combinations. Do not send every file: choose the smallest
+combination that matches the actual upload fields.
 
 ## Step 7: validate and record
 

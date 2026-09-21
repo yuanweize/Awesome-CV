@@ -95,7 +95,12 @@ screenshot, or file. Do not start by writing a letter or a new CV.
    application data.
 9. Write a fresh, concise, evidence-mapped cover letter and optionally select/reorder/
    omit approved Portfolio pages. Selection is not content rewriting.
-10. Validate the manifest, PDFs, links, ATS text, rendering, privacy, and bundle; record
+10. When the selected approved Pack has a Portfolio, materialise the standard delivery
+    matrix by default: standalone CV, Portfolio, and cover letter; CV + cover letter;
+    CV + Portfolio; cover letter + Portfolio; and a complete cover letter + CV +
+    Portfolio file. Recommend the right file for each upload slot instead of making the
+    Owner request combinations one by one.
+11. Validate the manifest, PDFs, links, ATS text, rendering, privacy, and bundle; record
     exact files/hashes. Mark `sent` only after the Owner confirms submission.
 
 Normally the CV source and Golden Portfolio source do not change for a JD. A baseline is

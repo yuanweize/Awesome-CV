@@ -18,7 +18,8 @@ read `skills/evidence-first-cv/SKILL.md` and only the references it routes to.
 
 For a supplied JD: validate the private master and Pack registry, map requirements to
 eligible claims, score every selectable approved Pack, choose the best one, write a short
-human cover letter, select delivery artifacts, audit, and record what was submitted.
+human cover letter, materialise the standard CV/Portfolio/cover-letter delivery matrix,
+recommend the smallest suitable upload combination, audit, and record what was submitted.
 Do not regenerate a new identity or CV per JD.
 
 Approved Golden source and artifacts are immutable in ordinary application work. To
