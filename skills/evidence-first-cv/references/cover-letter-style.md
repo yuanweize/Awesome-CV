@@ -1,7 +1,7 @@
 # Cover-letter style
 
 Write like an engineer making a useful, specific introduction: human, direct, calm, and
-professional. The default is 160-230 English words and no more than one page. Treat fewer
+professional. The default is 150-220 English words and no more than one page. Treat fewer
 than 120 or more than 280 words as an explicit review warning.
 
 Use a natural four-paragraph shape:
@@ -13,6 +13,12 @@ Use a natural four-paragraph shape:
 
 Use two or three evidence points, never the whole CV. Do not paraphrase the JD, stack ten
 technologies, invent admiration for the company, or lead with a gap.
+
+Lead with the professional engineering identity and relevant work; treat a degree as a
+supporting qualification. Avoid `recent graduate`, `fresh graduate`, `my closest
+experience is`, `I only`, `although I lack`, and `limited experience` unless a disclosure
+is genuinely necessary for accuracy. Internal fit risks do not automatically enter the
+letter.
 
 Avoid phrases such as `I am writing to express my interest`, `I am excited to apply`,
 `I am passionate about`, `I believe I would be an excellent fit`, `perfect fit`,

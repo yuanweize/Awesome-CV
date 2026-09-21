@@ -4,6 +4,10 @@ This is the operational application lifecycle. The repository-level authoritativ
 is `docs/GOLDEN_PACK_APPLICATION_WORKFLOW.md`; this packaged reference preserves the same
 rules for agents using the Skill independently.
 
+Routine complete-JD work should use `application-fast-path.md`. This longer reference is
+for unusual applications and lifecycle detail, not a requirement to run broad audits for
+every vacancy.
+
 ## 1. Open and preserve the vacancy
 
 - Save the complete JD under `meta/applications/<id>/jd.md`.
@@ -68,8 +72,8 @@ Pack selection, or delivery. Wait for simple confirmation.
 
 ```bash
 ./cv manifest validate meta/applications/<id>/application.yaml --strict
-./cv pdf-audit output/pdf/<company-role>/Candidate_Name_CV.pdf --max-pages 2
-./cv cover-letter-audit output/pdf/<company-role>/Candidate_Name_Cover_Letter.pdf \
+./cv pdf-audit output/pdf/applications/<application-id>/Candidate_Name_CV.pdf --max-pages 2
+./cv cover-letter-audit output/pdf/applications/<application-id>/Candidate_Name_Cover_Letter.pdf \
   --company "Example" --role "Systems Engineer"
 ./cv bundle-audit meta/applications/<id>/application.yaml
 ./cv privacy-check

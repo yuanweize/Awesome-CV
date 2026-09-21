@@ -40,6 +40,15 @@ ADJACENT_SECTIONS = {"projects", "experience", "skills"}
 IDENTITY_SECTIONS = {"headline", "summary", "education", "experience", "projects", "skills"}
 DELIVERABLES = {"cv", "cover_letter"}
 SUBMISSION_ARTIFACT_TYPES = {"cv", "portfolio", "combined", "cover_letter"}
+DELIVERY_MATRIX_CONTENTS = {
+    "cv": ("cv",),
+    "portfolio": ("portfolio",),
+    "cover_letter": ("cover_letter",),
+    "cv_cover_letter": ("cv", "cover_letter"),
+    "cv_portfolio": ("cv", "portfolio"),
+    "cover_letter_portfolio": ("cover_letter", "portfolio"),
+    "complete_application": ("cover_letter", "cv", "portfolio"),
+}
 CAPABILITY_DECISIONS = {"include", "omit"}
 CAPABILITY_PLACEMENTS = ADJACENT_SECTIONS | {"cover_letter", "none"}
 VACANCY_STATUSES = {"open", "closed", "unverified"}
@@ -165,6 +174,7 @@ def new_manifest(
             "selected_pack": "",
             "version": "",
             "cv_sha256": "",
+            "portfolio_sha256": "",
         },
         "decision": {
             "recommendation": "review",
@@ -198,6 +208,13 @@ def new_manifest(
             "delivered_artifacts": [],
             "reference": "",
         },
+        "submission_recommendation": {
+            "cv": "",
+            "portfolio": "",
+            "cover_letter": "",
+            "recommended_upload": "",
+            "single_recruiter_attachment": "",
+        },
         "artifacts": {
             "profile": profile,
             "cv_pdf": "",
@@ -206,9 +223,15 @@ def new_manifest(
             "cover_letter_sha256": "",
             "page_count": 0,
             "cover_letter_page_count": 0,
+            "portfolio_pdf": "",
+            "portfolio_sha256": "",
+            "portfolio_page_count": 0,
+            "portal_note_path": "",
+            "portal_note_sha256": "",
             "application_pdf": "",
             "application_sha256": "",
             "application_page_count": 0,
+            "delivery_matrix": [],
         },
         "quality": {
             "claim_audit": "pending",
@@ -390,6 +413,7 @@ def validate_manifest(
         selected_pack = golden_pack.get("selected_pack", "")
         version = golden_pack.get("version", "")
         cv_hash = golden_pack.get("cv_sha256", "")
+        portfolio_hash = golden_pack.get("portfolio_sha256", "")
         if selected_pack and (
             not isinstance(selected_pack, str)
             or not GOLDEN_PACK_ID_PATTERN.fullmatch(selected_pack)
@@ -415,7 +439,21 @@ def validate_manifest(
                     registry_cv = pack.get("artifacts", {}).get("cv", {})
                     if not isinstance(registry_cv, dict) or registry_cv.get("sha256") != cv_hash:
                         errors.append("golden_pack.cv_sha256 does not match the registry")
-        elif version or cv_hash:
+                    if portfolio_hash:
+                        registry_portfolio = pack.get("artifacts", {}).get("portfolio", {})
+                        if (
+                            not isinstance(portfolio_hash, str)
+                            or not re.fullmatch(r"[0-9a-f]{64}", portfolio_hash)
+                        ):
+                            errors.append("golden_pack.portfolio_sha256 must be a lowercase SHA-256")
+                        elif (
+                            not isinstance(registry_portfolio, dict)
+                            or registry_portfolio.get("sha256") != portfolio_hash
+                        ):
+                            errors.append(
+                                "golden_pack.portfolio_sha256 does not match the registry"
+                            )
+        elif version or cv_hash or portfolio_hash:
             errors.append("golden_pack version/hash require selected_pack")
 
     # Added within schema 1.4 as a backward-compatible optional record. New
@@ -463,6 +501,21 @@ def validate_manifest(
                 errors.append(f"stage {stage} requires submission.channel")
             if not delivered_artifacts:
                 errors.append(f"stage {stage} requires submission.delivered_artifacts")
+
+    if schema_version == "1.4" and "submission_recommendation" in data:
+        recommendation = data.get("submission_recommendation")
+        if not isinstance(recommendation, dict):
+            errors.append("submission_recommendation must be a mapping")
+        else:
+            for field in (
+                "cv",
+                "portfolio",
+                "cover_letter",
+                "recommended_upload",
+                "single_recruiter_attachment",
+            ):
+                if not isinstance(recommendation.get(field, ""), str):
+                    errors.append(f"submission_recommendation.{field} must be a string")
 
     identity = data.get("identity_anchors", [])
     if not isinstance(identity, list):
@@ -962,6 +1015,67 @@ def validate_manifest(
                     "application_sha256",
                     "application_page_count",
                 )
+
+            matrix = artifacts.get("delivery_matrix")
+            if matrix:
+                if not isinstance(matrix, list):
+                    errors.append("artifacts.delivery_matrix must be a list")
+                else:
+                    observed_kinds: list[str] = []
+                    for index, item in enumerate(matrix, 1):
+                        prefix = f"artifacts.delivery_matrix[{index}]"
+                        if not isinstance(item, dict):
+                            errors.append(f"{prefix} must be a mapping")
+                            continue
+                        kind = item.get("kind")
+                        observed_kinds.append(str(kind))
+                        expected_contents = DELIVERY_MATRIX_CONTENTS.get(kind)
+                        if expected_contents is None:
+                            errors.append(f"{prefix}.kind is invalid")
+                        elif tuple(item.get("contents", [])) != expected_contents:
+                            errors.append(f"{prefix}.contents has invalid document order")
+                        raw_path = item.get("path")
+                        expected_hash = item.get("sha256")
+                        expected_pages = item.get("page_count")
+                        if not isinstance(raw_path, str) or not raw_path.strip():
+                            errors.append(f"{prefix}.path is required")
+                            continue
+                        candidate = (
+                            (project_root / raw_path).resolve()
+                            if not Path(raw_path).is_absolute()
+                            else Path(raw_path).resolve()
+                        )
+                        if not candidate.is_relative_to((project_root / "output" / "pdf").resolve()):
+                            errors.append(f"{prefix}.path must stay under output/pdf/")
+                        elif not candidate.is_file():
+                            errors.append(f"artifact file not found: {raw_path}")
+                        elif not isinstance(expected_hash, str) or sha256(candidate) != expected_hash:
+                            errors.append(f"{prefix}.sha256 does not match {raw_path}")
+                        if not isinstance(expected_pages, int) or expected_pages < 1:
+                            errors.append(f"{prefix}.page_count must be a positive integer")
+                    if observed_kinds != list(DELIVERY_MATRIX_CONTENTS):
+                        errors.append(
+                            "artifacts.delivery_matrix must contain the canonical seven kinds in order"
+                        )
+
+            portal_note_path = artifacts.get("portal_note_path", "")
+            portal_note_hash = artifacts.get("portal_note_sha256", "")
+            if portal_note_path or portal_note_hash:
+                if not isinstance(portal_note_path, str) or not portal_note_path:
+                    errors.append("artifacts.portal_note_path is required with a portal-note hash")
+                else:
+                    note = (
+                        (project_root / portal_note_path).resolve()
+                        if not Path(portal_note_path).is_absolute()
+                        else Path(portal_note_path).resolve()
+                    )
+                    application_root = (project_root / "meta" / "applications").resolve()
+                    if not note.is_relative_to(application_root):
+                        errors.append("artifacts.portal_note_path must stay under meta/applications/")
+                    elif not note.is_file():
+                        errors.append(f"portal note not found: {portal_note_path}")
+                    elif not isinstance(portal_note_hash, str) or sha256(note) != portal_note_hash:
+                        errors.append("artifacts.portal_note_sha256 does not match the portal note")
 
     return errors
 

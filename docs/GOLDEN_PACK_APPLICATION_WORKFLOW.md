@@ -30,7 +30,7 @@ delivery selection, not the candidate's factual identity.
 | `meta/golden_packs.yaml` | Golden version, status, source fingerprint, artifact hashes | no |
 | `workspace/golden-packs/` | reviewed/frozen Golden source snapshot | no |
 | `meta/applications/<id>/` | one JD, decision, mappings, letter, and artifact record | yes |
-| `output/pdf/<company-role>/` | recruiter delivery copies | generated only |
+| `output/pdf/applications/<application-id>/` | recruiter delivery copies | generated only |
 | `archive/` | closed history | no routine edits |
 
 Profiles under `workspace/profiles/` remain build backends and historical editing
@@ -66,7 +66,12 @@ screenshot, or local file. Do not ask again for company or title when they are a
 present. Ask at most three questions, and only when an answer changes eligibility,
 pack selection, factual wording, language, or delivery.
 
-Before drafting:
+The default runtime is the bounded
+[`Fast Application Path`](../skills/evidence-first-cv/references/application-fast-path.md).
+The detailed lifecycle below remains the authority for unusual applications and
+governance semantics; it is not a requirement to run a repository-wide audit per JD.
+
+Deep Maintenance and integrity troubleshooting use:
 
 ```bash
 ./cv status
@@ -74,9 +79,9 @@ Before drafting:
 ./cv golden-pack-audit --strict
 ```
 
-For a URL, confirm the live role on the employer's official career site or ATS. Save
-the exact JD and verification details; a search result or aggregator is not an open-role
-confirmation.
+For a complete pasted JD, do not browse by default. For a URL-only or incomplete request,
+confirm the live role on the employer's official career site or ATS. Save the exact JD
+and verification details; a search result or aggregator is not an open-role confirmation.
 
 ## Step 1: create the application record
 
@@ -101,16 +106,14 @@ Golden artifact hash.
 
 ## Step 2: analyse the JD
 
-Write `analysis.md` with this compact structure:
+For routine applications, keep `analysis.md` short:
 
-1. **Role identity:** exact title, actual responsibility family, seniority, and the
-   engineering/support/operations/field balance.
-2. **Core responsibilities:** the three to five activities that dominate the job.
-3. **Must-haves and nice-to-haves.**
-4. **Signals:** truthful ATS technologies and domain terminology.
-5. **Risks:** real gaps, language, location/travel, work authorisation, or seniority.
-6. **Evidence map:** requirement -> claim -> current CV/project -> Portfolio case ->
-   `STRONG MATCH`, `SUPPORTED MATCH`, `ADJACENT / TRANSFERABLE`, or `REAL GAP`.
+1. Role: company, position, location, work model, seniority.
+2. Selected Pack and one-sentence reason.
+3. Three to six strong matches.
+4. Zero to four concise internal risks.
+5. Two or three evidence points for the cover letter.
+6. Exact submission recommendation.
 
 Avoid self-weakening language such as `only`, `just`, `merely`, `basic`, or `hobby`
 unless it is necessary for factual accuracy. A gap remains private analysis; it does
@@ -158,6 +161,9 @@ Use two or three strongest evidence points, not the whole CV. Follow
 
 The audit is advisory. Human review remains authoritative.
 
+Create `portal_note.md` only when the vacancy asks for a short introduction or textbox.
+Keep it consistent with the selected letter evidence and normally 60-100 words.
+
 ## Step 6: select delivery artifacts
 
 Pack selection and file selection are separate decisions.
@@ -181,6 +187,14 @@ documents. Copy the approved CV and Portfolio byte-for-byte where applicable. As
 combined files without changing page content, and keep the application-specific cover
 letter as the only newly drafted recruiter document.
 
+Build and inspect it deterministically:
+
+```bash
+./cv application build <application-id>
+./cv application audit <application-id>
+./cv application status <application-id>
+```
+
 | Channel | Default |
 |---|---|
 | ATS résumé field | standalone two-page Golden CV |
@@ -201,7 +215,7 @@ README must state which file belongs in which upload slot.
 Minimum standalone names remain:
 
 ```text
-output/pdf/<company-role>/
+output/pdf/applications/<application-id>/
 ├── Candidate_Name_CV.pdf
 ├── Candidate_Name_Portfolio.pdf          # when useful
 ├── Candidate_Name_CV_Portfolio.pdf       # when useful
@@ -217,7 +231,7 @@ combination that matches the actual upload fields.
 
 ```bash
 ./cv manifest validate meta/applications/<id>/application.yaml --strict
-./cv pdf-audit output/pdf/<company-role>/Candidate_Name_CV.pdf --max-pages 2
+./cv pdf-audit output/pdf/applications/<application-id>/Candidate_Name_CV.pdf --max-pages 2
 ./cv bundle-audit meta/applications/<id>/application.yaml
 ./cv privacy-check
 ```
@@ -229,6 +243,10 @@ backward-compatible `submission` record. At `sent`/`closed`, record the ISO subm
 date/time, channel, and the actual delivered artifact types (`cv`, `portfolio`,
 `combined`, and/or `cover_letter`); `reference` may hold a portal or message identifier.
 Older manifests are not rewritten merely to add this block.
+
+The full rendered-page, repository privacy, clean-clone, and framework test suite belongs
+to Deep Maintenance. Routine Fast Application validates the new cover letter and matrix;
+it does not rerender the unchanged approved Portfolio or run `make check`.
 
 ## Golden Pack change escalation
 

@@ -8,7 +8,7 @@ manifest.
 
 Human. Direct. Specific. Calm. Professional. Short.
 
-- normally 160-230 English words; review unusually short/long drafts below 120 or above 280;
+- normally 150-220 English words; review unusually short/long drafts below 120 or above 280;
 - no more than one page;
 - two or three evidence points;
 - ordinary paragraphs rather than a project inventory;
@@ -23,6 +23,10 @@ Human. Direct. Specific. Calm. Professional. Short.
 
 The complementary axis should be adjacent, evidenced, and useful to delivery. It stays
 subordinate to the selected Pack rather than turning the letter into a second identity.
+
+Lead with the professional engineering identity and relevant work. Use a degree as a
+supporting qualification rather than defaulting to `recent graduate`, `fresh graduate`,
+or `new graduate`, especially for medior/senior vacancies.
 
 ## Avoid
 
@@ -45,6 +49,9 @@ source supports it.
 
 Do not repeat every project or stack ten technologies into one sentence. Do not lead
 with limitations, apologise for a gap, or supply the recruiter with a rejection argument.
+Avoid `my closest experience is`, `I only`, `although I lack`, and `limited experience`
+unless disclosure is genuinely required to keep the application truthful. Internal fit
+risks do not automatically belong in recruiter-facing prose.
 
 ## Evidence selection
 

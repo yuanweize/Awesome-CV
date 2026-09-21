@@ -262,7 +262,7 @@ retains its own `verified_on` date.
 Keep claim IDs stable after they appear in `meta/applications.yaml`; the ledger uses
 them to compare which proof reached recruiter, technical, final, and offer stages.
 
-## Per-application manifest schema 1.2
+## Per-application manifest schema 1.4
 
 The master schema answers “what is true?” The ignored
 `meta/applications/<id>/application.yaml` answers “what did this JD require, what did
@@ -289,7 +289,10 @@ four values (`execution_leverage`, `delivery_risk_reduction`,
 career facts.
 
 Use `templates/application_manifest.yaml.example` as the public example. Schema 1.4 adds
-`golden_pack.selected_pack`, `version`, and `cv_sha256`. A selected Pack must match
+`golden_pack.selected_pack`, `version`, and `cv_sha256`. Its backward-compatible optional
+runtime fields bind the approved Portfolio hash, a portal note, submission recommendation,
+and the canonical seven-file delivery matrix with document order, path, hash, and page
+count. A selected Pack must match
 `meta/golden_packs.yaml`; strict `validated`, `sent`, and `closed` stages require its
 status to be `approved`. Earlier schemas remain readable for historical applications.
 Strict validation also requires parsed requirements, selected claims, Owner confirmation,

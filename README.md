@@ -120,6 +120,11 @@ not grant permission to alter the Pack.
 
 ## JD to application
 
+For daily Owner use, paste the complete JD. The agent should automatically enter Fast
+Application Mode, choose an approved Pack, retrieve only relevant evidence, write the
+letter, build all standard delivery combinations, audit them, and name the exact upload.
+The Owner should not need to request the CV, Portfolio, combinations, or Pack separately.
+
 For each real vacancy:
 
 1. preserve the complete JD privately;
@@ -128,8 +133,8 @@ For each real vacancy:
 4. score every approved local Pack and select the best one;
 5. bind the application manifest to Pack version and CV hash;
 6. reuse the approved CV and select delivery artifacts;
-7. write a job-specific cover letter, normally 160–230 English words;
-8. audit text, PDF, privacy, links, bundle, and hashes;
+7. write a job-specific cover letter, normally 150–220 English words;
+8. build and audit the deterministic CV/Portfolio/letter delivery matrix;
 9. record submission only after the user confirms it was sent.
 
 ```bash
@@ -137,7 +142,12 @@ For each real vacancy:
 ./cv start --company "Example" --title "Systems Engineer" \
   --role systems --jd /path/to/job.md
 ./cv manifest validate meta/applications/<id>/application.yaml --strict
+./cv application build <id>
+./cv application audit <id>
 ```
+
+Routine applications use the bounded Fast Application path: they reuse approved Pack
+binaries and do not rebuild Golden PDFs or run repository-wide maintenance checks.
 
 The authoritative workflow is [Golden Pack application workflow](docs/GOLDEN_PACK_APPLICATION_WORKFLOW.md).
 Cover-letter voice is governed by [Cover letter style](docs/COVER_LETTER_STYLE.md).

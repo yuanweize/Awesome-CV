@@ -22,6 +22,16 @@ human cover letter, materialise the standard CV/Portfolio/cover-letter delivery 
 recommend the smallest suitable upload combination, audit, and record what was submitted.
 Do not regenerate a new identity or CV per JD.
 
+A complete pasted JD uses Fast Application Mode from
+`skills/evidence-first-cv/references/application-fast-path.md`. Do not browse, run
+repository-wide audits/tests, rebuild Golden PDFs, or read unrelated evidence unless its
+explicit escalation gate fires. Repository/evidence/Golden/release work is Deep
+Maintenance.
+
+AI owns JD interpretation, Pack-selection reasoning, targeted evidence, and the letter.
+`./cv application build|audit|status` owns copies, PDF order, hashes, page counts, the
+seven-file matrix, and its README.
+
 Approved Golden source and artifacts are immutable in ordinary application work. To
 change one, show a `GOLDEN PACK CHANGE PROPOSAL` with reason, exact diff, evidence,
 benefit, and cross-role risk, then wait for explicit Owner approval.

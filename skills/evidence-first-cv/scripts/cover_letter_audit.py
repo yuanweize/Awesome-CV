@@ -66,7 +66,7 @@ def audit_text(text: str, *, company: str = "", role: str = "", pages: int | Non
         warnings.append("document contains no readable English words")
     elif len(words) < 120 or len(words) > 280:
         warnings.append(
-            f"word count is {len(words)}; review outside 120-280 (normal target 160-230)"
+            f"word count is {len(words)}; review outside 120-280 (normal target 150-220)"
         )
     if pages is not None and pages != 1:
         warnings.append(f"PDF has {pages} pages; a cover letter should normally be one page")

@@ -60,3 +60,16 @@ PDF hashes, and page counts. For `approved`, any source/backend drift is a hard 
 `./cv cover-letter-audit <document>` is an advisory deterministic voice check. It warns
 about word count, clichés, placeholders, missing company/role, long sentences, Unicode,
 list-heavy formatting, and PDF page count; it does not override human editorial judgment.
+
+`./cv application build <application-id|manifest>` is the Fast Application packaging
+step. It verifies the selected approved Pack's registered CV, Portfolio, and combined
+hashes; copies the approved binaries; combines them with the already-rendered cover
+letter in the canonical seven-file order; updates manifest 1.4; and writes the output
+README under `output/pdf/applications/<application-id>/`. It never invokes LaTeX, a
+Golden build, `make check`, global privacy, or tests.
+
+`./cv application audit <application-id|manifest>` is the lightweight per-vacancy gate.
+It checks Golden bindings, the cover letter, placeholders, PDF validity, matrix kinds and
+document-order metadata, hashes, and page counts. `./cv application status ...` prints
+the same matrix state without changing files. Full repository checks remain Deep
+Maintenance commands.

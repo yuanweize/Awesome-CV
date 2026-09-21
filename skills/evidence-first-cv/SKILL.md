@@ -9,6 +9,10 @@ Treat career documents as compiled, reviewed views of verified memory. Use AI fo
 reasoning and prose; use deterministic tools for validation, fingerprints, privacy,
 PDF checks, and application history.
 
+**Default route:** when the user supplies a vacancy/JD and does not explicitly request
+repository, evidence, or Golden maintenance, immediately use
+`references/application-fast-path.md`. Do not load every reference first.
+
 ## Non-negotiable authorities
 
 - `meta/master_cv.yaml` is the private canonical career memory.
@@ -30,9 +34,12 @@ PDF checks, and application history.
 - First use / missing private paths: read `references/onboarding.md`.
 - New facts, corrections, certificates, projects, or evidence: read
   `references/schema.md` and `references/claim-policy.md`.
-- A supplied JD or a new application: read `references/application-workflow.md`,
-  `references/jd-analysis.md`, `references/pack-selection.md`,
-  `references/interaction-contract.md`, and `references/ats-optimization.md`.
+- A complete supplied JD or routine application: read
+  `references/application-fast-path.md`, then only the routed writing/selection reference
+  needed for the vacancy.
+- An unusual application requiring detailed analysis: also read
+  `references/application-workflow.md`, `references/jd-analysis.md`,
+  `references/pack-selection.md`, and `references/ats-optimization.md`.
 - Cover letter: also read `references/cover-letter-style.md` and
   `references/writing-policy.md`.
 - Golden Pack review/change/approval: read `references/golden-pack-governance.md`.
@@ -45,6 +52,9 @@ PDF checks, and application history.
 - GitHub/technology inventory: read `references/technology-intake.md`.
 - Cleanup/archive: read `references/archive-lifecycle.md`.
 - Dify: read `references/dify-adapter.md`.
+- Repository, schema, release, Golden-integrity, or broad evidence work is Deep
+  Maintenance: use the relevant governance reference and `docs/TOOLING.md`; do not run it
+  as the default path for a pasted JD.
 
 Read every selected reference completely. Do not load unrelated references by default.
 
@@ -78,33 +88,15 @@ one-vacancy motivation only in the application manifest.
 
 ## Application Mode
 
-Enter Application Mode when the Owner provides a complete JD as text, URL, PDF,
-screenshot, or file. Do not start by writing a letter or a new CV.
+A complete pasted JD enters Fast Application Mode. Follow
+`references/application-fast-path.md`: normalise the JD, select one approved Pack from
+the generic N-Pack registry, retrieve only relevant claims, write one human cover letter,
+build the deterministic seven-file delivery matrix, run the lightweight application
+audit, and return the smallest recommended upload. Do not browse, rebuild Golden files,
+or run repository-wide checks unless the Fast Path's explicit escalation gate fires.
 
-1. Preserve the complete JD privately and live-verify the official vacancy/route when
-   feasible. Search results and mirrors are discovery evidence only.
-2. Create/reuse `meta/applications/<id>/` and its schema 1.4 manifest.
-3. Analyse the role, hard requirements, day-to-day balance, risks, and evidence map.
-4. Load every selectable Pack from the local registry, score its role families against
-   the actual responsibilities and hard requirements, and select exactly one best Pack.
-5. Bind the record to the selected Golden version and exact CV SHA-256.
-6. Show a compact `Strong / Medium / Stretch` decision, selected Pack, strongest
-   evidence, main risk, and recommended files. Ask at most three material questions.
-7. Wait for simple Owner confirmation before drafting the cover letter or a Portfolio cut.
-8. Reuse/copy the approved Golden CV. Do not rebuild its factual content from mutable
-   application data.
-9. Write a fresh, concise, evidence-mapped cover letter and optionally select/reorder/
-   omit approved Portfolio pages. Selection is not content rewriting.
-10. When the selected approved Pack has a Portfolio, materialise the standard delivery
-    matrix by default: standalone CV, Portfolio, and cover letter; CV + cover letter;
-    CV + Portfolio; cover letter + Portfolio; and a complete cover letter + CV +
-    Portfolio file. Recommend the right file for each upload slot instead of making the
-    Owner request combinations one by one.
-11. Validate the manifest, PDFs, links, ATS text, rendering, privacy, and bundle; record
-    exact files/hashes. Mark `sent` only after the Owner confirms submission.
-
-Normally the CV source and Golden Portfolio source do not change for a JD. A baseline is
-layout-only and never factual authority. Do not create a new persona or Pack automatically.
+A baseline is layout-only and never factual authority. Do not create a new persona or
+Pack automatically, and never mark `sent` until the Owner confirms submission.
 
 ## Golden Pack protection
 
@@ -139,7 +131,7 @@ permission. A successful build/audit is not Owner approval.
 - Use truthful JD terminology in context; do not keyword-stack.
 - Do not turn personal infrastructure into enterprise production, a device project into
   professional automotive engineering, or generated repository code into language mastery.
-- Cover letters are direct, human, specific, calm, normally 160-230 English words, and use
+- Cover letters are direct, human, specific, calm, normally 150-220 English words, and use
   two or three evidence points rather than repeating the CV.
 - Work authorisation must use the exact governed visible CV line; application forms still
   receive their separately requested detail.

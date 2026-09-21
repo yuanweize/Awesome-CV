@@ -5,7 +5,7 @@ one platform-neutral contract and deterministic engine through two adapters:
 
 - Codex/IDE uses this Skill, repository tools, LaTeX build, and PDF inspection.
 - Dify uses a Tool Plugin for memory status/storage, bounded claim selection,
-  and strict schema 1.2 application-manifest validation.
+  and backward-compatible schema 1.4 application-manifest validation.
 
 The repository implementation lives under `integrations/dify/`. Keep the Dify
 engine copies byte-identical to the canonical scripts and run tests after changes.

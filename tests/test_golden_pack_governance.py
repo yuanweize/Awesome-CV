@@ -251,6 +251,17 @@ class GoldenPackGovernanceTests(unittest.TestCase):
 
             historical = copy.deepcopy(data)
             historical.pop("submission")
+            historical.pop("submission_recommendation")
+            historical["golden_pack"].pop("portfolio_sha256")
+            for field in (
+                "portfolio_pdf",
+                "portfolio_sha256",
+                "portfolio_page_count",
+                "portal_note_path",
+                "portal_note_sha256",
+                "delivery_matrix",
+            ):
+                historical["artifacts"].pop(field)
             self.assertEqual(
                 [],
                 validate_manifest(

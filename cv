@@ -530,6 +530,19 @@ cmd_bundle_audit() {
     python3 "$SCRIPT_DIR/tools/application_bundle_audit.py" "$@"
 }
 
+cmd_application() {
+    local action="${1:-}"
+    shift || true
+    case "$action" in
+        build|audit|status)
+            python3 "$SCRIPT_DIR/tools/application_delivery_matrix.py" "$action" "$@"
+            ;;
+        *)
+            die "Usage: ./cv application <build|audit|status> <application-id|manifest> [options]"
+            ;;
+    esac
+}
+
 cmd_track() {
     python3 "$SCRIPT_DIR/tools/application_ledger.py" "$@"
 }
@@ -819,6 +832,7 @@ ${BOLD}Commands:${RESET}
   ${CYAN}privacy-check${RESET}         Check tracked files for private data/secrets
   ${CYAN}pdf-audit${RESET} <pdf>       Check page use, ATS text/headings, and readable-type proxies
   ${CYAN}bundle-audit${RESET} <manifest> Audit every declared CV/cover-letter PDF and hash
+  ${CYAN}application${RESET} <action>    Build, audit, or inspect the standard 7-file delivery matrix
   ${CYAN}track${RESET} <command>       Maintain the private application/outcome memory
   ${CYAN}doctor${RESET}                Check dependencies, repository structure, and initialization state
 
@@ -850,6 +864,9 @@ ${BOLD}Examples:${RESET}
   ./cv privacy-check
   ./cv pdf-audit workspace/build/Alex_Example_CV.pdf
   ./cv bundle-audit meta/applications/<id>/application.yaml
+  ./cv application build <application-id>
+  ./cv application audit <application-id>
+  ./cv application status <application-id>
   ./cv track summary
   ./cv doctor
 
@@ -892,6 +909,7 @@ case "${1:-}" in
     privacy-check) shift; cmd_privacy_check "$@" ;;
     pdf-audit) shift; cmd_pdf_audit "$@" ;;
     bundle-audit) shift; cmd_bundle_audit "$@" ;;
+    application) shift; cmd_application "$@" ;;
     track) shift; cmd_track "$@" ;;
     doctor) shift; cmd_doctor "$@" ;;
     -h|--help|help) usage ;;

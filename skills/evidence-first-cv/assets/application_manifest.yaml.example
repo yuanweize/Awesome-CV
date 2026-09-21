@@ -25,6 +25,7 @@ golden_pack:
   selected_pack: systems-generalist
   version: v1.0
   cv_sha256: "replace-with-approved-golden-cv-sha256"
+  portfolio_sha256: "replace-with-approved-golden-portfolio-sha256"
 decision:
   recommendation: apply
   reason: "Direct Linux and troubleshooting evidence; one adjacent monitoring requirement."
@@ -137,6 +138,12 @@ submission:
   channel: ""
   delivered_artifacts: []
   reference: ""
+submission_recommendation:
+  cv: "Candidate_Name_CV.pdf"
+  portfolio: "Candidate_Name_Portfolio.pdf when an additional work-sample slot exists"
+  cover_letter: "Paste the letter text or attach Candidate_Name_Cover_Letter.pdf"
+  recommended_upload: "Candidate_Name_CV.pdf for an ATS CV field"
+  single_recruiter_attachment: "Candidate_Name_Complete_Application.pdf"
 artifacts:
   profile: "20260115-example-corp-junior-systems-engineer"
   cv_pdf: ""
@@ -145,9 +152,15 @@ artifacts:
   cover_letter_sha256: ""
   page_count: 0
   cover_letter_page_count: 0
+  portfolio_pdf: ""
+  portfolio_sha256: ""
+  portfolio_page_count: 0
+  portal_note_path: ""
+  portal_note_sha256: ""
   application_pdf: ""
   application_sha256: ""
   application_page_count: 0
+  delivery_matrix: []
 quality:
   claim_audit: pending
   ats_text_check: pending
