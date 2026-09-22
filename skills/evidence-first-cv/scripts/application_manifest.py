@@ -420,8 +420,8 @@ def validate_manifest(
         ):
             errors.append("golden_pack.selected_pack must be a safe Golden Pack ID")
         if selected_pack:
-            if not isinstance(version, str) or not re.fullmatch(r"v\d+\.\d+", version):
-                errors.append("golden_pack.version must look like v2.0")
+            if not isinstance(version, str) or not re.fullmatch(r"v\d+\.\d+(?:\.\d+)?", version):
+                errors.append("golden_pack.version must look like v2.0 or v2.1.1")
             if not isinstance(cv_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", cv_hash):
                 errors.append("golden_pack.cv_sha256 must be a lowercase SHA-256")
             registry_path = project_root / "meta" / "golden_packs.yaml"

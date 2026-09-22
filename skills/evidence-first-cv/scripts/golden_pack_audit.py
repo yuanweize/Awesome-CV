@@ -120,8 +120,8 @@ def audit_registry(root: Path, registry_path: Path) -> dict[str, Any]:
             continue
         version = item.get("version")
         status = item.get("status")
-        if not isinstance(version, str) or not re.fullmatch(r"v\d+\.\d+", version):
-            pack_errors.append(f"{prefix}.version must look like v2.0")
+        if not isinstance(version, str) or not re.fullmatch(r"v\d+\.\d+(?:\.\d+)?", version):
+            pack_errors.append(f"{prefix}.version must look like v2.0 or v2.1.1")
         if status not in STATUSES:
             pack_errors.append(f"{prefix}.status is invalid")
         roles = item.get("role_families")
