@@ -350,6 +350,10 @@ def audit_matrix_data(
     warnings: list[str] = []
     try:
         pack_id, pack, golden = selected_pack(root, manifest, registry_path)
+        from application_variant import verify_variant
+        effective_cv = verify_variant(root, manifest, pack, golden)
+        from portfolio_selection import selected_portfolio
+        effective_portfolio = selected_portfolio(root, manifest, pack, golden)
     except (OSError, ValueError) as exc:
         return {"ok": False, "errors": [str(exc)], "warnings": [], "artifacts": []}
 
@@ -367,8 +371,8 @@ def audit_matrix_data(
         errors.append("delivery matrix kinds/order do not match the canonical seven artifacts")
 
     component_pages = {
-        "cv": golden["cv"]["page_count"],
-        "portfolio": golden["portfolio"]["page_count"],
+        "cv": effective_cv["page_count"],
+        "portfolio": effective_portfolio["page_count"],
     }
     cover_letter_text = ""
     audited_entries: list[dict[str, Any]] = []
@@ -396,6 +400,10 @@ def audit_matrix_data(
             actual_pages = pdf_page_count(path)
             if item.get("sha256") != actual_hash:
                 errors.append(f"delivery artifact hash mismatch: {kind}")
+            if kind == "cv" and actual_hash != effective_cv["sha256"]:
+                errors.append("delivery CV does not match its Golden or verified variant")
+            if kind == "portfolio" and actual_hash != effective_portfolio["sha256"]:
+                errors.append("delivery Portfolio does not match its Golden or verified module selection")
             expected_pages = sum(
                 component_pages.get(component, 0) for component in expected_specs[kind]
             )
@@ -441,7 +449,13 @@ def build_matrix(
     name: str = "",
 ) -> dict[str, Any]:
     manifest = load_yaml(manifest_path, "application manifest")
+    if manifest.get("stage") in {"sent", "closed"}:
+        raise ValueError("cannot rebuild a submitted application")
     pack_id, pack, golden = selected_pack(root, manifest, registry_path)
+    from application_variant import verify_variant
+    effective_cv = verify_variant(root, manifest, pack, golden)
+    from portfolio_selection import selected_portfolio
+    effective_portfolio = selected_portfolio(root, manifest, pack, golden, build=True)
     master = load_yaml(root / "meta" / "master_cv.yaml", "master CV")
     full_name = name or str(master.get("personal_information", {}).get("full_name", ""))
     prefix = candidate_prefix(full_name)
@@ -482,11 +496,14 @@ def build_matrix(
         kind: destination / f"{prefix}_{suffix}.pdf" for kind, suffix, _contents in MATRIX
     }
     before = {kind: file_sha256(item["path"]) for kind, item in golden.items()}
-    atomic_copy(golden["cv"]["path"], paths["cv"])
-    atomic_copy(golden["portfolio"]["path"], paths["portfolio"])
+    atomic_copy(effective_cv["path"], paths["cv"])
+    atomic_copy(effective_portfolio["path"], paths["portfolio"])
     atomic_copy(cover_source, paths["cover_letter"])
     merge_pdfs((paths["cv"], paths["cover_letter"]), paths["cv_cover_letter"])
-    atomic_copy(golden["combined"]["path"], paths["cv_portfolio"])
+    if manifest.get("application_variant") or manifest.get('portfolio_selection'):
+        merge_pdfs((paths["cv"], paths["portfolio"]), paths["cv_portfolio"])
+    else:
+        atomic_copy(golden["combined"]["path"], paths["cv_portfolio"])
     merge_pdfs((paths["cover_letter"], paths["portfolio"]), paths["cover_letter_portfolio"])
     merge_pdfs(
         (paths["cover_letter"], paths["cv"], paths["portfolio"]),

@@ -63,15 +63,14 @@ Conversation contract:
    - confirmation that the fixed governed work-authorisation line remains in the top
      identity/contact block, plus any longer form answer the application requires;
    - at most three questions whose answers could materially change the CV;
-   - a one-line request for confirmation.
-12. Stop and wait. A user response such as “yes”, “是”, “可以”, or a small
-   correction counts as the human approval or adjustment. Do not draft before it.
-13. After approval, create:
+12. Continue requested local drafting without redundant confirmation. Ask only for
+    blocking missing facts. Never fabricate user_confirmed or submission state.
+13. Create:
    - a JD/evidence analysis for local approved-Golden-Pack selection; do not invent a
      Pack ID or artifact hash and do not rewrite a Golden CV for the vacancy;
    - when declared, a concise one-page cover letter that adds motivation and evidence
      instead of repeating the CV, with two to six factual paragraphs mapped to claims;
-   - an `application.yaml` following schema 1.4; leave its Golden Pack binding empty
+   - an `application.yaml` following schema 1.5; leave its Golden Pack binding empty
      unless trusted local workflow input provides an approved Pack and exact hash;
    - every factual cover-letter paragraph mapped to one or more selected claim IDs.
 14. Call `validate_application` with the exact JD and strict=true. If it fails,
@@ -80,6 +79,8 @@ Conversation contract:
     the private manifest separately. State that local Pack selection/binding, artifact
     reuse, PDF compilation, and visual QA are pending unless a trusted local backend
     has actually completed them.
+    Controlled CV variants require the local reviewed catalog and artifact verifier;
+    this Dify adapter cannot claim to have generated or audited those local PDFs.
 
 Writing rules:
 

@@ -67,6 +67,9 @@ final artifact, not just the source, has passed these checks.
 
 ## Visual/PDF check
 
+For `visual_portfolio`, apply `visual-evidence-policy.md`: zero embedded images fails.
+Audit exact ZIP bytes, captions, case pagination and substantial CV duplication.
+
 Render the latest PDF to PNG. Check clipping, overlap, weak contrast, tiny text,
 orphan headings, large unexplained whitespace, and accidental extra pages. Do not rely
 on successful compilation as visual proof.

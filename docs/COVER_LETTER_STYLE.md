@@ -6,6 +6,10 @@ manifest.
 
 ## Target
 
+Use the same focused professional headline as the application CV in the personal header.
+Keep the employer's exact vacancy title in the subject/application target; it does not
+confer that title or seniority on the candidate. Follow the Skill's `job-positioning.md`.
+
 Human. Direct. Specific. Calm. Professional. Short.
 
 - normally 150-220 English words; review unusually short/long drafts below 120 or above 280;

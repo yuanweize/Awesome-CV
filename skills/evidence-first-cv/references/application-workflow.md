@@ -51,12 +51,13 @@ Main risk:
 Recommended files:
 ```
 
-Ask at most three questions whose answers change eligibility, factual wording, language,
-Pack selection, or delivery. Wait for simple confirmation.
+Ask only when missing information blocks truthful progress. Requested local drafting is
+pre-authorised; do not wait for redundant confirmation or record fabricated approval.
 
 ## 4. Build the adaptive application layer
 
-- Copy/reuse the approved two-page Golden CV; never regenerate it from the JD.
+- Reuse the approved two-page Golden CV or derive a whitelisted presentation variant
+  following `application-variants.md`; never mutate the parent.
 - Write one fresh job-specific cover letter using `cover-letter-style.md`.
 - If useful, select/reorder/omit approved Portfolio pages without rewriting them.
 - If the selected approved Pack has a Portfolio, create the standard local delivery

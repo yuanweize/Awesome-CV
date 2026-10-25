@@ -16,8 +16,8 @@ from typing import Any
 import yaml
 
 
-SCHEMA_VERSION = "1.4"
-SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1", "1.2", "1.3", "1.4"}
+SCHEMA_VERSION = "1.5"
+SUPPORTED_SCHEMA_VERSIONS = {"1.0", "1.1", "1.2", "1.3", "1.4", "1.5"}
 MANIFEST_STAGES = (
     "analysis",
     "awaiting-confirmation",
@@ -182,6 +182,7 @@ def new_manifest(
             "must_have_gaps": 0,
             "user_confirmed": False,
             "confirmed_at": "",
+            "draft_authorization": "owner_requested_local_draft",
         },
         "questions": [],
         "requirements": [],
@@ -266,7 +267,7 @@ def validate_manifest(
 
     quality_fields = ("claim_audit", "ats_text_check", "visual_check", "privacy_check")
     quality = data.get("quality")
-    if schema_version in {"1.2", "1.3", "1.4"}:
+    if schema_version in {"1.2", "1.3", "1.4", "1.5"}:
         if not isinstance(quality, dict):
             errors.append("quality must be a mapping")
             quality = {}
@@ -276,7 +277,7 @@ def validate_manifest(
                 errors.append(f"quality.{field} must be a non-empty string")
             elif (
                 strict
-                and schema_version in {"1.3", "1.4"}
+                and schema_version in {"1.3", "1.4", "1.5"}
                 and stage in {"validated", "sent", "closed"}
                 and not value.startswith("passed")
             ):
@@ -301,7 +302,7 @@ def validate_manifest(
         errors.append(f"unknown role family: {role}")
 
     deliverables = data.get("deliverables", [])
-    if schema_version in {"1.2", "1.3", "1.4"}:
+    if schema_version in {"1.2", "1.3", "1.4", "1.5"}:
         if not isinstance(deliverables, list) or not deliverables or not all(
             isinstance(item, str) for item in deliverables
         ):
@@ -342,7 +343,7 @@ def validate_manifest(
     official_url = ""
     verified_at = ""
     application_route = ""
-    if schema_version in {"1.3", "1.4"}:
+    if schema_version in {"1.3", "1.4", "1.5"}:
         if not isinstance(availability, dict):
             errors.append("job_description.availability must be a mapping")
             availability = {}
@@ -376,7 +377,7 @@ def validate_manifest(
     employer_portfolio = data.get("employer_portfolio", {})
     portfolio_strategy = ""
     compared_application_ids: list[Any] = []
-    if schema_version in {"1.3", "1.4"}:
+    if schema_version in {"1.3", "1.4", "1.5"}:
         if not isinstance(employer_portfolio, dict):
             errors.append("employer_portfolio must be a mapping")
             employer_portfolio = {}
@@ -406,7 +407,7 @@ def validate_manifest(
     golden_pack = data.get("golden_pack", {})
     selected_pack = ""
     selected_pack_status = ""
-    if schema_version == "1.4":
+    if schema_version in {"1.4", "1.5"}:
         if not isinstance(golden_pack, dict):
             errors.append("golden_pack must be a mapping")
             golden_pack = {}
@@ -420,8 +421,8 @@ def validate_manifest(
         ):
             errors.append("golden_pack.selected_pack must be a safe Golden Pack ID")
         if selected_pack:
-            if not isinstance(version, str) or not re.fullmatch(r"v\d+\.\d+", version):
-                errors.append("golden_pack.version must look like v2.0")
+            if not isinstance(version, str) or not re.fullmatch(r"v\d+\.\d+(?:\.\d+)?", version):
+                errors.append("golden_pack.version must look like v2.0 or v2.1.1")
             if not isinstance(cv_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", cv_hash):
                 errors.append("golden_pack.cv_sha256 must be a lowercase SHA-256")
             registry_path = project_root / "meta" / "golden_packs.yaml"
@@ -458,7 +459,7 @@ def validate_manifest(
 
     # Added within schema 1.4 as a backward-compatible optional record. New
     # manifests include it; older 1.4 manifests remain valid without migration.
-    if schema_version == "1.4" and "submission" in data:
+    if schema_version in {"1.4", "1.5"} and "submission" in data:
         submission = data.get("submission")
         if not isinstance(submission, dict):
             errors.append("submission must be a mapping")
@@ -502,7 +503,7 @@ def validate_manifest(
             if not delivered_artifacts:
                 errors.append(f"stage {stage} requires submission.delivered_artifacts")
 
-    if schema_version == "1.4" and "submission_recommendation" in data:
+    if schema_version in {"1.4", "1.5"} and "submission_recommendation" in data:
         recommendation = data.get("submission_recommendation")
         if not isinstance(recommendation, dict):
             errors.append("submission_recommendation must be a mapping")
@@ -716,7 +717,7 @@ def validate_manifest(
     capability_review = data.get("capability_review", {})
     capability_entries: list[dict[str, Any]] = []
     seen_capabilities: set[str] = set()
-    if schema_version in {"1.2", "1.3", "1.4"}:
+    if schema_version in {"1.2", "1.3", "1.4", "1.5"}:
         if not isinstance(capability_review, dict):
             errors.append("capability_review must be a mapping for schema 1.2+")
             capability_review = {}
@@ -868,11 +869,16 @@ def validate_manifest(
             errors.append("strict validation requires parsed requirements")
         if not selected:
             errors.append("strict validation requires selected_claims")
-        if stage in {"approved", "drafted", "validated", "sent", "closed"} and not decision.get("user_confirmed"):
+        local_draft_authorized = (
+            schema_version == "1.5"
+            and stage in {"drafted", "validated"}
+            and decision.get("draft_authorization") == "owner_requested_local_draft"
+        )
+        if stage in {"approved", "drafted", "validated", "sent", "closed"} and not decision.get("user_confirmed") and not local_draft_authorized:
             errors.append(f"stage {stage} requires decision.user_confirmed=true")
         if stage in {"drafted", "validated", "sent", "closed"} and not bullets:
             errors.append(f"stage {stage} requires final_bullets")
-        if schema_version in {"1.3", "1.4"} and stage in {"approved", "drafted", "validated"}:
+        if schema_version in {"1.3", "1.4", "1.5"} and stage in {"approved", "drafted", "validated"} and not local_draft_authorized:
             if vacancy_status != "open":
                 errors.append(f"stage {stage} requires an officially verified open vacancy")
             if not official_url:
@@ -883,7 +889,7 @@ def validate_manifest(
                 errors.append(f"stage {stage} requires a verified application route")
             if portfolio_strategy == "excluded":
                 errors.append(f"stage {stage} cannot use an excluded employer-portfolio strategy")
-        if schema_version in {"1.2", "1.3", "1.4"} and stage in {
+        if schema_version in {"1.2", "1.3", "1.4", "1.5"} and stage in {
             "approved",
             "drafted",
             "validated",
@@ -891,7 +897,7 @@ def validate_manifest(
             "closed",
         } and not capability_review.get("completed"):
             errors.append(f"stage {stage} requires a completed capability_review")
-        if schema_version in {"1.2", "1.3", "1.4"} and stage in {
+        if schema_version in {"1.2", "1.3", "1.4", "1.5"} and stage in {
             "approved",
             "drafted",
             "validated",
@@ -908,7 +914,7 @@ def validate_manifest(
                     + claim_id
                 )
         if (
-            schema_version in {"1.2", "1.3", "1.4"}
+            schema_version in {"1.2", "1.3", "1.4", "1.5"}
             and "cover_letter" in deliverables
             and stage in {"drafted", "validated", "sent", "closed"}
             and not (2 <= len(letter_paragraphs) <= 6)
@@ -917,7 +923,7 @@ def validate_manifest(
                 f"stage {stage} requires two to six evidence-bound cover_letter_paragraphs"
             )
         if (
-            schema_version in {"1.1", "1.2", "1.3", "1.4"}
+            schema_version in {"1.1", "1.2", "1.3", "1.4", "1.5"}
             and stage in {"approved", "drafted", "validated", "sent", "closed"}
             and not identity
         ):
@@ -932,7 +938,7 @@ def validate_manifest(
                 errors.append(
                     f"identity anchor {claim_id} has no final bullet in approved placement {placement}"
                 )
-        if schema_version in {"1.2", "1.3", "1.4"} and stage in {"drafted", "validated", "sent", "closed"}:
+        if schema_version in {"1.2", "1.3", "1.4", "1.5"} and stage in {"drafted", "validated", "sent", "closed"}:
             for item in capability_entries:
                 if item.get("decision") != "include":
                     continue
@@ -956,13 +962,13 @@ def validate_manifest(
                         f"included capability {claim_id} has no content in approved placement {placement}"
                     )
 
-        if schema_version == "1.4" and stage in {"validated", "sent", "closed"}:
+        if schema_version in {"1.4", "1.5"} and stage in {"validated", "sent", "closed"}:
             if not selected_pack:
                 errors.append(f"stage {stage} requires a selected Golden Pack")
             elif selected_pack_status != "approved":
                 errors.append(f"stage {stage} requires an Owner-approved Golden Pack")
 
-        if schema_version in {"1.2", "1.3", "1.4"} and stage in {"validated", "sent", "closed"}:
+        if schema_version in {"1.2", "1.3", "1.4", "1.5"} and stage in {"validated", "sent", "closed"}:
             artifacts = data.get("artifacts")
             if not isinstance(artifacts, dict):
                 errors.append("artifacts must be a mapping")
@@ -1077,6 +1083,19 @@ def validate_manifest(
                     elif not isinstance(portal_note_hash, str) or sha256(note) != portal_note_hash:
                         errors.append("artifacts.portal_note_sha256 does not match the portal note")
 
+    if data.get("application_variant"):
+        if schema_version != "1.5":
+            errors.append("application_variant requires schema 1.5")
+        else:
+            try:
+                from application_delivery_matrix import selected_pack as resolve_pack
+                from application_variant import verify_variant
+                _, parent, golden = resolve_pack(project_root, data, project_root / "meta/golden_packs.yaml")
+                effective = verify_variant(project_root, data, parent, golden)
+                if stage in {"validated", "sent", "closed"} and data.get("artifacts", {}).get("cv_sha256") != effective["sha256"]:
+                    errors.append("delivered CV hash must equal verified variant hash")
+            except (ImportError, OSError, ValueError, KeyError, TypeError) as exc:
+                errors.append(f"application_variant: {exc}")
     return errors
 
 

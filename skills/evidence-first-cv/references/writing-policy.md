@@ -23,6 +23,10 @@ Narrow the claim when any answer is vague.
 
 ## Drafting rules
 
+- Visual Portfolio prose explains decisions and evidence, not internal QA mechanics.
+  Keep catalog/reviewer terminology out of recruiter prose. Preserve meaningful technical
+  limits; place asset exclusions and missing-source inventories in the private QA report.
+
 - Prefer plain verbs: built, tested, maintained, supported, assisted, documented.
 - Preserve `supported`/`assisted`; never silently upgrade to led/owned/architected.
 - Keep personal, academic, and contract scope visible.
@@ -95,12 +99,14 @@ Narrow the claim when any answer is vague.
 
 ## Identity before tailoring
 
-The Golden Pack fixes the recruiter identity and CV evidence order. JD analysis controls
+The Golden Pack fixes the baseline recruiter identity and evidence catalog. JD analysis controls
 Pack choice, cover-letter evidence, and approved Portfolio delivery. Review
 `identity_anchors` when maintaining a Pack, not as permission to rewrite the approved CV
 for each vacancy. Application prose still cites eligible claims and preserves the Pack.
 
-Use the headline to say who the person is, not to impersonate the vacancy title. A
+Use one truthful target role immediately beneath the name. An evidence-compatible
+employer title may be selected through `application-variants.md`; never inflate seniority.
+A
 recent graduate can lead with the full degree/institution plus the role-relevant bridge.
 The summary should answer, in two or three sentences: who is this person, why this
 role, and what evidence makes the transition credible.

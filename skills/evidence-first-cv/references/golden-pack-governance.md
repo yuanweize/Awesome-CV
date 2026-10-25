@@ -28,6 +28,11 @@ notes, and select/reorder/omit approved Portfolio pages. It may not alter Golden
 Portfolio source, wording, projects, or ordering. Run `./cv golden-pack-audit --strict`
 before binding a new application to the registered CV hash.
 
+A separately stored application variant may select reviewed presentation without
+changing that source or hash; see `application-variants.md`. A presentation catalog is
+reviewed against canonical claims and frozen with a new Pack version. It is not a
+second factual authority. Legacy approved versions remain unchanged and copyable.
+
 ## Change gate
 
 Do not change a Pack for one employer's preferred wording, vacancy title, unsupported

@@ -21,6 +21,10 @@ eligible claims, score every selectable approved Pack, choose the best one, writ
 human cover letter, materialise the standard CV/Portfolio/cover-letter delivery matrix,
 recommend the smallest suitable upload combination, audit, and record what was submitted.
 Do not regenerate a new identity or CV per JD.
+Safe local presentation derivatives follow
+`skills/evidence-first-cv/references/application-variants.md`: immutable parent,
+reviewed content whitelist, distinct hashes and explicit draft state. Do not request
+redundant confirmation for a requested local draft; never infer approval or submission.
 
 A complete pasted JD uses Fast Application Mode from
 `skills/evidence-first-cv/references/application-fast-path.md`. Do not browse, run
@@ -31,6 +35,10 @@ Maintenance.
 AI owns JD interpretation, Pack-selection reasoning, targeted evidence, and the letter.
 `./cv application build|audit|status` owns copies, PDF order, hashes, page counts, the
 seven-file matrix, and its README.
+
+Visual Portfolio work follows `skills/evidence-first-cv/references/visual-evidence-policy.md`.
+Keep ATS CV and visual case studies distinct. Recover real reviewed assets, flag eligible
+catalog gaps, preserve immutable master-page selections, and verify exact release ZIP bytes.
 
 Approved Golden source and artifacts are immutable in ordinary application work. To
 change one, show a `GOLDEN PACK CHANGE PROPOSAL` with reason, exact diff, evidence,

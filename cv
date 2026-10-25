@@ -534,11 +534,14 @@ cmd_application() {
     local action="${1:-}"
     shift || true
     case "$action" in
+        variant)
+            python3 "$SCRIPT_DIR/tools/application_variant.py" "$@"
+            ;;
         build|audit|status)
             python3 "$SCRIPT_DIR/tools/application_delivery_matrix.py" "$action" "$@"
             ;;
         *)
-            die "Usage: ./cv application <build|audit|status> <application-id|manifest> [options]"
+            die "Usage: ./cv application <build|audit|status|variant> <application-id|manifest> [options]"
             ;;
     esac
 }

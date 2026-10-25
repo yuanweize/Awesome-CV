@@ -20,15 +20,15 @@ Before drafting, form one explicit private application thesis:
 5. Which truthful JD terms must be visible because they describe work actually evidenced?
 6. Which approved Portfolio modules should be selected, reordered, or omitted for delivery?
 
-Use both Golden Packs for comparison rather than creating a new persona. A role outside
+Use all selectable Golden Packs for comparison rather than creating a new persona. A role outside
 the current search priorities still receives the same analysis. Recommend `apply`,
 `stretch`, or `defer` from the actual requirements and evidence, not from a fixed list of
-preferred titles. Do not create a third CV unless the Owner explicitly requests a new role family.
+preferred titles. The framework supports N Packs; count and identities are local policy.
 
 Application adaptation means Golden Pack selection, approved Portfolio page
 selection/order, artifact choice, and a fresh cover letter. It does not change the
-Golden headline, summary, project facts, or stable CV without a separately approved
-Golden Pack change request.
+Golden source. A separate derived headline, summary or approved-content selection may
+follow `application-variants.md` without changing the Golden. Project facts never expand.
 
 ## Truth-preserving keyword strategy
 
@@ -46,6 +46,9 @@ Golden Pack change request.
   direct match or satisfy a hard requirement.
 
 ## ATS document contract
+
+Keep the CV text-first; put visual proof in a separate Portfolio or after the CV in
+a direct recruiter attachment. Preserve readable governed GitHub/LinkedIn links.
 
 The final CV should satisfy all of these unless an employer-supplied format requires
 otherwise:

@@ -1,5 +1,9 @@
 # Portfolio lifecycle
 
+Maintain the existing reviewed full Portfolio; create shorter recruiter cuts only when
+needed for delivery. Routine polish does not trigger a new library or layout. Record explicit
+project inclusion/exclusion reasons and eligible catalog gaps; see `visual-evidence-policy.md`.
+
 The public portfolio is a discovery surface; the claim registry is the drafting
 authority. Keep those responsibilities separate.
 

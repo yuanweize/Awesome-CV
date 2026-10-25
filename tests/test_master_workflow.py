@@ -1444,8 +1444,14 @@ Czech Technical University in Prague
             self.assertTrue(any("unknown portfolio asset" in error for error in errors))
 
             data["job_description"]["availability"]["status"] = "unverified"
-            errors = validate_manifest(data, self.template_path, root, strict=True)
+            # Historical 1.4 retains its live-vacancy gate. Requested 1.5 local
+            # drafts may truthfully retain unverified availability.
+            historical = copy.deepcopy(data)
+            historical["schema_version"] = "1.4"
+            errors = validate_manifest(historical, self.template_path, root, strict=True)
             self.assertTrue(any("officially verified open vacancy" in error for error in errors))
+            errors = validate_manifest(data, self.template_path, root, strict=True)
+            self.assertFalse(any("officially verified open vacancy" in error for error in errors))
             data["job_description"]["availability"]["status"] = "open"
 
             portfolio_data = copy.deepcopy(data)

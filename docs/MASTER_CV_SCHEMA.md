@@ -264,6 +264,13 @@ them to compare which proof reached recruiter, technical, final, and offer stage
 
 ## Per-application manifest schema 1.4
 
+New applications use schema 1.5; the 1.4 contract below remains supported for history.
+1.5 adds optional `application_variant` with record path/hash, `golden_cv_sha256` and
+`variant_cv_sha256`, and `decision.draft_authorization: owner_requested_local_draft`.
+The latter permits requested local drafts without fabricating confirmation or verified
+vacancy availability. It does not grant Golden approval or submission. Variant records
+are rederived and hash-checked locally; see the Skill's `application-variants.md`.
+
 The master schema answers “what is true?” The ignored
 `meta/applications/<id>/application.yaml` answers “what did this JD require, what did
 we select, what did the user approve, which deliverables were requested, and which

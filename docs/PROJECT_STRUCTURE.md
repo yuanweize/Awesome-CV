@@ -97,11 +97,13 @@ change evidence records or claims.
 | `workspace/baselines/<role-layout>/` | Optional long-lived, clone-only layout and ordering reference |
 | `workspace/profiles/golden-*` | Current editable/build-compatible Golden backends consumed by `./cv use` and `./cv build` |
 | `workspace/build/`, `workspace/tmp/` | Regenerable PDFs, contexts, and rendering output |
+| `workspace/application-variants/<id>/<revision>/` | Content-addressed derived model, diff, TeX, PDF and QA; never a Golden source |
 
 A Golden Pack is a stable recruiter-facing identity and reviewed source reused across
 applications. A new JD selects the best approved local Pack, may request a small approved
 Portfolio delivery cut/reorder, and receives a fresh cover letter. It does not trigger a
-new CV draft. The public engine supports N Packs; their IDs are user-instance configuration.
+new identity. A bounded presentation derivative follows `application-variants.md` in the
+Skill. The public engine supports N Packs; their IDs are user-instance configuration.
 `meta/golden_packs.yaml` binds each version to both the active build profile and frozen
 snapshot, plus its exact PDFs. These are intentional roles rather than competing editable
 sources: the master owns facts, the profile builds, and the immutable snapshot detects

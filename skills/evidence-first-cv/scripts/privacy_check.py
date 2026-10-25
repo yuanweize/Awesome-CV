@@ -12,11 +12,12 @@ from pathlib import Path
 
 
 PRIVATE_PATHS = (
+    "output/",
     "workspace/",
     "archive/",
     "meta/",
 )
-PRIVATE_SUFFIXES = {".aux", ".log", ".out", ".synctex.gz", ".key", ".p12", ".pfx", ".pem"}
+PRIVATE_SUFFIXES = {".pdf", ".aux", ".log", ".out", ".synctex.gz", ".key", ".p12", ".pfx", ".pem"}
 SECRET_FILENAMES = {".env", "targets.yaml", "targets.json", "credentials.json", "secrets.yaml", "secrets.yml"}
 
 SECRET_PATTERNS = {

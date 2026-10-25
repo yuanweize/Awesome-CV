@@ -44,9 +44,11 @@ repository, evidence, or Golden maintenance, immediately use
   `references/writing-policy.md`.
 - Golden Pack review/change/approval: read `references/golden-pack-governance.md`.
 - Portfolio delivery or assets: read `references/portfolio-appendix.md`,
-  `references/portfolio-lifecycle.md`, and `references/privacy.md`.
+  `references/portfolio-lifecycle.md`, `references/visual-evidence-policy.md`, and `references/privacy.md`.
 - Final recruiter PDF: read `references/profile-quality-gates.md` and
   `references/ats-optimization.md`.
+- Every JD's title and CV/CL positioning: read `references/job-positioning.md`, then
+  `references/application-variants.md` for the small application-scoped edit.
 - Historical CV discovery: read `references/legacy-cv-audit.md` and
   `references/claim-policy.md`.
 - GitHub/technology inventory: read `references/technology-intake.md`.
@@ -68,6 +70,22 @@ Read every selected reference completely. Do not load unrelated references by de
 5. For directory/template/path changes, run `./cv structure --strict`.
 6. For Golden or application work, run `./cv golden-pack-audit --strict` and distinguish
    a valid freeze candidate from an Owner-approved pack.
+
+## Improve an existing document
+
+Requests to optimise, polish, or make minor changes default to a minimal revision of
+the user's selected baseline. Preserve its identity, layout, project order, image
+selection/pairings, case breadth, and pagination unless a concrete defect requires a
+local adjustment. A previous redesign brief does not override a later request for
+small changes. A new version number alone never authorises a redesign.
+
+Apply only findings supported by the existing analysis: precise wording, factual scope,
+readability, links, and targeted privacy corrections. Keep a short before/after change
+list with the reason for each edit. If no defect is established, leave that element alone.
+Do not rebuild the presentation model, replace screenshots with diagrams, remove cases,
+or invent new role identities merely to make the revision look different. Use existing
+source and tooling; improve the Skill's guidance without unnecessary engine changes.
+Requested local revisions may proceed in a separate candidate; preserve approved originals.
 
 ## Evidence intake
 
@@ -95,6 +113,12 @@ build the deterministic seven-file delivery matrix, run the lightweight applicat
 audit, and return the smallest recommended upload. Do not browse, rebuild Golden files,
 or run repository-wide checks unless the Fast Path's explicit escalation gate fires.
 
+Automatically choose a focused, evidence-supported CV headline and use it in the CL
+personal header. Preserve the employer's exact job title separately as the application
+target. Follow `references/job-positioning.md`: persuasive positioning is expected;
+unfounded rank, expertise or ownership is not. Default to a title-only local derivative,
+retaining the selected baseline's layout and content.
+
 A baseline is layout-only and never factual authority. Do not create a new persona or
 Pack automatically, and never mark `sent` until the Owner confirms submission.
 
@@ -103,7 +127,10 @@ Pack automatically, and never mark `sent` until the Owner confirms submission.
 `freeze-candidate` is complete but not approved. `approved` means ordinary applications
 must not modify the Golden source, wording, project order, CV, Portfolio, or registered
 hashes. An application adapts through pack selection, cover letter, artifact choice,
-Portfolio page selection/order, and private notes.
+Portfolio page selection/order, and private notes. It may also derive a separate
+application-scoped variant under `references/application-variants.md`; this never edits
+or impersonates the approved Golden. Requested safe local draft generation needs no
+repeated confirmation. Approval and submission remain explicit Owner actions.
 
 If a future JD exposes a real pack-level defect, continue the application with the current
 approved artifact and separately show:

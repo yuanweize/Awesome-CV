@@ -1,5 +1,10 @@
 # Golden Pack application workflow
 
+Visual module curation follows the Skill's `visual-evidence-policy.md`. Keep a complete
+reviewed master library and a short recruiter Portfolio; manifest 1.5 may select immutable
+module pages without rewriting their facts. Zero-image text extracts cannot pass as
+visual Portfolios. New releases use one source directory and exact ZIP verification.
+
 This is the authoritative JD-to-application workflow. Evidence rules live in
 [`EVIDENCE_FIRST_SOP.md`](EVIDENCE_FIRST_SOP.md), cover-letter voice in
 [`COVER_LETTER_STYLE.md`](COVER_LETTER_STYLE.md), paths in
@@ -143,12 +148,12 @@ Record `selected_pack`, Golden version, and approved CV SHA-256 in manifest sche
 The manifest cannot reach `validated`, `sent`, or `closed` with an unapproved or
 hash-mismatched Golden Pack.
 
-## Step 4: Owner confirmation
+## Step 4: local draft authorization
 
-Show the compact decision brief and stop before writing the letter or producing a
-delivery cut. A simple `yes`, `是`, `可以`, or a correction is sufficient.
-
-The confirmation approves the application decision, not a change to Golden source.
+Requested local draft generation is pre-authorised. Do not stop for redundant
+confirmation. Schema 1.5 records `draft_authorization: owner_requested_local_draft`;
+it never fabricates `user_confirmed`, submission or live-vacancy verification.
+Owner Golden approval and actual submission remain separate explicit actions.
 
 ## Step 5: write the cover letter
 
@@ -169,7 +174,7 @@ Keep it consistent with the selected letter evidence and normally 60-100 words.
 
 Pack selection and file selection are separate decisions.
 
-After Owner confirmation, materialise a standard local delivery matrix whenever the
+During requested local drafting, materialise a standard local delivery matrix whenever the
 selected approved Pack contains a Portfolio. This prevents upload-form differences from
 requiring another build or another instruction:
 
@@ -186,7 +191,7 @@ Candidate_Name_Complete_Application.pdf   # cover letter -> CV -> Portfolio
 The matrix is a set of delivery wrappers around approved artifacts, not seven rewritten
 documents. Copy the approved CV and Portfolio byte-for-byte where applicable. Assemble
 combined files without changing page content, and keep the application-specific cover
-letter as the only newly drafted recruiter document.
+letter and an optional controlled CV variant as the newly rendered recruiter documents.
 
 Build and inspect it deterministically:
 
@@ -223,8 +228,10 @@ output/pdf/applications/<application-id>/
 └── Candidate_Name_Cover_Letter.pdf
 ```
 
-Copy the approved Golden artifact; do not rebuild its factual content from application
-data. Build only the job-specific letter, an explicitly approved Portfolio page cut when
+Copy the approved Golden artifact when suitable. If needed, follow
+[`application-variants.md`](../skills/evidence-first-cv/references/application-variants.md)
+to render reviewed presentation into a separate application variant. Never mutate the
+parent or replace its hash with the derivative hash. Build the job-specific letter, a Portfolio page cut when
 needed, and deterministic PDF combinations. Do not send every file: choose the smallest
 combination that matches the actual upload fields.
 

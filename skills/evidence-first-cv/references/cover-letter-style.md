@@ -4,6 +4,10 @@ Write like an engineer making a useful, specific introduction: human, direct, ca
 professional. The default is 150-220 English words and no more than one page. Treat fewer
 than 120 or more than 280 words as an explicit review warning.
 
+Follow `job-positioning.md`: the personal header uses the chosen focused CV headline;
+the application subject uses the employer's exact vacancy title. Never inherit a broad
+Golden tagline or the employer's seniority automatically. Keep the two documents coherent.
+
 Use a natural four-paragraph shape:
 
 1. Open on one concrete part of the work that makes contact worthwhile.
@@ -31,3 +35,8 @@ without defensive over-explanation. After drafting, check generic opening/closin
 echo, buzzword stacking, adjectives, long sentences, repetitive three-part rhetoric,
 unnecessary em dashes, empty enthusiasm, unsupported claims, placeholders, wrong company/
 role, and PDF page count. Run `./cv cover-letter-audit`; its warnings are advisory.
+
+For a four-family local instance, select different proof: physical integration for
+robotics/hardware; commissioning and site handover for field automation; Linux operations
+and deployment for infrastructure; customer/OEM coordination and business delivery for
+technical operations. These are narrative strategies, not hard-coded Pack IDs.

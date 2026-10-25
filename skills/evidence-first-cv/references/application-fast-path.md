@@ -38,7 +38,9 @@ Compare all selectable Packs from the local N-Pack registry using their role fam
 and the JD's actual day-to-day work. Select one primary Pack. Do not infer from the job
 title alone and do not invent another persona for a mixed role.
 
-Record Pack ID, version, approved CV hash, and approved Portfolio hash in manifest 1.4.
+Record Pack ID, version, approved CV hash, and approved Portfolio hash in manifest 1.5.
+Record work-authorisation, language, travel/shift/on-call and independent-ownership gates.
+Hard failures cannot be offset by unrelated keywords. Follow `pack-selection.md`.
 
 ### 3. Retrieve targeted evidence
 
@@ -49,7 +51,20 @@ exist. Internal fit may be `Strong`, `Good`, `Stretch`, or `Weak`.
 Keep seniority, language, and capability gaps in the short internal analysis. Do not
 automatically turn them into recruiter-facing self-rejection language.
 
-### 4. Write short application files
+### 4. Decide presentation and write short application files
+
+Apply `job-positioning.md` for every JD. Choose one focused CV/CL personal headline from
+actual responsibilities and evidence, distinct from the exact vacancy title. Generate a
+title-only derivative when the selected Pack's default is too broad. Preserve body and
+layout by default; a legacy TeX Pack can use its reviewed private title catalog.
+
+Select the strongest complementary approved visual modules for the actual duties.
+When supported, record `portfolio_selection.module_ids`; reuse immutable master pages,
+not a fresh Portfolio build. Report material catalog gaps through the governed change path.
+
+Follow `application-variants.md`. Reuse the Golden unchanged if suitable; otherwise
+derive only whitelisted reviewed presentation. Do not request another confirmation for
+the requested local draft, and never invent Owner approval or live vacancy verification.
 
 `analysis.md` should normally use:
 
@@ -58,7 +73,7 @@ automatically turn them into recruiter-facing self-rejection language.
 Company / Position / Location / Work model / Seniority
 
 # Selected Pack
-Pack / Reason
+Pack / Reason / Employer title / Chosen CV and CL headline / Supporting claims
 
 # Strong Matches
 3-6 bullets
@@ -83,19 +98,20 @@ evidence and narrative as the letter.
 
 ### 5. Build deterministic delivery files
 
-Render only the new cover letter. Do not rebuild approved Golden CV or Portfolio source.
+Render the new cover letter and, when needed, the isolated variant. Do not rebuild
+approved Golden CV or Portfolio source. Inspect any newly rendered CV pages and text.
 Then run:
 
 ```bash
 ./cv application build <application-id>
 ```
 
-The tool verifies the selected approved artifacts, copies their exact bytes, builds the
+The tool verifies the selected approved artifacts and any bound variant, builds the
 canonical seven-file matrix, records paths/hashes/page counts, and writes the output
 README under `output/pdf/applications/<application-id>/`. Canonical order is:
 
 - CV + Cover Letter: CV, then Cover Letter;
-- CV + Portfolio: the approved Golden combined PDF;
+- CV + Portfolio: Golden combined when unchanged; variant CV followed by Portfolio otherwise;
 - Cover Letter + Portfolio: Cover Letter, then Portfolio;
 - Complete Application: Cover Letter, CV, then Portfolio.
 
@@ -146,7 +162,7 @@ Fast Application does not automatically:
 - run a repository-wide privacy or evidence audit;
 - refresh GitHub inventories or read every canonical claim;
 - browse the company website when the pasted JD is complete;
-- rewrite a CV, Portfolio, or Golden source for vacancy keywords.
+- rewrite Golden source or insert unsupported vacancy keywords.
 
 ## Deep Maintenance escalation
 

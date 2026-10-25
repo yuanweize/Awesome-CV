@@ -38,6 +38,7 @@ separate reduces factual drift and makes every submitted bundle reconstructable.
 - evidence registry plus atomic, scoped claim registry;
 - generic N-Pack Golden registry with source and artifact fingerprints;
 - immutable approved-Pack gate;
+- isolated, evidence-catalog application variants with parent/diff/hash traceability;
 - JD requirement-to-evidence mapping and application manifest;
 - short, human cover-letter policy and advisory audit;
 - ATS, PDF, link, privacy, bundle, archive, and workspace checks;
@@ -132,7 +133,7 @@ For each real vacancy:
 3. map each important requirement to eligible evidence;
 4. score every approved local Pack and select the best one;
 5. bind the application manifest to Pack version and CV hash;
-6. reuse the approved CV and select delivery artifacts;
+6. reuse the approved CV or generate a whitelisted presentation variant;
 7. write a job-specific cover letter, normally 150–220 English words;
 8. build and audit the deterministic CV/Portfolio/letter delivery matrix;
 9. record submission only after the user confirms it was sent.
@@ -170,6 +171,9 @@ make check                          # public tests and syntax checks
 More commands: [Tooling](docs/TOOLING.md).
 
 ## Version boundaries
+
+Engine/Skill version: `skills/evidence-first-cv/VERSION` (3.0.0).
+Migration and packaging: [vNext migration](docs/VNEXT_MIGRATION.md).
 
 The Awesome-CV project version, a user's Golden Pack version, master schema version,
 and application manifest schema version are independent. For example, a project 2.x

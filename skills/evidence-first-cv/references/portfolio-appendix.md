@@ -1,5 +1,8 @@
 # Golden Portfolio delivery
 
+Follow `visual-evidence-policy.md` for visual modules, master/recruiter cuts and exact-ZIP
+gates. A text-only CV extract is not a visual Portfolio.
+
 Golden Portfolios are complete, reviewed recruiter products belonging to their registered
 Packs. They are not regenerated from a JD and are not factual authority.
 

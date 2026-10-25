@@ -79,7 +79,8 @@ copies, PDF order, hashes/page counts, manifest updates, README generation, and 
 application audit.
 
 The JD decides which stable engineering profile to use and how to explain the fit. It
-does not regenerate the CV identity, project wording, or Golden source.
+does not regenerate the candidate identity or Golden source. When useful, a separate
+controlled presentation variant follows the Skill's `application-variants.md`.
 
 ## Golden changes
 

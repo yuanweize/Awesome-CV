@@ -1,6 +1,6 @@
-schema_version: "1.4"
+schema_version: "1.5"
 application_id: "20260115-example-corp-junior-systems-engineer"
-stage: awaiting-confirmation
+stage: analysis
 created_at: "2026-01-15"
 updated_at: "2026-01-15"
 target:
@@ -32,6 +32,7 @@ decision:
   must_have_gaps: 0
   user_confirmed: false
   confirmed_at: ""
+  draft_authorization: owner_requested_local_draft
 questions:
 - id: q1
   question: "Is occasional on-call acceptable?"

@@ -12,6 +12,9 @@ points may delegate to it, but must not fork business logic.
 | Optional host intake | `tools/tech-stack-collector/` | Private discovery inventory; never direct CV authority |
 
 The Skill is the AI control plane. `./cv` is the user-facing deterministic CLI.
+Engine 3.0 adds `presentation_model.py` (reviewed catalogs and isolated rendering),
+`application_variant.py` (parent/diff/artifact verification), and `pack_selection.py`
+(AI-mapped requirement diagnostics). See [migration](VNEXT_MIGRATION.md).
 LaTeX is the rendering backend. Dify is a separate adapter over the same validation
 contract. None of these is a second career-memory source.
 
@@ -64,7 +67,7 @@ list-heavy formatting, and PDF page count; it does not override human editorial 
 `./cv application build <application-id|manifest>` is the Fast Application packaging
 step. It verifies the selected approved Pack's registered CV, Portfolio, and combined
 hashes; copies the approved binaries; combines them with the already-rendered cover
-letter in the canonical seven-file order; updates manifest 1.4; and writes the output
+letter in the canonical seven-file order; supports manifest 1.5; and writes the output
 README under `output/pdf/applications/<application-id>/`. It never invokes LaTeX, a
 Golden build, `make check`, global privacy, or tests.
 
@@ -73,3 +76,26 @@ It checks Golden bindings, the cover letter, placeholders, PDF validity, matrix 
 document-order metadata, hashes, and page counts. `./cv application status ...` prints
 the same matrix state without changing files. Full repository checks remain Deep
 Maintenance commands.
+
+## Focused application titles (3.2.0)
+
+`./cv application variant <id> <request.yaml>` also supports legacy approved TeX Packs
+with a reviewed `meta/title_catalogs/<pack-id>.yaml`. A request containing only `headline`
+changes the isolated header config and uses the unchanged frozen body/layout. Catalog
+parent and canonical claim hashes, renderer, config, source, PDF and pagination are checked.
+No Golden source or workspace/current switch is needed. Use the same isolated config for
+the cover-letter personal header, with the exact vacancy title separately in the subject.
+See `skills/evidence-first-cv/references/job-positioning.md` for selection and scope rules.
+
+## Visual evidence (3.1.0)
+
+`python3 tools/visual_portfolio.py <book.yaml> <new-output.pdf> --family <id> --modules <ids...>`
+validates canonical claim fingerprints and reviewed physical derivatives, then renders
+one image-friendly case per page. Dependencies add Pillow and PyMuPDF. Private books stay
+with the source profile; image binaries remain in ignored curated/generated asset paths.
+
+`project_selection.rank_projects` scores reviewed responsibility maps and reports missing
+eligible catalog coverage. `portfolio_selection` selects immutable master pages for
+manifest 1.5; the ordinary application build/audit uses the same cut in all combinations.
+`release_bundle.package_release` verifies a single authoritative directory and reopens
+the exact ZIP for hash/page/image checks. See the Skill's visual-evidence policy.
